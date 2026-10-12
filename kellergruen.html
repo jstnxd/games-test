@@ -202,7 +202,7 @@ button:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
       <button class="btn" id="newGame">Neues Spiel</button>
       <button class="btn ghost" id="cont" hidden>Weiterspielen</button>
       <button class="btn ghost" id="mute">Ton: an</button>
-      <div class="note">Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.<br>Stand: Version 5 · Tabakscheune und Effekt-Vorschau</div>
     </div>
   </section>
 </div>
@@ -1312,6 +1312,7 @@ button:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
     const c = p.el.getContext && p.el.getContext('2d'); if (!c) return;
     const cs = COS.find(x => x.id === p.id); if (!cs) return;
     const sv = { ctx, fx, hist, sd: stepDist, sa: fxAcc, px: player.x, py: player.y, pa: player.ang, orb: G.cos.orbit, trl: G.cos.trail };
+    try {
     ctx = c; c.setTransform(2, 0, 0, 2, 0, 0);
     c.fillStyle = '#161C24'; c.fillRect(0, 0, 132, 64);
     fx = p.fx; hist = p.hist; stepDist = p.sd; fxAcc = p.sa;
@@ -1327,6 +1328,7 @@ button:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
     drawFigure(p.x, p.y, p.ang, p.step);
     drawOrbit(true);
     p.sd = stepDist; p.sa = fxAcc;
+    } catch (e) { /* Vorschau darf das Spiel nie stören */ }
     ctx = sv.ctx; fx = sv.fx; hist = sv.hist; stepDist = sv.sd; fxAcc = sv.sa; player.x = sv.px; player.y = sv.py; player.ang = sv.pa; G.cos.orbit = sv.orb; G.cos.trail = sv.trl;
   }
   function drawWorld() {
