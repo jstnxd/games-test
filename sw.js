@@ -2,8 +2,8 @@
 // Holt das Spiel immer frisch aus dem Netz, damit jedes Update sofort ankommt.
 // Der Speicher (Cache) springt nur ein, wenn gerade kein Internet da ist.
 // Fremde Server (z. B. der Mehrspieler-Dienst) werden nicht angefasst.
-const CACHE = 'kellergruen-1';
-const FILES = ['./kellergruen.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const CACHE = 'kellergruen-2';
+const FILES = ['./kellergruen.html', './kg3d.js', './three.module.min.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png']; // v90: 3D-Dateien fuer offline
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).catch(() => {}));
