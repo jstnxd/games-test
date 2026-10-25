@@ -229,7 +229,7 @@
     { id: 'prtrophy', name: 'Prestige-Pokal', desc: 'Ein Pokal mit violettem Stern, für jeden Neuanfang einer', cost: 1, qx: 'Prestige' }
   );
   Object.assign(DHALF, { masterpiece: [20, 18], citykey: [14, 14], prtrophy: [10, 14] });
-  const DEC_NEW = ['firefly', 'mobile', 'rocker', 'newton', 'cuckoo', 'plasma', 'fountain', 'robovac', 'bubbles', 'trainset', 'carousel', 'jellytank']; // v130: die neue bewegte Deko
+  const DEC_NEW = ['lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler', 'firefly', 'mobile', 'rocker', 'newton', 'cuckoo', 'plasma', 'fountain', 'robovac', 'bubbles', 'trainset', 'carousel', 'jellytank']; // v130: die neue bewegte Deko
   Object.assign(DHALF, { cactusrow: [18, 12], gumball: [8, 16], monstera: [16, 20], hamster: [14, 12], arclamp: [20, 24], skatewall: [22, 16], neonleaf: [18, 18], aquarium: [26, 16], homebar: [30, 16], massage: [16, 18], koipond: [26, 20], bigtv: [32, 18], goldbars: [14, 10] });
   Object.assign(DHALF, { rugstripe: [30, 22], lantern: [8, 14], radio: [14, 12], vinyl: [17, 13], armchair: [18, 16], snowglobe: [9, 12], windchime: [13, 20], planter: [20, 13], piggy: [12, 11] });
   COS.push(
@@ -274,6 +274,22 @@
     { id: 'carousel', name: 'Mini-Karussell', desc: 'Drei Pferdchen drehen sich auf und ab, mit Lichtern am Dach', cost: 1440, rep: 24 },
     { id: 'jellytank', name: 'Quallen-Aquarium', desc: 'Leuchtende Quallen pulsieren und wechseln langsam die Farbe', cost: 1920, rep: 30 }
   );
+  DECOR.push( // v132: Chill-Zone, passt besonders ins Gang-HQ
+    { id: 'lounge', name: 'Lounge-Ecke', desc: 'Große Eck-Couch mit bunten Kissen und Tischchen, dampfender Kaffee inklusive', cost: 1400, rep: 15 },
+    { id: 'firepit', name: 'Feuerschale', desc: 'Knisternde Flammen und fliegende Funken, nachts leuchtet der ganze Raum warm', cost: 900, rep: 10 },
+    { id: 'console', name: 'Gaming-Ecke', desc: 'Großer Bildschirm mit laufendem Rennspiel, Konsole und zwei Sitzsäcken', cost: 1800, rep: 20 },
+    { id: 'djbooth', name: 'DJ-Pult', desc: 'Zwei drehende Plattenteller, tanzender Equalizer und bunte Lichtstrahlen im Takt', cost: 2600, rep: 28 },
+    { id: 'neonsign', name: 'Neon „CHILL ZONE“', desc: 'Pinkes Neonschild, das ruhig pulsiert und manchmal flackert', cost: 700, rep: 8 },
+    { id: 'pokertable', name: 'Pokertisch', desc: 'Grüner Filz, Chip-Stapel und Karten, die nach und nach aufgedeckt werden', cost: 1600, rep: 22 },
+    { id: 'tagwall', name: 'Graffiti-Wand', desc: 'Eine Spraydose sprüht immer wieder ein neues buntes Tag an die Wand', cost: 1100, rep: 12 },
+    { id: 'sneakerwall', name: 'Sneaker-Wand', desc: 'Neun Paar Sneaker auf beleuchteten Regalen, eins schwebt immer kurz hoch', cost: 1300, rep: 16 },
+    { id: 'hoops', name: 'Basketball-Automat', desc: 'Der Ball fliegt immer wieder in den Korb, die Anzeige zählt mit', cost: 1000, rep: 14 },
+    { id: 'moneycount', name: 'Geldzählmaschine', desc: 'Scheine flattern durch, die Anzeige zählt und zählt', cost: 2200, rep: 32 },
+    { id: 'speakerwall', name: 'Boxenturm', desc: 'Die Membranen wummern im Takt, bei jedem Bass leuchtet die Kante', cost: 1500, rep: 18 },
+    { id: 'cooler', name: 'Kühlbox', desc: 'Deckel klappt auf, kalte Limo-Dosen und Kältedampf', cost: 500, rep: 6 }
+  );
+  const GHQ_CHILL = ['lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler'];
+  Object.assign(DHALF, { lounge: [34, 22], firepit: [18, 14], console: [32, 20], djbooth: [26, 18], neonsign: [24, 14], pokertable: [30, 20], tagwall: [30, 16], sneakerwall: [26, 20], hoops: [14, 22], moneycount: [20, 12], speakerwall: [18, 22], cooler: [13, 12] });
   Object.assign(DHALF, { firefly: [8, 14], mobile: [14, 18], rocker: [16, 18], newton: [14, 10], cuckoo: [12, 20], plasma: [10, 14], fountain: [16, 16], robovac: [18, 16], bubbles: [10, 14], trainset: [28, 18], carousel: [18, 20], jellytank: [14, 22] });
   const placedCount = id => DEC_KEYS.reduce((n, k) => n + G.dec.items[k].filter(d => d.id === id).length, 0);
   const decStock = id => (G.dec.owned[id] || 0) - placedCount(id);

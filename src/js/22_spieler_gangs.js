@@ -166,6 +166,8 @@
     if (Math.hypot(px - GHQ_SAFE.x, py - (GHQ_SAFE.y + 26)) < 44) return { type: 'gsafe', idx: 0, ar: AREAS.keller };
     if (Math.hypot(px - GHQ_LAGER.x, py - (GHQ_LAGER.y + 26)) < 40) return { type: 'glager', idx: 0, ar: AREAS.keller };
     if (Math.hypot(px - GHQ_BOARD.x, py - (GHQ_BOARD.y + 22)) < 56) return { type: 'gboard', idx: 0, ar: AREAS.keller };
+    if (pgang && pgMember() && Math.hypot(px - GHQ_DRY.x, py - (GHQ_DRY.y + 4)) < 38) return { type: 'gdry', idx: 0, ar: AREAS.keller }; // v132
+    if (pgang && pgMember() && Math.hypot(px - GHQ_PACK.x, py - (GHQ_PACK.y + 4)) < 38) return { type: 'gpack', idx: 0, ar: AREAS.keller };
     if (pgang && pgMember()) { for (let i = 0; i < GBEET.length; i++) if (Math.hypot(px - GBEET[i].x, py - GBEET[i].y) < 36) return { type: 'gbeet', idx: i, ar: AREAS.keller };
       let best = null, bd = 30; for (const it of hqItems()) { const d = Math.hypot(px - it.x, py - it.y); if (d < bd) { bd = d; best = it; } } if (best) return { type: 'gitem', idx: 0, it: best, ar: AREAS.keller }; }
     return null; };
@@ -181,13 +183,13 @@
     ctx.fillStyle = 'rgba(0,0,0,.35)'; rr(236, 60, 180, 40, 8); ctx.fill(); ctx.fillStyle = col; rr(232, 56, 180, 40, 8); ctx.fill(); ctx.fillStyle = '#10151C'; rr(236, 60, 172, 32, 6); ctx.fill();
     signTxt(g ? '[' + g.tag + ']' : 'GANG-HQ', 322, 70, '900 12px sans-serif', col); signTxt(g ? g.n.toUpperCase().slice(0, 22) : '', 322, 84, '800 8px sans-serif', '#EEF2F7');
     // Deko
-    if (g) { for (const it of hqItems().sort((a, c) => a.y - c.y)) { if (hqCarry && hqCarry.k === it.k) continue; try { drawDecorItem(it.id, it.x, it.y, 1); } catch (e) {} } // v125: frei platziert
+    if (g) { for (const it of (state === 'edit' && ed.ak === 'ghq' ? ed.hq : hqItems()).slice().sort((a, c) => a.y - c.y)) { if (hqCarry && hqCarry.k === it.k) continue; try { drawDecorItem(it.id, it.x, it.y, 1); } catch (e) {} } // v125: frei platziert
       if (hqCarry) { ctx.save(); ctx.globalAlpha = 0.65 + 0.2 * Math.sin(gt * 6); try { const [cx, cy] = hqClampPos(player.x, player.y - 4); drawDecorItem(hqCarry.id, cx, cy, 1); } catch (e) {} ctx.restore(); }
       // Gang-Lager-Regal
       { const L0 = GHQ_LAGER, n = lagArr().reduce((s, v) => s + v, 0); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(L0.x - 20, L0.y - 24, 44, 34); ctx.fillStyle = '#5A4632'; ctx.fillRect(L0.x - 22, L0.y - 28, 44, 34); ctx.fillStyle = '#3A2C20'; ctx.fillRect(L0.x - 19, L0.y - 25, 38, 12); ctx.fillRect(L0.x - 19, L0.y - 10, 38, 12);
         for (let i = 0; i < Math.min(8, Math.ceil(n / Math.max(1, lagCap() / 8))); i++) { ctx.fillStyle = ['#C9A064', '#5FE584', '#A07A4A', '#8FD8FF'][i % 4]; ctx.fillRect(L0.x - 17 + (i % 4) * 9, L0.y - 23 + Math.floor(i / 4) * 15, 7, 9); }
         signTxt('LAGER · ' + n, L0.x, L0.y + 14, '900 7.5px sans-serif', 'rgba(255,255,255,.7)'); } }
-    drawGangBeete(); // v123
+    drawGangBeete(); drawGhqStations(); // v123, v132
     // Tafel
     { const B = GHQ_BOARD; ctx.fillStyle = '#5A4632'; ctx.fillRect(B.x - 42, B.y - 32, 84, 30); ctx.fillStyle = '#26352C'; ctx.fillRect(B.x - 38, B.y - 29, 76, 24); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(B.x - 30, B.y - 22); ctx.lineTo(B.x - 6, B.y - 14); ctx.lineTo(B.x + 14, B.y - 20); ctx.stroke(); ctx.strokeRect(B.x + 18, B.y - 25, 14, 10); signTxt('PLANUNG', B.x, B.y + 6, '900 8px sans-serif', 'rgba(255,255,255,.7)'); }
     // Kasse
@@ -345,13 +347,55 @@
     if (!pgMember()) throw new Error('Nur für Mitglieder.'); const b = gbOf(i), key = 'b' + i;
     if (!b) { await pgCommitAt(() => gbOf(i) ? null : { fields: { beet: { [key]: { t: Date.now(), by: acc.name, w: 0 } } }, masks: [fpath('beet', key)] }); sfx.put(); return 'Gepflanzt. In ' + Math.round(GB_GROW / 60000) + ' Minuten reif.'; }
     if (gbLeft(b) > 0) { if (b.w) return 'Wächst noch ' + Math.ceil(gbLeft(b) / 60000) + ' Min.'; await pgCommitAt(() => { const c = gbOf(i); return c && !c.w ? { fields: { beet: { [key]: { w: 1 } } }, masks: [fpath('beet', key, 'w')] } : null; }); sfx.put(); return 'Gegossen: wächst schneller.'; }
-    const v = gbValue(); let got = false;
-    await pgCommitAt(() => { const c = gbOf(i); if (!c || gbLeft(c) > 0) return null; got = true; return { fields: { kasse: pgang.kasse + v, wz: wzNext(5) }, masks: ['kasse', fpath('beet', key), 'wz'] }; }, 'hat ein Gang-Beet geerntet: +' + fmt(v) + ' für die Kasse');
-    if (got) { sfx.cash(); floater(GBEET[i].x, GBEET[i].y - 24, '+' + fmt(v), '#5FE584'); return 'Geerntet: +' + fmt(v) + ' für die Gang-Kasse'; } return '';
+    let got = 0, full = false; // v132: die Ernte kommt frisch ins Gang-Lager und wird im HQ getrocknet und verpackt
+    await pgCommitAt(() => { const c = gbOf(i); if (!c || gbLeft(c) > 0) return null; const a = lagArr(), room = lagCap() - a.reduce((s, x) => s + x, 0); got = Math.min(gbYield(), room); full = got <= 0; if (full) return null; a[0] += got; return { fields: { lag: a, wz: wzNext(5) }, masks: ['lag', fpath('beet', key), 'wz'] }; }, 'hat ein Gang-Beet geerntet');
+    if (full) throw new Error('Das Gang-Lager ist voll. Erst Ware trocknen, verpacken oder verkaufen.');
+    if (got) { sfx.cash(); floater(GBEET[i].x, GBEET[i].y - 24, '+' + got + ' frisch', '#5FE584'); return 'Geerntet: ' + got + ' frische Ware liegt im Gang-Lager. Weiter am Trockengestell rechts.'; } return '';
   }
   const wzCur = () => { const z = pgang && pgang.wz; return z && z.wk === weekNo() ? { wk: z.wk, p: +z.p || 0, c: +z.c || 0 } : { wk: weekNo(), p: 0, c: 0 }; };
   const wzNext = add => { const z = wzCur(); return { wk: z.wk, p: z.p + add, c: z.c }; };
   let wzDel0 = -1, wzT = 0, wzU = '';
+  // ---------- v132: Anbau-Kette im HQ: Beet -> Gang-Lager (frisch) -> Trockengestell -> Packtisch -> Verkauf ----------
+  const GHQ_DRY = { x: 566, y: 206 }, GHQ_PACK = { x: 566, y: 318 }; R(GHQ_DRY.x - 20, GHQ_DRY.y - 30, 40, 40).fl = 4; R(GHQ_PACK.x - 22, GHQ_PACK.y - 16, 44, 28).fl = 4;
+  const hqLv = () => clamp((pgang && pgang.lv) || 0, 0, 5);
+  const gbYield = () => 45 + 12 * hqLv(); // frische Ware pro Beet-Ernte
+  const GD_TIME = 8 * 60000, gdCap = () => 60 + 20 * hqLv(); // Trocknen: 8 Minuten echte Zeit pro Ladung
+  const GPACK_MAX = 15; // Beutel pro Handgriff am Packtisch
+  const GPROD = ['keller', 'tabak', 'brau'], gUnitMul = k => AREAS[GPROD[k]].price / AREAS.keller.price;
+  const gSellP = k => Math.round(240 * (1 + 0.05 * hqLv()) * gUnitMul(k)); // Großhändler zahlt fest pro Beutel, in die Kasse
+  const gdOf = () => { const d = pgang && pgang.dry; return d && +d.n > 0 ? { n: Math.floor(+d.n), t: +d.t || 0, k: clamp(Math.floor(+d.k) || 0, 0, 2), by: String(d.by || '') } : null; };
+  const gdLeft = d => d ? Math.max(0, d.t + GD_TIME - Date.now()) : 0;
+  async function gdUse() {
+    if (!pgMember()) throw new Error('Nur für Mitglieder.'); const d = gdOf();
+    if (d && gdLeft(d) > 0) return 'Trocknet noch ' + Math.ceil(gdLeft(d) / 60000) + ' Min. (' + d.n + ' Stück)';
+    if (d) { let n = 0; await pgCommitAt(() => { const c = gdOf(); if (!c || gdLeft(c) > 0) return null; const a = lagArr(); a[c.k * 3 + 1] += c.n; n = c.n; return { fields: { lag: a, dry: { n: 0, t: 0, k: 0, by: '' }, wz: wzNext(2) }, masks: ['lag', 'dry', 'wz'] }; }, 'hat getrocknete Ware abgenommen'); sfx.put(); if (n) floater(GHQ_DRY.x, GHQ_DRY.y - 36, '+' + n + ' trocken', '#FFB547'); return n ? n + ' getrocknete Ware liegt im Gang-Lager. Weiter am Packtisch.' : ''; }
+    let n = 0, kk = 0; await pgCommitAt(() => { if (gdOf()) return null; const a = lagArr(); let best = -1; for (let k = 0; k < 3; k++) if (a[k * 3] > 0 && (best < 0 || a[k * 3] > a[best * 3])) best = k; if (best < 0) return null; n = Math.min(a[best * 3], gdCap()); kk = best; a[best * 3] -= n; return { fields: { lag: a, dry: { n, t: Date.now(), k: best, by: acc.name } }, masks: ['lag', 'dry'] }; }, 'hat Ware zum Trocknen aufgehängt');
+    if (!n) throw new Error('Keine frische Ware im Gang-Lager. Erst an den Beeten ernten oder eigene frische Ware einlagern.');
+    sfx.put(); return n + ' ' + AREAS[GPROD[kk]].lbl.fresh + ' hängt zum Trocknen. Fertig in ' + Math.round(GD_TIME / 60000) + ' Minuten.';
+  }
+  async function gpUse() {
+    if (!pgMember()) throw new Error('Nur für Mitglieder.'); let made = 0;
+    await pgCommitAt(() => { const a = lagArr(); made = 0; for (let k = 0; k < 3 && made < GPACK_MAX; k++) { const pn = AREAS[GPROD[k]].packN, b = Math.min(Math.floor(a[k * 3 + 1] / pn), GPACK_MAX - made); if (b > 0) { a[k * 3 + 1] -= b * pn; a[k * 3 + 2] += b; made += b; } } return made ? { fields: { lag: a, wz: wzNext(Math.ceil(made / 5)) }, masks: ['lag', 'wz'] } : null; }, null);
+    if (!made) throw new Error('Zu wenig getrocknete Ware im Gang-Lager (für einen Beutel braucht es ' + AREAS.keller.packN + ').');
+    sfx.pack ? sfx.pack() : sfx.put(); floater(GHQ_PACK.x, GHQ_PACK.y - 28, '+' + made + ' Beutel', '#5FE584'); return made + ' Beutel verpackt. Verkaufen: Gang-App → HQ, oder für den Großauftrag nutzen.';
+  }
+  async function gSell() {
+    if (!pgMember()) throw new Error('Nur für Mitglieder.'); let got = 0, n = 0;
+    await pgCommitAt(() => { const a = lagArr(); got = 0; n = 0; for (let k = 0; k < 3; k++) { const v = a[k * 3 + 2]; if (v > 0) { got += v * gSellP(k); n += v; a[k * 3 + 2] = 0; } } return n ? { fields: { lag: a, kasse: pgang.kasse + got }, masks: ['lag', 'kasse'] } : null; }, 'hat verpackte Ware an den Großhändler verkauft');
+    if (!n) throw new Error('Keine verpackte Ware im Gang-Lager.'); sfx.cash(); return n + ' Beutel verkauft: +' + fmt(got) + ' für die Gang-Kasse';
+  }
+  function drawGhqStations() {
+    const g = pgang && pgMember() ? pgang : null; if (!g) return;
+    { const P = GHQ_DRY, d = gdOf(), left = gdLeft(d), pr = d ? 1 - left / GD_TIME : 0; ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(P.x - 18, P.y + 4, 40, 8); ctx.fillStyle = '#6B4A2E'; ctx.fillRect(P.x - 20, P.y - 30, 4, 40); ctx.fillRect(P.x + 16, P.y - 30, 4, 40); ctx.fillRect(P.x - 20, P.y - 30, 40, 3);
+      ctx.strokeStyle = '#B9C2CC'; ctx.lineWidth = 0.8; for (let r = 0; r < 3; r++) { const y = P.y - 22 + r * 10; ctx.beginPath(); ctx.moveTo(P.x - 16, y); ctx.lineTo(P.x + 16, y); ctx.stroke(); if (d) for (let k = 0; k < 5; k++) { const sw = Math.sin(gt * 1.5 + k + r) * 0.6; ctx.fillStyle = pr >= 1 ? '#C9A064' : 'rgb(' + Math.round(95 + 106 * pr) + ',' + Math.round(193 - 33 * pr) + ',' + Math.round(116 - 16 * pr) + ')'; ell(P.x - 13 + k * 6.5 + sw, y + 4, 2.2, 3.6); ctx.fill(); } }
+      if (d && left > 0) { ctx.fillStyle = 'rgba(16,21,28,.8)'; rr(P.x - 18, P.y + 12, 36, 5, 2.5); ctx.fill(); ctx.fillStyle = '#FFB547'; rr(P.x - 17, P.y + 13, 34 * pr, 3, 1.5); ctx.fill(); }
+      if (d && left <= 0) { const bob = Math.sin(gt * 4) * 2; ctx.fillStyle = '#FFB547'; ctx.beginPath(); ctx.arc(P.x + 18, P.y - 34 + bob, 6, 0, TAU); ctx.fill(); signTxt('!', P.x + 18, P.y - 34 + bob, '900 9px sans-serif', '#10151C'); }
+      signTxt('TROCKNEN', P.x, P.y + 24, '900 7.5px sans-serif', 'rgba(255,255,255,.6)'); }
+    { const P = GHQ_PACK, a = lagArr(), dr = a[1] + a[4] + a[7], bg = a[2] + a[5] + a[8]; ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(P.x - 20, P.y + 8, 44, 6); ctx.fillStyle = '#8A5E3A'; ctx.fillRect(P.x - 22, P.y - 14, 44, 22); ctx.fillStyle = '#A8764A'; ctx.fillRect(P.x - 22, P.y - 14, 44, 5);
+      ctx.fillStyle = '#E9DFC6'; for (let k = 0; k < Math.min(4, Math.ceil(bg / 10)); k++) { rr(P.x - 18 + k * 9, P.y - 22, 7, 9, 2); ctx.fill(); } ctx.fillStyle = '#C9A064'; if (dr) { ell(P.x + 12, P.y - 10, 6, 3); ctx.fill(); }
+      ctx.fillStyle = '#3A3F47'; ctx.fillRect(P.x - 4, P.y - 12, 8, 4); if (dr >= AREAS.keller.packN) { const bob = Math.sin(gt * 4) * 2; ctx.fillStyle = '#5FE584'; ctx.beginPath(); ctx.arc(P.x + 20, P.y - 26 + bob, 6, 0, TAU); ctx.fill(); signTxt('!', P.x + 20, P.y - 26 + bob, '900 9px sans-serif', '#10151C'); }
+      signTxt('PACKEN', P.x, P.y + 22, '900 7.5px sans-serif', 'rgba(255,255,255,.6)'); }
+  }
   async function wzFlush() { // Lieferungen der Mitglieder zaehlen fuers Gang-Wochenziel (gesammelt, hoechstens einmal pro Minute)
     if (!pgMember() || !G) return; if (wzU !== acc.uid) { if (wzU) rkPend = {}; wzU = acc.uid; wzDel0 = -1; } if (wzDel0 < 0) { wzDel0 = G.stat.del; return; } // v128: nach Kontowechsel neu zählen
     const d = G.stat.del - wzDel0; if (d <= 0 || Date.now() - wzT < 60000) return; wzT = Date.now();
@@ -464,12 +508,20 @@
     signTxt('GANG-BEETE', 86, 136, '900 7.5px sans-serif', 'rgba(255,255,255,.55)');
   }
   function renderPgProgress(b) { // im Handy: Hauptquartier-Reiter
+    { const a = lagArr(), d = gdOf(), fr = a[0] + a[3] + a[6], dr = a[1] + a[4] + a[7], bg = a[2] + a[5] + a[8], ripe = GBEET.filter((_, i) => { const x = gbOf(i); return x && gbLeft(x) <= 0; }).length; // v132: die ganze Kette auf einen Blick
+      krCard(b, '🔁 So läuft der Anbau im HQ', '', '<b>1. 🌱 Beete</b> pflanzen, gießen, ernten' + (ripe ? ' · <b style="color:var(--green)">' + ripe + ' reif</b>' : '') + '<br><b>2. 🌬️ Trockengestell</b> frische Ware aufhängen · im Lager: ' + fr + (d ? ' · hängt: ' + d.n + (gdLeft(d) > 0 ? '' : ' <b style="color:var(--green)">fertig</b>') : '') + '<br><b>3. 📦 Packtisch</b> verpacken · trocken: ' + dr + '<br><b>4. 🚚 Verkaufen</b> an den Großhändler (unten) oder den Großauftrag im Reiter Revier · Beutel: ' + bg); }
     krGrp(b, '🌱 Gang-Beete');
-    uiInfo(b, 'Vier Beete im Hauptquartier (links an der Wand). Jedes Mitglied kann pflanzen, einmal gießen (spart ' + Math.round(GB_WATER * 100) + ' %) und ernten. Jede Ernte bringt ' + fmt(gbValue()) + ' für die Gang-Kasse und 5 Punkte fürs Wochenziel. Ernten geht nur im HQ.');
+    uiInfo(b, 'Vier Beete im Hauptquartier (links an der Wand). Jedes Mitglied kann pflanzen, einmal gießen (spart ' + Math.round(GB_WATER * 100) + ' %) und ernten. Jede Ernte bringt ' + gbYield() + ' frische Ware ins Gang-Lager und 5 Punkte fürs Wochenziel. Danach: rechts am Trockengestell trocknen, am Packtisch verpacken, dann verkaufen oder für den Großauftrag nutzen. Alles geht nur im HQ.');
     for (let i = 0; i < GBEET.length; i++) { const bb = gbOf(i), left = gbLeft(bb); krCard(b, 'Beet ' + (i + 1), !bb ? 'frei' : left > 0 ? Math.ceil(left / 60000) + ' Min.' : 'reif', !bb ? 'Leer. Im HQ pflanzen.' : 'Gepflanzt von ' + String(bb.by || '?').replace(/[<>&]/g, '') + (bb.w ? ' · gegossen' : ' · noch nicht gegossen') + (left > 0 ? '' : ' · <b style="color:var(--green)">Jetzt im HQ ernten!</b>')); }
+    { const d = gdOf(), left = gdLeft(d), a = lagArr(), fr = a[0] + a[3] + a[6], dr = a[1] + a[4] + a[7], bg = a[2] + a[5] + a[8];
+      krGrp(b, '🏭 Verarbeitung im HQ');
+      const c1 = krCard(b, '🌬️ Trockengestell', d ? (left > 0 ? Math.ceil(left / 60000) + ' Min.' : 'fertig') : 'frei', d ? d.n + ' ' + AREAS[GPROD[d.k]].lbl.fresh + ' hängen' + (d.by ? ' (von ' + d.by.replace(/[<>&]/g, '') + ')' : '') + (left > 0 ? '' : ' · <b style="color:var(--green)">Im HQ abnehmen!</b>') : 'Im HQ frische Ware aus dem Lager aufhängen (bis ' + gdCap() + ' Stück, ' + Math.round(GD_TIME / 60000) + ' Minuten). Frisch im Lager: ' + fr); if (d) krBar(c1, 1 - left / GD_TIME);
+      krCard(b, '📦 Packtisch', dr + ' trocken', 'Im HQ verpacken: aus je ' + AREAS.keller.packN + ' getrockneten wird ein Beutel, bis ' + GPACK_MAX + ' Beutel pro Handgriff. Verpackt im Lager: ' + bg);
+      const c3 = krCard(b, '🚚 Großhändler', bg ? '+' + fmt(a[2] * gSellP(0) + a[5] * gSellP(1) + a[8] * gSellP(2)) : '', 'Kauft alle verpackte Ware aus dem Gang-Lager zum festen Preis (' + fmt(gSellP(0)) + ' pro Beutel, mit HQ-Stufe mehr). Das Geld geht in die Gang-Kasse. Mehr gibt es beim Großauftrag im Reiter Revier, wenn ihr genug zusammen habt.');
+      const st = uiEl('div', 'ds gst'), r = gRow(), bt = gBtn(r, bg ? bg + ' Beutel verkaufen' : 'Nichts verpackt', '', gSell, st); bt.disabled = !bg; c3.appendChild(r); c3.appendChild(st); }
     const z = wzCur(), t = GWZ[z.c];
     krGrp(b, '🏆 Gang-Wochenziel');
-    const c = krCard(b, t ? 'Stufe ' + (z.c + 1) + ' / ' + GWZ.length + ': ' + t[0] + ' Punkte' : 'Alle Stufen geschafft!', z.p + ' Punkte', 'Jede Lieferung eines Mitglieds bringt 1 Punkt, jede Beet-Ernte 5 Punkte. Neue Woche ab Montag.' + (t ? ' Belohnung: <b>' + fmt(t[1]) + '</b> für die Kasse.' : ''));
+    const c = krCard(b, t ? 'Stufe ' + (z.c + 1) + ' / ' + GWZ.length + ': ' + t[0] + ' Punkte' : 'Alle Stufen geschafft!', z.p + ' Punkte', 'Jede Lieferung eines Mitglieds bringt 1 Punkt, jede Beet-Ernte 5, Abnehmen am Trockengestell 2, Verpacken 1 je 5 Beutel. Neue Woche ab Montag.' + (t ? ' Belohnung: <b>' + fmt(t[1]) + '</b> für die Kasse.' : ''));
     if (t) { krBar(c, z.p / t[0]); if (z.p >= t[0]) { const st = uiEl('div', 'ds gst'), r = gRow(); gBtn(r, '🎁 Belohnung abholen', '', wzClaim, st); c.appendChild(r); c.appendChild(st); } }
   }
   // ---------- v125: Gang-App, frei platzierbare Deko, Gang-Lager, Spenden, Ankündigung, HQ-Taxi ----------
@@ -486,7 +538,7 @@
   }
   const pgUnread = () => !pgang || !G.gang ? 0 : pgang.chat.filter(m => m.u !== acc.uid && +m.t > (G.gang.rd || 0)).length;
   // --- frei platzierbare Deko: dk = { key: { id, x, y } }, alte feste Plaetze (deco.sN) werden beim Verschieben umgewandelt ---
-  const HQ_BOX = { x0: 132, y0: 128, x1: 584, y1: 462 };
+  const HQ_BOX = { x0: 132, y0: 128, x1: 536, y1: 462 }; // v132: rechts stehen jetzt Trockengestell und Packtisch
   function hqItems() { if (!pgang) return []; const out = [];
     for (const [k, v] of Object.entries(pgang.dk || {})) if (v && DECOR.find(d => d.id === v.id)) out.push({ k, id: v.id, x: clamp(+v.x || 300, HQ_BOX.x0, HQ_BOX.x1), y: clamp(+v.y || 300, HQ_BOX.y0, HQ_BOX.y1) });
     for (const [k, id] of Object.entries(pgang.deco || {})) { const i = +k.slice(1); if (id && GSLOT[i] && DECOR.find(d => d.id === id)) out.push({ k, id, x: GSLOT[i].x, y: GSLOT[i].y, old: 1 }); }
@@ -494,10 +546,10 @@
   const hqClampPos = (x, y) => { x = clamp(x, HQ_BOX.x0, HQ_BOX.x1); y = clamp(y, HQ_BOX.y0, HQ_BOX.y1); if (x > 360 && x < 460 && y > 430) y = 430; return [Math.round(x), Math.round(y)]; };
   const newKey = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   let hqCarry = null; // gerade getragene Deko (nur lokal, bis zum Abstellen)
-  async function pgBuyDeco(id) {
+  async function pgBuyDeco(id, at) {
     if (!pgCanDeco()) throw new Error('Nur Boss und Vize dürfen gerade einrichten.'); const d = DECOR.find(x => x.id === id); if (!d) return;
     if (hqItems().length >= ghqSlots(pgang.lv)) throw new Error('Alle ' + ghqSlots(pgang.lv) + ' Plätze sind belegt. Baut das HQ aus oder räumt etwas weg.');
-    const [x, y] = player.fl === 4 ? hqClampPos(player.x + 30, player.y) : hqClampPos(200 + Math.random() * 320, 180 + Math.random() * 220), k = newKey();
+    const [x, y] = at ? hqClampPos(at[0], at[1]) : player.fl === 4 ? hqClampPos(player.x + 30, player.y) : hqClampPos(200 + Math.random() * 320, 180 + Math.random() * 220), k = newKey();
     await pgSpend(ghqPrice(d), { dk: { [k]: { id, x, y } } }, [fpath('dk', k)], 'hat ' + d.name + ' ins Hauptquartier gestellt');
     return player.fl === 4 ? d.name + ' steht neben dir.' : d.name + ' steht im HQ. Verschieben kannst du es dort: hingehen und A drücken.';
   }
@@ -573,7 +625,8 @@
   }
   function renderPgDeko(b) {
     const g = pgang, n = ghqSlots(g.lv), can = pgCanDeco(), items = hqItems();
-    uiInfo(b, 'Im HQ stellst du alles frei auf: zur Deko gehen, A drücken zum Aufheben, hinlaufen und nochmal A zum Abstellen. Deko wird aus der Gang-Kasse bezahlt (' + fmt(g.kasse) + '), Wegräumen gibt die Hälfte zurück.' + (can ? '' : ' <b>Gerade dürfen nur Boss und Vize einrichten.</b>'));
+    { const c = krCard(b, '✏️ HQ einrichten', '', player.fl === 4 ? 'Wie im Keller: Teile antippen und mit dem Finger verschieben, neue Deko direkt aus der Gang-Kasse kaufen und aufstellen, Wegräumen gibt die Hälfte zurück.' : 'Geht im Hauptquartier: hingehen oder unter Übersicht das HQ-Taxi nehmen, dann hier tippen. Oder im HQ an der Planungstafel A drücken.'); const r = gRow(), bt = uiEl('button', 'buy', player.fl === 4 ? 'Einrichten starten' : 'Nur im HQ'); bt.disabled = player.fl !== 4 || !can; bt.addEventListener('click', () => startGhqEdit()); r.appendChild(bt); c.appendChild(r); } // v132
+    uiInfo(b, 'Deko wird aus der Gang-Kasse bezahlt (' + fmt(g.kasse) + '). Im HQ kannst du Deko auch weiter mit A aufheben und woanders abstellen.' + (can ? '' : ' <b>Gerade dürfen nur Boss und Vize einrichten.</b>'));
     if (pgLead()) { krGrp(b, 'Boden'); const fr = uiEl('div', 'gcols'); GFLOOR.forEach((f, i) => { const d = uiEl('button', 'gcol gfl' + (i === g.floor ? ' on' : '')); d.style.background = 'linear-gradient(135deg,' + f[0] + ' 50%,' + f[1] + ' 50%)'; d.title = f[2]; d.addEventListener('click', async () => { try { await pgSet({ floor: i }, ['floor'], 'hat den Boden auf ' + f[2] + ' geändert'); } catch (e) { msg(e.message, true); } renderPhone(); }); fr.appendChild(d); }); b.appendChild(fr); }
     krGrp(b, 'Im HQ aufgestellt · ' + items.length + ' / ' + n);
     if (!items.length) b.appendChild(uiEl('div', 'empty', 'Noch leer. Kauf unten etwas.'));

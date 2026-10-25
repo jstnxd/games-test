@@ -406,7 +406,7 @@
       return;
     }
     if (state === 'edit') {
-      const I = AREAS[ed.ak].IN, pt = isPort(), left = pt ? W : Math.max(200, W - EDW), top = pt ? Math.round(H * 0.6) : H, es = Math.min(left / (I.x1 - I.x0 + 28), (top - 8) / (I.y1 - I.y0 + 28)) * ed.zoom; // v59: Zoom
+      const I = edAr().IN, pt = isPort(), left = pt ? W : Math.max(200, W - EDW), top = pt ? Math.round(H * 0.6) : H, es = Math.min(left / (I.x1 - I.x0 + 28), (top - 8) / (I.y1 - I.y0 + 28)) * ed.zoom; // v59: Zoom
       viewX0 = I.x0 - 300; viewX1 = I.x1 + 300; viewY0 = I.y0 - 300; viewY1 = I.y1 + 300; // v72
       ev.sc = es; ev.cx = (I.x0 + I.x1) / 2 + ed.px; ev.cy = (I.y0 + I.y1) / 2 + ed.py; ev.ox = left / 2; ev.oy = top / 2;
       ctx.setTransform(DPR * es, 0, 0, DPR * es, DPR * (ev.ox - ev.cx * es), DPR * (ev.oy - ev.cy * es));

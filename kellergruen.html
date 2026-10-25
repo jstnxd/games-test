@@ -406,6 +406,23 @@ button:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
 .edit .ed-top { position: sticky; top: 0; z-index: 2; margin: 0 -10px; padding: calc(env(safe-area-inset-top, 0px) + 8px) 10px 6px; background: rgba(16, 21, 28, .98); box-shadow: 0 6px 10px -6px rgba(0, 0, 0, .6); }
 .edit .ed-list { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding-bottom: 6px; }
 .edit .ed-list .chip { text-align: left; min-height: 38px; }
+.petview { position: fixed; inset: 0; z-index: 30; background: rgba(8, 11, 16, .72); display: flex; align-items: center; justify-content: center; padding: 16px; animation: tipIn .2s ease-out; }
+.pv-card { width: min(360px, 100%); max-height: 100%; overflow-y: auto; background: linear-gradient(180deg, #1F2733, #141A22); border: 1px solid rgba(255, 255, 255, .08); border-radius: 20px; padding: 14px; box-shadow: 0 16px 48px rgba(0, 0, 0, .5); color: var(--fg); }
+.pv-big { width: 100%; aspect-ratio: 300 / 220; border-radius: 14px; display: block; }
+.pv-nm { font-size: 22px; font-weight: 900; margin-top: 10px; }
+.pv-pr { display: inline-block; margin-top: 4px; font-weight: 800; font-size: 13px; color: #FFB547; background: rgba(255, 181, 71, .12); padding: 3px 10px; border-radius: 999px; }
+.pv-perk { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(95, 229, 132, .1); border-left: 3px solid #5FE584; font-size: 14px; line-height: 1.4; }
+.pv-perk b { display: block; color: #5FE584; font-size: 12px; letter-spacing: .04em; margin-bottom: 2px; }
+.pv-ds { margin-top: 10px; font-size: 14px; line-height: 1.45; color: var(--fg); }
+.pv-mut { color: var(--muted); font-size: 12.5px; }
+.pv-row { display: flex; gap: 8px; margin-top: 12px; }
+.pv-row .buy { flex: 1; min-height: 44px; font: inherit; font-weight: 800; font-size: 15px; border: 0; border-radius: 999px; background: linear-gradient(180deg, #FF8FD0, #E05AA8); color: #2A0C1E; touch-action: manipulation; }
+.pv-row .buy.alt { background: rgba(255, 255, 255, .1); color: var(--fg); }
+.pv-row .buy:disabled { opacity: .45; }
+.card.tapme { cursor: pointer; }
+.edit .ed-list .chip.chill { box-shadow: inset 3px 0 0 #FF5CA8; }
+.edit .chip[hidden] { display: none; }
+.edit .ed-q { font: inherit; font-size: 14px; min-height: 36px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .12); background: rgba(0, 0, 0, .3); color: var(--fg); padding: 0 10px; outline: none; }
 .edit .chip.on, .edit .ed-list .chip.on { background: linear-gradient(180deg, #6BCB7E, #4FAE63) !important; color: #10151C !important; }
 
 /* v41: schöneres Menü + etwas größere Anzeige links */
@@ -847,7 +864,7 @@ body.port-ok .clockrow .seapill { max-width: calc(50vw - 84px); margin-right: 6p
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 131 · Neu: 7 Begleiter, 12 bewegte Deko-Stücke, Gang-Kasse im HQ<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 132 · Neu: Anbau-Kette im HQ, Einrichten wie im Keller, Chill-Zone<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -2343,7 +2360,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { id: 'prtrophy', name: 'Prestige-Pokal', desc: 'Ein Pokal mit violettem Stern, für jeden Neuanfang einer', cost: 1, qx: 'Prestige' }
   );
   Object.assign(DHALF, { masterpiece: [20, 18], citykey: [14, 14], prtrophy: [10, 14] });
-  const DEC_NEW = ['firefly', 'mobile', 'rocker', 'newton', 'cuckoo', 'plasma', 'fountain', 'robovac', 'bubbles', 'trainset', 'carousel', 'jellytank']; // v130: die neue bewegte Deko
+  const DEC_NEW = ['lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler', 'firefly', 'mobile', 'rocker', 'newton', 'cuckoo', 'plasma', 'fountain', 'robovac', 'bubbles', 'trainset', 'carousel', 'jellytank']; // v130: die neue bewegte Deko
   Object.assign(DHALF, { cactusrow: [18, 12], gumball: [8, 16], monstera: [16, 20], hamster: [14, 12], arclamp: [20, 24], skatewall: [22, 16], neonleaf: [18, 18], aquarium: [26, 16], homebar: [30, 16], massage: [16, 18], koipond: [26, 20], bigtv: [32, 18], goldbars: [14, 10] });
   Object.assign(DHALF, { rugstripe: [30, 22], lantern: [8, 14], radio: [14, 12], vinyl: [17, 13], armchair: [18, 16], snowglobe: [9, 12], windchime: [13, 20], planter: [20, 13], piggy: [12, 11] });
   COS.push(
@@ -2388,6 +2405,22 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { id: 'carousel', name: 'Mini-Karussell', desc: 'Drei Pferdchen drehen sich auf und ab, mit Lichtern am Dach', cost: 1440, rep: 24 },
     { id: 'jellytank', name: 'Quallen-Aquarium', desc: 'Leuchtende Quallen pulsieren und wechseln langsam die Farbe', cost: 1920, rep: 30 }
   );
+  DECOR.push( // v132: Chill-Zone, passt besonders ins Gang-HQ
+    { id: 'lounge', name: 'Lounge-Ecke', desc: 'Große Eck-Couch mit bunten Kissen und Tischchen, dampfender Kaffee inklusive', cost: 1400, rep: 15 },
+    { id: 'firepit', name: 'Feuerschale', desc: 'Knisternde Flammen und fliegende Funken, nachts leuchtet der ganze Raum warm', cost: 900, rep: 10 },
+    { id: 'console', name: 'Gaming-Ecke', desc: 'Großer Bildschirm mit laufendem Rennspiel, Konsole und zwei Sitzsäcken', cost: 1800, rep: 20 },
+    { id: 'djbooth', name: 'DJ-Pult', desc: 'Zwei drehende Plattenteller, tanzender Equalizer und bunte Lichtstrahlen im Takt', cost: 2600, rep: 28 },
+    { id: 'neonsign', name: 'Neon „CHILL ZONE“', desc: 'Pinkes Neonschild, das ruhig pulsiert und manchmal flackert', cost: 700, rep: 8 },
+    { id: 'pokertable', name: 'Pokertisch', desc: 'Grüner Filz, Chip-Stapel und Karten, die nach und nach aufgedeckt werden', cost: 1600, rep: 22 },
+    { id: 'tagwall', name: 'Graffiti-Wand', desc: 'Eine Spraydose sprüht immer wieder ein neues buntes Tag an die Wand', cost: 1100, rep: 12 },
+    { id: 'sneakerwall', name: 'Sneaker-Wand', desc: 'Neun Paar Sneaker auf beleuchteten Regalen, eins schwebt immer kurz hoch', cost: 1300, rep: 16 },
+    { id: 'hoops', name: 'Basketball-Automat', desc: 'Der Ball fliegt immer wieder in den Korb, die Anzeige zählt mit', cost: 1000, rep: 14 },
+    { id: 'moneycount', name: 'Geldzählmaschine', desc: 'Scheine flattern durch, die Anzeige zählt und zählt', cost: 2200, rep: 32 },
+    { id: 'speakerwall', name: 'Boxenturm', desc: 'Die Membranen wummern im Takt, bei jedem Bass leuchtet die Kante', cost: 1500, rep: 18 },
+    { id: 'cooler', name: 'Kühlbox', desc: 'Deckel klappt auf, kalte Limo-Dosen und Kältedampf', cost: 500, rep: 6 }
+  );
+  const GHQ_CHILL = ['lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler'];
+  Object.assign(DHALF, { lounge: [34, 22], firepit: [18, 14], console: [32, 20], djbooth: [26, 18], neonsign: [24, 14], pokertable: [30, 20], tagwall: [30, 16], sneakerwall: [26, 20], hoops: [14, 22], moneycount: [20, 12], speakerwall: [18, 22], cooler: [13, 12] });
   Object.assign(DHALF, { firefly: [8, 14], mobile: [14, 18], rocker: [16, 18], newton: [14, 10], cuckoo: [12, 20], plasma: [10, 14], fountain: [16, 16], robovac: [18, 16], bubbles: [10, 14], trainset: [28, 18], carousel: [18, 20], jellytank: [14, 22] });
   const placedCount = id => DEC_KEYS.reduce((n, k) => n + G.dec.items[k].filter(d => d.id === id).length, 0);
   const decStock = id => (G.dec.owned[id] || 0) - placedCount(id);
@@ -4069,12 +4102,14 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (tg.type === 'bexit' || tg.type === 'gexit') return 'A  Raus auf die Straße';
     if (tg.type === 'ghq') return myGid() && !(G.gang && G.gang.req) ? 'A  Ins Hauptquartier deiner Gang' + (gTag() ? ' [' + gTag() + ']' : '') : 'Gang-Hauptquartier: nur für Mitglieder';
     if (tg.type === 'gsafe') return 'A  Gang-Kasse';
-    if (tg.type === 'gbeet') { const bb = gbOf(tg.idx); return !bb ? 'A  Gang-Beet bepflanzen' : gbLeft(bb) > 0 ? (bb.w ? 'Wächst noch ' + Math.ceil(gbLeft(bb) / 60000) + ' Min.' : 'A  Gießen (wächst schneller)') : 'A  Ernten: +' + fmt(gbValue()) + ' für die Gang-Kasse'; }
+    if (tg.type === 'gbeet') { const bb = gbOf(tg.idx); return !bb ? 'A  Gang-Beet bepflanzen' : gbLeft(bb) > 0 ? (bb.w ? 'Wächst noch ' + Math.ceil(gbLeft(bb) / 60000) + ' Min.' : 'A  Gießen (wächst schneller)') : 'A  Ernten: +' + gbYield() + ' frisch ins Gang-Lager'; }
+    if (tg.type === 'gdry') { const d = gdOf(); return !d ? 'A  Frische Ware aus dem Gang-Lager zum Trocknen aufhängen' : gdLeft(d) > 0 ? 'Trocknet noch ' + Math.ceil(gdLeft(d) / 60000) + ' Min.' : 'A  Getrocknete Ware abnehmen (' + d.n + ')'; } // v132
+    if (tg.type === 'gpack') return 'A  Verpacken (aus dem Gang-Lager)';
     if (tg.type === 'panic') { const P = PN(); return P.tr ? 'Helfer sind unterwegs …' : P.on ? 'A  Entwarnung: Helfer zurückholen' : 'A  NOTKNOPF: Helfer raus' + (P.lv >= 2 ? ', Ware ins Mietlager' : ''); }
     if (tg.type === 'gitem') { const d = DECOR.find(x => x.id === tg.it.id); return pgCanDeco() ? 'A  ' + (d ? d.name : 'Deko') + ' verschieben' : (d ? d.name : 'Deko'); }
     if (tg.type === 'gdrop') return 'A  Hier abstellen · B  Abbrechen';
     if (tg.type === 'glager') return 'A  Gang-Lager: Ware teilen';
-    if (tg.type === 'gboard') return 'A  Planungstafel: Hauptquartier einrichten';
+    if (tg.type === 'gboard') return pgCanDeco() ? 'A  Planungstafel: HQ einrichten (wie im Keller)' : 'A  Planungstafel: Deko ansehen';
     if (tg.type === 'gym') return atGym2() ? 'A  Iron Gym Express: trainieren' : 'A  Iron Gym' + (bizOwn('gym') ? ' (dein Laden)' : ': trainieren');
     if (tg.type === 'bank') return 'A  Stadtsparkasse: Sparkonto';
     if (tg.type === 'pizza') return 'A  Pizzeria Bella Notte' + (bizOwn('pizza') ? ' (dein Laden)' : '');
@@ -4172,7 +4207,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     } else if (tg.type === 'panic' && aEdge) { panicPress(false);
     } else if (tg.type === 'ghq' && aEdge) { ghqEnter();
     } else if (tg.type === 'gsafe' && aEdge) { openPg('info');
-    } else if (tg.type === 'gboard' && aEdge) { openPg('deko');
+    } else if (tg.type === 'gboard' && aEdge) { if (pgCanDeco()) startGhqEdit(); else openPg('deko'); // v132: Einrichten wie im Keller
+    } else if ((tg.type === 'gdry' || tg.type === 'gpack') && aEdge) { if (!gbBusy) { gbBusy = true; (tg.type === 'gdry' ? gdUse() : gpUse()).then(t => { if (t) msg(t); }, e => msg(e.message || 'Ging nicht', true)).finally(() => { gbBusy = false; }); } // v132
     } else if (tg.type === 'gbeet' && aEdge) { if (!gbBusy) { gbBusy = true; gbUse(tg.idx).then(t => { if (t) msg(t); }, e => msg(e.message || 'Ging nicht', true)).finally(() => { gbBusy = false; }); }
     } else if (tg.type === 'gitem' && aEdge) { hqPick(tg.it);
     } else if (tg.type === 'gdrop' && aEdge) { hqDrop();
@@ -7210,6 +7246,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const DCAT = [['Pflanzen', ['cactus', 'plant', 'flowers', 'bonsai', 'palm', 'tree']], ['Möbel', ['beanbag', 'shelf', 'turntable', 'fridge', 'easel', 'couch', 'trophy', 'piano', 'hammock', 'mirror']], ['Teppiche', ['roundrug', 'rug', 'leafrug', 'starrug']], ['Licht und Stimmung', ['candles', 'lamp', 'lavalamp', 'neon', 'discoball', 'fireplace', 'chandelier']], ['Technik und Spaß', ['fan', 'globe', 'speaker', 'tv', 'tank', 'arcade', 'jukebox', 'telescope']], ['Spiele und Sport', ['dartboard', 'kicker', 'pooltable', 'punchbag']], ['Musik und Küche', ['guitar', 'drumset', 'coffee', 'popcorn']], ['Kleinkram', ['gnome', 'terrarium']], ['Anbau', ['watercan', 'hygro', 'leafposter', 'clipfan', 'seedrack', 'hemprug', 'drynet', 'jars', 'mother', 'carbonfilter', 'ledpanel', 'growtent']], ['Betten', ['futon', 'bed', 'bunkbed', 'dbed', 'catbed']], ['Wohnen', ['bookstack', 'fishbowl', 'fairy', 'plantwall', 'clock', 'robot', 'safe', 'statue']], ['Freizeit', ['bbq', 'graffcanvas', 'miniramp', 'vending', 'pingpong', 'gamingpc', 'hottub']], ['Labor', ['hopsack', 'maltsacks', 'crates', 'bartable', 'mugshelf', 'casks', 'prostsign', 'tap', 'kettle', 'fermenter']]];
   { const add = (cat, ids) => DCAT.find(c => c[0] === cat)[1].push(...ids); add('Pflanzen', ['planter']); add('Möbel', ['armchair']); add('Teppiche', ['rugstripe']); add('Licht und Stimmung', ['lantern']); add('Technik und Spaß', ['radio']); add('Musik und Küche', ['vinyl']); add('Kleinkram', ['snowglobe', 'windchime', 'piggy']); add('Pflanzen', ['cactusrow', 'monstera']); add('Möbel', ['homebar', 'massage']); add('Licht und Stimmung', ['arclamp', 'neonleaf']); add('Technik und Spaß', ['aquarium', 'bigtv']); add('Kleinkram', ['gumball', 'hamster', 'goldbars']); add('Freizeit', ['koipond', 'skatewall']); } // v87: neue Deko in die passenden Kategorien
   { const add = (cat, ids) => DCAT.find(c => c[0] === cat)[1].push(...ids); add('Licht und Stimmung', ['firefly', 'plasma', 'jellytank']); add('Möbel', ['rocker']); add('Kleinkram', ['mobile', 'newton', 'cuckoo']); add('Technik und Spaß', ['robovac', 'trainset']); add('Freizeit', ['fountain', 'bubbles', 'carousel']); } // v130
+  DCAT.push(['😎 Chill-Zone', ['lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler']]); // v132
   DCAT.push(['🏆 Exklusiv', ['masterpiece', 'citykey', 'prtrophy']]);
   let dshopCat = 0; // v106: gewaehlte Kategorie im Deko-Laden
   function renderDShop(b) {
@@ -7274,6 +7311,33 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       b.appendChild(c);
     });
   }
+  // v132: Begleiter in groß: dreht sich live, darunter der ganze Text mit Vorteil
+  let pvwRaf = 0;
+  function petView(id) {
+    const cs = COS.find(x => x.id === id && x.kind === 'pet'); if (!cs) return; petViewClose();
+    const ov = uiEl('div', 'petview'); ov.id = 'petView'; const card = uiEl('div', 'pv-card'); ov.appendChild(card);
+    const cvs = document.createElement('canvas'); cvs.className = 'pv-big'; const dp = Math.min(2, window.devicePixelRatio || 1); cvs.width = Math.round(300 * dp); cvs.height = Math.round(220 * dp); card.appendChild(cvs);
+    const owned = !!G.cos.owned[id], on = activePets().includes(id), locked = !owned && G.rep < (cs.rep || 0), pk = PERKS[id];
+    card.appendChild(uiEl('div', 'pv-nm', cs.name)); card.appendChild(uiEl('div', 'pv-pr', owned ? (on ? 'angelegt' : 'gekauft') : locked ? 'ab Ruf ' + cs.rep : fmt(cs.cost)));
+    if (pk) { const p = uiEl('div', 'pv-perk'); p.appendChild(uiEl('b', '', '⭐ Vorteil')); p.appendChild(uiEl('div', '', pk.text)); card.appendChild(p); }
+    card.appendChild(uiEl('div', 'pv-ds', cs.desc + '.'));
+    card.appendChild(uiEl('div', 'pv-ds pv-mut', 'Bis zu 2 Begleiter gleichzeitig. Ihre Vorteile zählen zusammen.'));
+    const row = uiEl('div', 'pv-row'), bt = uiEl('button', 'buy');
+    if (!owned) { bt.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen für ' + fmt(cs.cost); bt.disabled = locked || G.money < cs.cost; bt.addEventListener('click', () => { if (buyCos(id)) { petViewClose(); renderPhone(); petView(id); } }); }
+    else { bt.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) bt.classList.add('alt'); bt.addEventListener('click', () => { equipCos(id); petViewClose(); renderPhone(); petView(id); }); }
+    const cl = uiEl('button', 'buy alt', 'Schließen'); cl.addEventListener('click', petViewClose); row.appendChild(bt); row.appendChild(cl); card.appendChild(row);
+    ov.addEventListener('click', e => { if (e.target === ov) petViewClose(); });
+    document.body.appendChild(ov);
+    const x = cvs.getContext('2d'), t0 = performance.now();
+    const loop = now => { if (!ov.isConnected) return; const tm = (now - t0) / 1000, W2 = cvs.width, H2 = cvs.height; x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, W2, H2);
+      const g = x.createRadialGradient(W2 / 2, H2 * 0.6, 10, W2 / 2, H2 * 0.6, W2 * 0.6); g.addColorStop(0, '#2E3A4C'); g.addColorStop(1, '#151B24'); x.fillStyle = g; x.fillRect(0, 0, W2, H2);
+      x.fillStyle = 'rgba(255,255,255,.06)'; x.beginPath(); x.ellipse(W2 / 2, H2 * 0.78, W2 * 0.3, H2 * 0.07, 0, 0, TAU); x.fill();
+      const turn = Math.cos(tm * 1.1), sx = Math.sign(turn || 1) * Math.max(0.12, Math.abs(turn)), moving = Math.sin(tm * 0.5) > -0.2, sc = 4.6 * dp;
+      const s0 = ctx; try { ctx = x; ctx.save(); ctx.translate(W2 / 2, H2 * 0.78); ctx.scale(sc * sx, sc); drawPet(id, 0, 0, 1, tm, moving, 1); ctx.restore(); } catch (e) {} finally { ctx = s0; }
+      pvwRaf = requestAnimationFrame(loop); };
+    pvwRaf = requestAnimationFrame(loop);
+  }
+  function petViewClose() { if (!pvwRaf) return; const o = document.getElementById('petView'); if (o) o.remove(); try { cancelAnimationFrame(pvwRaf); } catch (e) {} pvwRaf = 0; }
   function renderStyle(b, part) {
     const L = G.look;
     if (!part || part === 'view') { const hd0 = document.createElement('div'); hd0.className = 'grp'; hd0.textContent = 'Anzeige'; b.appendChild(hd0);
@@ -7322,9 +7386,11 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen'; btn.disabled = locked || G.money < cs.cost; btn.addEventListener('click', () => { if (buyCos(cs.id)) renderPhone(); }); }
         else { btn.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) btn.classList.add('alt'); btn.addEventListener('click', () => { equipCos(cs.id); renderPhone(); }); }
         c.appendChild(btn); b.appendChild(c);
+        if (kind === 'pet') { c.classList.add('tapme'); c.addEventListener('click', e => { if (e.target.closest('button')) return; petView(cs.id); }); } // v132: antippen = große Ansicht
       });
     };
     if (part === 'pets' || part === 'aura') lfBar(b);
+    if (part === 'pets') b.appendChild(uiEl('div', 'ds', 'Tipp: Tippe einen Begleiter an, dann siehst du ihn groß und alle Vorteile.'));
     if (!part || part === 'pets') [['pet', 'Begleiter (bis zu 2 gleichzeitig)']].forEach(cosList);
     if (!part || part === 'aura') { // v119: alle Effekte an einem Ort, mit Unterteilung
       const seg = document.createElement('div'); seg.className = 'tmseg'; [['aura', '✨ Auren'], ['orbit', '💫 Um dich herum'], ['trail', '👣 Spuren']].forEach(([k, t]) => { const c = document.createElement('button'); c.className = 'tmsg' + (fxSel === k ? ' on' : ''); c.textContent = t; c.addEventListener('click', () => { fxSel = k; renderPhone(); }); seg.appendChild(c); }); b.appendChild(seg);
@@ -7373,7 +7439,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (part === 'kopf') { wearSection(b, 'hat', 'Mützen und Kappen'); wearSection(b, 'band', 'Bandanas (am Kiosk)'); startPreviews(b); } // v79: Kopf = Frisur, Mützen, Bandanas
   }
   function openPhone() { if (state !== 'play') return; closeChat(); G.area = curKey; tmSel = player.fl === 2 && !prVisit ? 'pr' : ''; phoneOpen = true; $('phone').hidden = false; renderPhone(); }
-  function closePhone() { lfFlush(); lfTab = ''; phoneOpen = false; tab = 'home'; $('phone').hidden = true; save(); }
+  function closePhone() { petViewClose(); lfFlush(); lfTab = ''; phoneOpen = false; tab = 'home'; $('phone').hidden = true; save(); }
 
 
   // =====================================================================================================
@@ -8453,6 +8519,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (Math.hypot(px - GHQ_SAFE.x, py - (GHQ_SAFE.y + 26)) < 44) return { type: 'gsafe', idx: 0, ar: AREAS.keller };
     if (Math.hypot(px - GHQ_LAGER.x, py - (GHQ_LAGER.y + 26)) < 40) return { type: 'glager', idx: 0, ar: AREAS.keller };
     if (Math.hypot(px - GHQ_BOARD.x, py - (GHQ_BOARD.y + 22)) < 56) return { type: 'gboard', idx: 0, ar: AREAS.keller };
+    if (pgang && pgMember() && Math.hypot(px - GHQ_DRY.x, py - (GHQ_DRY.y + 4)) < 38) return { type: 'gdry', idx: 0, ar: AREAS.keller }; // v132
+    if (pgang && pgMember() && Math.hypot(px - GHQ_PACK.x, py - (GHQ_PACK.y + 4)) < 38) return { type: 'gpack', idx: 0, ar: AREAS.keller };
     if (pgang && pgMember()) { for (let i = 0; i < GBEET.length; i++) if (Math.hypot(px - GBEET[i].x, py - GBEET[i].y) < 36) return { type: 'gbeet', idx: i, ar: AREAS.keller };
       let best = null, bd = 30; for (const it of hqItems()) { const d = Math.hypot(px - it.x, py - it.y); if (d < bd) { bd = d; best = it; } } if (best) return { type: 'gitem', idx: 0, it: best, ar: AREAS.keller }; }
     return null; };
@@ -8468,13 +8536,13 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     ctx.fillStyle = 'rgba(0,0,0,.35)'; rr(236, 60, 180, 40, 8); ctx.fill(); ctx.fillStyle = col; rr(232, 56, 180, 40, 8); ctx.fill(); ctx.fillStyle = '#10151C'; rr(236, 60, 172, 32, 6); ctx.fill();
     signTxt(g ? '[' + g.tag + ']' : 'GANG-HQ', 322, 70, '900 12px sans-serif', col); signTxt(g ? g.n.toUpperCase().slice(0, 22) : '', 322, 84, '800 8px sans-serif', '#EEF2F7');
     // Deko
-    if (g) { for (const it of hqItems().sort((a, c) => a.y - c.y)) { if (hqCarry && hqCarry.k === it.k) continue; try { drawDecorItem(it.id, it.x, it.y, 1); } catch (e) {} } // v125: frei platziert
+    if (g) { for (const it of (state === 'edit' && ed.ak === 'ghq' ? ed.hq : hqItems()).slice().sort((a, c) => a.y - c.y)) { if (hqCarry && hqCarry.k === it.k) continue; try { drawDecorItem(it.id, it.x, it.y, 1); } catch (e) {} } // v125: frei platziert
       if (hqCarry) { ctx.save(); ctx.globalAlpha = 0.65 + 0.2 * Math.sin(gt * 6); try { const [cx, cy] = hqClampPos(player.x, player.y - 4); drawDecorItem(hqCarry.id, cx, cy, 1); } catch (e) {} ctx.restore(); }
       // Gang-Lager-Regal
       { const L0 = GHQ_LAGER, n = lagArr().reduce((s, v) => s + v, 0); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(L0.x - 20, L0.y - 24, 44, 34); ctx.fillStyle = '#5A4632'; ctx.fillRect(L0.x - 22, L0.y - 28, 44, 34); ctx.fillStyle = '#3A2C20'; ctx.fillRect(L0.x - 19, L0.y - 25, 38, 12); ctx.fillRect(L0.x - 19, L0.y - 10, 38, 12);
         for (let i = 0; i < Math.min(8, Math.ceil(n / Math.max(1, lagCap() / 8))); i++) { ctx.fillStyle = ['#C9A064', '#5FE584', '#A07A4A', '#8FD8FF'][i % 4]; ctx.fillRect(L0.x - 17 + (i % 4) * 9, L0.y - 23 + Math.floor(i / 4) * 15, 7, 9); }
         signTxt('LAGER · ' + n, L0.x, L0.y + 14, '900 7.5px sans-serif', 'rgba(255,255,255,.7)'); } }
-    drawGangBeete(); // v123
+    drawGangBeete(); drawGhqStations(); // v123, v132
     // Tafel
     { const B = GHQ_BOARD; ctx.fillStyle = '#5A4632'; ctx.fillRect(B.x - 42, B.y - 32, 84, 30); ctx.fillStyle = '#26352C'; ctx.fillRect(B.x - 38, B.y - 29, 76, 24); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(B.x - 30, B.y - 22); ctx.lineTo(B.x - 6, B.y - 14); ctx.lineTo(B.x + 14, B.y - 20); ctx.stroke(); ctx.strokeRect(B.x + 18, B.y - 25, 14, 10); signTxt('PLANUNG', B.x, B.y + 6, '900 8px sans-serif', 'rgba(255,255,255,.7)'); }
     // Kasse
@@ -8632,13 +8700,55 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (!pgMember()) throw new Error('Nur für Mitglieder.'); const b = gbOf(i), key = 'b' + i;
     if (!b) { await pgCommitAt(() => gbOf(i) ? null : { fields: { beet: { [key]: { t: Date.now(), by: acc.name, w: 0 } } }, masks: [fpath('beet', key)] }); sfx.put(); return 'Gepflanzt. In ' + Math.round(GB_GROW / 60000) + ' Minuten reif.'; }
     if (gbLeft(b) > 0) { if (b.w) return 'Wächst noch ' + Math.ceil(gbLeft(b) / 60000) + ' Min.'; await pgCommitAt(() => { const c = gbOf(i); return c && !c.w ? { fields: { beet: { [key]: { w: 1 } } }, masks: [fpath('beet', key, 'w')] } : null; }); sfx.put(); return 'Gegossen: wächst schneller.'; }
-    const v = gbValue(); let got = false;
-    await pgCommitAt(() => { const c = gbOf(i); if (!c || gbLeft(c) > 0) return null; got = true; return { fields: { kasse: pgang.kasse + v, wz: wzNext(5) }, masks: ['kasse', fpath('beet', key), 'wz'] }; }, 'hat ein Gang-Beet geerntet: +' + fmt(v) + ' für die Kasse');
-    if (got) { sfx.cash(); floater(GBEET[i].x, GBEET[i].y - 24, '+' + fmt(v), '#5FE584'); return 'Geerntet: +' + fmt(v) + ' für die Gang-Kasse'; } return '';
+    let got = 0, full = false; // v132: die Ernte kommt frisch ins Gang-Lager und wird im HQ getrocknet und verpackt
+    await pgCommitAt(() => { const c = gbOf(i); if (!c || gbLeft(c) > 0) return null; const a = lagArr(), room = lagCap() - a.reduce((s, x) => s + x, 0); got = Math.min(gbYield(), room); full = got <= 0; if (full) return null; a[0] += got; return { fields: { lag: a, wz: wzNext(5) }, masks: ['lag', fpath('beet', key), 'wz'] }; }, 'hat ein Gang-Beet geerntet');
+    if (full) throw new Error('Das Gang-Lager ist voll. Erst Ware trocknen, verpacken oder verkaufen.');
+    if (got) { sfx.cash(); floater(GBEET[i].x, GBEET[i].y - 24, '+' + got + ' frisch', '#5FE584'); return 'Geerntet: ' + got + ' frische Ware liegt im Gang-Lager. Weiter am Trockengestell rechts.'; } return '';
   }
   const wzCur = () => { const z = pgang && pgang.wz; return z && z.wk === weekNo() ? { wk: z.wk, p: +z.p || 0, c: +z.c || 0 } : { wk: weekNo(), p: 0, c: 0 }; };
   const wzNext = add => { const z = wzCur(); return { wk: z.wk, p: z.p + add, c: z.c }; };
   let wzDel0 = -1, wzT = 0, wzU = '';
+  // ---------- v132: Anbau-Kette im HQ: Beet -> Gang-Lager (frisch) -> Trockengestell -> Packtisch -> Verkauf ----------
+  const GHQ_DRY = { x: 566, y: 206 }, GHQ_PACK = { x: 566, y: 318 }; R(GHQ_DRY.x - 20, GHQ_DRY.y - 30, 40, 40).fl = 4; R(GHQ_PACK.x - 22, GHQ_PACK.y - 16, 44, 28).fl = 4;
+  const hqLv = () => clamp((pgang && pgang.lv) || 0, 0, 5);
+  const gbYield = () => 45 + 12 * hqLv(); // frische Ware pro Beet-Ernte
+  const GD_TIME = 8 * 60000, gdCap = () => 60 + 20 * hqLv(); // Trocknen: 8 Minuten echte Zeit pro Ladung
+  const GPACK_MAX = 15; // Beutel pro Handgriff am Packtisch
+  const GPROD = ['keller', 'tabak', 'brau'], gUnitMul = k => AREAS[GPROD[k]].price / AREAS.keller.price;
+  const gSellP = k => Math.round(240 * (1 + 0.05 * hqLv()) * gUnitMul(k)); // Großhändler zahlt fest pro Beutel, in die Kasse
+  const gdOf = () => { const d = pgang && pgang.dry; return d && +d.n > 0 ? { n: Math.floor(+d.n), t: +d.t || 0, k: clamp(Math.floor(+d.k) || 0, 0, 2), by: String(d.by || '') } : null; };
+  const gdLeft = d => d ? Math.max(0, d.t + GD_TIME - Date.now()) : 0;
+  async function gdUse() {
+    if (!pgMember()) throw new Error('Nur für Mitglieder.'); const d = gdOf();
+    if (d && gdLeft(d) > 0) return 'Trocknet noch ' + Math.ceil(gdLeft(d) / 60000) + ' Min. (' + d.n + ' Stück)';
+    if (d) { let n = 0; await pgCommitAt(() => { const c = gdOf(); if (!c || gdLeft(c) > 0) return null; const a = lagArr(); a[c.k * 3 + 1] += c.n; n = c.n; return { fields: { lag: a, dry: { n: 0, t: 0, k: 0, by: '' }, wz: wzNext(2) }, masks: ['lag', 'dry', 'wz'] }; }, 'hat getrocknete Ware abgenommen'); sfx.put(); if (n) floater(GHQ_DRY.x, GHQ_DRY.y - 36, '+' + n + ' trocken', '#FFB547'); return n ? n + ' getrocknete Ware liegt im Gang-Lager. Weiter am Packtisch.' : ''; }
+    let n = 0, kk = 0; await pgCommitAt(() => { if (gdOf()) return null; const a = lagArr(); let best = -1; for (let k = 0; k < 3; k++) if (a[k * 3] > 0 && (best < 0 || a[k * 3] > a[best * 3])) best = k; if (best < 0) return null; n = Math.min(a[best * 3], gdCap()); kk = best; a[best * 3] -= n; return { fields: { lag: a, dry: { n, t: Date.now(), k: best, by: acc.name } }, masks: ['lag', 'dry'] }; }, 'hat Ware zum Trocknen aufgehängt');
+    if (!n) throw new Error('Keine frische Ware im Gang-Lager. Erst an den Beeten ernten oder eigene frische Ware einlagern.');
+    sfx.put(); return n + ' ' + AREAS[GPROD[kk]].lbl.fresh + ' hängt zum Trocknen. Fertig in ' + Math.round(GD_TIME / 60000) + ' Minuten.';
+  }
+  async function gpUse() {
+    if (!pgMember()) throw new Error('Nur für Mitglieder.'); let made = 0;
+    await pgCommitAt(() => { const a = lagArr(); made = 0; for (let k = 0; k < 3 && made < GPACK_MAX; k++) { const pn = AREAS[GPROD[k]].packN, b = Math.min(Math.floor(a[k * 3 + 1] / pn), GPACK_MAX - made); if (b > 0) { a[k * 3 + 1] -= b * pn; a[k * 3 + 2] += b; made += b; } } return made ? { fields: { lag: a, wz: wzNext(Math.ceil(made / 5)) }, masks: ['lag', 'wz'] } : null; }, null);
+    if (!made) throw new Error('Zu wenig getrocknete Ware im Gang-Lager (für einen Beutel braucht es ' + AREAS.keller.packN + ').');
+    sfx.pack ? sfx.pack() : sfx.put(); floater(GHQ_PACK.x, GHQ_PACK.y - 28, '+' + made + ' Beutel', '#5FE584'); return made + ' Beutel verpackt. Verkaufen: Gang-App → HQ, oder für den Großauftrag nutzen.';
+  }
+  async function gSell() {
+    if (!pgMember()) throw new Error('Nur für Mitglieder.'); let got = 0, n = 0;
+    await pgCommitAt(() => { const a = lagArr(); got = 0; n = 0; for (let k = 0; k < 3; k++) { const v = a[k * 3 + 2]; if (v > 0) { got += v * gSellP(k); n += v; a[k * 3 + 2] = 0; } } return n ? { fields: { lag: a, kasse: pgang.kasse + got }, masks: ['lag', 'kasse'] } : null; }, 'hat verpackte Ware an den Großhändler verkauft');
+    if (!n) throw new Error('Keine verpackte Ware im Gang-Lager.'); sfx.cash(); return n + ' Beutel verkauft: +' + fmt(got) + ' für die Gang-Kasse';
+  }
+  function drawGhqStations() {
+    const g = pgang && pgMember() ? pgang : null; if (!g) return;
+    { const P = GHQ_DRY, d = gdOf(), left = gdLeft(d), pr = d ? 1 - left / GD_TIME : 0; ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(P.x - 18, P.y + 4, 40, 8); ctx.fillStyle = '#6B4A2E'; ctx.fillRect(P.x - 20, P.y - 30, 4, 40); ctx.fillRect(P.x + 16, P.y - 30, 4, 40); ctx.fillRect(P.x - 20, P.y - 30, 40, 3);
+      ctx.strokeStyle = '#B9C2CC'; ctx.lineWidth = 0.8; for (let r = 0; r < 3; r++) { const y = P.y - 22 + r * 10; ctx.beginPath(); ctx.moveTo(P.x - 16, y); ctx.lineTo(P.x + 16, y); ctx.stroke(); if (d) for (let k = 0; k < 5; k++) { const sw = Math.sin(gt * 1.5 + k + r) * 0.6; ctx.fillStyle = pr >= 1 ? '#C9A064' : 'rgb(' + Math.round(95 + 106 * pr) + ',' + Math.round(193 - 33 * pr) + ',' + Math.round(116 - 16 * pr) + ')'; ell(P.x - 13 + k * 6.5 + sw, y + 4, 2.2, 3.6); ctx.fill(); } }
+      if (d && left > 0) { ctx.fillStyle = 'rgba(16,21,28,.8)'; rr(P.x - 18, P.y + 12, 36, 5, 2.5); ctx.fill(); ctx.fillStyle = '#FFB547'; rr(P.x - 17, P.y + 13, 34 * pr, 3, 1.5); ctx.fill(); }
+      if (d && left <= 0) { const bob = Math.sin(gt * 4) * 2; ctx.fillStyle = '#FFB547'; ctx.beginPath(); ctx.arc(P.x + 18, P.y - 34 + bob, 6, 0, TAU); ctx.fill(); signTxt('!', P.x + 18, P.y - 34 + bob, '900 9px sans-serif', '#10151C'); }
+      signTxt('TROCKNEN', P.x, P.y + 24, '900 7.5px sans-serif', 'rgba(255,255,255,.6)'); }
+    { const P = GHQ_PACK, a = lagArr(), dr = a[1] + a[4] + a[7], bg = a[2] + a[5] + a[8]; ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(P.x - 20, P.y + 8, 44, 6); ctx.fillStyle = '#8A5E3A'; ctx.fillRect(P.x - 22, P.y - 14, 44, 22); ctx.fillStyle = '#A8764A'; ctx.fillRect(P.x - 22, P.y - 14, 44, 5);
+      ctx.fillStyle = '#E9DFC6'; for (let k = 0; k < Math.min(4, Math.ceil(bg / 10)); k++) { rr(P.x - 18 + k * 9, P.y - 22, 7, 9, 2); ctx.fill(); } ctx.fillStyle = '#C9A064'; if (dr) { ell(P.x + 12, P.y - 10, 6, 3); ctx.fill(); }
+      ctx.fillStyle = '#3A3F47'; ctx.fillRect(P.x - 4, P.y - 12, 8, 4); if (dr >= AREAS.keller.packN) { const bob = Math.sin(gt * 4) * 2; ctx.fillStyle = '#5FE584'; ctx.beginPath(); ctx.arc(P.x + 20, P.y - 26 + bob, 6, 0, TAU); ctx.fill(); signTxt('!', P.x + 20, P.y - 26 + bob, '900 9px sans-serif', '#10151C'); }
+      signTxt('PACKEN', P.x, P.y + 22, '900 7.5px sans-serif', 'rgba(255,255,255,.6)'); }
+  }
   async function wzFlush() { // Lieferungen der Mitglieder zaehlen fuers Gang-Wochenziel (gesammelt, hoechstens einmal pro Minute)
     if (!pgMember() || !G) return; if (wzU !== acc.uid) { if (wzU) rkPend = {}; wzU = acc.uid; wzDel0 = -1; } if (wzDel0 < 0) { wzDel0 = G.stat.del; return; } // v128: nach Kontowechsel neu zählen
     const d = G.stat.del - wzDel0; if (d <= 0 || Date.now() - wzT < 60000) return; wzT = Date.now();
@@ -8751,12 +8861,20 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     signTxt('GANG-BEETE', 86, 136, '900 7.5px sans-serif', 'rgba(255,255,255,.55)');
   }
   function renderPgProgress(b) { // im Handy: Hauptquartier-Reiter
+    { const a = lagArr(), d = gdOf(), fr = a[0] + a[3] + a[6], dr = a[1] + a[4] + a[7], bg = a[2] + a[5] + a[8], ripe = GBEET.filter((_, i) => { const x = gbOf(i); return x && gbLeft(x) <= 0; }).length; // v132: die ganze Kette auf einen Blick
+      krCard(b, '🔁 So läuft der Anbau im HQ', '', '<b>1. 🌱 Beete</b> pflanzen, gießen, ernten' + (ripe ? ' · <b style="color:var(--green)">' + ripe + ' reif</b>' : '') + '<br><b>2. 🌬️ Trockengestell</b> frische Ware aufhängen · im Lager: ' + fr + (d ? ' · hängt: ' + d.n + (gdLeft(d) > 0 ? '' : ' <b style="color:var(--green)">fertig</b>') : '') + '<br><b>3. 📦 Packtisch</b> verpacken · trocken: ' + dr + '<br><b>4. 🚚 Verkaufen</b> an den Großhändler (unten) oder den Großauftrag im Reiter Revier · Beutel: ' + bg); }
     krGrp(b, '🌱 Gang-Beete');
-    uiInfo(b, 'Vier Beete im Hauptquartier (links an der Wand). Jedes Mitglied kann pflanzen, einmal gießen (spart ' + Math.round(GB_WATER * 100) + ' %) und ernten. Jede Ernte bringt ' + fmt(gbValue()) + ' für die Gang-Kasse und 5 Punkte fürs Wochenziel. Ernten geht nur im HQ.');
+    uiInfo(b, 'Vier Beete im Hauptquartier (links an der Wand). Jedes Mitglied kann pflanzen, einmal gießen (spart ' + Math.round(GB_WATER * 100) + ' %) und ernten. Jede Ernte bringt ' + gbYield() + ' frische Ware ins Gang-Lager und 5 Punkte fürs Wochenziel. Danach: rechts am Trockengestell trocknen, am Packtisch verpacken, dann verkaufen oder für den Großauftrag nutzen. Alles geht nur im HQ.');
     for (let i = 0; i < GBEET.length; i++) { const bb = gbOf(i), left = gbLeft(bb); krCard(b, 'Beet ' + (i + 1), !bb ? 'frei' : left > 0 ? Math.ceil(left / 60000) + ' Min.' : 'reif', !bb ? 'Leer. Im HQ pflanzen.' : 'Gepflanzt von ' + String(bb.by || '?').replace(/[<>&]/g, '') + (bb.w ? ' · gegossen' : ' · noch nicht gegossen') + (left > 0 ? '' : ' · <b style="color:var(--green)">Jetzt im HQ ernten!</b>')); }
+    { const d = gdOf(), left = gdLeft(d), a = lagArr(), fr = a[0] + a[3] + a[6], dr = a[1] + a[4] + a[7], bg = a[2] + a[5] + a[8];
+      krGrp(b, '🏭 Verarbeitung im HQ');
+      const c1 = krCard(b, '🌬️ Trockengestell', d ? (left > 0 ? Math.ceil(left / 60000) + ' Min.' : 'fertig') : 'frei', d ? d.n + ' ' + AREAS[GPROD[d.k]].lbl.fresh + ' hängen' + (d.by ? ' (von ' + d.by.replace(/[<>&]/g, '') + ')' : '') + (left > 0 ? '' : ' · <b style="color:var(--green)">Im HQ abnehmen!</b>') : 'Im HQ frische Ware aus dem Lager aufhängen (bis ' + gdCap() + ' Stück, ' + Math.round(GD_TIME / 60000) + ' Minuten). Frisch im Lager: ' + fr); if (d) krBar(c1, 1 - left / GD_TIME);
+      krCard(b, '📦 Packtisch', dr + ' trocken', 'Im HQ verpacken: aus je ' + AREAS.keller.packN + ' getrockneten wird ein Beutel, bis ' + GPACK_MAX + ' Beutel pro Handgriff. Verpackt im Lager: ' + bg);
+      const c3 = krCard(b, '🚚 Großhändler', bg ? '+' + fmt(a[2] * gSellP(0) + a[5] * gSellP(1) + a[8] * gSellP(2)) : '', 'Kauft alle verpackte Ware aus dem Gang-Lager zum festen Preis (' + fmt(gSellP(0)) + ' pro Beutel, mit HQ-Stufe mehr). Das Geld geht in die Gang-Kasse. Mehr gibt es beim Großauftrag im Reiter Revier, wenn ihr genug zusammen habt.');
+      const st = uiEl('div', 'ds gst'), r = gRow(), bt = gBtn(r, bg ? bg + ' Beutel verkaufen' : 'Nichts verpackt', '', gSell, st); bt.disabled = !bg; c3.appendChild(r); c3.appendChild(st); }
     const z = wzCur(), t = GWZ[z.c];
     krGrp(b, '🏆 Gang-Wochenziel');
-    const c = krCard(b, t ? 'Stufe ' + (z.c + 1) + ' / ' + GWZ.length + ': ' + t[0] + ' Punkte' : 'Alle Stufen geschafft!', z.p + ' Punkte', 'Jede Lieferung eines Mitglieds bringt 1 Punkt, jede Beet-Ernte 5 Punkte. Neue Woche ab Montag.' + (t ? ' Belohnung: <b>' + fmt(t[1]) + '</b> für die Kasse.' : ''));
+    const c = krCard(b, t ? 'Stufe ' + (z.c + 1) + ' / ' + GWZ.length + ': ' + t[0] + ' Punkte' : 'Alle Stufen geschafft!', z.p + ' Punkte', 'Jede Lieferung eines Mitglieds bringt 1 Punkt, jede Beet-Ernte 5, Abnehmen am Trockengestell 2, Verpacken 1 je 5 Beutel. Neue Woche ab Montag.' + (t ? ' Belohnung: <b>' + fmt(t[1]) + '</b> für die Kasse.' : ''));
     if (t) { krBar(c, z.p / t[0]); if (z.p >= t[0]) { const st = uiEl('div', 'ds gst'), r = gRow(); gBtn(r, '🎁 Belohnung abholen', '', wzClaim, st); c.appendChild(r); c.appendChild(st); } }
   }
   // ---------- v125: Gang-App, frei platzierbare Deko, Gang-Lager, Spenden, Ankündigung, HQ-Taxi ----------
@@ -8773,7 +8891,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   }
   const pgUnread = () => !pgang || !G.gang ? 0 : pgang.chat.filter(m => m.u !== acc.uid && +m.t > (G.gang.rd || 0)).length;
   // --- frei platzierbare Deko: dk = { key: { id, x, y } }, alte feste Plaetze (deco.sN) werden beim Verschieben umgewandelt ---
-  const HQ_BOX = { x0: 132, y0: 128, x1: 584, y1: 462 };
+  const HQ_BOX = { x0: 132, y0: 128, x1: 536, y1: 462 }; // v132: rechts stehen jetzt Trockengestell und Packtisch
   function hqItems() { if (!pgang) return []; const out = [];
     for (const [k, v] of Object.entries(pgang.dk || {})) if (v && DECOR.find(d => d.id === v.id)) out.push({ k, id: v.id, x: clamp(+v.x || 300, HQ_BOX.x0, HQ_BOX.x1), y: clamp(+v.y || 300, HQ_BOX.y0, HQ_BOX.y1) });
     for (const [k, id] of Object.entries(pgang.deco || {})) { const i = +k.slice(1); if (id && GSLOT[i] && DECOR.find(d => d.id === id)) out.push({ k, id, x: GSLOT[i].x, y: GSLOT[i].y, old: 1 }); }
@@ -8781,10 +8899,10 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const hqClampPos = (x, y) => { x = clamp(x, HQ_BOX.x0, HQ_BOX.x1); y = clamp(y, HQ_BOX.y0, HQ_BOX.y1); if (x > 360 && x < 460 && y > 430) y = 430; return [Math.round(x), Math.round(y)]; };
   const newKey = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   let hqCarry = null; // gerade getragene Deko (nur lokal, bis zum Abstellen)
-  async function pgBuyDeco(id) {
+  async function pgBuyDeco(id, at) {
     if (!pgCanDeco()) throw new Error('Nur Boss und Vize dürfen gerade einrichten.'); const d = DECOR.find(x => x.id === id); if (!d) return;
     if (hqItems().length >= ghqSlots(pgang.lv)) throw new Error('Alle ' + ghqSlots(pgang.lv) + ' Plätze sind belegt. Baut das HQ aus oder räumt etwas weg.');
-    const [x, y] = player.fl === 4 ? hqClampPos(player.x + 30, player.y) : hqClampPos(200 + Math.random() * 320, 180 + Math.random() * 220), k = newKey();
+    const [x, y] = at ? hqClampPos(at[0], at[1]) : player.fl === 4 ? hqClampPos(player.x + 30, player.y) : hqClampPos(200 + Math.random() * 320, 180 + Math.random() * 220), k = newKey();
     await pgSpend(ghqPrice(d), { dk: { [k]: { id, x, y } } }, [fpath('dk', k)], 'hat ' + d.name + ' ins Hauptquartier gestellt');
     return player.fl === 4 ? d.name + ' steht neben dir.' : d.name + ' steht im HQ. Verschieben kannst du es dort: hingehen und A drücken.';
   }
@@ -8860,7 +8978,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   }
   function renderPgDeko(b) {
     const g = pgang, n = ghqSlots(g.lv), can = pgCanDeco(), items = hqItems();
-    uiInfo(b, 'Im HQ stellst du alles frei auf: zur Deko gehen, A drücken zum Aufheben, hinlaufen und nochmal A zum Abstellen. Deko wird aus der Gang-Kasse bezahlt (' + fmt(g.kasse) + '), Wegräumen gibt die Hälfte zurück.' + (can ? '' : ' <b>Gerade dürfen nur Boss und Vize einrichten.</b>'));
+    { const c = krCard(b, '✏️ HQ einrichten', '', player.fl === 4 ? 'Wie im Keller: Teile antippen und mit dem Finger verschieben, neue Deko direkt aus der Gang-Kasse kaufen und aufstellen, Wegräumen gibt die Hälfte zurück.' : 'Geht im Hauptquartier: hingehen oder unter Übersicht das HQ-Taxi nehmen, dann hier tippen. Oder im HQ an der Planungstafel A drücken.'); const r = gRow(), bt = uiEl('button', 'buy', player.fl === 4 ? 'Einrichten starten' : 'Nur im HQ'); bt.disabled = player.fl !== 4 || !can; bt.addEventListener('click', () => startGhqEdit()); r.appendChild(bt); c.appendChild(r); } // v132
+    uiInfo(b, 'Deko wird aus der Gang-Kasse bezahlt (' + fmt(g.kasse) + '). Im HQ kannst du Deko auch weiter mit A aufheben und woanders abstellen.' + (can ? '' : ' <b>Gerade dürfen nur Boss und Vize einrichten.</b>'));
     if (pgLead()) { krGrp(b, 'Boden'); const fr = uiEl('div', 'gcols'); GFLOOR.forEach((f, i) => { const d = uiEl('button', 'gcol gfl' + (i === g.floor ? ' on' : '')); d.style.background = 'linear-gradient(135deg,' + f[0] + ' 50%,' + f[1] + ' 50%)'; d.title = f[2]; d.addEventListener('click', async () => { try { await pgSet({ floor: i }, ['floor'], 'hat den Boden auf ' + f[2] + ' geändert'); } catch (e) { msg(e.message, true); } renderPhone(); }); fr.appendChild(d); }); b.appendChild(fr); }
     krGrp(b, 'Im HQ aufgestellt · ' + items.length + ' / ' + n);
     if (!items.length) b.appendChild(uiEl('div', 'empty', 'Noch leer. Kauf unten etwas.'));
@@ -9093,10 +9212,25 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const ev = { sc: 1, cx: 0, cy: 0, ox: 0, oy: 0 };
   const ed = { ak: 'keller', sel: null, drag: null, bad: false, zoom: 1, px: 0, py: 0, pan: null, ptrs: {}, pinch: null };
   const dHalfIt = it => { const h = dHalf(it.id); return ((it.r || 0) % 2 && RUGS.includes(it.id)) || ((it.q || 0) % 2 && !RUGS.includes(it.id)) ? [h[1], h[0]] : h; }; // v85: stehende Deko dreht in 90-Grad-Schritten (q) // v59/v60: nur Teppiche liegen quer
-  function edClampPan() { const I = AREAS[ed.ak].IN, mx = (I.x1 - I.x0) / 2 * (1 - 1 / ed.zoom) + 10, my = (I.y1 - I.y0) / 2 * (1 - 1 / ed.zoom) + 10; ed.px = clamp(ed.px, -mx, mx); ed.py = clamp(ed.py, -my, my); }
+  function edClampPan() { const I = edAr().IN, mx = (I.x1 - I.x0) / 2 * (1 - 1 / ed.zoom) + 10, my = (I.y1 - I.y0) / 2 * (1 - 1 / ed.zoom) + 10; ed.px = clamp(ed.px, -mx, mx); ed.py = clamp(ed.py, -my, my); }
   function edZoom(f) { ed.zoom = clamp(ed.zoom * f, 1, 4); if (ed.zoom === 1) { ed.px = 0; ed.py = 0; } edClampPan(); }
   const toWorldE = e => ({ x: (e.clientX - ev.ox) / ev.sc + ev.cx, y: (e.clientY - ev.oy) / ev.sc + ev.cy });
   function edMsg(txt, bad) { const h = $('edHint'); h.textContent = txt; h.classList.toggle('bad', !!bad); lastMsg = txt; }
+  // v132: das Gang-HQ wird genauso eingerichtet wie der Keller (ed.ak = 'ghq', Deko liegt in der Gang, nicht im Spielstand)
+  const GHQ_EDA = { name: 'Gang-Hauptquartier', IN: { x0: 52, y0: 52, x1: 600, y1: 508 } };
+  const edAr = () => ed.ak === 'ghq' ? GHQ_EDA : AREAS[ed.ak];
+  let ghqQ = '';
+  function startGhqEdit() {
+    if (state !== 'play') return false; if (player.fl !== 4 || !pgang || !pgMember()) { msg('Einrichten geht im Hauptquartier deiner Gang.', true); return false; }
+    if (!pgCanDeco()) { msg('Gerade dürfen nur Boss und Vize einrichten.', true); return false; }
+    closePhone(); closeChat(); $('emoteBar').hidden = true; hqCarry = null;
+    state = 'edit'; ed.ak = 'ghq'; ed.sel = null; ed.drag = null; ed.bad = false; ed.zoom = 1; ed.px = 0; ed.py = 0; ed.pan = null; ed.ptrs = {}; ed.pinch = null; ed.hq = hqItems(); ed.busy = false;
+    $('hud').classList.remove('on'); $('pads').classList.remove('on'); $('edit').hidden = false; $('edit').classList.add('ghq');
+    joy.id = null; joy.dx = joy.dy = 0; aHeld = false;
+    renderEditPanel(); edMsg('Tippe ein Teil an und ziehe es. Unten kaufst du neue Deko aus der Gang-Kasse.', false); return true;
+  }
+  const ghqRefresh = () => { if (ed.ak === 'ghq' && state === 'edit') { const k = ed.sel && ed.hq[ed.sel.i] && ed.hq[ed.sel.i].k; ed.hq = hqItems(); const i = k ? ed.hq.findIndex(x => x.k === k) : -1; ed.sel = i >= 0 ? { kind: 'hq', i } : null; renderEditPanel(); } };
+  async function ghqDo(fn, ok) { if (ed.busy) return; ed.busy = true; edMsg('Einen Moment …', false); try { const r = await fn(); edMsg(typeof r === 'string' && r ? r : ok, false); sfx.put(); } catch (e) { edMsg(e.message || 'Ging nicht', true); sfx.bad(); } finally { ed.busy = false; ghqRefresh(); } }
   function startEdit(ak) {
     const ar0 = AREAS[ak]; if (state !== 'play' || !ar0 || !isOpen(ar0)) return false;
     if (ar0.isFloor ? player.fl !== ar0.f : (ak === 'keller' && player.fl)) { msg(ar0.isFloor ? 'Geh zuerst ins ' + ar0.name + ', dann kannst du es umbauen' : 'Das Erdgeschoss baust du im Erdgeschoss um', true); return false; } // v54: nur auf der eigenen Etage
@@ -9109,6 +9243,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   }
   function finishEdit() {
     if (state !== 'edit') return;
+    if (ed.ak === 'ghq') { state = 'play'; ed.sel = null; ed.drag = null; ed.ak = 'keller'; $('edit').hidden = true; $('edit').classList.remove('ghq'); $('hud').classList.add('on'); $('pads').classList.add('on'); move(player, 0, 0, player.r); petSnap(); msg('🏴 HQ eingerichtet'); return; } // v132
     state = 'play'; ed.sel = null; ed.drag = null;
     $('edit').hidden = true; $('hud').classList.add('on'); $('pads').classList.add('on');
     // Arbeiter neu einteilen und aus neuen Möbeln herausholen, Spieler ebenfalls
@@ -9121,6 +9256,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     save(); msg('Umbau gespeichert');
   }
   function editHit(ak, wx, wy) {
+    if (ak === 'ghq') { for (let i = ed.hq.length - 1; i >= 0; i--) { const it = ed.hq[i], h = dHalf(it.id); if (Math.abs(wx - it.x) <= h[0] + 4 && Math.abs(wy - it.y) <= h[1] + 4) return { kind: 'hq', i }; } return null; } // v132
     const ar = AREAS[ak], arr = G.dec.items[ak];
     for (let i = arr.length - 1; i >= 0; i--) { const it = arr[i]; if (RUGS.includes(it.id)) continue; const h = dHalfIt(it); if (Math.abs(wx - it.x) <= h[0] + 4 && Math.abs(wy - it.y) <= h[1] + 4) return { kind: 'decor', i }; }
     for (let i = 0; i < ar.POTS.length; i++) if (Math.hypot(wx - ar.POTS[i].x, wy - ar.POTS[i].y) <= 24) return { kind: 'pot', i };
@@ -9132,7 +9268,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     for (let i = arr.length - 1; i >= 0; i--) { const it = arr[i]; if (!RUGS.includes(it.id)) continue; const h = dHalfIt(it); if (Math.abs(wx - it.x) <= h[0] && Math.abs(wy - it.y) <= h[1]) return { kind: 'decor', i }; }
     return null;
   }
-  const selPos = s => (s.kind === 'decor' ? [G.dec.items[ed.ak][s.i].x, G.dec.items[ed.ak][s.i].y] : stationPos(AREAS[ed.ak], s.kind, s.i));
+  const selPos = s => s.kind === 'hq' ? [ed.hq[s.i].x, ed.hq[s.i].y] : (s.kind === 'decor' ? [G.dec.items[ed.ak][s.i].x, G.dec.items[ed.ak][s.i].y] : stationPos(AREAS[ed.ak], s.kind, s.i));
   function editDown(e) {
     ed.ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
     { const ids = Object.keys(ed.ptrs); if (ids.length === 2) { const a = ed.ptrs[ids[0]], b = ed.ptrs[ids[1]]; if (ed.drag && ed.drag.moved && ed.sel) { const ar = AREAS[ed.ak]; if (ed.sel.kind === 'decor') { const it = G.dec.items[ed.ak][ed.sel.i]; if (it) clampDecor(ed.ak, it, ed.drag.orig[0], ed.drag.orig[1]); } else { applyStation(ar, ed.sel.kind, ed.sel.i, ed.drag.orig[0], ed.drag.orig[1]); rebuildNav(ar); ed.bad = false; } } ed.drag = null; ed.pan = null; ed.pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: ed.zoom }; return; } } // zwei Finger: zoomen
@@ -9142,6 +9278,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (hit) {
       const pos = selPos(hit); ed.drag = { id: e.pointerId, ox: pos[0] - p.x, oy: pos[1] - p.y, orig: pos.slice(), moved: false };
       try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+      if (hit.kind === 'hq') edMsg(((DECOR.find(d => d.id === ed.hq[hit.i].id) || {}).name || 'Deko') + ': ziehen zum Verschieben', false); else
       edMsg(hit.kind === 'decor' ? DECOR.find(d => d.id === G.dec.items[ed.ak][hit.i].id).name + ': ziehen zum Verschieben' : (hit.kind === 'pot' ? 'Topf' : hit.kind === 'stair' ? 'Treppe' : hit.kind === 'crate' ? 'Sammelkiste' : hit.kind === 'rack' ? AREAS[ed.ak].lbl.rack : 'Packtisch') + ': ziehen zum Verschieben, ⟳ dreht', false);
     }
     if (hit) { const ep = $('edit'); if (ep && ep.scrollTop > 0) ep.scrollTop = 0; } // v60: Drehen/Einlagern sofort sichtbar
@@ -9155,7 +9292,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const p = toWorldE(e), nx = p.x + d.ox, ny = p.y + d.oy;
     if (!d.moved && Math.hypot(nx - d.orig[0], ny - d.orig[1]) < 4) return;
     d.moved = true;
-    if (ed.sel.kind === 'decor') clampDecor(ed.ak, G.dec.items[ed.ak][ed.sel.i], nx, ny);
+    if (ed.sel.kind === 'hq') { const it = ed.hq[ed.sel.i]; if (it) [it.x, it.y] = hqClampPos(nx, ny); } // v132
+    else if (ed.sel.kind === 'decor') clampDecor(ed.ak, G.dec.items[ed.ak][ed.sel.i], nx, ny);
     else { const ar = AREAS[ed.ak]; applyStation(ar, ed.sel.kind, ed.sel.i, Math.round(nx / 2) * 2, Math.round(ny / 2) * 2); ed.bad = !layoutValid(ar); }
   }
   function editUp(e) {
@@ -9163,12 +9301,15 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (ed.pan && e.pointerId === ed.pan.id) { ed.pan = null; return; }
     const d = ed.drag; if (!d || e.pointerId !== d.id) return; ed.drag = null;
     if (!d.moved || !ed.sel) return;
+    if (ed.sel.kind === 'hq') { const it = ed.hq[ed.sel.i]; if (it) ghqDo(() => pgMoveDeco(it, it.x, it.y), 'Gesetzt'); return; } // v132: sofort für die ganze Gang speichern
     const ar = AREAS[ed.ak];
     if (ed.sel.kind === 'decor') { save(); sfx.put(); return; }
     if (ed.bad) { applyStation(ar, ed.sel.kind, ed.sel.i, d.orig[0], d.orig[1]); rebuildNav(ar); ed.bad = false; edMsg('Hier ist kein Platz. Der Weg muss frei bleiben.', true); sfx.bad(); }
     else { commitLayout(ar); sfx.put(); save(); edMsg('Gesetzt', false); }
   }
   function renderEditPanel() {
+    if (ed.ak === 'ghq') return renderGhqPanel(); // v132
+    $('edReset').hidden = false;
     const ar = AREAS[ed.ak];
     $('edTitle').textContent = 'Umbau · ' + ar.name;
     $('edDel').disabled = !(ed.sel && ed.sel.kind === 'decor'); $('edRot').disabled = !ed.sel;
@@ -9200,7 +9341,26 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (rotateStation(ed.ak, ed.sel.kind, ed.sel.i)) { sfx.put(); edMsg(ed.sel.kind === 'pot' ? 'Topf gedreht' : 'Gedreht. Der grüne Punkt zeigt, wo man davor steht.', false); return true; }
     sfx.bad(); edMsg('Zum Drehen ist hier kein Platz. Schieb es erst etwas weg von Wand und Möbeln.', true); return false;
   }
+  function renderGhqPanel() {
+    const g = pgang; if (!g) return; const n = ghqSlots(g.lv), full = ed.hq.length >= n, it = ed.sel && ed.hq[ed.sel.i], d0 = it && DECOR.find(x => x.id === it.id);
+    $('edTitle').textContent = 'Einrichten · Gang-HQ'; $('edReset').hidden = true; $('edRot').disabled = true;
+    $('edDel').disabled = !it; $('edDel').textContent = it ? 'Wegräumen (+' + fmt(Math.round(ghqPrice(d0) / 2)) + ')' : 'Wegräumen';
+    const list = $('edList'); list.innerHTML = '';
+    const hd = uiEl('div', 'grp', 'Kaufen aus der Kasse · ' + fmt(g.kasse) + ' · Plätze ' + ed.hq.length + '/' + n); list.appendChild(hd);
+    const inp = uiEl('input', 'ed-q'); inp.type = 'search'; inp.placeholder = '🔍 Deko suchen …'; inp.value = ghqQ; inp.addEventListener('keydown', e => e.stopPropagation());
+    const chips = []; inp.addEventListener('input', () => { ghqQ = inp.value; const q = ghqQ.trim().toLowerCase(); chips.forEach(([c, nm]) => { c.style.display = !q || nm.includes(q) ? '' : 'none'; }); }); list.appendChild(inp);
+    if (full) list.appendChild(uiEl('div', 'empty', 'Alle Plätze belegt. Baut das HQ aus oder räumt etwas weg.'));
+    const all = ghqDeco().slice().sort((a, b) => (GHQ_CHILL.includes(b.id) - GHQ_CHILL.includes(a.id)) || ghqPrice(a) - ghqPrice(b)), q = ghqQ.trim().toLowerCase();
+    for (const x of all) { const p = ghqPrice(x), c = uiEl('button', 'chip' + (GHQ_CHILL.includes(x.id) ? ' chill' : ''), '+ ' + x.name + ' · ' + fmt(p)); c.disabled = full || g.kasse < p || ed.busy;
+      c.addEventListener('click', () => { const before = new Set(ed.hq.map(z => z.k)); ghqDo(async () => { const r = await pgBuyDeco(x.id, [(HQ_BOX.x0 + HQ_BOX.x1) / 2 + (ed.hq.length % 5) * 10, (HQ_BOX.y0 + HQ_BOX.y1) / 2]); ed.hq = hqItems(); const i = ed.hq.findIndex(z => !before.has(z.k)); ed.sel = i >= 0 ? { kind: 'hq', i } : null; return x.name + ' steht in der Mitte. Zieh es an den richtigen Platz.'; }, ''); });
+      if (q && !x.name.toLowerCase().includes(q)) c.style.display = 'none'; chips.push([c, x.name.toLowerCase()]); list.appendChild(c); }
+  }
+  async function ghqDelSel() { const it = ed.sel && ed.hq[ed.sel.i]; if (!it) return; ed.sel = null; await ghqDo(() => pgRemoveDeco(it), 'Weggeräumt'); }
   function drawEditOverlay() {
+    if (ed.ak === 'ghq') { const I = GHQ_EDA.IN; ctx.fillStyle = 'rgba(255,255,255,.1)'; for (let x = I.x0 + 20; x < I.x1; x += 20) for (let y = I.y0 + 20; y < I.y1; y += 20) ctx.fillRect(x - 0.7, y - 0.7, 1.4, 1.4); // v132
+      ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(255,181,71,.4)'; ctx.strokeRect(HQ_BOX.x0 - 12, HQ_BOX.y0 - 12, HQ_BOX.x1 - HQ_BOX.x0 + 24, HQ_BOX.y1 - HQ_BOX.y0 + 24); ctx.setLineDash([]);
+      const it = ed.sel && ed.hq[ed.sel.i]; if (it) { const h = dHalf(it.id); ctx.lineWidth = 3; ctx.strokeStyle = '#FFB547'; ctx.fillStyle = 'rgba(255,181,71,.14)'; rr(it.x - h[0] - 3, it.y - h[1] - 3, h[0] * 2 + 6, h[1] * 2 + 6, 7); ctx.fill(); ctx.stroke(); }
+      if (ed.busy) { ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '700 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('speichert …', (I.x0 + I.x1) / 2, I.y0 + 16); } return; }
     const ar = AREAS[ed.ak], I = ar.IN;
     ctx.fillStyle = 'rgba(255,255,255,.1)';
     for (let x = I.x0 + 20; x < I.x1; x += 20) for (let y = I.y0 + 20; y < I.y1; y += 20) ctx.fillRect(x - 0.7, y - 0.7, 1.4, 1.4);
@@ -10902,6 +11062,67 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     }
     return false;
   }
+  // ---------- v132: Chill-Zone: Deko zum Abhängen mit der Gang ----------
+  function drawDec132(id, t) {
+    const F = c => { ctx.fillStyle = c; }, C = (x, y, r) => { ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }, sh = (w, y) => { F('rgba(0,0,0,.24)'); ell(0, y, w, 3.8); ctx.fill(); }, nt = typeof lightK === 'function' ? lightK() : 0;
+    const glow = (x, y, r, rgb, a) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(' + rgb + ',' + Math.max(0, a).toFixed(2) + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)'); F(g); C(x, y, r); };
+    const cush = (x, y, w, h, c, c2) => { F(c); rr(x, y, w, h, 3); ctx.fill(); F(c2); ctx.fillRect(x + 2, y + 1, w - 4, 1.4); };
+    switch (id) {
+      case 'lounge': { sh(34, 21); F('#2B2F38'); rr(-34, -18, 68, 12, 5); ctx.fill(); rr(-34, -18, 14, 38, 5); ctx.fill(); F('#3E4350'); rr(-31, -14, 62, 14, 4); ctx.fill(); rr(-31, -14, 14, 32, 4); ctx.fill();
+        cush(-29, -4, 20, 9, '#4A5060', 'rgba(255,255,255,.12)'); cush(-8, -4, 18, 9, '#4A5060', 'rgba(255,255,255,.12)'); cush(11, -4, 18, 9, '#4A5060', 'rgba(255,255,255,.12)'); cush(-29, 6, 11, 10, '#4A5060', 'rgba(255,255,255,.12)');
+        cush(-27, -12, 9, 7, '#FF5CA8', 'rgba(255,255,255,.3)'); cush(18, -12, 9, 7, '#4BC8FF', 'rgba(255,255,255,.3)'); cush(-6, -12, 8, 6, '#FFD24A', 'rgba(255,255,255,.3)');
+        F('#6B4A2E'); rr(-4, 8, 26, 10, 2); ctx.fill(); F('#8A5E3A'); ctx.fillRect(-4, 8, 26, 2.4); F('#E9ECEF'); ctx.fillRect(2, 10, 3, 4); F('#C23B3B'); ctx.fillRect(12, 10, 3, 4); F('#F2C14E'); ell(8, 12, 3, 1.4); ctx.fill();
+        F('rgba(255,255,255,.5)'); for (let k = 0; k < 2; k++) { const p = (t * 0.6 + k * 0.5) % 1; ctx.globalAlpha = 1 - p; C(3.5 + Math.sin(t * 2 + k) * 1.2, 8 - p * 9, 0.8 + p); } ctx.globalAlpha = 1; return true; }
+      case 'firepit': { const fl = 0.75 + 0.25 * Math.sin(t * 9) * Math.sin(t * 5.7); glow(0, -4, 34, '255,150,60', (0.25 + 0.35 * nt) * fl); sh(18, 13); F('#3A3F47'); ell(0, 6, 17, 7); ctx.fill(); F('#5A626E'); ell(0, 4, 16, 6); ctx.fill(); F('#20262E'); ell(0, 3, 12, 4); ctx.fill();
+        F('#6B4A2E'); ctx.save(); ctx.translate(0, 2); for (const a of [-0.5, 0.5, 1.6]) { ctx.save(); ctx.rotate(a); ctx.fillRect(-9, -1.5, 18, 3); ctx.restore(); } ctx.restore();
+        ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let k = 0; k < 6; k++) { const x = -7 + k * 2.8, h = 8 + 5 * Math.sin(t * 7 + k * 1.9) + (k % 2) * 3; ctx.fillStyle = k % 2 ? 'rgba(255,120,40,.85)' : 'rgba(255,200,70,.85)'; ctx.beginPath(); ctx.moveTo(x - 3, 2); ctx.quadraticCurveTo(x - 2.4, -h * 0.5, x + Math.sin(t * 6 + k) * 1.4, -h); ctx.quadraticCurveTo(x + 2.4, -h * 0.5, x + 3, 2); ctx.fill(); }
+        for (let k = 0; k < 5; k++) { const p = (t * 0.8 + k / 5) % 1; ctx.fillStyle = 'rgba(255,190,90,' + (1 - p).toFixed(2) + ')'; C(Math.sin(k * 3 + t) * 6 * p, -6 - p * 22, 0.8); } ctx.restore(); return true; }
+      case 'console': { sh(32, 19); F('#14161C'); rr(-26, -22, 52, 26, 3); ctx.fill(); F('#20262E'); ctx.fillRect(-4, 4, 8, 3); ctx.fillRect(-10, 6, 20, 2);
+        ctx.save(); ctx.beginPath(); ctx.rect(-23, -19, 46, 20); ctx.clip(); F('#3A7AC0'); ctx.fillRect(-23, -19, 46, 20); F('#5FB86A'); ctx.fillRect(-23, -8, 46, 9); F('#4A505C'); ctx.beginPath(); ctx.moveTo(-6, 1); ctx.lineTo(-2, -8); ctx.lineTo(2, -8); ctx.lineTo(6, 1); ctx.fill();
+        F('#FFE45C'); for (let k = 0; k < 4; k++) { const y = -8 + ((t * 12 + k * 2.5) % 9); ctx.fillRect(-0.4, y, 0.8, 1.2 + (y + 8) * 0.12); } const cx = Math.sin(t * 1.8) * 3; F('#D84A4A'); ctx.fillRect(cx - 2, -3, 4, 2.6); F('#4BC8FF'); ctx.fillRect(-cx * 0.6 - 1.6 + 1.5, -6, 3.2, 2); F('rgba(255,255,255,.85)'); ctx.font = '900 3.4px sans-serif'; ctx.textAlign = 'left'; ctx.fillText('LAP ' + (1 + Math.floor(t / 6) % 3) + '/3', -22, -15); ctx.restore();
+        F('#2B2F38'); rr(-8, 9, 16, 5, 2); ctx.fill(); F('#5FE584'); C(5, 11.5, 0.8); for (const [x, c] of [[-24, '#C23B3B'], [24, '#4B8DFF']]) { F(c); ell(x, 14, 9, 7); ctx.fill(); F('rgba(255,255,255,.18)'); ell(x - 2, 12, 5, 3); ctx.fill(); }
+        F('#20262E'); for (const s of [-1, 1]) { ctx.save(); ctx.translate(s * 16, 6 + Math.sin(t * 8 + s) * 0.6); rr(-3, -1.4, 6, 2.8, 1.2); ctx.fill(); ctx.restore(); } return true; }
+      case 'djbooth': { const beat = Math.pow(Math.max(0, Math.sin(t * 8.4)), 4); ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let k = 0; k < 3; k++) { const a = Math.sin(t * 0.9 + k * 2.1) * 0.7 - Math.PI / 2, col = ['255,92,168', '75,200,255', '95,229,132'][k]; const g = ctx.createLinearGradient(0, -12, Math.cos(a) * 40, -12 + Math.sin(a) * 40); g.addColorStop(0, 'rgba(' + col + ',' + (0.25 + 0.2 * nt).toFixed(2) + ')'); g.addColorStop(1, 'rgba(' + col + ',0)'); F(g); ctx.beginPath(); ctx.moveTo(-1, -12); ctx.lineTo(Math.cos(a - 0.12) * 40, -12 + Math.sin(a - 0.12) * 40); ctx.lineTo(Math.cos(a + 0.12) * 40, -12 + Math.sin(a + 0.12) * 40); ctx.fill(); } ctx.restore();
+        sh(26, 17); F('#14161C'); rr(-26, -10, 52, 26, 3); ctx.fill(); F('#2B2F38'); rr(-24, -14, 48, 10, 2); ctx.fill();
+        for (const s of [-1, 1]) { ctx.save(); ctx.translate(s * 13, -9); F('#0A0C10'); C(0, 0, 6.4); ctx.rotate(t * 5 * s); F('#20262E'); C(0, 0, 5.4); ctx.strokeStyle = 'rgba(255,255,255,.15)'; ctx.lineWidth = 0.4; for (const r of [2.4, 3.6, 4.6]) { ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.stroke(); } F(s < 0 ? '#FF5CA8' : '#4BC8FF'); C(0, 0, 1.6); F('#FFFFFF'); ctx.fillRect(3.4, -0.4, 1.6, 0.8); ctx.restore(); }
+        F('#3A3F47'); rr(-4, -13, 8, 8, 1); ctx.fill(); F('#C9D2DC'); ctx.fillRect(-2.6 + Math.sin(t * 0.7) * 1.6, -11, 1.2, 4);
+        for (let k = 0; k < 10; k++) { const h = 1 + Math.abs(Math.sin(t * 6 + k * 1.3)) * 7 * (0.5 + beat * 0.5); F('hsl(' + (120 - h * 12) + ',85%,58%)'); ctx.fillRect(-20 + k * 4.1, 12 - h, 2.8, h); }
+        F('rgba(255,255,255,' + (0.15 + 0.5 * beat).toFixed(2) + ')'); rr(-26, 14, 52, 2, 1); ctx.fill(); return true; }
+      case 'neonsign': { const pu = 0.75 + 0.25 * Math.sin(t * 3), fl = Math.sin(t * 23) > 0.96 ? 0.4 : 1; F('#14161C'); rr(-24, -14, 48, 26, 4); ctx.fill(); ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(0, -1, 26, '255,92,168', 0.3 * pu * fl); ctx.restore();
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.font = '900 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,92,168,' + (0.45 * fl).toFixed(2) + ')'; ctx.strokeText('CHILL', 0, -3); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,220,240,' + (0.95 * fl).toFixed(2) + ')'; ctx.strokeText('CHILL', 0, -3);
+        ctx.font = '800 5.5px sans-serif'; F('rgba(120,230,255,' + (0.6 + 0.4 * pu).toFixed(2) + ')'); ctx.fillText('ZONE', 0, 7); ctx.textBaseline = 'alphabetic'; F('#3A3F47'); ctx.fillRect(-14, -18, 1, 4); ctx.fillRect(13, -18, 1, 4); return true; }
+      case 'pokertable': { sh(28, 19); F('#5A3A24'); ell(0, 0, 28, 18); ctx.fill(); F('#1E7A4A'); ell(0, -1, 24, 15); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 0.6; ctx.beginPath(); ctx.ellipse(0, -1, 16, 9, 0, 0, TAU); ctx.stroke();
+        const chip = (x, y, n, c) => { for (let k = 0; k < n; k++) { F('#10151C'); ell(x, y - k * 1.2 + 0.4, 2.6, 1.3); ctx.fill(); F(c); ell(x, y - k * 1.2, 2.6, 1.3); ctx.fill(); } }; chip(-14, 4, 4, '#C23B3B'); chip(14, 3, 3, '#4B8DFF'); chip(-10, -8, 5, '#F4F4F8'); chip(11, -8, 2, '#1F2430'); chip(2, 2, 3 + Math.floor(t * 1.2) % 3, '#F2C14E');
+        const fl = Math.floor(t * 0.8) % 5; for (let k = 0; k < 5; k++) { const up = k < fl || (k === fl && (t * 0.8) % 1 > 0.5); F(up ? '#FAFAFA' : '#B33A3A'); rr(-10 + k * 4.4, -4, 3.6, 5, 0.6); ctx.fill(); if (up) { F(k % 2 ? '#C23B3B' : '#20262E'); ctx.font = '900 3px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(['A', 'K', '7', 'Q', '10'][k], -8.2 + k * 4.4, -0.6); } }
+        F('#2B2F38'); for (const [x, y] of [[-26, -10], [26, -10], [-26, 10], [26, 10]]) { ell(x, y, 5, 4); ctx.fill(); } return true; }
+      case 'tagwall': { F('#8A8F96'); ctx.fillRect(-30, -18, 60, 30); F('#7A7F86'); for (let y = -18; y < 12; y += 6) for (let x = -30 + ((y / 6) % 2 ? 6 : 0); x < 30; x += 12) ctx.fillRect(x, y, Math.min(11, 30 - x), 5);
+        const cyc = (t * 0.25) % 1, cols = ['#FF5CA8', '#4BC8FF', '#5FE584', '#FFD24A']; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 4; const pts = [[-24, 2], [-18, -10], [-12, 2], [-6, -10], [0, 4], [6, -12], [12, 2], [18, -8], [24, 0]], n = Math.floor(cyc * 1.25 * (pts.length - 1));
+        ctx.strokeStyle = '#1F2430'; ctx.lineWidth = 5.4; ctx.beginPath(); pts.slice(0, n + 2).forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); const g = ctx.createLinearGradient(-24, 0, 24, 0); cols.forEach((c, i) => g.addColorStop(i / 3, c)); ctx.strokeStyle = g; ctx.lineWidth = 3.4; ctx.beginPath(); pts.slice(0, n + 2).forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+        F('rgba(255,92,168,.7)'); for (let k = 0; k < Math.min(n, 4); k++) ctx.fillRect(-23 + k * 12, 3, 1.2, 3 + (t * 2 + k) % 4);
+        const [cx, cy] = pts[Math.min(n + 1, pts.length - 1)]; ctx.save(); ctx.translate(cx + 4, cy - 8); ctx.rotate(0.5); F('#C23B3B'); rr(-2, -5, 4, 10, 1.5); ctx.fill(); F('#E9ECEF'); ctx.fillRect(-1, -6.6, 2, 1.6); ctx.restore(); F('rgba(255,180,220,.5)'); for (let k = 0; k < 4; k++) C(cx + 2 + Math.sin(t * 20 + k) * 2, cy - 3 + Math.cos(t * 17 + k) * 2, 0.6);
+        F('#5A626E'); ctx.fillRect(-30, 12, 60, 2); return true; }
+      case 'sneakerwall': { F('#20262E'); rr(-26, -22, 52, 40, 3); ctx.fill(); const pu = 0.6 + 0.4 * Math.sin(t * 2);
+        for (let r = 0; r < 3; r++) { const y = -10 + r * 12; ctx.save(); ctx.globalCompositeOperation = 'lighter'; F('rgba(75,200,255,' + (0.35 * pu).toFixed(2) + ')'); ctx.fillRect(-24, y + 3, 48, 1.4); ctx.restore(); F('#3A404B'); ctx.fillRect(-24, y + 2, 48, 1.6);
+          for (let k = 0; k < 3; k++) { const x = -15 + k * 15, c = ['#FF5C7A', '#F4F4F8', '#FFD24A', '#5FE584', '#4BC8FF', '#B58CFF', '#FF8A3A', '#1F2430', '#E05555'][r * 3 + k], hov = (r * 3 + k) === Math.floor(t * 0.6) % 9 ? -1.4 - Math.sin(t * 6) * 0.6 : 0; ctx.save(); ctx.translate(x, y + hov);
+            F(c); ctx.beginPath(); ctx.moveTo(-6, 1); ctx.lineTo(-6, -3); ctx.quadraticCurveTo(-3, -6, 0, -4); ctx.lineTo(5, -2); ctx.quadraticCurveTo(7, -1, 7, 1); ctx.closePath(); ctx.fill(); F('#F4F4F8'); ctx.fillRect(-6, 0, 13, 1.6); F('rgba(0,0,0,.25)'); ctx.fillRect(-3, -3, 4, 0.8); ctx.restore(); } }
+        sh(24, 18); return true; }
+      case 'hoops': { sh(14, 21); F('#2B2F38'); rr(-14, 8, 28, 13, 2); ctx.fill(); F('#14161C'); rr(-12, -24, 24, 16, 2); ctx.fill(); F('#F4F4F8'); ctx.fillRect(-11, -23, 22, 14); ctx.strokeStyle = '#D84A4A'; ctx.lineWidth = 0.8; ctx.strokeRect(-5, -19, 10, 8); F('#3A3F47'); ctx.fillRect(-12, -8, 2, 16); ctx.fillRect(10, -8, 2, 16);
+        ctx.strokeStyle = '#FF8A3A'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(0, -10, 5, 1.6, 0, 0, TAU); ctx.stroke(); ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 0.4; for (let k = -4; k <= 4; k += 2) { ctx.beginPath(); ctx.moveTo(k, -10); ctx.lineTo(k * 0.6, -5); ctx.stroke(); }
+        const p = (t * 0.7) % 1, bx = -8 + p * 8, by = p < 0.7 ? 6 - Math.sin(p / 0.7 * Math.PI) * 24 - (p / 0.7) * 8 : -10 + (p - 0.7) / 0.3 * 16; ctx.save(); ctx.translate(p < 0.7 ? bx : 0, by); ctx.rotate(t * 8); F('#E8833A'); C(0, 0, 2.6); ctx.strokeStyle = '#7A3A10'; ctx.lineWidth = 0.4; ctx.beginPath(); ctx.moveTo(-2.6, 0); ctx.lineTo(2.6, 0); ctx.moveTo(0, -2.6); ctx.lineTo(0, 2.6); ctx.stroke(); ctx.restore();
+        F('#14161C'); rr(-8, 10, 16, 6, 1); ctx.fill(); F('#FF5C7A'); ctx.font = '900 4.6px monospace'; ctx.textAlign = 'center'; ctx.fillText(String(Math.floor(t * 0.7) % 100).padStart(2, '0'), 0, 14.6); return true; }
+      case 'moneycount': { sh(12, 11); F('#3A3F47'); rr(-11, -6, 22, 16, 3); ctx.fill(); F('#5A626E'); rr(-11, -6, 22, 4, 2); ctx.fill(); F('#14161C'); rr(-7, 1, 14, 5, 1); ctx.fill(); F('#5FE584'); ctx.font = '700 4px monospace'; ctx.textAlign = 'center'; ctx.fillText(String(Math.floor(t * 37) % 10000).padStart(4, '0'), 0, 5.2);
+        for (let k = 0; k < 4; k++) { const p = (t * 2.2 + k / 4) % 1; ctx.save(); ctx.translate(-2 + p * 4, -6 - Math.sin(p * Math.PI) * 6); ctx.rotate(-0.6 + p * 1.2); F('#7FBF6A'); ctx.fillRect(-4, -1.6, 8, 3.2); F('#5A9A4A'); ctx.fillRect(-1, -1, 2, 2); ctx.restore(); }
+        F('#7FBF6A'); for (let k = 0; k < 3; k++) ctx.fillRect(13 - k * 0.3, 2 - k * 1.4, 8, 1.2); F('#C9A13A'); ctx.fillRect(16, -2, 1, 5.6); return true; }
+      case 'speakerwall': { const beat = Math.pow(Math.max(0, Math.sin(t * 8.4)), 3); sh(18, 21); F('#14161C'); rr(-18, -24, 36, 44, 3); ctx.fill();
+        for (const [x, y, r] of [[-9, -14, 6], [9, -14, 6], [-9, 6, 7.5], [9, 6, 7.5], [0, -3, 3]]) { F('#20262E'); C(x, y, r + 1); F('#2B2F38'); C(x, y, r * (1 + 0.08 * beat)); F('#0A0C10'); C(x, y, r * 0.45 * (1 + 0.15 * beat)); F('rgba(255,255,255,.12)'); C(x - r * 0.3, y - r * 0.3, r * 0.2); }
+        ctx.save(); ctx.globalCompositeOperation = 'lighter'; F('rgba(75,200,255,' + (0.2 + 0.5 * beat).toFixed(2) + ')'); ctx.fillRect(-18, 17, 36, 2); ctx.restore(); if (beat > 0.5) { ctx.strokeStyle = 'rgba(255,255,255,' + ((beat - 0.5) * 0.8).toFixed(2) + ')'; ctx.lineWidth = 0.6; for (const x of [-9, 9]) { ctx.beginPath(); ctx.arc(x, 6, 10 + beat * 4, 0, TAU); ctx.stroke(); } } return true; }
+      case 'cooler': { sh(13, 11); F('#2A7FB8'); rr(-13, -4, 26, 14, 3); ctx.fill(); F('#F4F4F8'); rr(-13, -8, 26, 6, 2); ctx.fill(); F('#C9D2DC'); ctx.fillRect(-6, -10, 12, 2);
+        const lid = Math.max(0, Math.sin(t * 0.8)) * 0.4; ctx.save(); ctx.translate(-13, -8); ctx.rotate(-lid); F('#F4F4F8'); rr(0, -2, 26, 3, 1.5); ctx.fill(); ctx.restore();
+        if (lid > 0.1) { for (const [x, c] of [[-7, '#C23B3B'], [-2, '#5FE584'], [3, '#FFD24A'], [8, '#4BC8FF']]) { F(c); rr(x - 1.6, -12 + Math.sin(x) * 1, 3.2, 6, 1); ctx.fill(); F('#C9D2DC'); ctx.fillRect(x - 1, -12.6 + Math.sin(x), 2, 0.8); } F('rgba(220,240,255,.6)'); for (let k = 0; k < 3; k++) { const p = (t * 0.7 + k / 3) % 1; ctx.globalAlpha = 1 - p; C(-6 + k * 6, -10 - p * 8, 1 + p); } ctx.globalAlpha = 1; }
+        F('rgba(255,255,255,.3)'); ctx.fillRect(-11, -1, 1.4, 8); return true; }
+    }
+    return false;
+  }
   // ---------- v130: neue Begleiter (Blick nach rechts, Ursprung = Boden unter der Mitte) ----------
   function drawPet130(id, tm, moving, bob, lg) {
     const F = c => { ctx.fillStyle = c; }, C = (x, y, r) => { ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }, sh = (w, y) => { F('rgba(0,0,0,.26)'); ell(0, y, w, 3); ctx.fill(); };
@@ -11050,7 +11271,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   function drawDecorItem(id, x, y, sc) {
     ctx.save(); ctx.translate(x, y); ctx.scale(sc, sc);
     const t = gt;
-    if (drawDec130(id, t) || drawDec112(id, t) || drawDec107(id, t) || drawGrowDec(id, t) || drawBrewDec(id, t) || drawMoreDec(id, t) || drawNewDec(id, t) || drawDec106(id, t)) { ctx.restore(); return; }
+    if (drawDec132(id, t) || drawDec130(id, t) || drawDec112(id, t) || drawDec107(id, t) || drawGrowDec(id, t) || drawBrewDec(id, t) || drawMoreDec(id, t) || drawNewDec(id, t) || drawDec106(id, t)) { ctx.restore(); return; }
     if (id === 'roundrug') {
       ctx.fillStyle = '#7F5FA3'; ctx.beginPath(); ctx.arc(0, 0, 31, 0, TAU); ctx.fill();
       ctx.fillStyle = '#E9D5F2'; ctx.beginPath(); ctx.arc(0, 0, 25, 0, TAU); ctx.fill();
@@ -12961,7 +13182,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       return;
     }
     if (state === 'edit') {
-      const I = AREAS[ed.ak].IN, pt = isPort(), left = pt ? W : Math.max(200, W - EDW), top = pt ? Math.round(H * 0.6) : H, es = Math.min(left / (I.x1 - I.x0 + 28), (top - 8) / (I.y1 - I.y0 + 28)) * ed.zoom; // v59: Zoom
+      const I = edAr().IN, pt = isPort(), left = pt ? W : Math.max(200, W - EDW), top = pt ? Math.round(H * 0.6) : H, es = Math.min(left / (I.x1 - I.x0 + 28), (top - 8) / (I.y1 - I.y0 + 28)) * ed.zoom; // v59: Zoom
       viewX0 = I.x0 - 300; viewX1 = I.x1 + 300; viewY0 = I.y0 - 300; viewY1 = I.y1 + 300; // v72
       ev.sc = es; ev.cx = (I.x0 + I.x1) / 2 + ed.px; ev.cy = (I.y0 + I.y1) / 2 + ed.py; ev.ox = left / 2; ev.oy = top / 2;
       ctx.setTransform(DPR * es, 0, 0, DPR * es, DPR * (ev.ox - ev.cx * es), DPR * (ev.oy - ev.cy * es));
@@ -13540,7 +13761,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 131; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 132; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -13842,7 +14063,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   $('edRot').addEventListener('click', edRotate);
   $('edZin').addEventListener('click', () => edZoom(1.4)); $('edZout').addEventListener('click', () => edZoom(1 / 1.4)); $('edZ0').addEventListener('click', () => { ed.zoom = 1; ed.px = 0; ed.py = 0; });
   cv.addEventListener('wheel', e => { if (state === 'edit') { e.preventDefault(); edZoom(e.deltaY < 0 ? 1.15 : 1 / 1.15); } else if (state === 'admin') { e.preventDefault(); admZoom(e.deltaY < 0 ? 1.15 : 1 / 1.15); } }, { passive: false });
-  $('edDel').addEventListener('click', () => { if (ed.sel && ed.sel.kind === 'decor' && removeDecor(ed.ak, ed.sel.i)) { ed.sel = null; edMsg('Eingelagert. Du findest es links unter Bestand.', false); renderEditPanel(); } });
+  $('edDel').addEventListener('click', () => { if (ed.ak === 'ghq') { ghqDelSel(); return; } if (ed.sel && ed.sel.kind === 'decor' && removeDecor(ed.ak, ed.sel.i)) { ed.sel = null; edMsg('Eingelagert. Du findest es links unter Bestand.', false); renderEditPanel(); } });
   $('edReset').addEventListener('click', () => { resetLayout(ed.ak); ed.sel = null; edMsg('Stationen stehen wieder an ihren alten Plätzen', false); renderEditPanel(); });
   document.addEventListener('gesturestart', e => e.preventDefault());
   document.addEventListener('touchmove', e => { if (!e.target.closest('.ph-body') && !e.target.closest('.tabs') && !e.target.closest('.screen') && !e.target.closest('.edit') && !e.target.closest('.inst')) e.preventDefault(); }, { passive: false });
@@ -13851,12 +14072,14 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 132, date: 'Oktober 2026', title: 'HQ-Ausbau', items: [
+      ['neu', '🌬️', 'Anbau im HQ jetzt mit allen Schritten: Die Beet-Ernte kommt frisch ins Gang-Lager, rechts am Trockengestell trocknen, am Packtisch verpacken, dann an den Großhändler verkaufen (Geld in die Gang-Kasse) oder für den Großauftrag nutzen'],
+      ['neu', '✏️', 'HQ einrichten wie im Keller: an der Planungstafel oder in der Gang-App unter Einrichten. Teile mit dem Finger verschieben, neue Deko direkt aus der Kasse kaufen, wegräumen'],
+      ['neu', '😎', 'Chill-Zone: 12 neue bewegte Deko-Stücke zum Abhängen, z. B. Lounge-Ecke, DJ-Pult, Feuerschale, Gaming-Ecke, Pokertisch, Graffiti-Wand und Boxenturm'],
+      ['neu', '🦄', 'Begleiter antippen: große Ansicht, die sich dreht, mit ganzer Beschreibung und allen Vorteilen'] ] },
     { v: 131, date: 'Oktober 2026', title: 'Ruhe im HQ', items: [
       ['chg', '🧭', 'Im Gang-Hauptquartier wird der Lieferkompass nicht mehr angezeigt'],
       ['neu', '💰', 'Im Gang-Hauptquartier steht die Gang-Kasse oben links unter deinem Geld'] ] },
-    { v: 130, date: 'Oktober 2026', title: 'Neue Begleiter und Deko', items: [
-      ['neu', '🐾', '7 neue Begleiter, jeder mit eigenem Vorteil: Schildkröte, Füchschen, Pinguin, Eule, Axolotl in der Wasserkugel, Gespenst und Mini-Einhorn'],
-      ['neu', '🎠', '12 neue Deko-Stücke, die sich bewegen: Glühwürmchen-Glas, Sternen-Mobile, Schaukelstuhl, Kugelpendel, Kuckucksuhr, Plasmakugel, Zimmerbrunnen, Saugroboter, Seifenblasen-Maschine, Modelleisenbahn, Mini-Karussell und Quallen-Aquarium. Im Deko-Laden unter „✨ Neu“'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
@@ -14043,7 +14266,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   } catch (e) {}
   loadWorldLocal(); setTimeout(worldStart, 1500); // v59: gemeinsame Karte
   if (r3Want) setTimeout(r3Start, 50); // v90: 3D-Ansicht vom letzten Mal
-  if (window.__KG_DEBUG) window.__KG_DEBUG({ get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, set sus(v) { sus = v; }, bustNow() { copBust = gt; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, mpBinAcks, binRestore, wzReset() { wzDel0 = -1; wzT = 0; }, rkZone, rkPoint, rkMerge, rkLoad, rkBoard, rkOwners, rkMul, rkClaim, goCur, goDeliver, goNeed, get rkList() { return rkList; }, set rkList(v) { rkList = v; }, get rkPend() { return rkPend; }, renderPgRev, wzFlush, TIPS, tipTick, tipShow, tipClose, get tipCur() { return tipCur; }, lfBar, lfNewCount, get lfMode() { return lfMode; }, set lfMode(v) { lfMode = v; }, get LOFX() { return LOFX; }, setLofx, perfTick, setAutoOn, drawPet, drawPet130, drawDec130, get autoLow() { return autoLow; }, get perf() { return perf; }, get DPR() { return DPR; }, fk, drawCopLights, uiDef, cleanUi, canPay, payCost, bankUp, bankLv, bankHere, busWait, pgBuyDeco, pgMoveDeco, pgRemoveDeco, hqItems, lagPut, lagTake, lagArr, donList, hqTaxi, pgAppSync, hqPick, hqDrop, get hqCarry() { return hqCarry; }, pgSet, gbUse, wzClaim, wzCur, GBEET, renderAdmErr, errLocal, pgMakeBoss, pgReqN, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
+  if (window.__KG_DEBUG) window.__KG_DEBUG({ get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, set sus(v) { sus = v; }, bustNow() { copBust = gt; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, mpBinAcks, binRestore, wzReset() { wzDel0 = -1; wzT = 0; }, rkZone, rkPoint, rkMerge, rkLoad, rkBoard, rkOwners, rkMul, rkClaim, goCur, goDeliver, goNeed, get rkList() { return rkList; }, set rkList(v) { rkList = v; }, get rkPend() { return rkPend; }, renderPgRev, wzFlush, TIPS, tipTick, tipShow, tipClose, get tipCur() { return tipCur; }, lfBar, lfNewCount, get lfMode() { return lfMode; }, set lfMode(v) { lfMode = v; }, get LOFX() { return LOFX; }, setLofx, perfTick, setAutoOn, petView, petViewClose, startGhqEdit, ed, editHit, renderGhqPanel, ghqDelSel, gdUse, gpUse, gSell, gdOf, gbYield, gSellP, GHQ_DRY, GHQ_PACK, GD_TIME, drawPet, drawPet130, drawDec130, get autoLow() { return autoLow; }, get perf() { return perf; }, get DPR() { return DPR; }, fk, drawCopLights, uiDef, cleanUi, canPay, payCost, bankUp, bankLv, bankHere, busWait, pgBuyDeco, pgMoveDeco, pgRemoveDeco, hqItems, lagPut, lagTake, lagArr, donList, hqTaxi, pgAppSync, hqPick, hqDrop, get hqCarry() { return hqCarry; }, pgSet, gbUse, wzClaim, wzCur, GBEET, renderAdmErr, errLocal, pgMakeBoss, pgReqN, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
   requestAnimationFrame(frame);
 })();
 </script>

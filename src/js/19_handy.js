@@ -460,6 +460,7 @@
   const DCAT = [['Pflanzen', ['cactus', 'plant', 'flowers', 'bonsai', 'palm', 'tree']], ['Möbel', ['beanbag', 'shelf', 'turntable', 'fridge', 'easel', 'couch', 'trophy', 'piano', 'hammock', 'mirror']], ['Teppiche', ['roundrug', 'rug', 'leafrug', 'starrug']], ['Licht und Stimmung', ['candles', 'lamp', 'lavalamp', 'neon', 'discoball', 'fireplace', 'chandelier']], ['Technik und Spaß', ['fan', 'globe', 'speaker', 'tv', 'tank', 'arcade', 'jukebox', 'telescope']], ['Spiele und Sport', ['dartboard', 'kicker', 'pooltable', 'punchbag']], ['Musik und Küche', ['guitar', 'drumset', 'coffee', 'popcorn']], ['Kleinkram', ['gnome', 'terrarium']], ['Anbau', ['watercan', 'hygro', 'leafposter', 'clipfan', 'seedrack', 'hemprug', 'drynet', 'jars', 'mother', 'carbonfilter', 'ledpanel', 'growtent']], ['Betten', ['futon', 'bed', 'bunkbed', 'dbed', 'catbed']], ['Wohnen', ['bookstack', 'fishbowl', 'fairy', 'plantwall', 'clock', 'robot', 'safe', 'statue']], ['Freizeit', ['bbq', 'graffcanvas', 'miniramp', 'vending', 'pingpong', 'gamingpc', 'hottub']], ['Labor', ['hopsack', 'maltsacks', 'crates', 'bartable', 'mugshelf', 'casks', 'prostsign', 'tap', 'kettle', 'fermenter']]];
   { const add = (cat, ids) => DCAT.find(c => c[0] === cat)[1].push(...ids); add('Pflanzen', ['planter']); add('Möbel', ['armchair']); add('Teppiche', ['rugstripe']); add('Licht und Stimmung', ['lantern']); add('Technik und Spaß', ['radio']); add('Musik und Küche', ['vinyl']); add('Kleinkram', ['snowglobe', 'windchime', 'piggy']); add('Pflanzen', ['cactusrow', 'monstera']); add('Möbel', ['homebar', 'massage']); add('Licht und Stimmung', ['arclamp', 'neonleaf']); add('Technik und Spaß', ['aquarium', 'bigtv']); add('Kleinkram', ['gumball', 'hamster', 'goldbars']); add('Freizeit', ['koipond', 'skatewall']); } // v87: neue Deko in die passenden Kategorien
   { const add = (cat, ids) => DCAT.find(c => c[0] === cat)[1].push(...ids); add('Licht und Stimmung', ['firefly', 'plasma', 'jellytank']); add('Möbel', ['rocker']); add('Kleinkram', ['mobile', 'newton', 'cuckoo']); add('Technik und Spaß', ['robovac', 'trainset']); add('Freizeit', ['fountain', 'bubbles', 'carousel']); } // v130
+  DCAT.push(['😎 Chill-Zone', ['lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler']]); // v132
   DCAT.push(['🏆 Exklusiv', ['masterpiece', 'citykey', 'prtrophy']]);
   let dshopCat = 0; // v106: gewaehlte Kategorie im Deko-Laden
   function renderDShop(b) {
@@ -524,6 +525,33 @@
       b.appendChild(c);
     });
   }
+  // v132: Begleiter in groß: dreht sich live, darunter der ganze Text mit Vorteil
+  let pvwRaf = 0;
+  function petView(id) {
+    const cs = COS.find(x => x.id === id && x.kind === 'pet'); if (!cs) return; petViewClose();
+    const ov = uiEl('div', 'petview'); ov.id = 'petView'; const card = uiEl('div', 'pv-card'); ov.appendChild(card);
+    const cvs = document.createElement('canvas'); cvs.className = 'pv-big'; const dp = Math.min(2, window.devicePixelRatio || 1); cvs.width = Math.round(300 * dp); cvs.height = Math.round(220 * dp); card.appendChild(cvs);
+    const owned = !!G.cos.owned[id], on = activePets().includes(id), locked = !owned && G.rep < (cs.rep || 0), pk = PERKS[id];
+    card.appendChild(uiEl('div', 'pv-nm', cs.name)); card.appendChild(uiEl('div', 'pv-pr', owned ? (on ? 'angelegt' : 'gekauft') : locked ? 'ab Ruf ' + cs.rep : fmt(cs.cost)));
+    if (pk) { const p = uiEl('div', 'pv-perk'); p.appendChild(uiEl('b', '', '⭐ Vorteil')); p.appendChild(uiEl('div', '', pk.text)); card.appendChild(p); }
+    card.appendChild(uiEl('div', 'pv-ds', cs.desc + '.'));
+    card.appendChild(uiEl('div', 'pv-ds pv-mut', 'Bis zu 2 Begleiter gleichzeitig. Ihre Vorteile zählen zusammen.'));
+    const row = uiEl('div', 'pv-row'), bt = uiEl('button', 'buy');
+    if (!owned) { bt.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen für ' + fmt(cs.cost); bt.disabled = locked || G.money < cs.cost; bt.addEventListener('click', () => { if (buyCos(id)) { petViewClose(); renderPhone(); petView(id); } }); }
+    else { bt.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) bt.classList.add('alt'); bt.addEventListener('click', () => { equipCos(id); petViewClose(); renderPhone(); petView(id); }); }
+    const cl = uiEl('button', 'buy alt', 'Schließen'); cl.addEventListener('click', petViewClose); row.appendChild(bt); row.appendChild(cl); card.appendChild(row);
+    ov.addEventListener('click', e => { if (e.target === ov) petViewClose(); });
+    document.body.appendChild(ov);
+    const x = cvs.getContext('2d'), t0 = performance.now();
+    const loop = now => { if (!ov.isConnected) return; const tm = (now - t0) / 1000, W2 = cvs.width, H2 = cvs.height; x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, W2, H2);
+      const g = x.createRadialGradient(W2 / 2, H2 * 0.6, 10, W2 / 2, H2 * 0.6, W2 * 0.6); g.addColorStop(0, '#2E3A4C'); g.addColorStop(1, '#151B24'); x.fillStyle = g; x.fillRect(0, 0, W2, H2);
+      x.fillStyle = 'rgba(255,255,255,.06)'; x.beginPath(); x.ellipse(W2 / 2, H2 * 0.78, W2 * 0.3, H2 * 0.07, 0, 0, TAU); x.fill();
+      const turn = Math.cos(tm * 1.1), sx = Math.sign(turn || 1) * Math.max(0.12, Math.abs(turn)), moving = Math.sin(tm * 0.5) > -0.2, sc = 4.6 * dp;
+      const s0 = ctx; try { ctx = x; ctx.save(); ctx.translate(W2 / 2, H2 * 0.78); ctx.scale(sc * sx, sc); drawPet(id, 0, 0, 1, tm, moving, 1); ctx.restore(); } catch (e) {} finally { ctx = s0; }
+      pvwRaf = requestAnimationFrame(loop); };
+    pvwRaf = requestAnimationFrame(loop);
+  }
+  function petViewClose() { if (!pvwRaf) return; const o = document.getElementById('petView'); if (o) o.remove(); try { cancelAnimationFrame(pvwRaf); } catch (e) {} pvwRaf = 0; }
   function renderStyle(b, part) {
     const L = G.look;
     if (!part || part === 'view') { const hd0 = document.createElement('div'); hd0.className = 'grp'; hd0.textContent = 'Anzeige'; b.appendChild(hd0);
@@ -572,9 +600,11 @@
         if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen'; btn.disabled = locked || G.money < cs.cost; btn.addEventListener('click', () => { if (buyCos(cs.id)) renderPhone(); }); }
         else { btn.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) btn.classList.add('alt'); btn.addEventListener('click', () => { equipCos(cs.id); renderPhone(); }); }
         c.appendChild(btn); b.appendChild(c);
+        if (kind === 'pet') { c.classList.add('tapme'); c.addEventListener('click', e => { if (e.target.closest('button')) return; petView(cs.id); }); } // v132: antippen = große Ansicht
       });
     };
     if (part === 'pets' || part === 'aura') lfBar(b);
+    if (part === 'pets') b.appendChild(uiEl('div', 'ds', 'Tipp: Tippe einen Begleiter an, dann siehst du ihn groß und alle Vorteile.'));
     if (!part || part === 'pets') [['pet', 'Begleiter (bis zu 2 gleichzeitig)']].forEach(cosList);
     if (!part || part === 'aura') { // v119: alle Effekte an einem Ort, mit Unterteilung
       const seg = document.createElement('div'); seg.className = 'tmseg'; [['aura', '✨ Auren'], ['orbit', '💫 Um dich herum'], ['trail', '👣 Spuren']].forEach(([k, t]) => { const c = document.createElement('button'); c.className = 'tmsg' + (fxSel === k ? ' on' : ''); c.textContent = t; c.addEventListener('click', () => { fxSel = k; renderPhone(); }); seg.appendChild(c); }); b.appendChild(seg);
@@ -623,7 +653,7 @@
     if (part === 'kopf') { wearSection(b, 'hat', 'Mützen und Kappen'); wearSection(b, 'band', 'Bandanas (am Kiosk)'); startPreviews(b); } // v79: Kopf = Frisur, Mützen, Bandanas
   }
   function openPhone() { if (state !== 'play') return; closeChat(); G.area = curKey; tmSel = player.fl === 2 && !prVisit ? 'pr' : ''; phoneOpen = true; $('phone').hidden = false; renderPhone(); }
-  function closePhone() { lfFlush(); lfTab = ''; phoneOpen = false; tab = 'home'; $('phone').hidden = true; save(); }
+  function closePhone() { petViewClose(); lfFlush(); lfTab = ''; phoneOpen = false; tab = 'home'; $('phone').hidden = true; save(); }
 
 
   // =====================================================================================================

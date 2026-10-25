@@ -98,10 +98,25 @@
   const ev = { sc: 1, cx: 0, cy: 0, ox: 0, oy: 0 };
   const ed = { ak: 'keller', sel: null, drag: null, bad: false, zoom: 1, px: 0, py: 0, pan: null, ptrs: {}, pinch: null };
   const dHalfIt = it => { const h = dHalf(it.id); return ((it.r || 0) % 2 && RUGS.includes(it.id)) || ((it.q || 0) % 2 && !RUGS.includes(it.id)) ? [h[1], h[0]] : h; }; // v85: stehende Deko dreht in 90-Grad-Schritten (q) // v59/v60: nur Teppiche liegen quer
-  function edClampPan() { const I = AREAS[ed.ak].IN, mx = (I.x1 - I.x0) / 2 * (1 - 1 / ed.zoom) + 10, my = (I.y1 - I.y0) / 2 * (1 - 1 / ed.zoom) + 10; ed.px = clamp(ed.px, -mx, mx); ed.py = clamp(ed.py, -my, my); }
+  function edClampPan() { const I = edAr().IN, mx = (I.x1 - I.x0) / 2 * (1 - 1 / ed.zoom) + 10, my = (I.y1 - I.y0) / 2 * (1 - 1 / ed.zoom) + 10; ed.px = clamp(ed.px, -mx, mx); ed.py = clamp(ed.py, -my, my); }
   function edZoom(f) { ed.zoom = clamp(ed.zoom * f, 1, 4); if (ed.zoom === 1) { ed.px = 0; ed.py = 0; } edClampPan(); }
   const toWorldE = e => ({ x: (e.clientX - ev.ox) / ev.sc + ev.cx, y: (e.clientY - ev.oy) / ev.sc + ev.cy });
   function edMsg(txt, bad) { const h = $('edHint'); h.textContent = txt; h.classList.toggle('bad', !!bad); lastMsg = txt; }
+  // v132: das Gang-HQ wird genauso eingerichtet wie der Keller (ed.ak = 'ghq', Deko liegt in der Gang, nicht im Spielstand)
+  const GHQ_EDA = { name: 'Gang-Hauptquartier', IN: { x0: 52, y0: 52, x1: 600, y1: 508 } };
+  const edAr = () => ed.ak === 'ghq' ? GHQ_EDA : AREAS[ed.ak];
+  let ghqQ = '';
+  function startGhqEdit() {
+    if (state !== 'play') return false; if (player.fl !== 4 || !pgang || !pgMember()) { msg('Einrichten geht im Hauptquartier deiner Gang.', true); return false; }
+    if (!pgCanDeco()) { msg('Gerade dürfen nur Boss und Vize einrichten.', true); return false; }
+    closePhone(); closeChat(); $('emoteBar').hidden = true; hqCarry = null;
+    state = 'edit'; ed.ak = 'ghq'; ed.sel = null; ed.drag = null; ed.bad = false; ed.zoom = 1; ed.px = 0; ed.py = 0; ed.pan = null; ed.ptrs = {}; ed.pinch = null; ed.hq = hqItems(); ed.busy = false;
+    $('hud').classList.remove('on'); $('pads').classList.remove('on'); $('edit').hidden = false; $('edit').classList.add('ghq');
+    joy.id = null; joy.dx = joy.dy = 0; aHeld = false;
+    renderEditPanel(); edMsg('Tippe ein Teil an und ziehe es. Unten kaufst du neue Deko aus der Gang-Kasse.', false); return true;
+  }
+  const ghqRefresh = () => { if (ed.ak === 'ghq' && state === 'edit') { const k = ed.sel && ed.hq[ed.sel.i] && ed.hq[ed.sel.i].k; ed.hq = hqItems(); const i = k ? ed.hq.findIndex(x => x.k === k) : -1; ed.sel = i >= 0 ? { kind: 'hq', i } : null; renderEditPanel(); } };
+  async function ghqDo(fn, ok) { if (ed.busy) return; ed.busy = true; edMsg('Einen Moment …', false); try { const r = await fn(); edMsg(typeof r === 'string' && r ? r : ok, false); sfx.put(); } catch (e) { edMsg(e.message || 'Ging nicht', true); sfx.bad(); } finally { ed.busy = false; ghqRefresh(); } }
   function startEdit(ak) {
     const ar0 = AREAS[ak]; if (state !== 'play' || !ar0 || !isOpen(ar0)) return false;
     if (ar0.isFloor ? player.fl !== ar0.f : (ak === 'keller' && player.fl)) { msg(ar0.isFloor ? 'Geh zuerst ins ' + ar0.name + ', dann kannst du es umbauen' : 'Das Erdgeschoss baust du im Erdgeschoss um', true); return false; } // v54: nur auf der eigenen Etage
@@ -114,6 +129,7 @@
   }
   function finishEdit() {
     if (state !== 'edit') return;
+    if (ed.ak === 'ghq') { state = 'play'; ed.sel = null; ed.drag = null; ed.ak = 'keller'; $('edit').hidden = true; $('edit').classList.remove('ghq'); $('hud').classList.add('on'); $('pads').classList.add('on'); move(player, 0, 0, player.r); petSnap(); msg('🏴 HQ eingerichtet'); return; } // v132
     state = 'play'; ed.sel = null; ed.drag = null;
     $('edit').hidden = true; $('hud').classList.add('on'); $('pads').classList.add('on');
     // Arbeiter neu einteilen und aus neuen Möbeln herausholen, Spieler ebenfalls
@@ -126,6 +142,7 @@
     save(); msg('Umbau gespeichert');
   }
   function editHit(ak, wx, wy) {
+    if (ak === 'ghq') { for (let i = ed.hq.length - 1; i >= 0; i--) { const it = ed.hq[i], h = dHalf(it.id); if (Math.abs(wx - it.x) <= h[0] + 4 && Math.abs(wy - it.y) <= h[1] + 4) return { kind: 'hq', i }; } return null; } // v132
     const ar = AREAS[ak], arr = G.dec.items[ak];
     for (let i = arr.length - 1; i >= 0; i--) { const it = arr[i]; if (RUGS.includes(it.id)) continue; const h = dHalfIt(it); if (Math.abs(wx - it.x) <= h[0] + 4 && Math.abs(wy - it.y) <= h[1] + 4) return { kind: 'decor', i }; }
     for (let i = 0; i < ar.POTS.length; i++) if (Math.hypot(wx - ar.POTS[i].x, wy - ar.POTS[i].y) <= 24) return { kind: 'pot', i };
@@ -137,7 +154,7 @@
     for (let i = arr.length - 1; i >= 0; i--) { const it = arr[i]; if (!RUGS.includes(it.id)) continue; const h = dHalfIt(it); if (Math.abs(wx - it.x) <= h[0] && Math.abs(wy - it.y) <= h[1]) return { kind: 'decor', i }; }
     return null;
   }
-  const selPos = s => (s.kind === 'decor' ? [G.dec.items[ed.ak][s.i].x, G.dec.items[ed.ak][s.i].y] : stationPos(AREAS[ed.ak], s.kind, s.i));
+  const selPos = s => s.kind === 'hq' ? [ed.hq[s.i].x, ed.hq[s.i].y] : (s.kind === 'decor' ? [G.dec.items[ed.ak][s.i].x, G.dec.items[ed.ak][s.i].y] : stationPos(AREAS[ed.ak], s.kind, s.i));
   function editDown(e) {
     ed.ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
     { const ids = Object.keys(ed.ptrs); if (ids.length === 2) { const a = ed.ptrs[ids[0]], b = ed.ptrs[ids[1]]; if (ed.drag && ed.drag.moved && ed.sel) { const ar = AREAS[ed.ak]; if (ed.sel.kind === 'decor') { const it = G.dec.items[ed.ak][ed.sel.i]; if (it) clampDecor(ed.ak, it, ed.drag.orig[0], ed.drag.orig[1]); } else { applyStation(ar, ed.sel.kind, ed.sel.i, ed.drag.orig[0], ed.drag.orig[1]); rebuildNav(ar); ed.bad = false; } } ed.drag = null; ed.pan = null; ed.pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: ed.zoom }; return; } } // zwei Finger: zoomen
@@ -147,6 +164,7 @@
     if (hit) {
       const pos = selPos(hit); ed.drag = { id: e.pointerId, ox: pos[0] - p.x, oy: pos[1] - p.y, orig: pos.slice(), moved: false };
       try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+      if (hit.kind === 'hq') edMsg(((DECOR.find(d => d.id === ed.hq[hit.i].id) || {}).name || 'Deko') + ': ziehen zum Verschieben', false); else
       edMsg(hit.kind === 'decor' ? DECOR.find(d => d.id === G.dec.items[ed.ak][hit.i].id).name + ': ziehen zum Verschieben' : (hit.kind === 'pot' ? 'Topf' : hit.kind === 'stair' ? 'Treppe' : hit.kind === 'crate' ? 'Sammelkiste' : hit.kind === 'rack' ? AREAS[ed.ak].lbl.rack : 'Packtisch') + ': ziehen zum Verschieben, ⟳ dreht', false);
     }
     if (hit) { const ep = $('edit'); if (ep && ep.scrollTop > 0) ep.scrollTop = 0; } // v60: Drehen/Einlagern sofort sichtbar
@@ -160,7 +178,8 @@
     const p = toWorldE(e), nx = p.x + d.ox, ny = p.y + d.oy;
     if (!d.moved && Math.hypot(nx - d.orig[0], ny - d.orig[1]) < 4) return;
     d.moved = true;
-    if (ed.sel.kind === 'decor') clampDecor(ed.ak, G.dec.items[ed.ak][ed.sel.i], nx, ny);
+    if (ed.sel.kind === 'hq') { const it = ed.hq[ed.sel.i]; if (it) [it.x, it.y] = hqClampPos(nx, ny); } // v132
+    else if (ed.sel.kind === 'decor') clampDecor(ed.ak, G.dec.items[ed.ak][ed.sel.i], nx, ny);
     else { const ar = AREAS[ed.ak]; applyStation(ar, ed.sel.kind, ed.sel.i, Math.round(nx / 2) * 2, Math.round(ny / 2) * 2); ed.bad = !layoutValid(ar); }
   }
   function editUp(e) {
@@ -168,12 +187,15 @@
     if (ed.pan && e.pointerId === ed.pan.id) { ed.pan = null; return; }
     const d = ed.drag; if (!d || e.pointerId !== d.id) return; ed.drag = null;
     if (!d.moved || !ed.sel) return;
+    if (ed.sel.kind === 'hq') { const it = ed.hq[ed.sel.i]; if (it) ghqDo(() => pgMoveDeco(it, it.x, it.y), 'Gesetzt'); return; } // v132: sofort für die ganze Gang speichern
     const ar = AREAS[ed.ak];
     if (ed.sel.kind === 'decor') { save(); sfx.put(); return; }
     if (ed.bad) { applyStation(ar, ed.sel.kind, ed.sel.i, d.orig[0], d.orig[1]); rebuildNav(ar); ed.bad = false; edMsg('Hier ist kein Platz. Der Weg muss frei bleiben.', true); sfx.bad(); }
     else { commitLayout(ar); sfx.put(); save(); edMsg('Gesetzt', false); }
   }
   function renderEditPanel() {
+    if (ed.ak === 'ghq') return renderGhqPanel(); // v132
+    $('edReset').hidden = false;
     const ar = AREAS[ed.ak];
     $('edTitle').textContent = 'Umbau · ' + ar.name;
     $('edDel').disabled = !(ed.sel && ed.sel.kind === 'decor'); $('edRot').disabled = !ed.sel;
@@ -205,7 +227,26 @@
     if (rotateStation(ed.ak, ed.sel.kind, ed.sel.i)) { sfx.put(); edMsg(ed.sel.kind === 'pot' ? 'Topf gedreht' : 'Gedreht. Der grüne Punkt zeigt, wo man davor steht.', false); return true; }
     sfx.bad(); edMsg('Zum Drehen ist hier kein Platz. Schieb es erst etwas weg von Wand und Möbeln.', true); return false;
   }
+  function renderGhqPanel() {
+    const g = pgang; if (!g) return; const n = ghqSlots(g.lv), full = ed.hq.length >= n, it = ed.sel && ed.hq[ed.sel.i], d0 = it && DECOR.find(x => x.id === it.id);
+    $('edTitle').textContent = 'Einrichten · Gang-HQ'; $('edReset').hidden = true; $('edRot').disabled = true;
+    $('edDel').disabled = !it; $('edDel').textContent = it ? 'Wegräumen (+' + fmt(Math.round(ghqPrice(d0) / 2)) + ')' : 'Wegräumen';
+    const list = $('edList'); list.innerHTML = '';
+    const hd = uiEl('div', 'grp', 'Kaufen aus der Kasse · ' + fmt(g.kasse) + ' · Plätze ' + ed.hq.length + '/' + n); list.appendChild(hd);
+    const inp = uiEl('input', 'ed-q'); inp.type = 'search'; inp.placeholder = '🔍 Deko suchen …'; inp.value = ghqQ; inp.addEventListener('keydown', e => e.stopPropagation());
+    const chips = []; inp.addEventListener('input', () => { ghqQ = inp.value; const q = ghqQ.trim().toLowerCase(); chips.forEach(([c, nm]) => { c.style.display = !q || nm.includes(q) ? '' : 'none'; }); }); list.appendChild(inp);
+    if (full) list.appendChild(uiEl('div', 'empty', 'Alle Plätze belegt. Baut das HQ aus oder räumt etwas weg.'));
+    const all = ghqDeco().slice().sort((a, b) => (GHQ_CHILL.includes(b.id) - GHQ_CHILL.includes(a.id)) || ghqPrice(a) - ghqPrice(b)), q = ghqQ.trim().toLowerCase();
+    for (const x of all) { const p = ghqPrice(x), c = uiEl('button', 'chip' + (GHQ_CHILL.includes(x.id) ? ' chill' : ''), '+ ' + x.name + ' · ' + fmt(p)); c.disabled = full || g.kasse < p || ed.busy;
+      c.addEventListener('click', () => { const before = new Set(ed.hq.map(z => z.k)); ghqDo(async () => { const r = await pgBuyDeco(x.id, [(HQ_BOX.x0 + HQ_BOX.x1) / 2 + (ed.hq.length % 5) * 10, (HQ_BOX.y0 + HQ_BOX.y1) / 2]); ed.hq = hqItems(); const i = ed.hq.findIndex(z => !before.has(z.k)); ed.sel = i >= 0 ? { kind: 'hq', i } : null; return x.name + ' steht in der Mitte. Zieh es an den richtigen Platz.'; }, ''); });
+      if (q && !x.name.toLowerCase().includes(q)) c.style.display = 'none'; chips.push([c, x.name.toLowerCase()]); list.appendChild(c); }
+  }
+  async function ghqDelSel() { const it = ed.sel && ed.hq[ed.sel.i]; if (!it) return; ed.sel = null; await ghqDo(() => pgRemoveDeco(it), 'Weggeräumt'); }
   function drawEditOverlay() {
+    if (ed.ak === 'ghq') { const I = GHQ_EDA.IN; ctx.fillStyle = 'rgba(255,255,255,.1)'; for (let x = I.x0 + 20; x < I.x1; x += 20) for (let y = I.y0 + 20; y < I.y1; y += 20) ctx.fillRect(x - 0.7, y - 0.7, 1.4, 1.4); // v132
+      ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(255,181,71,.4)'; ctx.strokeRect(HQ_BOX.x0 - 12, HQ_BOX.y0 - 12, HQ_BOX.x1 - HQ_BOX.x0 + 24, HQ_BOX.y1 - HQ_BOX.y0 + 24); ctx.setLineDash([]);
+      const it = ed.sel && ed.hq[ed.sel.i]; if (it) { const h = dHalf(it.id); ctx.lineWidth = 3; ctx.strokeStyle = '#FFB547'; ctx.fillStyle = 'rgba(255,181,71,.14)'; rr(it.x - h[0] - 3, it.y - h[1] - 3, h[0] * 2 + 6, h[1] * 2 + 6, 7); ctx.fill(); ctx.stroke(); }
+      if (ed.busy) { ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '700 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('speichert …', (I.x0 + I.x1) / 2, I.y0 + 16); } return; }
     const ar = AREAS[ed.ak], I = ar.IN;
     ctx.fillStyle = 'rgba(255,255,255,.1)';
     for (let x = I.x0 + 20; x < I.x1; x += 20) for (let y = I.y0 + 20; y < I.y1; y += 20) ctx.fillRect(x - 0.7, y - 0.7, 1.4, 1.4);

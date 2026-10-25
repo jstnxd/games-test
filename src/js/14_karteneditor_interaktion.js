@@ -321,12 +321,14 @@
     if (tg.type === 'bexit' || tg.type === 'gexit') return 'A  Raus auf die Straße';
     if (tg.type === 'ghq') return myGid() && !(G.gang && G.gang.req) ? 'A  Ins Hauptquartier deiner Gang' + (gTag() ? ' [' + gTag() + ']' : '') : 'Gang-Hauptquartier: nur für Mitglieder';
     if (tg.type === 'gsafe') return 'A  Gang-Kasse';
-    if (tg.type === 'gbeet') { const bb = gbOf(tg.idx); return !bb ? 'A  Gang-Beet bepflanzen' : gbLeft(bb) > 0 ? (bb.w ? 'Wächst noch ' + Math.ceil(gbLeft(bb) / 60000) + ' Min.' : 'A  Gießen (wächst schneller)') : 'A  Ernten: +' + fmt(gbValue()) + ' für die Gang-Kasse'; }
+    if (tg.type === 'gbeet') { const bb = gbOf(tg.idx); return !bb ? 'A  Gang-Beet bepflanzen' : gbLeft(bb) > 0 ? (bb.w ? 'Wächst noch ' + Math.ceil(gbLeft(bb) / 60000) + ' Min.' : 'A  Gießen (wächst schneller)') : 'A  Ernten: +' + gbYield() + ' frisch ins Gang-Lager'; }
+    if (tg.type === 'gdry') { const d = gdOf(); return !d ? 'A  Frische Ware aus dem Gang-Lager zum Trocknen aufhängen' : gdLeft(d) > 0 ? 'Trocknet noch ' + Math.ceil(gdLeft(d) / 60000) + ' Min.' : 'A  Getrocknete Ware abnehmen (' + d.n + ')'; } // v132
+    if (tg.type === 'gpack') return 'A  Verpacken (aus dem Gang-Lager)';
     if (tg.type === 'panic') { const P = PN(); return P.tr ? 'Helfer sind unterwegs …' : P.on ? 'A  Entwarnung: Helfer zurückholen' : 'A  NOTKNOPF: Helfer raus' + (P.lv >= 2 ? ', Ware ins Mietlager' : ''); }
     if (tg.type === 'gitem') { const d = DECOR.find(x => x.id === tg.it.id); return pgCanDeco() ? 'A  ' + (d ? d.name : 'Deko') + ' verschieben' : (d ? d.name : 'Deko'); }
     if (tg.type === 'gdrop') return 'A  Hier abstellen · B  Abbrechen';
     if (tg.type === 'glager') return 'A  Gang-Lager: Ware teilen';
-    if (tg.type === 'gboard') return 'A  Planungstafel: Hauptquartier einrichten';
+    if (tg.type === 'gboard') return pgCanDeco() ? 'A  Planungstafel: HQ einrichten (wie im Keller)' : 'A  Planungstafel: Deko ansehen';
     if (tg.type === 'gym') return atGym2() ? 'A  Iron Gym Express: trainieren' : 'A  Iron Gym' + (bizOwn('gym') ? ' (dein Laden)' : ': trainieren');
     if (tg.type === 'bank') return 'A  Stadtsparkasse: Sparkonto';
     if (tg.type === 'pizza') return 'A  Pizzeria Bella Notte' + (bizOwn('pizza') ? ' (dein Laden)' : '');
@@ -424,7 +426,8 @@
     } else if (tg.type === 'panic' && aEdge) { panicPress(false);
     } else if (tg.type === 'ghq' && aEdge) { ghqEnter();
     } else if (tg.type === 'gsafe' && aEdge) { openPg('info');
-    } else if (tg.type === 'gboard' && aEdge) { openPg('deko');
+    } else if (tg.type === 'gboard' && aEdge) { if (pgCanDeco()) startGhqEdit(); else openPg('deko'); // v132: Einrichten wie im Keller
+    } else if ((tg.type === 'gdry' || tg.type === 'gpack') && aEdge) { if (!gbBusy) { gbBusy = true; (tg.type === 'gdry' ? gdUse() : gpUse()).then(t => { if (t) msg(t); }, e => msg(e.message || 'Ging nicht', true)).finally(() => { gbBusy = false; }); } // v132
     } else if (tg.type === 'gbeet' && aEdge) { if (!gbBusy) { gbBusy = true; gbUse(tg.idx).then(t => { if (t) msg(t); }, e => msg(e.message || 'Ging nicht', true)).finally(() => { gbBusy = false; }); }
     } else if (tg.type === 'gitem' && aEdge) { hqPick(tg.it);
     } else if (tg.type === 'gdrop' && aEdge) { hqDrop();
