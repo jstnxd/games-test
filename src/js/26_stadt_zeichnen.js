@@ -185,7 +185,7 @@
       ctx.fillStyle = '#4A5A4E'; ctx.fillRect(b.x - 16, a, 32, e - a); ctx.fillStyle = '#6E7A70'; for (let y = Math.floor(a / 14) * 14; y < e; y += 14) { ctx.beginPath(); ctx.arc(b.x - 14, y + 4, 3, 0, TAU); ctx.arc(b.x + 14, y + 11, 3, 0, TAU); ctx.fill(); }
       const g = ctx.createLinearGradient(b.x - 11, 0, b.x + 11, 0); g.addColorStop(0, '#2A6E9E'); g.addColorStop(0.5, '#3A8CC4'); g.addColorStop(1, '#2A6E9E'); ctx.fillStyle = g; ctx.fillRect(b.x - 11, a, 22, e - a);
       ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1.4; const ph = (gt * 26) % 28; if (gsPass === 0) for (let y = Math.floor(a / 28) * 28 + ph; y < e; y += 28) { ctx.beginPath(); ctx.moveTo(b.x - 6, y); ctx.quadraticCurveTo(b.x, y + 5, b.x + 6, y); ctx.stroke(); }
-      ctx.strokeStyle = '#5E7A3A'; ctx.lineWidth = 2; for (let y = Math.floor(a / 46) * 46 + 10; y < e; y += 46) { const sx = (y / 46) % 2 ? b.x - 15 : b.x + 15; ctx.beginPath(); ctx.moveTo(sx, y); ctx.lineTo(sx + (gsPass === 1 ? 0 : Math.sin(gt + y) * 1.5), y - 13); ctx.moveTo(sx + 3, y); ctx.lineTo(sx + 4, y - 10); ctx.stroke(); }
+      ctx.strokeStyle = '#5E7A3A'; ctx.lineWidth = 2; if (gsPass !== 1) for (let y = Math.floor(a / 46) * 46 + 10; y < e; y += 46) { const sx = (y / 46) % 2 ? b.x - 15 : b.x + 15; ctx.beginPath(); ctx.moveTo(sx, y); ctx.lineTo(sx + Math.sin(gt + y) * 1.5, y - 13); ctx.moveTo(sx + 3, y); ctx.lineTo(sx + 4, y - 10); ctx.stroke(); }
       if (b.y0 > RIVER.y1 || b.y1 < RIVER.y0) { const sy = b.y0 < RIVER.y0 ? b.y0 : b.y1; if (b.y1 !== RIVER.y0 && b.y0 !== RIVER.y1) { ctx.fillStyle = '#8A929C'; ell(b.x, sy, 18, 9); ctx.fill(); ctx.fillStyle = '#5E7FA0'; ell(b.x, sy, 11, 5); ctx.fill(); } else { ctx.fillStyle = '#3E4650'; ctx.fillRect(b.x - 16, b.y0 > RIVER.y1 ? b.y1 - 6 : b.y0 - 2, 32, 8); } } // Quelle oder Rohr
     }
   }
@@ -329,48 +329,67 @@
   // Haeuser: Fassade mit Tuer zur Strasse, Satteldach, Walmdach oder Flachdach
   function houseWins(h) { const up = h.face === -1, fh = h.h * 0.36, wy = up ? h.y + fh * 0.52 : h.y + h.h - fh * 0.48; return [[h.x + 30, wy], [h.x + h.w - 30, wy]]; }
   // v135: fertig gezeichnete Häuser und Gebäude als Bild zwischenspeichern (spart tausende Zeichenbefehle pro Bild)
-  const BC = new Map(), SPR = new Map(); let bcR = 0, sprR = 0;
+  // v138: ein gemeinsamer, abgesicherter Bildspeicher für Häuser, Bäume und Bodenkacheln.
+  // Feste Obergrenze an Bildpunkten, freigegebene Bilder werden sofort auf 0 x 0 gesetzt (Safari gibt Speicher sonst zu spät frei),
+  // und bei jedem Fehler schaltet sich der Speicher ab und es wird wie früher live gezeichnet. So kann nie wieder ein Bild leer bleiben.
+  const CACHE = new Map(), CB = { px: 0, max: 16e6, fail: false };
   let gsPass = 0; // v136: 0 = alles zeichnen, 1 = nur Unbewegliches (für die Bodenkacheln), 2 = nur Bewegtes (live über den Kacheln)
   const curR = (mx) => { const tr = ctx.getTransform ? ctx.getTransform() : null; return tr && tr.a > 0 ? clamp(Math.ceil(Math.hypot(tr.a, tr.b) * 2) / 2, 1, mx) : 0; };
-  function sprDraw(key, x0, y0, w, h, fn) { // v136: kleine Einzelbilder (Baumkronen), eigener Speicher
-    if (bcOff || !document.createElement) { fn(); return; } const R = curR(3); if (!R) { fn(); return; } if (R !== sprR) { SPR.clear(); sprR = R; }
-    let e = SPR.get(key); if (!e) { const c = document.createElement('canvas'); c.width = Math.ceil(w * R); c.height = Math.ceil(h * R); const x = c.getContext && c.getContext('2d'); if (!x || !x.setTransform) { fn(); return; }
-      x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const s0 = ctx; ctx = x; try { fn(); } finally { ctx = s0; } e = c; if (SPR.size >= 400) SPR.delete(SPR.keys().next().value); SPR.set(key, e); }
-    ctx.drawImage(e, x0, y0, w, h);
+  function cvFree(c) { try { c.width = 0; c.height = 0; } catch (e) {} }
+  function cacheDrop(k) { const e = CACHE.get(k); if (!e) return; CACHE.delete(k); CB.px -= e.px; cvFree(e.c); }
+  function cacheClear(pre) { for (const k of Array.from(CACHE.keys())) if (!pre || k.startsWith(pre)) cacheDrop(k); if (!pre) CB.px = 0; }
+  function cacheFail() { CB.fail = true; bcOff = true; cacheClear(); }
+  function cacheGet(k) { const e = CACHE.get(k); if (!e) return null; CACHE.delete(k); CACHE.set(k, e); return e.c; }
+  function cacheMake(k, w, h, R, x0, y0, fn) { // zeichnet fn in ein neues Bild; null, wenn das nicht geht
+    if (CB.fail) return null; const pw = Math.max(1, Math.ceil(w * R)), ph = Math.max(1, Math.ceil(h * R)), px = pw * ph; if (px > CB.max / 3) return null;
+    while (CB.px + px > CB.max && CACHE.size) cacheDrop(CACHE.keys().next().value);
+    let c; try { c = document.createElement('canvas'); c.width = pw; c.height = ph; } catch (e) { return null; }
+    const x = c.getContext && c.getContext('2d'); if (!x || !x.setTransform || c.width !== pw || c.height !== ph) { cvFree(c); return null; }
+    x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const s0 = ctx; ctx = x; try { fn(); } catch (e) { ctx = s0; cvFree(c); return null; } ctx = s0;
+    CACHE.set(k, { c, px }); CB.px += px; return c;
+  }
+  function cacheBlit(c, a) { try { ctx.drawImage.apply(ctx, [c].concat(a)); return true; } catch (e) { cacheFail(); return false; } }
+  let sprR = 0, bcR = 0;
+  function sprDraw(key, x0, y0, w, h, fn) { // v136: kleine Einzelbilder (Baumkronen)
+    if (bcOff || !document.createElement) { fn(); return; } const R = curR(2.5); if (!R) { fn(); return; } if (R !== sprR) { cacheClear('s|'); sprR = R; }
+    const k = 's|' + key; let c = cacheGet(k) || cacheMake(k, w, h, R, x0, y0, fn); if (!c) { fn(); return; } if (!cacheBlit(c, [x0, y0, w, h])) fn();
   }
   // v136: Bodenkacheln: Boden, Straßen, Wege, Büsche, Grasbüschel, Blumen, Beete, Bänke, Hydranten als fertige Bilder (256 x 256 Welt-Einheiten)
-  const GTL = new Map(), GTS = 256, GTP = 6; let gtlR = 0;
+  const GTS = 256, GTP = 6; let gtlR = 0;
   const gtlKey = () => (KR_NEUTRAL || !G ? 'n' : seasonI()) + (state === 'edit' ? 'e' : '');
-  function gtlBuild(ix, iy, R) {
-    const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP, c = document.createElement('canvas'); c.width = Math.ceil(S * R); c.height = Math.ceil(S * R); const x = c.getContext && c.getContext('2d'); if (!x || !x.setTransform) return null;
-    x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const v = [viewX0, viewX1, viewY0, viewY1], s0 = ctx; viewX0 = x0 - 2; viewX1 = x0 + S + 2; viewY0 = y0 - 2; viewY1 = y0 + S + 2; ctx = x; gsPass = 1;
+  function gtlDraw(x0, y0, S) { // zeichnet den unbeweglichen Boden für eine Kachel
+    const v = [viewX0, viewX1, viewY0, viewY1]; viewX0 = x0 - 2; viewX1 = x0 + S + 2; viewY0 = y0 - 2; viewY1 = y0 + S + 2; gsPass = 1;
     try { ctx.fillStyle = '#17261F'; ctx.fillRect(x0, y0, S, S); if (viewX1 > 0) drawCityGround(); if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); drawPaths(); drawMapGround(); drawBushes(); drawAmbientGround(); drawDetailsGround(); drawPark(); }
-    finally { ctx = s0; gsPass = 0; [viewX0, viewX1, viewY0, viewY1] = v; }
-    return c;
+    finally { gsPass = 0; [viewX0, viewX1, viewY0, viewY1] = v; }
   }
-  function gtlClear() { GTL.clear(); }
+  function gtlClear() { cacheClear('g|'); }
   function drawGroundTiles() { // gibt false zurück, wenn diesmal live gezeichnet werden soll
-    if (bcOff || state === 'admin' || viewX0 < 0 || !document.createElement) return false; const R = curR(2.5); if (!R) return false; if (R !== gtlR) { GTL.clear(); gtlR = R; }
-    const sk = gtlKey(), ix0 = Math.floor(viewX0 / GTS), ix1 = Math.floor(viewX1 / GTS), iy0 = Math.floor(viewY0 / GTS), iy1 = Math.floor(viewY1 / GTS), need = [];
-    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = ix + ',' + iy + ',' + sk; if (!GTL.has(k)) need.push([ix, iy, k]); }
-    let built = 0; for (const [ix, iy, k] of need) { if (built >= 3) break; const c = gtlBuild(ix, iy, R); if (!c) return false; if (GTL.size >= 30) GTL.delete(GTL.keys().next().value); GTL.set(k, c); built++; }
+    if (bcOff || state === 'admin' || viewX0 < 0 || !document.createElement) return false; const R = curR(2); if (!R) return false; if (R !== gtlR) { cacheClear('g|'); gtlR = R; }
+    const sk = gtlKey(), ix0 = Math.floor(viewX0 / GTS), ix1 = Math.floor(viewX1 / GTS), iy0 = Math.floor(viewY0 / GTS), iy1 = Math.floor(viewY1 / GTS), list = [], need = [];
+    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = 'g|' + ix + ',' + iy + ',' + sk; if (!cacheGet(k)) need.push([ix, iy, k]); } // sichtbare zuerst als benutzt markieren
+    let built = 0; for (const [ix, iy, k] of need) { if (built >= 3) break; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; if (!cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S))) return false; built++; }
     if (need.length > built) return false; // noch nicht alle Kacheln fertig: dieses Bild noch live zeichnen
+    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const c = cacheGet('g|' + ix + ',' + iy + ',' + sk); if (!c || !c.width) return false; list.push([c, ix, iy]); }
     const sp = GTP * R, sw = GTS * R;
-    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = ix + ',' + iy + ',' + sk, c = GTL.get(k); GTL.delete(k); GTL.set(k, c); ctx.drawImage(c, sp, sp, sw, sw, ix * GTS, iy * GTS, GTS, GTS); }
+    for (const [c, ix, iy] of list) if (!cacheBlit(c, [sp, sp, sw, sw, ix * GTS, iy * GTS, GTS, GTS])) return false;
     return true;
   }
   function drawGroundLive() { // was sich auf dem Boden bewegt: Wellen im Fluss und Wasser in den Bächen
     const r = RIVER; if (!(viewY1 < r.y0 - 60 || viewY0 > r.y1 + 60)) { const x0 = Math.max(0, viewX0), x1 = Math.min(WW, viewX1); ctx.strokeStyle = 'rgba(255,255,255,.26)'; ctx.lineWidth = 2;
       for (let x = Math.floor(x0 / 90) * 90; x < x1; x += 90) { const o = ((x / 90) % 3) * 12 + Math.sin(gt * 1.3 + x) * 4; for (const [dy, dx] of [[14, 0], [34, 40], [56, 18]]) { const sx = x + o + dx; if (ALLB.some(b => sx + 28 > b.x0 && sx < b.x1) || (sx + 28 > PIER.x0 - 2 && sx < PIER.x1 + 2 && dy < 40)) continue; ctx.beginPath(); ctx.moveTo(sx, r.y0 + dy); ctx.quadraticCurveTo(sx + 14, r.y0 + dy - 6, sx + 28, r.y0 + dy); ctx.stroke(); } } }
     for (const b of BROOKS) { if (b.x + 30 < viewX0 || b.x - 30 > viewX1 || b.y1 < viewY0 - 20 || b.y0 > viewY1 + 20) continue; const a = Math.max(b.y0, viewY0 - 20), e = Math.min(b.y1, viewY1 + 20);
-      ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1.4; const ph = (gt * 26) % 28; for (let y = Math.floor(a / 28) * 28 + ph; y < e; y += 28) { if (onRoadway(b.x, y) || onRoadway(b.x, y + 5)) continue; ctx.beginPath(); ctx.moveTo(b.x - 6, y); ctx.quadraticCurveTo(b.x, y + 5, b.x + 6, y); ctx.stroke(); } }
+      ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1.4; const ph = (gt * 26) % 28; for (let y = Math.floor(a / 28) * 28 + ph; y < e; y += 28) { if (onRoadway(b.x, y) || onRoadway(b.x, y + 5)) continue; ctx.beginPath(); ctx.moveTo(b.x - 6, y); ctx.quadraticCurveTo(b.x, y + 5, b.x + 6, y); ctx.stroke(); }
+      ctx.strokeStyle = '#5E7A3A'; ctx.lineWidth = 2; for (let y = Math.floor(a / 46) * 46 + 10; y < e; y += 46) { const sx = (y / 46) % 2 ? b.x - 15 : b.x + 15; if (onRoadway(sx, y) || onRoadway(sx, y - 13)) continue; ctx.beginPath(); ctx.moveTo(sx, y); ctx.lineTo(sx + Math.sin(gt + y) * 1.5, y - 13); ctx.moveTo(sx + 3, y); ctx.lineTo(sx + 4, y - 10); ctx.stroke(); } } // v137: Schilf wiegt sich live
+    if (state !== 'edit') { if (!DET) detInit(); const si = seasonI(), win = si === 3 && !KR_NEUTRAL, aut = si === 2 && !KR_NEUTRAL, GC = aut ? ['#8A7A3A', '#A0882E'] : win ? ['#9AA8A0', '#B8C4BE'] : ['#3E7A3A', '#5A9A48']; // v137: Grashalme live
+      for (const t of DET.tufts) { if (!(t.k === 0 || (win && t.k === 1)) || !inView(t.x, t.y, 12)) continue; if (BENCHES.some(bb => Math.abs(bb.x - t.x) < 34 && Math.abs(bb.y - t.y) < 24)) continue; const s = t.s;
+        ctx.strokeStyle = GC[t.c % 2]; ctx.lineWidth = 1.3; ctx.beginPath(); for (const o of [-2.5, 0, 2.5]) { ctx.moveTo(t.x + o * s, t.y + 2); ctx.lineTo(t.x + o * s * 1.6 + Math.sin(gt * 1.3 + t.x) * 0.6, t.y - 4.5 * s); } ctx.stroke(); } }
   }
   function drawBushes() { for (const b of bushes) { if (!inView(b.x, b.y, 20)) continue; drawBush1(b); } }
   function drawBush1(b) { ctx.fillStyle = '#12201A'; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.fill(); ctx.fillStyle = '#1D3A2B'; ctx.beginPath(); ctx.arc(b.x - b.r * .2, b.y - b.r * .2, b.r * .7, 0, TAU); ctx.fill(); }
   let bcMode = (() => { try { const v = localStorage.getItem('kellergruen.bc'); return v === '0' || v === '1' ? v : 'a'; } catch (e) { return 'a'; } })(); // a = automatisch, 1 = an, 0 = aus
-  let bcAuto = (() => { try { const v = localStorage.getItem('kellergruen.bcA2'); return v === '0' || v === '1' ? v : ''; } catch (e) { return ''; } })(); // Ergebnis der Messung auf diesem Gerät
+  let bcAuto = (() => { try { const v = localStorage.getItem('kellergruen.bcA3'); return v === '0' || v === '1' ? v : ''; } catch (e) { return ''; } })(); // Ergebnis der Messung auf diesem Gerät
   let bcOff = bcMode === '0' || (bcMode === 'a' && bcAuto === '0');
-  function setBc(m) { bcMode = m; BC.clear(); SPR.clear(); GTL.clear(); try { localStorage.setItem('kellergruen.bc', m); } catch (e) {} if (m === 'a') { bcAuto = ''; try { localStorage.removeItem('kellergruen.bcA2'); } catch (e) {} bcT.i = 0; bcT.r = [0, 0]; bcT.n = [0, 0]; } bcOff = m === '0' || (m === 'a' && bcAuto === '0'); }
+  function setBc(m) { bcMode = m; cacheClear(); if (m !== '0') CB.fail = false; try { localStorage.setItem('kellergruen.bc', m); } catch (e) {} if (m === 'a') { bcAuto = ''; try { localStorage.removeItem('kellergruen.bcA3'); } catch (e) {} bcT.i = 0; bcT.r = [0, 0]; bcT.n = [0, 0]; } bcOff = CB.fail || m === '0' || (m === 'a' && bcAuto === '0'); }
   // Selbsttest: draußen abwechselnd 2 Sekunden mit und ohne Zwischenspeicher, dann das Schnellere behalten
   const bcT = { i: 0, s: 0, c: 0, r: [0, 0], n: [0, 0] };
   function bcTick(int) {
@@ -378,17 +397,12 @@
     if (AREA_KEYS.some(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; })) return;
     const ph = bcT.i % 2; bcOff = ph === 1; bcT.s += int; bcT.c++; if (bcT.s < 2) return;
     if (bcT.i > 0) { bcT.r[ph] += bcT.s / bcT.c; bcT.n[ph]++; } bcT.s = 0; bcT.c = 0; bcT.i++; // das allererste Fenster nicht werten (Bilder werden erst erzeugt)
-    if (bcT.n[0] >= 3 && bcT.n[1] >= 3) { const on = bcT.r[0] / bcT.n[0], off = bcT.r[1] / bcT.n[1]; bcAuto = on <= off * 1.03 ? '1' : '0'; bcOff = bcAuto === '0'; if (bcOff) { BC.clear(); SPR.clear(); GTL.clear(); } try { localStorage.setItem('kellergruen.bcA2', bcAuto); } catch (e) {} }
+    if (bcT.n[0] >= 3 && bcT.n[1] >= 3) { const on = bcT.r[0] / bcT.n[0], off = bcT.r[1] / bcT.n[1]; bcAuto = on <= off * 1.03 ? '1' : '0'; bcOff = bcAuto === '0'; if (bcOff) cacheClear(); try { localStorage.setItem('kellergruen.bcA3', bcAuto); } catch (e) {} }
   }
   function bcDraw(key, x0, y0, w, h, fn) {
     if (bcOff || typeof document === 'undefined' || !document.createElement) { fn(); return; }
-    const tr = ctx.getTransform ? ctx.getTransform() : null; if (!tr || !(tr.a > 0)) { fn(); return; }
-    const R = clamp(Math.ceil(Math.hypot(tr.a, tr.b) * 2) / 2, 1, 3.5); if (R !== bcR) { BC.clear(); bcR = R; }
-    let e = BC.get(key);
-    if (!e) { const c = document.createElement('canvas'); c.width = Math.ceil(w * R); c.height = Math.ceil(h * R); const x = c.getContext && c.getContext('2d'); if (!x || !x.setTransform) { fn(); return; }
-      x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const s0 = ctx; ctx = x; try { fn(); } finally { ctx = s0; } e = c; if (BC.size >= 50) BC.delete(BC.keys().next().value); BC.set(key, e); }
-    else { BC.delete(key); BC.set(key, e); } // zuletzt benutzt nach hinten
-    ctx.drawImage(e, x0, y0, w, h);
+    const R = curR(2.5); if (!R) { fn(); return; } if (R !== bcR) { cacheClear('b|'); bcR = R; }
+    const k = 'b|' + key; let c = cacheGet(k) || cacheMake(k, w, h, R, x0, y0, fn); if (!c) { fn(); return; } if (!cacheBlit(c, [x0, y0, w, h])) fn();
   }
   function drawHouse(h, hi) { const dk = lightK() > 0.25, sk = KR_NEUTRAL ? 'n' : seasonI(); bcDraw('h' + hi + (dk ? 'd' : 'l') + sk + (h.office ? 'o' : ''), h.x - 12, h.y - 28, h.w + 32, h.h + 58, () => drawHouse0(h, hi)); }
   function drawHouse0(h, hi) {
@@ -661,7 +675,7 @@
     for (const m of DET.holes) { if (!inView(m.x, m.y, 20)) continue; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.arc(m.x + 1, m.y + 1.5, 8, 0, TAU); ctx.fill(); ctx.fillStyle = '#4A4F57'; ctx.beginPath(); ctx.arc(m.x, m.y, 8, 0, TAU); ctx.fill(); ctx.strokeStyle = '#2E3238'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(m.x, m.y, 6.2, 0, TAU); ctx.stroke(); for (let k = -1; k <= 1; k++) { ctx.beginPath(); ctx.moveTo(m.x - 5, m.y + k * 2.6); ctx.lineTo(m.x + 5, m.y + k * 2.6); ctx.stroke(); } }
     const FC = ['#FF8FB8', '#FFD24A', '#FFFFFF', '#B58CFF', '#FF7A5A'], GC = aut ? ['#8A7A3A', '#A0882E'] : win ? ['#9AA8A0', '#B8C4BE'] : ['#3E7A3A', '#5A9A48'];
     for (const t of DET.tufts) { if (!inView(t.x, t.y, 12)) continue; const s = t.s;
-      if (t.k === 0 || (win && t.k === 1)) { ctx.strokeStyle = GC[t.c % 2]; ctx.lineWidth = 1.3; ctx.beginPath(); for (const o of [-2.5, 0, 2.5]) { ctx.moveTo(t.x + o * s, t.y + 2); ctx.lineTo(t.x + o * s * 1.6 + (gsPass === 1 ? 0 : Math.sin(gt * 1.3 + t.x) * 0.6), t.y - 4.5 * s); } ctx.stroke(); }
+      if (t.k === 0 || (win && t.k === 1)) { if (gsPass === 1) continue; /* v137: Grashalme wiegen sich live */ ctx.strokeStyle = GC[t.c % 2]; ctx.lineWidth = 1.3; ctx.beginPath(); for (const o of [-2.5, 0, 2.5]) { ctx.moveTo(t.x + o * s, t.y + 2); ctx.lineTo(t.x + o * s * 1.6 + Math.sin(gt * 1.3 + t.x) * 0.6, t.y - 4.5 * s); } ctx.stroke(); }
       else if (t.k === 1) { ctx.strokeStyle = '#3E7A3A'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(t.x, t.y + 2); ctx.lineTo(t.x, t.y - 3); ctx.stroke(); ctx.fillStyle = FC[t.c]; for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(t.x + Math.cos(k * 1.256) * 1.8 * s, t.y - 4 + Math.sin(k * 1.256) * 1.8 * s, 1.3 * s, 0, TAU); ctx.fill(); } ctx.fillStyle = '#FFE27A'; ctx.beginPath(); ctx.arc(t.x, t.y - 4, 1 * s, 0, TAU); ctx.fill(); }
       else if (t.k === 2) { ctx.fillStyle = 'rgba(0,0,0,.2)'; ell(t.x + 1, t.y + 1.5, 4 * s, 2.6 * s); ctx.fill(); ctx.fillStyle = '#8A8F96'; ell(t.x, t.y, 4 * s, 2.8 * s); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.18)'; ell(t.x - 1, t.y - 1, 2 * s, 1.2 * s); ctx.fill(); }
       else if (!win) { ctx.fillStyle = aut ? '#9A6A2A' : '#4E9A4A'; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(t.x + Math.cos(k * 2.1) * 2.2, t.y + Math.sin(k * 2.1) * 2.2, 2 * s, 0, TAU); ctx.fill(); } } }
