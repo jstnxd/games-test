@@ -50,6 +50,11 @@
   let LOFX = lofxUser; // wirksam: von Hand an oder automatisch
   function setLofx(v) { lofxUser = !!v; LOFX = lofxUser || autoLow; try { localStorage.setItem('kellergruen.lofx', lofxUser ? '1' : '0'); } catch (e) {} }
   // v129: Glätten unabhängig von der Bildrate (bei 30 Bildern/s im Energiesparmodus sonst ruckelig)
+  // v134: Bildraten-Anzeige (pro Gerät, unter Einstellungen → Anzeige)
+  let fpsOn = (() => { try { return localStorage.getItem('kellergruen.fps') === '1'; } catch (e) { return false; } })(); const fpsM = { n: 0, t0: 0, v: 0 };
+  function setFps(v) { fpsOn = !!v; try { localStorage.setItem('kellergruen.fps', fpsOn ? '1' : '0'); } catch (e) {} const el = $('fpsHud'); if (el) el.hidden = !fpsOn; }
+  function fpsTick(ts) { if (!fpsOn) return; fpsM.n++; if (!fpsM.t0) fpsM.t0 = ts; const el = ts - fpsM.t0; if (el < 500) return; fpsM.v = Math.round(fpsM.n * 1000 / el); fpsM.n = 0; fpsM.t0 = ts;
+    const e = $('fpsHud'); if (e) { e.hidden = false; e.textContent = fpsM.v + ' fps' + (autoLow ? ' · sparsam' : ''); e.className = 'fpshud ' + (fpsM.v >= 100 ? 'hi' : fpsM.v >= 55 ? 'mid' : 'lo'); } }
   let fdt = 1 / 60; const fk = a => 1 - Math.pow(1 - a, Math.min(4, fdt * 60));
   // Bildraten-Messung: läuft das Spiel länger deutlich unter 40 Bildern/s, wird automatisch gespart (geringere Auflösung, weniger Effekte)
   const perf = { s: 0, n: 0, slow: 0, fast: 0, offAt: -1e9, latch: false };

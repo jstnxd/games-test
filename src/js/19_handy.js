@@ -577,6 +577,11 @@
       const paintL = () => cL.querySelectorAll('[data-lf]').forEach(e => e.classList.toggle('on', (e.dataset.lf === '1') === lofxUser));
       cL.querySelectorAll('[data-lf]').forEach(e => e.addEventListener('click', () => { setLofx(e.dataset.lf === '1'); paintL(); }));
       paintL(); b.appendChild(cL);
+      const cP = document.createElement('div'); cP.className = 'card look'; // v134
+      cP.innerHTML = '<div class="nm">Bildrate anzeigen</div><div class="ds" style="margin:2px 0 8px">Zeigt oben in der Mitte, wie viele Bilder pro Sekunde dein Handy gerade schafft. Grün ab 100, gelb um 60, rot darunter. Die Bildrate gibt der Browser vor: auf 120-Hz-Handys bis zu 120, im Energiesparmodus oft nur 30 bis 60.</div><div class="chips"><button class="chip" data-fp="1">An</button><button class="chip" data-fp="0">Aus</button></div>';
+      const paintP = () => cP.querySelectorAll('[data-fp]').forEach(e => e.classList.toggle('on', (e.dataset.fp === '1') === fpsOn));
+      cP.querySelectorAll('[data-fp]').forEach(e => e.addEventListener('click', () => { setFps(e.dataset.fp === '1'); paintP(); }));
+      paintP(); b.appendChild(cP);
       const cA = document.createElement('div'); cA.className = 'card look'; // v129
       cA.innerHTML = '<div class="nm">Automatisch sparen</div><div class="ds" style="margin:2px 0 8px">Drosselt dein Handy (z. B. im Energiesparmodus), stellt das Spiel von selbst eine geringere Auflösung und weniger Effekte ein, damit es flüssig bleibt. Läuft es wieder schnell, wird zurückgestellt.' + (autoLow ? '<br><b style="color:var(--amber);font-weight:700">Gerade aktiv</b>' : '') + '</div><div class="chips"><button class="chip" data-al="1">An</button><button class="chip" data-al="0">Aus</button></div>';
       const paintA = () => cA.querySelectorAll('[data-al]').forEach(e => e.classList.toggle('on', (e.dataset.al === '1') === autoOn));
