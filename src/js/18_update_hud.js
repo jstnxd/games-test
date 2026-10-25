@@ -188,6 +188,7 @@
   function bigPUp(e) { if (!BZ.pts.has(e.pointerId)) return; BZ.pts.delete(e.pointerId); if (BZ.pts.size < 2) BZ.pinch = null; if (BZ.pts.size === 1) { BZ.last = [...BZ.pts.values()][0]; BZ.start = BZ.last; } if (!BZ.pts.size) { if (BZ.drag) BZ.endT = performance.now(); bigZSettle(); } }
   function bigWheel(e) { e.preventDefault(); const [cx, cy] = bigViewXY(e); bigZoomAt(cx, cy, BZ.z * Math.exp(-e.deltaY * 0.0022)); clearTimeout(bigWheel.t); bigWheel.t = setTimeout(bigZSettle, 220); }
   function bigMapOpen() {
+    revLegend(); if (pgMember()) rkLoad().then(revLegend, () => {}); // v129: Reviere frisch laden (höchstens einmal pro Minute)
     if (state !== 'play' || phoneOpen || chatOpen) return; const el = $('bigMap'); if (!el) return; bigOpen = true; el.hidden = false; joy.id = null; joy.dx = joy.dy = 0; aHeld = false; bigMapLayout(); if (BZ.z > 1 && player.x >= 0) { BZ.ox = BZ.vw / 2 - player.x / WW * BZ.vw * BZ.z; BZ.oy = BZ.vh / 2 - (player.y - YMIN) / (WH - YMIN) * BZ.vh * BZ.z; bigZApply(); } bigMapDraw(); sfx.put();
   }
   function bigMapClose() { bigOpen = false; const el = $('bigMap'); if (el) el.hidden = true; }
@@ -225,6 +226,7 @@
     if (!M.base || M.d !== dz) { M.base = miniBase(dz, M.w, M.h); M.d = dz; }
     x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, el.width, el.height); if (M.base) x.drawImage(M.base, 0, 0);
     if (G) { x.fillStyle = 'rgba(30,36,46,.72)'; const zsx = el.width / WW, zsy = el.height / (WH - YMIN); for (const z of ZONES) if (G.rep < z.rep) x.fillRect(z.x0 * zsx, (z.y0 - YMIN) * zsy, (z.x1 - z.x0) * zsx, (z.y1 - z.y0) * zsy); } // v86
+    if (G) mapRevier(x, el, d, big); // v129: Gang-Reviere, nur für Gang-Mitglieder (Kürzel stehen in der Legende der großen Karte)
     const kx = el.width / WW, ky = el.height / (WH - YMIN), dot = (wx, wy, col, r) => { const px = clamp(wx, 0, WW) * kx, py = (clamp(wy, YMIN, WH) - YMIN) * ky; x.fillStyle = 'rgba(16,21,28,.9)'; x.beginPath(); x.arc(px, py, r + 1.2 * d, 0, TAU); x.fill(); x.fillStyle = col; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill(); };
     friendsAway().forEach((f, i) => { const L = f.look || DEF_LOOK, a = i * 1.3; dot(30 + Math.abs(Math.cos(a)) * 60, 560 + Math.sin(a) * 60, 'rgb(' + (L.r | 0) + ',' + (L.g | 0) + ',' + (L.b | 0) + ')', 2 * d); }); // v74: Freunde in ihrem Keller
     for (const f of Object.values(mp.friends)) { if (!f.vis || f.x < 0) continue; const L = f.look || DEF_LOOK; dot(f.x, f.y, 'rgb(' + (L.r | 0) + ',' + (L.g | 0) + ',' + (L.b | 0) + ')', 2.6 * d); }

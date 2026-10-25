@@ -392,6 +392,22 @@
   function rkOwners() { return rkBoard('last').map(a => a[0] && a[0].v >= RK_MIN ? a[0] : null); } // wer das Viertel diese Woche hält
   function rkMul(at) { if (!pgMember() || !rkList) return 1; const z = rkZone(at.x, at.y), o = z >= 0 ? rkOwners()[z] : null; return o && o.id === myGid() ? 1 + RK_MUL : 1; }
   function rkTagHere() { if (!rkList || player.fl || player.x < 0) return ''; if (AREA_KEYS.some(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; })) return ''; const z = rkZone(player.x, player.y), o = z >= 0 ? rkOwners()[z] : null; return o ? '🏴' + o.tag + ' · ' : ''; }
+  // v129: Reviere auf Minikarte und großer Karte. Sehen nur Spieler, die in einer Gang sind; für alle anderen bleibt die Karte wie bisher.
+  function mapRevier(x, el, d, big) {
+    if (!pgMember() || !rkList) return; const own = rkOwners(), kx = el.width / WW, ky = el.height / (WH - YMIN), me = myGid();
+    own.forEach((o, i) => { if (!o) return; const col = GCOL[o.col] || '#FFFFFF', mine = o.id === me, rs = ZONE_DEF[i].r;
+      x.save(); x.globalAlpha = mine ? 0.26 : 0.2; x.fillStyle = col; for (const [x0, y0, x1, y1] of rs) x.fillRect(x0 * kx, (Math.max(y0, YMIN) - YMIN) * ky, (x1 - x0) * kx, (y1 - Math.max(y0, YMIN)) * ky);
+      x.globalAlpha = mine ? 0.95 : 0.7; x.strokeStyle = col; x.lineWidth = (mine ? 1.6 : 1.1) * d; if (!mine) x.setLineDash([3 * d, 2.5 * d]);
+      for (const [x0, y0, x1, y1] of rs) x.strokeRect(x0 * kx + x.lineWidth / 2, (Math.max(y0, YMIN) - YMIN) * ky + x.lineWidth / 2, (x1 - x0) * kx - x.lineWidth, (y1 - Math.max(y0, YMIN)) * ky - x.lineWidth);
+      x.setLineDash([]);
+      x.restore(); });
+  }
+  function revLegend() { // Legende der großen Karte: welche Gang hält wie viele Viertel (nur für Gang-Mitglieder)
+    const el = $('bmRev'); if (!el) return; if (!pgMember() || !rkList) { el.hidden = true; return; }
+    const cnt = {}; rkOwners().forEach(o => { if (o) (cnt[o.id] = cnt[o.id] || { o, n: 0 }).n++; }); const L = Object.values(cnt).sort((a, b) => (b.o.id === myGid()) - (a.o.id === myGid()) || b.n - a.n);
+    el.innerHTML = ''; el.hidden = false; if (!L.length) { el.appendChild(uiEl('span', '', '🏴 Diese Woche hält keine Gang ein Viertel')); return; }
+    for (const { o, n } of L) { const sp = uiEl('span'), dot = uiEl('i'); dot.style.background = GCOL[o.col] || '#FFF'; sp.appendChild(dot); sp.appendChild(document.createTextNode((o.id === myGid() ? '👑 ' : '') + '[' + o.tag + '] ' + n + ' Viertel')); el.appendChild(sp); }
+  }
   const rkMine = () => rkOwners().map((o, i) => o && o.id === myGid() ? i : -1).filter(i => i >= 0);
   async function rkClaim() {
     if (!pgMember()) throw new Error('Nur für Mitglieder.'); await rkLoad(true); const won = rkMine(); if (!won.length) throw new Error('Deine Gang hält diese Woche kein Viertel.');

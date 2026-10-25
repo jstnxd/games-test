@@ -402,7 +402,7 @@
   function drawAreaRoofs() {
     for (const k of ['keller', 'tabak', 'brau']) {
       const ar = AREAS[k], I = ar.IN, inside = state === 'play' && roofIn(ar); if (inside && player.fl) roofA[k] = 0;
-      roofA[k] += ((inside ? 0 : 1) - roofA[k]) * 0.18; if (roofA[k] < 0.02) { roofA[k] = 0; continue; }
+      roofA[k] += ((inside ? 0 : 1) - roofA[k]) * fk(0.18); if (roofA[k] < 0.02) { roofA[k] = 0; continue; }
       const B = { x: I.x0 - T, y: I.y0 - T, w: I.x1 - I.x0 + 2 * T, h: I.y1 - I.y0 + 2 * T }; if (!inView(B.x + B.w / 2, B.y + B.h / 2, Math.max(B.w, B.h))) continue;
       ctx.save(); ctx.globalAlpha = roofA[k];
       if (k === 'keller') roofKeller(B, ar); else if (k === 'tabak') roofBarn(B, ar); else roofLab(B, ar);

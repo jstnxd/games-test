@@ -545,9 +545,14 @@
       paintQ(); b.appendChild(cQ);
       const cL = document.createElement('div'); cL.className = 'card look'; // v128
       cL.innerHTML = '<div class="nm">Weniger Effekte</div><div class="ds" style="margin:2px 0 8px">Ruhigeres Bild und weniger Akku: Polizeilicht ohne Blinken, kein Regen, Schnee und Laub, kein Rauch, Auren anderer Spieler aus, kein Wackeln, weniger Partikel. Gilt nur auf diesem Gerät.</div><div class="chips"><button class="chip" data-lf="1">An</button><button class="chip" data-lf="0">Aus</button></div>';
-      const paintL = () => cL.querySelectorAll('[data-lf]').forEach(e => e.classList.toggle('on', (e.dataset.lf === '1') === LOFX));
+      const paintL = () => cL.querySelectorAll('[data-lf]').forEach(e => e.classList.toggle('on', (e.dataset.lf === '1') === lofxUser));
       cL.querySelectorAll('[data-lf]').forEach(e => e.addEventListener('click', () => { setLofx(e.dataset.lf === '1'); paintL(); }));
       paintL(); b.appendChild(cL);
+      const cA = document.createElement('div'); cA.className = 'card look'; // v129
+      cA.innerHTML = '<div class="nm">Automatisch sparen</div><div class="ds" style="margin:2px 0 8px">Drosselt dein Handy (z. B. im Energiesparmodus), stellt das Spiel von selbst eine geringere Auflösung und weniger Effekte ein, damit es flüssig bleibt. Läuft es wieder schnell, wird zurückgestellt.' + (autoLow ? '<br><b style="color:var(--amber);font-weight:700">Gerade aktiv</b>' : '') + '</div><div class="chips"><button class="chip" data-al="1">An</button><button class="chip" data-al="0">Aus</button></div>';
+      const paintA = () => cA.querySelectorAll('[data-al]').forEach(e => e.classList.toggle('on', (e.dataset.al === '1') === autoOn));
+      cA.querySelectorAll('[data-al]').forEach(e => e.addEventListener('click', () => { setAutoOn(e.dataset.al === '1'); paintA(); }));
+      paintA(); b.appendChild(cA);
     }
     if (part === 'system') { const hdS = document.createElement('div'); hdS.className = 'grp'; hdS.textContent = 'Hilfe bei Problemen'; b.appendChild(hdS);
       const cV = document.createElement('div'); cV.className = 'card look'; cV.innerHTML = '<div class="nm">Kellergrün · Version ' + GAME_VER + '</div><div class="ds" style="margin:2px 0 8px">Dein Spielstand wird automatisch gespeichert. Frei erfundenes Spiel.</div>'; const bCL = document.createElement('button'); bCL.className = 'buy'; bCL.textContent = '✨ Was ist neu?'; bCL.style.gridColumn = '1 / -1'; bCL.addEventListener('click', () => showChangelog(true)); cV.appendChild(bCL); b.appendChild(cV);

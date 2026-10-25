@@ -370,12 +370,12 @@
   function drawCopLights() {
     const bt = gt - copBust; if (bt >= 0 && bt < 1.8) { // erwischt: der ganze Bildschirm blinkt blau-rot (die Anzeigen bleiben darueber)
       const on = LOFX ? 1 : Math.floor(bt * 8) % 2, f = bt < 1.2 ? 1 : 1 - (bt - 1.2) / 0.6; ctx.save(); if (LOFX) { ctx.fillStyle = 'rgba(120,60,200,' + (0.35 * f).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); ctx.restore(); return; } ctx.fillStyle = on ? 'rgba(255,30,50,' + (0.55 * f).toFixed(3) + ')' : 'rgba(30,90,255,' + (0.55 * f).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); ctx.restore(); return; }
-    const k = clamp(sus, 0, 1); copLt += ((k > 0.02 ? 1 : 0) - copLt) * 0.1; if (copLt < 0.01 && k < 0.02) return;
+    const k = clamp(sus, 0, 1); copLt += ((k > 0.02 ? 1 : 0) - copLt) * fk(0.1); if (copLt < 0.01 && k < 0.02) return;
     if (LOFX) { // v128: ruhige Variante ohne Blinken: links blau, rechts rot, wird mit dem Verdacht breiter
       const a0 = (0.12 + 0.3 * k) * copLt, th0 = Math.min(W, H) * (0.08 + 0.4 * Math.pow(k, 1.6)); ctx.save();
       for (const [x0, nx, col] of [[0, 1, '40,110,255'], [W, -1, '255,40,60']]) { const g = ctx.createLinearGradient(x0, 0, x0 + nx * th0, 0); g.addColorStop(0, 'rgba(' + col + ',' + a0.toFixed(3) + ')'); g.addColorStop(1, 'rgba(' + col + ',0)'); ctx.fillStyle = g; ctx.fillRect(nx > 0 ? 0 : W - th0, 0, th0, H); }
       ctx.restore(); return; }
-    copPh += (0.05 + k * 0.35) * (1 / 60) * 60 / 6; // Blinktempo
+    copPh += (0.05 + k * 0.35) * fdt * 60 / 6; // Blinktempo
     const side = Math.floor(copPh * (2 + k * 6)) % 2, a = (0.14 + 0.36 * k) * copLt, n = 2 + Math.round(k * 10), th = Math.min(W, H) * (0.08 + 0.5 * Math.pow(k, 1.6)); // wird mit dem Verdacht breiter, bis es fast den ganzen Bildschirm fuellt
     const cols = side ? ['255,40,60', '40,110,255'] : ['40,110,255', '255,40,60'];
     ctx.save(); // normal ueberblenden, damit nichts weiss ausbrennt
@@ -419,15 +419,15 @@
     const mfa = gt * 0.016, menuFly = state === 'menu'; // v112: im Startmenue fliegt die Kamera langsam ueber die Stadt
     const tx = state === 'play' ? player.x : menuFly ? 2550 + Math.cos(mfa) * 1500 : DOOR.x, ty = (state === 'play' ? player.y : menuFly ? 780 + Math.sin(mfa) * 1150 : DOOR.y) + (port ? vh * 0.1 : 0);
     viewX0 = cam.x - vw / 2 - 80; viewX1 = cam.x + vw / 2 + 80; viewY0 = cam.y - vh / 2 - 80; viewY1 = cam.y + vh / 2 + 80;
-    { const cx = clamp(tx, XMIN + vw / 2, WW - vw / 2); if (Math.abs(cx - cam.x) > 900) cam.x = cx; else cam.x += (cx - cam.x) * 0.15; } // v72: Freundes-Keller getrennt von der Stadt
-    { const pad = state === 'play' ? vh * (port ? 0.3 : 0.2) : 0; cam.y += (clamp(ty, YMIN + vh / 2 - pad, WH - vh / 2 + pad) - cam.y) * 0.15; } // v110: am Kartenrand etwas weiter schauen, damit die Figur nicht unter der Anzeige verschwindet
+    { const cx = clamp(tx, XMIN + vw / 2, WW - vw / 2); if (Math.abs(cx - cam.x) > 900) cam.x = cx; else cam.x += (cx - cam.x) * fk(0.15); } // v72: Freundes-Keller getrennt von der Stadt
+    { const pad = state === 'play' ? vh * (port ? 0.3 : 0.2) : 0; cam.y += (clamp(ty, YMIN + vh / 2 - pad, WH - vh / 2 + pad) - cam.y) * fk(0.15); } // v110: am Kartenrand etwas weiter schauen, damit die Figur nicht unter der Anzeige verschwindet
     if (troll.shake > gt && !LOFX) { cam.x += (Math.random() - 0.5) * 14; cam.y += (Math.random() - 0.5) * 14; }
     if (r3On()) { r3Frame(); return; } // v90: 3D-Ansicht
     ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc));
     drawWorld();
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     // v56: Nacht draussen dunkel, der Raum, in dem du stehst, bleibt warm beleuchtet
-    { const rk = state === 'play' ? AREA_KEYS.find(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; }) : null; if (rk) lastRoom = AREAS[rk].IN; indoorK += ((rk ? 1 : 0) - indoorK) * 0.08; }
+    { const rk = state === 'play' ? AREA_KEYS.find(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; }) : null; if (rk) lastRoom = AREAS[rk].IN; indoorK += ((rk ? 1 : 0) - indoorK) * fk(0.08); }
     const room = lastRoom && indoorK > 0.01 ? { x: (lastRoom.x0 - cam.x) * sc + W / 2, y: (lastRoom.y0 - cam.y) * sc + H / 2, w: (lastRoom.x1 - lastRoom.x0) * sc, h: (lastRoom.y1 - lastRoom.y0) * sc } : null;
     if (skyC.a > 0.004) {
       const sky = 'rgba(' + skyC.r + ',' + skyC.g + ',' + skyC.b + ',';

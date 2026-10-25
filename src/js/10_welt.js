@@ -45,10 +45,25 @@
   // v98: Bildqualitaet (pro Geraet): 0 = sparsam, 1 = hoch (volle Aufloesung), 2 = ultra (Supersampling); Farbfilter an/aus
   let GFX_Q = (() => { try { const v = +localStorage.getItem('kellergruen.gq'); return v === 0 && localStorage.getItem('kellergruen.gq') !== null ? 0 : 1; /* v107: Ultra entfernt, alte Einstellung 2 wird zu Hoch */ } catch (e) { return 1; } })();
   let GFX_FX = (() => { try { return localStorage.getItem('kellergruen.gfx') !== '0'; } catch (e) { return true; } })();
-  let LOFX = (() => { try { return localStorage.getItem('kellergruen.lofx') === '1'; } catch (e) { return false; } })(); // v128: Weniger Effekte (pro Gerät)
-  function setLofx(v) { LOFX = !!v; try { localStorage.setItem('kellergruen.lofx', LOFX ? '1' : '0'); } catch (e) {} }
+  let lofxUser = (() => { try { return localStorage.getItem('kellergruen.lofx') === '1'; } catch (e) { return false; } })(); // v128: Weniger Effekte (pro Gerät)
+  let autoLow = false, autoOn = (() => { try { return localStorage.getItem('kellergruen.autolow') !== '0'; } catch (e) { return true; } })(); // v129: automatisch sparen, wenn das Handy drosselt (Energiesparmodus)
+  let LOFX = lofxUser; // wirksam: von Hand an oder automatisch
+  function setLofx(v) { lofxUser = !!v; LOFX = lofxUser || autoLow; try { localStorage.setItem('kellergruen.lofx', lofxUser ? '1' : '0'); } catch (e) {} }
+  // v129: Glätten unabhängig von der Bildrate (bei 30 Bildern/s im Energiesparmodus sonst ruckelig)
+  let fdt = 1 / 60; const fk = a => 1 - Math.pow(1 - a, Math.min(4, fdt * 60));
+  // Bildraten-Messung: läuft das Spiel länger deutlich unter 40 Bildern/s, wird automatisch gespart (geringere Auflösung, weniger Effekte)
+  const perf = { s: 0, n: 0, slow: 0, fast: 0, offAt: -1e9, latch: false };
+  function perfTick(int) {
+    if (state !== 'play' || int <= 0 || int > 0.25) return; perf.s += int; perf.n++; if (perf.s < 2) return;
+    const avg = perf.s / perf.n; perf.s = 0; perf.n = 0;
+    if (!autoOn) { if (autoLow) setAutoLow(false); return; }
+    if (!autoLow) { perf.slow = avg > 0.026 ? perf.slow + 1 : 0; if (perf.slow >= 2) { perf.slow = 0; if (gt - perf.offAt < 120) perf.latch = true; setAutoLow(true); msg('🔋 Das Handy drosselt (z. B. Energiesparmodus): Grafik läuft jetzt sparsamer, damit nichts ruckelt.'); } }
+    else if (!perf.latch) { perf.fast = avg < 0.019 ? perf.fast + 1 : 0; if (perf.fast >= 4) { perf.fast = 0; perf.offAt = gt; setAutoLow(false); } }
+  }
+  function setAutoLow(v) { autoLow = !!v; LOFX = lofxUser || autoLow; resize(); }
+  function setAutoOn(v) { autoOn = !!v; try { localStorage.setItem('kellergruen.autolow', autoOn ? '1' : '0'); } catch (e) {} if (!autoOn && autoLow) setAutoLow(false); perf.latch = false; }
   function resize() {
-    { const dp = window.devicePixelRatio || 1; DPR = GFX_Q === 0 ? Math.min(dp, 1.5) : Math.min(dp, 3); }
+    { const dp = window.devicePixelRatio || 1; DPR = autoLow ? Math.min(dp, 1.25) : GFX_Q === 0 ? Math.min(dp, 1.5) : Math.min(dp, 3); } // v129: beim automatischen Sparen noch etwas geringer
     W = window.innerWidth; H = window.innerHeight;
     const fx = fullFix(); if (fx) { W = fx.w; H = fx.h; }
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
