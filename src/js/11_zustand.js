@@ -84,7 +84,14 @@
     dolphin: { tip: 1.12, sight: 0.9, text: 'Bringt gute Laune: +12 % mehr Geld bei Lieferungen, Streifen sehen dich aus 10 % kürzerer Entfernung' },
     elephant: { bag: 5, text: 'Trägt mit: +5 Plätze im Rucksack' },
     dragon: { sus: 0.85, tip: 1.08, text: 'Feuriger Beschützer: Polizei braucht 15 % länger, +8 % mehr Geld bei Lieferungen' },
-    leopard: { sus: 0.75, sight: 0.8, text: 'Lautloser Jäger: Polizei braucht 25 % länger, Streifen sehen dich aus 20 % kürzerer Entfernung' }
+    leopard: { sus: 0.75, sight: 0.8, text: 'Lautloser Jäger: Polizei braucht 25 % länger, Streifen sehen dich aus 20 % kürzerer Entfernung' },
+    turtle: { fine: 0.6, sus: 0.9, text: 'Die Ruhe selbst: 40 % weniger Strafe, die Polizei braucht 10 % länger' }, // v130: neue Begleiter
+    fox: { sight: 0.85, tip: 1.05, text: 'Schlau: Streifen sehen dich aus 15 % kürzerer Entfernung, +5 % mehr Geld bei Lieferungen' },
+    penguin: { bag: 3, speed: 1.04, text: 'Packt mit an: +3 Plätze im Rucksack, du läufst 4 % schneller' },
+    owl: { sight: 0.8, sus: 0.9, text: 'Hat alles im Blick: Streifen sehen dich aus 20 % kürzerer Entfernung, die Polizei braucht 10 % länger' },
+    axolotl: { tip: 1.1, bag: 2, text: 'Glücksbringer: +10 % mehr Geld bei Lieferungen, +2 Plätze im Rucksack' },
+    ghost: { sight: 0.7, text: 'Spukt herum: Streifen sehen dich aus 30 % kürzerer Entfernung' },
+    unicorn: { tip: 1.12, speed: 1.08, text: 'Magisch: +12 % mehr Geld bei Lieferungen, du läufst 8 % schneller' }
   };
   const DECOR = [
     { id: 'cactus', name: 'Kaktus', desc: 'Klein, stachelig und pflegeleicht', cost: 40 },
@@ -222,7 +229,7 @@
     { id: 'prtrophy', name: 'Prestige-Pokal', desc: 'Ein Pokal mit violettem Stern, für jeden Neuanfang einer', cost: 1, qx: 'Prestige' }
   );
   Object.assign(DHALF, { masterpiece: [20, 18], citykey: [14, 14], prtrophy: [10, 14] });
-  const DEC_NEW = ['cactusrow', 'gumball', 'monstera', 'hamster', 'arclamp', 'skatewall', 'neonleaf', 'aquarium', 'homebar', 'massage', 'koipond', 'bigtv', 'goldbars'];
+  const DEC_NEW = ['firefly', 'mobile', 'rocker', 'newton', 'cuckoo', 'plasma', 'fountain', 'robovac', 'bubbles', 'trainset', 'carousel', 'jellytank']; // v130: die neue bewegte Deko
   Object.assign(DHALF, { cactusrow: [18, 12], gumball: [8, 16], monstera: [16, 20], hamster: [14, 12], arclamp: [20, 24], skatewall: [22, 16], neonleaf: [18, 18], aquarium: [26, 16], homebar: [30, 16], massage: [16, 18], koipond: [26, 20], bigtv: [32, 18], goldbars: [14, 10] });
   Object.assign(DHALF, { rugstripe: [30, 22], lantern: [8, 14], radio: [14, 12], vinyl: [17, 13], armchair: [18, 16], snowglobe: [9, 12], windchime: [13, 20], planter: [20, 13], piggy: [12, 11] });
   COS.push(
@@ -244,6 +251,30 @@
   Object.values(ROLES).forEach(r => { r.cost = r.cost.map(c => Math.round(c * 1.6 / 10) * 10); });
   const DEC_REP = { cactus: 0, flowers: 0, plant: 0, roundrug: 4, rug: 7, lamp: 9, beanbag: 12, shelf: 15, leafrug: 19, palm: 23, turntable: 28, couch: 33, tv: 38, tank: 44, discoball: 52, candles: 0, bonsai: 5, fan: 8, globe: 10, starrug: 12, lavalamp: 14, easel: 17, speaker: 20, fridge: 24, neon: 27, trophy: 31, fireplace: 36, piano: 42, arcade: 48, gnome: 0, dartboard: 6, tree: 8, mirror: 9, guitar: 13, punchbag: 16, coffee: 18, hammock: 22, terrarium: 15, popcorn: 25, telescope: 26, chandelier: 30, drumset: 36, kicker: 34, jukebox: 40, pooltable: 46, watercan: 0, hygro: 1, leafposter: 2, clipfan: 2, seedrack: 3, hemprug: 5, drynet: 6, jars: 8, mother: 10, carbonfilter: 11, ledpanel: 13, growtent: 16, hopsack: 2, maltsacks: 4, crates: 5, bartable: 7, mugshelf: 9, casks: 11, prostsign: 14, tap: 17, kettle: 21, fermenter: 26 };
   DECOR.forEach(d => { d.rep = DEC_REP[d.id] || 0; d.cost = Math.round(d.cost * 1.6 / 10) * 10; });
+  COS.push( // v130: neue Begleiter (Preise und Ruf schon endgültig)
+    { id: 'turtle', kind: 'pet', name: 'Schildkröte', desc: 'Eine kleine Schildkröte paddelt gemütlich hinter dir her und streckt neugierig den Kopf raus', cost: 1440, rep: 12 },
+    { id: 'fox', kind: 'pet', name: 'Füchschen', desc: 'Ein roter Fuchs mit buschigem Schwanz, der beim Laufen hin und her wedelt', cost: 2080, rep: 20 },
+    { id: 'penguin', kind: 'pet', name: 'Pinguin', desc: 'Ein kleiner Pinguin watschelt wackelnd neben dir und schlägt mit den Flossen', cost: 2400, rep: 28 },
+    { id: 'owl', kind: 'pet', name: 'Eule', desc: 'Eine runde Eule flattert neben dir, blinzelt mit großen Augen und dreht den Kopf', cost: 2880, rep: 38 },
+    { id: 'axolotl', kind: 'pet', name: 'Axolotl', desc: 'Ein rosa Axolotl schwebt in einer Wasserkugel und wedelt mit seinen Kiemen', cost: 3520, rep: 44 },
+    { id: 'ghost', kind: 'pet', name: 'Gespenst', desc: 'Ein freundliches kleines Gespenst schwebt um dich, wird mal durchsichtig und streckt die Zunge raus', cost: 4160, rep: 50 },
+    { id: 'unicorn', kind: 'pet', name: 'Mini-Einhorn', desc: 'Ein weißes Einhorn mit Regenbogenmähne und goldenem Horn, das Funkeln hinterlässt', cost: 5120, rep: 62 }
+  );
+  DECOR.push( // v130: Deko, die sich bewegt
+    { id: 'firefly', name: 'Glühwürmchen-Glas', desc: 'Kleine Lichter schwirren im Glas, nachts leuchtet es richtig', cost: 290, rep: 2 },
+    { id: 'mobile', name: 'Sternen-Mobile', desc: 'Sterne und ein Mond drehen sich langsam im Kreis', cost: 350, rep: 3 },
+    { id: 'rocker', name: 'Schaukelstuhl', desc: 'Schaukelt ganz gemütlich vor und zurück', cost: 480, rep: 4 },
+    { id: 'newton', name: 'Kugelpendel', desc: 'Die äußeren Kugeln klacken immer hin und her', cost: 420, rep: 5 },
+    { id: 'cuckoo', name: 'Kuckucksuhr', desc: 'Das Pendel schwingt, ab und zu schaut der Kuckuck heraus', cost: 540, rep: 6 },
+    { id: 'plasma', name: 'Plasmakugel', desc: 'Lila Blitze zucken in der Glaskugel', cost: 620, rep: 8 },
+    { id: 'fountain', name: 'Zimmerbrunnen', desc: 'Wasser plätschert in kleinen Bögen über die Steine', cost: 770, rep: 10 },
+    { id: 'robovac', name: 'Saugroboter', desc: 'Fährt brav seine Runden und blinkt dabei', cost: 830, rep: 12 },
+    { id: 'bubbles', name: 'Seifenblasen-Maschine', desc: 'Pustet schillernde Seifenblasen in die Luft', cost: 670, rep: 14 },
+    { id: 'trainset', name: 'Modelleisenbahn', desc: 'Eine kleine Lok mit zwei Wagen fährt im Kreis', cost: 1220, rep: 18 },
+    { id: 'carousel', name: 'Mini-Karussell', desc: 'Drei Pferdchen drehen sich auf und ab, mit Lichtern am Dach', cost: 1440, rep: 24 },
+    { id: 'jellytank', name: 'Quallen-Aquarium', desc: 'Leuchtende Quallen pulsieren und wechseln langsam die Farbe', cost: 1920, rep: 30 }
+  );
+  Object.assign(DHALF, { firefly: [8, 14], mobile: [14, 18], rocker: [16, 18], newton: [14, 10], cuckoo: [12, 20], plasma: [10, 14], fountain: [16, 16], robovac: [18, 16], bubbles: [10, 14], trainset: [28, 18], carousel: [18, 20], jellytank: [14, 22] });
   const placedCount = id => DEC_KEYS.reduce((n, k) => n + G.dec.items[k].filter(d => d.id === id).length, 0);
   const decStock = id => (G.dec.owned[id] || 0) - placedCount(id);
   function buyDecor(id) {
@@ -267,7 +298,7 @@
   let phist = [], pclock = 0;
   const activePets = () => [G.cos.pet, G.cos.pet2].filter(x => x && x !== 'none');
   function petSnap() { phist.length = 0; pets.forEach((p, n) => { p.x = player.x - 14 - n * 12; p.y = player.y + 8 + n * 4; }); }
-  const FLY = ['bird', 'dolphin', 'dragon'];
+  const FLY = ['bird', 'dolphin', 'dragon', 'owl', 'axolotl', 'ghost']; // v130: Eule, Axolotl und Gespenst schweben
   function petUpdate(dt, moved) {
     const act = activePets(); if (!act.length) return;
     pclock += dt; pet.clock = pclock;
