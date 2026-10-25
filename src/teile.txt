@@ -1,0 +1,25 @@
+# Reihenfolge der Teile. build.js hängt sie genau so hintereinander.
+00_kopf.html
+01_aussehen.css
+02_seite.html
+js/10_welt.js
+js/11_zustand.js
+js/12_konto_admin.js
+js/13_ton_hilfen_auftraege.js
+js/14_karteneditor_interaktion.js
+js/15_npc_gangs.js
+js/16_polizei_orte.js
+js/17_autos_verstecke.js
+js/18_update_hud.js
+js/19_handy.js
+js/20_karriere.js
+js/21_spaetes_spiel.js
+js/22_spieler_gangs.js
+js/23_chat_umbau.js
+js/24_zeichnen_effekte.js
+js/25_vorschau_figuren.js
+js/26_stadt_zeichnen.js
+js/27_wetter_3d.js
+js/28_mehrspieler.js
+js/29_einfuehrung_eingabe_menue.js
+99_ende.html

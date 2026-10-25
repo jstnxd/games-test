@@ -1,0 +1,174 @@
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Spielfeld"></canvas>
+
+<div class="hud" id="hud">
+  <button class="raidpill" id="raidPill" hidden>🚨 Razzia</button>
+  <div class="potind" id="potInd" hidden></div>
+  <div class="top">
+    <div>
+      <div class="label">Geld</div>
+      <div class="money" id="money">€ 0</div>
+      <div class="small rbk" id="repRow">Ruf <b id="rep">0</b><span id="bankHud" hidden> <span class="bk-sep">·</span> 🏦 <b id="bankV">0</b></span></div>
+      <div class="tierbar"><span id="tierName"></span><i><b id="tierFill"></b></i></div>
+      <div class="ware" id="ware"><div class="wh">Ware <b id="bags">0/8</b></div><div class="wl" id="wareList"></div></div>
+      <button class="chatbtn" id="chatBtn" aria-label="Chat und Befehle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></button>
+
+    </div>
+    <div class="clock">
+      <div class="clockrow"><div class="t" id="clock">Tag 1 · 09:00</div><div class="seapill" id="seaPill" aria-label="Jahreszeit"></div></div>
+      <div class="goal" id="goal">Ziel</div>
+    </div>
+    <div class="tr">
+      <div class="label">Umsatz <b id="earned">0</b> / <span id="goalTarget">500.000</span></div>
+      <div class="small"><span id="lblFresh">Frische</span> <b id="fresh">0</b> · <span id="lblDried">Trocken</span> <b id="dried">0</b></div>
+      <div class="sus" id="susBox"><i id="sus"></i></div>
+      <canvas class="mini" id="mini" width="264" height="136" aria-label="Minikarte (antippen für große Karte)"></canvas><div class="loc" id="locHud"></div>
+    </div>
+  </div>
+  <div class="notes"><div class="tipc" id="tipCard" hidden></div><div class="msg" id="msg"></div><div class="hint" id="hint"></div></div>
+</div>
+
+<div class="chat" id="chat" hidden>
+  <div class="log" id="chatLog"></div>
+  <div class="row"><input id="chatIn" type="text" placeholder="-hilfe" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-label="Befehl"><button id="chatSend">OK</button><button class="alt" id="chatClose" aria-label="Chat schließen">✕</button></div>
+  <div class="quick"><button class="alt" data-ins="-geld ">-geld</button><button class="alt" data-ins="-ruf ">-ruf</button><button class="alt" data-ins="-update">-update</button><button class="alt" data-ins="-info ">-info</button><button class="alt" data-ins="-master">-master</button><button class="alt" data-ins="-hilfe">-hilfe</button></div>
+</div>
+
+<div class="edit adm" id="adm" hidden>
+  <div class="ed-top"><b>Karten-Editor</b><button class="done" id="admDone">Fertig</button></div>
+  <div class="hint2" id="admHint"></div>
+  <div class="ed-row"><button class="chip" id="admUndo">↶ Zurück</button><button class="chip" id="admRot">⟳ Drehen</button><button class="chip" id="admZin">＋</button><button class="chip" id="admZout">−</button></div>
+  <div class="ed-list" id="admList"></div>
+</div>
+<div class="edit" id="edit" hidden>
+  <div class="ed-top"><b id="edTitle">Umbau</b><button class="done" id="edDone">Fertig</button></div>
+  <div class="hint2" id="edHint"></div>
+  <div class="ed-row"><button class="chip" id="edDel">Einlagern</button><button class="chip" id="edRot">⟳ Drehen</button><button class="chip" id="edReset">Stationen zurück</button></div>
+  <div class="ed-row"><button class="chip" id="edZin" aria-label="Hineinzoomen">＋ Zoom</button><button class="chip" id="edZout" aria-label="Herauszoomen">− Zoom</button><button class="chip" id="edZ0">Ganzer Raum</button></div>
+  <div class="ed-list" id="edList"></div>
+</div>
+
+<div class="hudedit" id="hudEdit" hidden><div class="he-zone" id="heZone"></div><div class="he-bar"><span>Knöpfe an ihren Platz ziehen</span><button id="heReset">Zurücksetzen</button><button class="ok" id="heDone">Fertig</button></div></div>
+<div class="emotebar" id="emoteBar" hidden></div>
+<div class="pads" id="pads">
+  <button class="pad sm" id="bCar" aria-label="Auto" hidden>&#128663;</button>
+  <button class="pad sm" id="bVeh" aria-label="Rad oder Roller" hidden>&#128756;</button>
+  <button class="pad sm" id="bEmote" aria-label="Emotes">&#9786;</button>
+  <button class="pad" id="bPhone" aria-label="Handy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg>HANDY</button>
+  <button class="pad b" id="bTake" aria-label="Herausnehmen">B</button>
+  <button class="pad a" id="bAct" aria-label="Aktion">A</button>
+</div>
+
+<div class="news" id="news" hidden role="dialog" aria-modal="true" aria-labelledby="newsTitle"><div class="news-card"><div class="news-top"><span class="news-ic">&#128227;</span><b id="newsTitle">Neuigkeit</b></div><p id="newsText"></p><div class="news-bar"><i id="newsBar"></i></div><div class="news-btns"><button class="btn" id="newsReload">Speichern &amp; neu starten</button><button class="btn alt" id="newsLater">Später</button></div></div></div>
+<div class="news" id="nameGate" hidden role="dialog" aria-modal="true" aria-labelledby="ngTitle"><div class="news-card"><div class="news-top"><span class="news-ic">&#128075;</span><b id="ngTitle">Wie heißt du?</b></div><p>Alle Spieler sehen diesen Namen über deiner Figur. Ändern kannst du ihn später im Handy unter Einstellungen → Profil.</p><input class="ng-in" id="ngName" type="text" maxlength="12" placeholder="Dein Name" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Dein Name"><div class="ng-err" id="ngErr"></div><div class="news-btns"><button class="btn" id="ngOk">Los geht&#39;s</button></div></div></div>
+<div class="inst" id="inst" hidden role="dialog" aria-modal="true" aria-labelledby="instTitle">
+  <div class="inst-card">
+    <div class="inst-top"><div class="inst-ic" id="instIc"></div><div><h2 id="instTitle">Keller<span>grün</span> als App</h2><p>Einmal einrichten, dann startest du das Spiel wie jede andere App.</p></div></div>
+    <ul class="inst-perks"><li><b>✓</b>Eigenes Symbol</li><li><b>✓</b>Vollbild ohne Adressleiste</li><li><b>✓</b>Startet mit einem Tipp</li></ul>
+    <div class="inst-body" id="instBody"></div>
+    <button class="inst-skip" id="instSkip">Erst mal im Browser spielen</button>
+  </div>
+</div>
+<div class="inst-arrow" id="instArrow" hidden><span id="instArrowTx">Hier tippen</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M5 12l7 7 7-7"/></svg></div>
+<div class="screen mm" id="menu">
+  <div class="mm-wrap">
+    <header class="mm-brand">
+      <div class="mm-icon" id="mmIcon" aria-hidden="true"></div>
+      <h1>Keller<span>grün</span></h1>
+      <p class="mm-tag">Vom Kellerraum zur Legende der Stadt</p>
+    </header>
+    <section class="mm-card">
+      <button class="mm-acc" id="mmAcc" hidden></button>
+      <div class="mm-save" id="mmSave" hidden></div>
+      <div class="mm-actions">
+        <button class="btn" id="newGame">Neues Spiel</button>
+        <button class="btn ghost" id="cont" hidden>Weiterspielen</button>
+      </div>
+      <div class="mm-tiles">
+        <button class="mm-tile" id="clBtn"><i>✨</i><span>Neuigkeiten</span></button>
+        <button class="mm-tile" id="helpBtn"><i>🎮</i><span>Steuerung</span></button>
+        <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
+        <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
+      </div>
+      <div class="note">Stand: Version 128 · Neu: Revierkampf, Großauftrag, Tipps und Filter<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+    </section>
+  </div>
+  <div class="mm-sheet" id="mmLogin" hidden>
+    <div class="mm-sheet-card mm-login">
+      <div class="mm-sheet-h"><b id="lgTitle">Anmelden</b><button class="mm-x" id="lgClose" aria-label="Schließen">✕</button></div>
+      <p class="sub" id="lgText"></p>
+      <label class="lg-l" for="lgName">Spielername</label>
+      <input class="lg-in" id="lgName" type="text" maxlength="12" autocomplete="username" autocapitalize="off" spellcheck="false">
+      <div id="lgCodeRow" hidden><label class="lg-l" for="lgCode">Wiederherstellungs-Code</label><input class="lg-in lg-code" id="lgCode" type="text" maxlength="16" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD-EFGH-JKMN"></div>
+      <label class="lg-l" for="lgPw" id="lgPwL">Passwort</label>
+      <input class="lg-in" id="lgPw" type="password" autocomplete="current-password">
+      <div id="lgPw2Row"><label class="lg-l" for="lgPw2">Passwort wiederholen</label><input class="lg-in" id="lgPw2" type="password" autocomplete="new-password"></div>
+      <div class="lg-warn" id="lgWarn">⚠️ <b>Nimm ein eigenes Passwort nur für Kellergrün.</b> Bitte nicht dein Google-, Apple-, E-Mail- oder Bank-Passwort verwenden. Mindestens 6 Zeichen. Du bekommst danach einen Wiederherstellungs-Code, falls du es mal vergisst.</div>
+      <div class="lg-err" id="lgErr"></div>
+      <button class="btn lg-go" id="lgGo">Anmelden</button>
+      <button class="lg-link" id="lgSwap">Neu hier? Konto anlegen</button>
+      <button class="lg-link" id="lgForgot">Passwort vergessen?</button>
+      <button class="lg-link lg-off" id="lgOff">Ohne Konto spielen (nur auf diesem Gerät)</button>
+    </div>
+  </div>
+  <div class="mm-sheet" id="mmCode" hidden>
+    <div class="mm-sheet-card mm-login">
+      <div class="mm-sheet-h"><b>Dein Wiederherstellungs-Code</b></div>
+      <p class="sub">Schreib dir diesen Code auf oder mach ein Bildschirmfoto. Wenn du dein Passwort vergisst, kannst du damit ein neues festlegen. Ohne Code geht das nicht. Gib den Code niemandem.</p>
+      <div class="lg-codebox" id="cdBox">----</div>
+      <button class="btn lg-go" id="cdCopy">Code kopieren</button>
+      <button class="lg-link" id="cdOk">Ich habe ihn notiert</button>
+    </div>
+  </div>
+  <div class="mm-sheet" id="mmHelp" hidden>
+    <div class="mm-sheet-card">
+      <div class="mm-sheet-h"><b>Steuerung</b><button class="mm-x" id="helpClose" aria-label="Schließen">✕</button></div>
+      <p class="sub">Baue im Keller an, trockne und verpacke deine Ware und bringe sie unauffällig zu deinen Kunden. Lass dich nicht von der Streife erwischen. Mit der Zeit kaufst du Läden, Fahrzeuge und neue Produktionen dazu.</p>
+      <ul class="legend">
+        <li><b>Joystick</b><span>Auf der linken Seite (im Hochformat unten) den Finger ziehen, um zu laufen.</span></li>
+        <li><b>A</b><span>Pflanzen, ernten, liefern, ansprechen. Zum Gießen und Packen gedrückt halten.</span></li>
+        <li><b>B</b><span>Ware aus dem Gestell oder Beutel vom Packtisch nehmen, schubsen, bremsen.</span></li>
+        <li><b>Handy</b><span>Aufträge, Karriere, Team, Läden, Kleidung, Einstellungen und Spielstand.</span></li>
+        <li><b>Streife</b><span>Mit Ware in der Tasche nicht in ihren Sichtkegel laufen.</span></li>
+        <li><b>Tastatur</b><span>Pfeile oder WASD laufen, E oder Leertaste ist A, Q ist B.</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="bigmap" id="bigMap" hidden>
+  <div class="bm-card">
+    <div class="bm-head"><b>🗺️ Karte</b><span id="bigInfo"></span><button class="bm-btn alt" id="bigDel" hidden>Wegpunkt löschen</button><button class="bm-btn" id="bigClose">Schließen</button></div>
+    <div class="bm-box" id="bigBox"><div class="bm-view" id="bigView"><canvas id="bigCv" width="600" height="420"></canvas><div class="bm-zoom"><button id="bigZin" aria-label="Hineinzoomen">＋</button><button id="bigZout" aria-label="Herauszoomen">－</button></div></div></div>
+    <div class="bm-leg"><span><i style="background:#FFB547"></i>Du</span><span><i style="background:linear-gradient(90deg,#FF8FD0,#9FD3FF,#5FE584)"></i>Andere Spieler</span><span><i style="background:#FFD24A"></i>Quest</span><span><i style="background:#5FE584"></i>Aufträge</span><span><i style="background:#F2C14E"></i>Bus</span><span><i style="background:#FF5CA8"></i>Wegpunkt</span></div>
+  </div>
+</div>
+
+<div class="phone" id="phone" hidden>
+  <div class="ph">
+    <div class="ph-head"><button class="close alt" id="phBack" hidden>‹ Apps</button><div class="ph-title" id="phTitle">Handy</div><div class="ph-money" id="phMoney">€ 0</div><button class="close alt" id="phSave">Speichern</button><button class="close" id="phClose">Schließen</button></div>
+    <div class="tabs" id="phTabs" hidden></div>
+    <div class="ph-body" id="phBody"></div>
+    <div class="ph-foot"><button class="close alt" id="phBack2" hidden>‹ Apps</button><button class="close" id="phClose2">✕ Schließen</button></div>
+  </div>
+</div>
+
+<div class="rotate" id="rotate">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M3 9a9 9 0 0 1 3-5M21 15a9 9 0 0 1-3 5"/></svg>
+  <p>Bitte drehe dein Handy ins Querformat.</p>
+  <button id="bPort">Lieber im Hochformat spielen</button>
+</div>
+
+<script>
+// v123: Fehler sehen Spieler nicht mehr. Sie werden gesammelt (Admin-App -> Fehler) und mit Konto online gespeichert.
+window.__kgErr = function (msg, where, stack) { try { var K = 'kellergruen.errs', L = JSON.parse(localStorage.getItem(K) || '[]'), m = String(msg || 'Fehler').slice(0, 300), w = String(where || '').slice(0, 60), f = null;
+  for (var i = 0; i < L.length; i++) if (L[i].m === m && L[i].w === w) { f = L[i]; break; }
+  if (f) { f.n = (f.n || 1) + 1; f.t = Date.now(); } else { L.push({ m: m, w: w, s: String(stack || '').slice(0, 600), t: Date.now(), n: 1, v: window.__KG_VER || 0, ua: (navigator.userAgent || '').slice(0, 120) }); while (L.length > 30) L.shift(); }
+  localStorage.setItem(K, JSON.stringify(L)); window.__kgErrNew = 1;
+  if (localStorage.getItem('kellergruen.showerr') === '1') { var d = document.getElementById('kgerr'); if (!d) { d = document.createElement('pre'); d.id = 'kgerr'; d.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99999;margin:0;padding:10px;background:#300;color:#fff;font:12px monospace;white-space:pre-wrap;max-height:30vh;overflow:auto;pointer-events:none;opacity:.85'; document.body.appendChild(d); } d.textContent += m + ' (' + w + ')\n'; } } catch (x) {} };
+window.addEventListener('error', function (e) { window.__kgErr(e.message, (e.lineno || '?') + ':' + (e.colno || '?'), e.error && e.error.stack); });
+window.addEventListener('unhandledrejection', function (e) { var r = e && e.reason; window.__kgErr('Promise: ' + ((r && r.message) || r), '', r && r.stack); });
+</script>
+<script>
