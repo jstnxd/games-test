@@ -284,7 +284,7 @@
     w.appendChild(mn); w.appendChild(rg); w.appendChild(pl); w.appendChild(out); set(v); w.get = () => v; return w;
   }
   let qtyOpen = false, qtyEl = null, qtyCb = null, qtyMax = 0;
-  function qtyAsk(title, max, cb, unit) { // kleines Fenster mit Regler; das Spiel steht so lange still
+  function qtyAsk(title, max, cb, unit, okTxt) { // kleines Fenster mit Regler; das Spiel steht so lange still
     if (max <= 0) return false; if (max === 1) { cb(1); return true; }
     qtyCb = cb; qtyMax = max;
     if (!qtyEl) { qtyEl = document.createElement('div'); qtyEl.className = 'qpop'; qtyEl.hidden = true; if (document.body && document.body.appendChild) document.body.appendChild(qtyEl); }
@@ -294,7 +294,7 @@
     const row = qtyRow(max, max, v => { n = v; lab.textContent = v + ' ' + (unit || 'Stück'); }); card.appendChild(row); card.appendChild(lab);
     const bt = document.createElement('div'); bt.className = 'qbtns';
     const all = document.createElement('button'); all.className = 'qall'; all.textContent = 'Alle'; all.addEventListener('click', () => qtyDo(max));
-    const ok = document.createElement('button'); ok.className = 'qok'; ok.textContent = 'Nehmen'; ok.addEventListener('click', () => qtyDo(n));
+    const ok = document.createElement('button'); ok.className = 'qok'; ok.textContent = okTxt || 'Nehmen'; ok.addEventListener('click', () => qtyDo(n));
     const no = document.createElement('button'); no.className = 'qno'; no.textContent = 'Abbrechen'; no.addEventListener('click', () => qtyClose());
     bt.appendChild(no); bt.appendChild(all); bt.appendChild(ok); card.appendChild(bt); qtyEl.appendChild(card);
     qtyEl.addEventListener('pointerdown', e => { if (e.target === qtyEl) qtyClose(); });

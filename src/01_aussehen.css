@@ -704,6 +704,9 @@ body.port-ok .clockrow .seapill { max-width: calc(50vw - 84px); margin-right: 6p
 .bm-leg { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; font-size: 12px; color: var(--muted); }
 .bm-leg[hidden] { display: none; }
 .gkhud { color: #FFD24A; margin-top: 1px; }
+.lagrow { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, .07); }
+.lagnm { font-weight: 800; font-size: 14px; } .lagn { grid-column: 1; font-size: 12.5px; color: var(--muted); }
+.lagbt { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 6px; } .lagbt .buy { min-height: 36px; padding: 0 12px; font-size: 13px; }
 .fpshud { position: absolute; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 4px); left: 50%; transform: translateX(-50%); pointer-events: none; font: 800 11px ui-monospace, Menlo, monospace; padding: 2px 8px; border-radius: 999px; background: rgba(16, 21, 28, .75); color: #EEF2F7; }
 .fpshud.hi { color: #5FE584; } .fpshud.mid { color: #FFD24A; } .fpshud.lo { color: #FF6A86; }
 .fpshud[hidden] { display: none; }

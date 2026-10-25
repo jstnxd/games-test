@@ -455,7 +455,7 @@
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 134; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 135; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -581,7 +581,7 @@
     requestAnimationFrame(frame);
   }
   function frameBody(ts) {
-    const int = (ts - (last || ts)) / 1000, dt = Math.min(0.05, int); last = ts; gt += dt; fdt = dt || 1 / 60; perfTick(int); fpsTick(ts); // v129, v134
+    const int = (ts - (last || ts)) / 1000, dt = Math.min(0.05, int); last = ts; gt += dt; fdt = dt || 1 / 60; perfTick(int); fpsTick(ts); bcTick(int); // v129, v134, v135
     mpTick(dt); musicTick(); if (state === 'play') { try { pgTick(dt); } catch (e) {} } // v121
     if (window.__kgErrNew) { try { errUpload(); } catch (e) {} } // v123
     if (G && (W >= H || portOk) && state === 'play' && !phoneOpen && !chatOpen && !nameGateOpen && !tutOpen && !G.tut && !tierShow && !window.__KG_NOTUT) tutStart(0); // v84: Einführung einmal je Spielstand

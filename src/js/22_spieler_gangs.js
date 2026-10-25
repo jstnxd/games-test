@@ -590,7 +590,7 @@
     for (const [k, j, v] of pgCommitAt.take || []) inv[k][STASH_F[j]] -= v; save(); sfx.put(); return moved + ' Stück ins Gang-Lager gelegt.';
   }
   async function lagTake(k) {
-    if (!pgMember() || player.fl !== 4) throw new Error('Rausnehmen geht nur im Hauptquartier.'); const inv = STASH_INV(); let got = [];
+    if (!pgMember() || player.fl !== 4) throw new Error('Rausnehmen geht nur im Hauptquartier.'); if (!pgLead()) throw new Error('Rausnehmen dürfen nur Boss und Vize.'); /* v135 */ const inv = STASH_INV(); let got = [];
     await pgCommitAt(() => { const a = lagArr(); got = []; let free = Math.max(0, bagCap() - totalBags());
       for (let j = 0; j < 3; j++) { let v = a[k * 3 + j]; if (j === 2) v = Math.min(v, free); if (v > 0) { a[k * 3 + j] -= v; got.push([j, v]); if (j === 2) free -= v; } }
       return got.length ? { fields: { lag: a }, masks: ['lag'] } : null; }, null);
@@ -624,15 +624,33 @@
     let sure = false; const lc = krCard(b, '🚪 Gang verlassen', '', pgBoss() && Object.keys(g.mem).length > 1 ? 'Als Boss gibst du die Gang an deinen Vize (oder das älteste Mitglied) weiter.' : pgBoss() ? 'Du bist allein: Die Gang wird aufgelöst, die Kasse ist dann weg.' : 'Du kannst jederzeit einer anderen Gang beitreten.');
     const st = uiEl('div', 'ds gst'), r = gRow(), lb = uiEl('button', 'buy warn', 'Verlassen'); lb.addEventListener('click', async () => { if (!sure) { sure = true; st.innerHTML = '<b style="color:var(--amber)">Nochmal tippen zum Verlassen.</b>'; return; } lb.disabled = true; st.textContent = 'Einen Moment …'; try { await pgLeave(); tab = 'home'; renderPhone(); } catch (e) { st.textContent = e.message; lb.disabled = false; } }); r.appendChild(lb); lc.appendChild(r); lc.appendChild(st);
   }
-  function renderPgLager(b) {
-    const a = lagArr(), sum = a.reduce((s, v) => s + v, 0), inHq = player.fl === 4;
-    krGrp(b, '📦 Gang-Lager · ' + sum + ' / ' + lagCap());
-    uiInfo(b, 'Gemeinsame Ware für alle Mitglieder. Liegt sicher im HQ (keine Razzia, kein Klauen). Einlagern und Rausnehmen geht nur im HQ am Regal neben der Kasse.');
-    const c = krCard(b, 'Inhalt', '', stashText(a)); const st = uiEl('div', 'ds gst'), r = gRow();
-    const pb = gBtn(r, 'Meine Ware einlagern', '', lagPut, st); pb.disabled = !inHq;
-    [AREAS.keller, AREAS.tabak, AREAS.brau].forEach((ar, k) => { if (a[k * 3] + a[k * 3 + 1] + a[k * 3 + 2] > 0) { const tb = gBtn(r, ar.name + ' rausnehmen', 'alt', () => lagTake(k), st); tb.disabled = !inHq; } });
-    c.appendChild(r); c.appendChild(st);
+  // v135: Gang-Lager mit genauer Liste: jeder darf einlagern, nur Boss und Vize dürfen rausnehmen
+  const LAG_J = ['frisch', 'getrocknet', 'verpackt'];
+  async function lagMove(k, jj, n, take) {
+    if (!pgMember() || player.fl !== 4) throw new Error('Das Gang-Lager gibt es nur im Hauptquartier.'); if (take && !pgLead()) throw new Error('Rausnehmen dürfen nur Boss und Vize.');
+    const inv = STASH_INV()[k], f = STASH_F[jj]; let moved = 0; n = Math.max(0, Math.floor(n));
+    await pgCommitAt(() => { const a = lagArr(); moved = 0;
+      if (take) { let v = Math.min(n, a[k * 3 + jj]); if (jj === 2) v = Math.min(v, Math.max(0, bagCap() - totalBags())); if (v <= 0) return null; a[k * 3 + jj] -= v; moved = v; }
+      else { const room = lagCap() - a.reduce((s2, x) => s2 + x, 0), v = Math.min(n, Math.floor(inv[f] || 0), room); if (v <= 0) return null; a[k * 3 + jj] += v; moved = v; }
+      return { fields: { lag: a }, masks: ['lag'] }; }, take ? 'hat ' + n + ' ' + AREAS[GPROD[k]].lbl.unit + ' (' + LAG_J[jj] + ') aus dem Gang-Lager genommen' : null);
+    if (!moved) throw new Error(take ? (jj === 2 ? 'Nichts mehr da oder dein Rucksack ist voll.' : 'Nichts mehr da.') : 'Du hast davon nichts dabei oder das Lager ist voll (' + lagCap() + ').');
+    inv[f] = Math.max(0, (inv[f] || 0) + (take ? moved : -moved)); save(); sfx.put(); return (take ? moved + ' mitgenommen.' : moved + ' eingelagert.');
   }
+  function renderPgLager(b) {
+    const a = lagArr(), sum = a.reduce((s2, v) => s2 + v, 0), inHq = player.fl === 4, lead = pgLead(), inv = STASH_INV();
+    krGrp(b, '📦 Gang-Lager · ' + sum + ' / ' + lagCap());
+    uiInfo(b, 'Gemeinsame Ware, sicher vor Razzien. Jedes Mitglied kann einlagern, <b>rausnehmen dürfen nur Boss und Vize</b>. Das geht nur im HQ.' + (inHq ? '' : ' <b>Du bist gerade nicht im HQ.</b>'));
+    { const c = krCard(b, 'Alles auf einmal', '', 'Legt alles, was du gerade dabei hast, ins Lager.'); const st = uiEl('div', 'ds gst'), r = gRow(), pb = gBtn(r, 'Meine ganze Ware einlagern', '', lagPut, st); pb.disabled = !inHq; c.appendChild(r); c.appendChild(st); }
+    GPROD.forEach((pk, k) => { const ar = AREAS[pk]; if (k > 0 && !isOpen(ar) && !(a[k * 3] + a[k * 3 + 1] + a[k * 3 + 2]) && !STASH_F.some(f => inv[k][f] > 0)) return;
+      const c = krCard(b, (AREA_THEME[pk] ? AREA_THEME[pk].ic + ' ' : '') + ar.name, (a[k * 3] + a[k * 3 + 1] + a[k * 3 + 2]) + ' im Lager', ''); c.querySelector('.ds').remove();
+      for (let jj = 0; jj < 3; jj++) { const nm = (jj < 2 ? ar.lbl.fresh : ar.lbl.unit) + ' ' + LAG_J[jj], have = Math.floor(inv[k][STASH_F[jj]] || 0), inL = a[k * 3 + jj];
+        const row = uiEl('div', 'lagrow'); row.appendChild(uiEl('div', 'lagnm', nm)); row.appendChild(uiEl('div', 'lagn', 'Lager ' + inL + ' · dabei ' + have));
+        const st = uiEl('div', 'ds gst'), r = uiEl('div', 'lagbt');
+        const bi = uiEl('button', 'buy', '＋ Rein'); bi.disabled = !inHq || have <= 0; bi.addEventListener('click', () => { qtyAsk(nm + ' einlagern', Math.min(have, Math.max(0, lagCap() - sum)), n => { lagMove(k, jj, n, false).then(t => { msg(t); renderPhone(); }, e => msg(e.message || 'Ging nicht', true)); }, nm, 'Einlagern'); }); r.appendChild(bi);
+        const bo = uiEl('button', 'buy alt', lead ? '－ Raus' : '🔒 Raus'); bo.disabled = !inHq || !lead || inL <= 0; if (!lead) bo.title = 'Nur Boss und Vize'; bo.addEventListener('click', () => { const mx = jj === 2 ? Math.min(inL, Math.max(0, bagCap() - totalBags())) : inL; if (mx <= 0) { msg('Dein Rucksack ist voll.', true); return; } qtyAsk(nm + ' rausnehmen', mx, n => { lagMove(k, jj, n, true).then(t => { msg(t); renderPhone(); }, e => msg(e.message || 'Ging nicht', true)); }, nm); }); r.appendChild(bo);
+        row.appendChild(r); c.appendChild(row); } });
+  }
+
   function renderPgDeko(b) {
     const g = pgang, n = ghqSlots(g.lv), can = pgCanDeco(), items = hqItems();
     { const c = krCard(b, '✏️ HQ einrichten', '', player.fl === 4 ? 'Wie im Keller: Teile antippen und mit dem Finger verschieben, neue Deko direkt aus der Gang-Kasse kaufen und aufstellen, Wegräumen gibt die Hälfte zurück.' : 'Geht im Hauptquartier: hingehen oder unter Übersicht das HQ-Taxi nehmen, dann hier tippen. Oder im HQ an der Planungstafel A drücken.'); const r = gRow(), bt = uiEl('button', 'buy', player.fl === 4 ? 'Einrichten starten' : 'Nur im HQ'); bt.disabled = player.fl !== 4 || !can; bt.addEventListener('click', () => startGhqEdit()); r.appendChild(bt); c.appendChild(r); } // v132

@@ -328,7 +328,33 @@
   }
   // Haeuser: Fassade mit Tuer zur Strasse, Satteldach, Walmdach oder Flachdach
   function houseWins(h) { const up = h.face === -1, fh = h.h * 0.36, wy = up ? h.y + fh * 0.52 : h.y + h.h - fh * 0.48; return [[h.x + 30, wy], [h.x + h.w - 30, wy]]; }
-  function drawHouse(h, hi) {
+  // v135: fertig gezeichnete Häuser und Gebäude als Bild zwischenspeichern (spart tausende Zeichenbefehle pro Bild)
+  const BC = new Map(); let bcR = 0;
+  let bcMode = (() => { try { const v = localStorage.getItem('kellergruen.bc'); return v === '0' || v === '1' ? v : 'a'; } catch (e) { return 'a'; } })(); // a = automatisch, 1 = an, 0 = aus
+  let bcAuto = (() => { try { const v = localStorage.getItem('kellergruen.bcA'); return v === '0' || v === '1' ? v : ''; } catch (e) { return ''; } })(); // Ergebnis der Messung auf diesem Gerät
+  let bcOff = bcMode === '0' || (bcMode === 'a' && bcAuto === '0');
+  function setBc(m) { bcMode = m; BC.clear(); try { localStorage.setItem('kellergruen.bc', m); } catch (e) {} if (m === 'a') { bcAuto = ''; try { localStorage.removeItem('kellergruen.bcA'); } catch (e) {} bcT.i = 0; bcT.r = [0, 0]; bcT.n = [0, 0]; } bcOff = m === '0' || (m === 'a' && bcAuto === '0'); }
+  // Selbsttest: draußen abwechselnd 2 Sekunden mit und ohne Zwischenspeicher, dann das Schnellere behalten
+  const bcT = { i: 0, s: 0, c: 0, r: [0, 0], n: [0, 0] };
+  function bcTick(int) {
+    if (bcMode !== 'a' || bcAuto || state !== 'play' || player.fl || phoneOpen || !(int > 0 && int < 0.2)) return;
+    if (AREA_KEYS.some(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; })) return;
+    const ph = bcT.i % 2; bcOff = ph === 1; bcT.s += int; bcT.c++; if (bcT.s < 2) return;
+    if (bcT.i > 0) { bcT.r[ph] += bcT.s / bcT.c; bcT.n[ph]++; } bcT.s = 0; bcT.c = 0; bcT.i++; // das allererste Fenster nicht werten (Bilder werden erst erzeugt)
+    if (bcT.n[0] >= 3 && bcT.n[1] >= 3) { const on = bcT.r[0] / bcT.n[0], off = bcT.r[1] / bcT.n[1]; bcAuto = on <= off * 1.03 ? '1' : '0'; bcOff = bcAuto === '0'; if (bcOff) BC.clear(); try { localStorage.setItem('kellergruen.bcA', bcAuto); } catch (e) {} }
+  }
+  function bcDraw(key, x0, y0, w, h, fn) {
+    if (bcOff || typeof document === 'undefined' || !document.createElement) { fn(); return; }
+    const tr = ctx.getTransform ? ctx.getTransform() : null; if (!tr || !(tr.a > 0)) { fn(); return; }
+    const R = clamp(Math.ceil(Math.hypot(tr.a, tr.b) * 2) / 2, 1, 3.5); if (R !== bcR) { BC.clear(); bcR = R; }
+    let e = BC.get(key);
+    if (!e) { const c = document.createElement('canvas'); c.width = Math.ceil(w * R); c.height = Math.ceil(h * R); const x = c.getContext && c.getContext('2d'); if (!x || !x.setTransform) { fn(); return; }
+      x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const s0 = ctx; ctx = x; try { fn(); } finally { ctx = s0; } e = c; if (BC.size >= 70) BC.delete(BC.keys().next().value); BC.set(key, e); }
+    else { BC.delete(key); BC.set(key, e); } // zuletzt benutzt nach hinten
+    ctx.drawImage(e, x0, y0, w, h);
+  }
+  function drawHouse(h, hi) { const dk = lightK() > 0.25, sk = KR_NEUTRAL ? 'n' : seasonI(); bcDraw('h' + hi + (dk ? 'd' : 'l') + sk + (h.office ? 'o' : ''), h.x - 12, h.y - 28, h.w + 32, h.h + 58, () => drawHouse0(h, hi)); }
+  function drawHouse0(h, hi) {
     const x = h.x, y = h.y, w = h.w, hh = h.h, up = h.face === -1, dk = lightK() > 0.25, fh = hh * 0.36, fy0 = up ? y : y + hh - fh, ry0 = up ? y + fh : y, rh = hh - fh;
     // Vorgarten: Plattenweg zur Tuer und Hecken
     const gy = up ? y - 18 : y + hh;
@@ -447,7 +473,9 @@
   }
 
   // ---------- v94: neue Gebaeude zeichnen (Dach von oben, Fassade zur Eingangsseite wie bei den Haeusern) ----------
-  function bldBase(B, face, fh, wall, roof, roofSt) {
+  function bldBase(B, face, fh, wall, roof, roofSt) { const up = face === -1, fy0 = up ? B.y : B.y + B.h - fh, ry0 = up ? B.y + fh : B.y, rh = B.h - fh;
+    bcDraw('b' + B.x + ',' + B.y + ',' + B.w + ',' + B.h + ',' + face + ',' + fh + ',' + wall + ',' + roof + ',' + roofSt, B.x - 2, B.y - 2, B.w + 14, B.h + 16, () => bldBase0(B, face, fh, wall, roof, roofSt)); return { fy0, ry0, rh, up }; }
+  function bldBase0(B, face, fh, wall, roof, roofSt) {
     const up = face === -1, fy0 = up ? B.y : B.y + B.h - fh, ry0 = up ? B.y + fh : B.y, rh = B.h - fh;
     ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.fillRect(B.x + 8, B.y + 10, B.w, B.h);
     ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(B.x + 3, B.y + 4, B.w + 4, B.h + 4);

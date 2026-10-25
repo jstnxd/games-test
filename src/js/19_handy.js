@@ -567,7 +567,7 @@
       c3.querySelectorAll('[data-q]').forEach(e => e.addEventListener('click', () => { r3SetQ(e.dataset.q); paint3(); }));
       paint3(); b.appendChild(c3);
       const cQ = document.createElement('div'); cQ.className = 'card look'; // v98
-      cQ.innerHTML = '<div class="nm">Bildqualität</div><div class="ds" style="margin:2px 0 8px">Hoch nutzt die volle Auflösung deines Displays, Sparsam schont den Akku. Der Farbfilter gibt dem Bild wärmere Farben, goldene und blaue Stunde.</div><div class="chips"><button class="chip" data-gq="0">Sparsam</button><button class="chip" data-gq="1">Hoch</button></div><div class="chips" style="margin-top:6px"><button class="chip" data-gf="1">Farbfilter an</button><button class="chip" data-gf="0">aus</button></div>';
+      cQ.innerHTML = '<div class="nm">Bildqualität</div><div class="ds" style="margin:2px 0 8px">Hoch zeichnet doppelt so fein wie Sparsam und ist trotzdem flott, Sparsam schont den Akku am meisten. Der Farbfilter gibt dem Bild wärmere Farben, goldene und blaue Stunde.</div><div class="chips"><button class="chip" data-gq="0">Sparsam</button><button class="chip" data-gq="1">Hoch</button></div><div class="chips" style="margin-top:6px"><button class="chip" data-gf="1">Farbfilter an</button><button class="chip" data-gf="0">aus</button></div>';
       const paintQ = () => { cQ.querySelectorAll('[data-gq]').forEach(e => e.classList.toggle('on', +e.dataset.gq === GFX_Q)); cQ.querySelectorAll('[data-gf]').forEach(e => e.classList.toggle('on', (e.dataset.gf === '1') === GFX_FX)); };
       cQ.querySelectorAll('[data-gq]').forEach(e => e.addEventListener('click', () => { GFX_Q = +e.dataset.gq ? 1 : 0; try { localStorage.setItem('kellergruen.gq', String(GFX_Q)); } catch (x) {} resize(); paintQ(); }));
       cQ.querySelectorAll('[data-gf]').forEach(e => e.addEventListener('click', () => { GFX_FX = e.dataset.gf === '1'; try { localStorage.setItem('kellergruen.gfx', GFX_FX ? '1' : '0'); } catch (x) {} resize(); paintQ(); }));
@@ -577,6 +577,11 @@
       const paintL = () => cL.querySelectorAll('[data-lf]').forEach(e => e.classList.toggle('on', (e.dataset.lf === '1') === lofxUser));
       cL.querySelectorAll('[data-lf]').forEach(e => e.addEventListener('click', () => { setLofx(e.dataset.lf === '1'); paintL(); }));
       paintL(); b.appendChild(cL);
+      const cB = document.createElement('div'); cB.className = 'card look'; // v135
+      cB.innerHTML = '<div class="nm">Gebäude zwischenspeichern</div><div class="ds" style="margin:2px 0 8px">Häuser werden einmal fertig gezeichnet und dann nur noch als Bild eingesetzt. Das spart sehr viele Zeichenbefehle. Automatisch: das Spiel misst draußen kurz beides und nimmt, was auf deinem Handy schneller ist.' + (bcMode === 'a' ? '<br><b style="color:var(--amber);font-weight:700">' + (bcAuto ? 'Gemessen: ' + (bcAuto === '1' ? 'an ist schneller' : 'aus ist schneller') : 'Misst noch, sobald du draußen unterwegs bist') + '</b>' : '') + '</div><div class="chips"><button class="chip" data-bc="a">Automatisch</button><button class="chip" data-bc="1">An</button><button class="chip" data-bc="0">Aus</button></div>';
+      const paintB = () => cB.querySelectorAll('[data-bc]').forEach(e => e.classList.toggle('on', e.dataset.bc === bcMode));
+      cB.querySelectorAll('[data-bc]').forEach(e => e.addEventListener('click', () => { setBc(e.dataset.bc); paintB(); }));
+      paintB(); b.appendChild(cB);
       const cP = document.createElement('div'); cP.className = 'card look'; // v134
       cP.innerHTML = '<div class="nm">Bildrate anzeigen</div><div class="ds" style="margin:2px 0 8px">Zeigt oben in der Mitte, wie viele Bilder pro Sekunde dein Handy gerade schafft. Grün ab 100, gelb um 60, rot darunter. Die Bildrate gibt der Browser vor: auf 120-Hz-Handys bis zu 120, im Energiesparmodus oft nur 30 bis 60.</div><div class="chips"><button class="chip" data-fp="1">An</button><button class="chip" data-fp="0">Aus</button></div>';
       const paintP = () => cP.querySelectorAll('[data-fp]').forEach(e => e.classList.toggle('on', (e.dataset.fp === '1') === fpsOn));
