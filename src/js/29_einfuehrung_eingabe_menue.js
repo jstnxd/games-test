@@ -175,11 +175,11 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 138, date: 'Oktober 2026', title: 'Minikarte', items: [
+      ['fix', '🗺️', 'Die Minikarte und die große Karte zeichnen alles, was sich selten ändert (Viertel, Gebäude-Buchstaben, Haltestellen, Reviere), nur noch neu, wenn sich wirklich etwas ändert. Pro Neuzeichnen etwa ein Drittel der Arbeit'] ] },
     { v: 137, date: 'Oktober 2026', title: 'Gras im Wind', items: [
       ['fix', '🧱', 'Behoben: Beim Laufen blieben Teile der Karte dunkel, Häuser und Figuren fehlten. Der Bildspeicher hat jetzt eine feste Obergrenze, gibt Speicher sofort frei und schaltet sich bei Problemen selbst ab'],
       ['fix', '🌾', 'Grashalme und Schilf wiegen sich wieder im Wind'] ] },
-    { v: 136, date: 'Oktober 2026', title: 'Noch flüssiger', items: [
-      ['fix', '⚡', 'Boden, Straßen, Wege, Büsche, Gras, Blumen, Beete und Bänke werden jetzt als fertige Bildkacheln eingesetzt, Baumkronen als fertige Bilder. Wasser, Brunnen, Rauch und Tiere bewegen sich weiter. Das Spiel misst danach einmal neu, ob es auf deinem Handy schneller ist'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

@@ -219,14 +219,31 @@
     const el = $('mini'); if (!el || !el.getContext || gt - MINI.t < 0.1) return; MINI.t = gt;
     mapDraw(el, MINI, Math.max(1, Math.min(3, Math.round(window.devicePixelRatio || 1))), false);
   }
+  // v139: Minikarte: was sich selten ändert (Grundbild, gesperrte Viertel, Reviere, Gebäude-Buchstaben, Haltestellen) liegt fertig als Bild bereit
+  function mapStatic(x, el, M, d, big) {
+    if (M.base) x.drawImage(M.base, 0, 0);
+    if (G) { x.fillStyle = 'rgba(30,36,46,.72)'; const zsx = el.width / WW, zsy = el.height / (WH - YMIN); for (const z of ZONES) if (G.rep < z.rep) x.fillRect(z.x0 * zsx, (z.y0 - YMIN) * zsy, (z.x1 - z.x0) * zsx, (z.y1 - z.y0) * zsy); } // v86
+    if (G) mapRevier(x, el, d, big); // v129: Gang-Reviere, nur für Gang-Mitglieder (Kürzel stehen in der Legende der großen Karte)
+    const kx = el.width / WW, ky = el.height / (WH - YMIN), k = clamp(M.w / 132, 0.75, 1.3) * d, pk = 0;
+      const badge = (wx, wy, t, col, big) => { const r = (big ? 5.4 : 4.2) * k, px = clamp(wx * kx, r + 2 * k, el.width - r - 2 * k), py = clamp((wy - YMIN) * ky, r + 2 * k, el.height - r - 2 * k);
+        if (big) { x.strokeStyle = 'rgba(95,229,132,' + (0.35 + 0.5 * pk).toFixed(2) + ')'; x.lineWidth = 1.4 * k; x.beginPath(); x.arc(px, py, r + (1.5 + 2 * pk) * k, 0, TAU); x.stroke(); }
+        x.fillStyle = 'rgba(16,21,28,.92)'; x.beginPath(); x.arc(px, py, r + 1.1 * k, 0, TAU); x.fill(); x.fillStyle = col; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill();
+        x.fillStyle = '#10151C'; x.font = '900 ' + ((big ? 7 : 5.6) * k).toFixed(1) + 'px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(t, px, py + 0.4 * k); };
+      badge(2190, 270, 'S', '#E8C84A'); badge(2190, 968, 'C', '#5BC0EB'); badge(WERK.x + WERK.w / 2, WERK.y + WERK.h / 2, 'W', '#E8833A'); badge(4645, 310, 'A', '#C9D2DC'); badge(LAGER.x + LAGER.w / 2, LAGER.y + LAGER.h / 2, 'M', '#C9D2DC'); badge(GYM.x + GYM.w / 2, GYM.y + GYM.h / 2, 'F', '#E05555'); badge(PIZZA.x + PIZZA.w / 2, PIZZA.y + PIZZA.h / 2, 'P', '#F2A93B'); badge(BANK.x + BANK.w / 2, BANK.y + BANK.h / 2, 'B', '#E8DFC8'); badge(CLUB.x + CLUB.w / 2, CLUB.y + CLUB.h / 2, 'N', '#FF5CA8'); badge(MAKLER_AT.x, MAKLER_AT.y - 80, 'I', '#4B8DFF'); badge(5020, 1020, '$', '#FFD24A'); badge(3000, 145, '+', '#5FE584'); badge(4830, 2512, 'G', gvOpen() ? '#FF5C7A' : '#8A93A3');
+      if (G && BUS_ST) for (const s of BUS_ST) { if (!busOpen(s)) continue; const r = 2.9 * k, px = s.x * kx, py = (s.y - YMIN) * ky; x.fillStyle = '#1E9E55'; x.beginPath(); x.arc(px, py, r + 0.9 * k, 0, TAU); x.fill(); x.fillStyle = '#F2C14E'; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill(); x.fillStyle = '#1E7A52'; x.font = '900 ' + (4.4 * k).toFixed(1) + 'px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('H', px, py + 0.3 * k); } // v104: Haltestellen
+    x.textBaseline = 'alphabetic';
+  }
   function mapDraw(el, M, d, big, zr) { // v117: Minikarte und grosse Karte zeichnen gleich; v121: zr = Zoomstufe der grossen Karte (Marker bleiben gleich gross)
     zr = zr || 1; const dz = d * zr;
     if (el.width !== Math.round(M.w * dz) || el.height !== Math.round(M.h * dz)) { el.width = Math.round(M.w * dz); el.height = Math.round(M.h * dz); M.base = null; }
     const x = el.getContext('2d'); if (!x) return;
     if (!M.base || M.d !== dz) { M.base = miniBase(dz, M.w, M.h); M.d = dz; }
-    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, el.width, el.height); if (M.base) x.drawImage(M.base, 0, 0);
-    if (G) { x.fillStyle = 'rgba(30,36,46,.72)'; const zsx = el.width / WW, zsy = el.height / (WH - YMIN); for (const z of ZONES) if (G.rep < z.rep) x.fillRect(z.x0 * zsx, (z.y0 - YMIN) * zsy, (z.x1 - z.x0) * zsx, (z.y1 - z.y0) * zsy); } // v86
-    if (G) mapRevier(x, el, d, big); // v129: Gang-Reviere, nur für Gang-Mitglieder (Kürzel stehen in der Legende der großen Karte)
+    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, el.width, el.height);
+    { const sig = [el.width, el.height, d, big ? 1 : 0, G ? G.rep : -1, (G && pgMember()) ? myGid() + ':' + rkT : '', G && BUS_ST ? BUS_ST.filter(busOpen).length : 0, M.d].join('|'); // v139
+      if (!M.sc || M.sc.width !== el.width || M.sc.height !== el.height) { try { M.sc = document.createElement('canvas'); M.sc.width = el.width; M.sc.height = el.height; } catch (e) { M.sc = null; } M.sig = ''; }
+      const sx = M.sc && M.sc.getContext && M.sc.getContext('2d');
+      if (sx && M.sig !== sig) { sx.setTransform(1, 0, 0, 1, 0, 0); sx.clearRect(0, 0, el.width, el.height); mapStatic(sx, el, M, d, big); M.sig = sig; }
+      if (sx) x.drawImage(M.sc, 0, 0); else mapStatic(x, el, M, d, big); }
     const kx = el.width / WW, ky = el.height / (WH - YMIN), dot = (wx, wy, col, r) => { const px = clamp(wx, 0, WW) * kx, py = (clamp(wy, YMIN, WH) - YMIN) * ky; x.fillStyle = 'rgba(16,21,28,.9)'; x.beginPath(); x.arc(px, py, r + 1.2 * d, 0, TAU); x.fill(); x.fillStyle = col; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill(); };
     friendsAway().forEach((f, i) => { const L = f.look || DEF_LOOK, a = i * 1.3; dot(30 + Math.abs(Math.cos(a)) * 60, 560 + Math.sin(a) * 60, 'rgb(' + (L.r | 0) + ',' + (L.g | 0) + ',' + (L.b | 0) + ')', 2 * d); }); // v74: Freunde in ihrem Keller
     for (const f of Object.values(mp.friends)) { if (!f.vis || f.x < 0) continue; const L = f.look || DEF_LOOK; dot(f.x, f.y, 'rgb(' + (L.r | 0) + ',' + (L.g | 0) + ',' + (L.b | 0) + ')', 2.6 * d); }
@@ -236,8 +253,6 @@
         if (big) { x.strokeStyle = 'rgba(95,229,132,' + (0.35 + 0.5 * pk).toFixed(2) + ')'; x.lineWidth = 1.4 * k; x.beginPath(); x.arc(px, py, r + (1.5 + 2 * pk) * k, 0, TAU); x.stroke(); }
         x.fillStyle = 'rgba(16,21,28,.92)'; x.beginPath(); x.arc(px, py, r + 1.1 * k, 0, TAU); x.fill(); x.fillStyle = col; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill();
         x.fillStyle = '#10151C'; x.font = '900 ' + ((big ? 7 : 5.6) * k).toFixed(1) + 'px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(t, px, py + 0.4 * k); };
-      badge(2190, 270, 'S', '#E8C84A'); badge(2190, 968, 'C', '#5BC0EB'); badge(WERK.x + WERK.w / 2, WERK.y + WERK.h / 2, 'W', '#E8833A'); badge(4645, 310, 'A', '#C9D2DC'); badge(LAGER.x + LAGER.w / 2, LAGER.y + LAGER.h / 2, 'M', '#C9D2DC'); badge(GYM.x + GYM.w / 2, GYM.y + GYM.h / 2, 'F', '#E05555'); badge(PIZZA.x + PIZZA.w / 2, PIZZA.y + PIZZA.h / 2, 'P', '#F2A93B'); badge(BANK.x + BANK.w / 2, BANK.y + BANK.h / 2, 'B', '#E8DFC8'); badge(CLUB.x + CLUB.w / 2, CLUB.y + CLUB.h / 2, 'N', '#FF5CA8'); badge(MAKLER_AT.x, MAKLER_AT.y - 80, 'I', '#4B8DFF'); badge(5020, 1020, '$', '#FFD24A'); badge(3000, 145, '+', '#5FE584'); badge(4830, 2512, 'G', gvOpen() ? '#FF5C7A' : '#8A93A3');
-      if (G && BUS_ST) for (const s of BUS_ST) { if (!busOpen(s)) continue; const r = 2.9 * k, px = s.x * kx, py = (s.y - YMIN) * ky; x.fillStyle = '#1E9E55'; x.beginPath(); x.arc(px, py, r + 0.9 * k, 0, TAU); x.fill(); x.fillStyle = '#F2C14E'; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill(); x.fillStyle = '#1E7A52'; x.font = '900 ' + (4.4 * k).toFixed(1) + 'px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('H', px, py + 0.3 * k); } // v104: Haltestellen
       badge(326, 280, 'K', '#5FE584', true); x.textBaseline = 'alphabetic';
       if (!KR_NEUTRAL) for (const c of CHARS) { // v83: Quests auf der Minikarte: ! = neu/bereit, ? = läuft, € = Stammkunde wartet
         if (!charHere(c)) continue; const q = qOf(c.id), done = q.s >= c.steps.length, rd = charReady(c), trk = KR().trk === c.id;
