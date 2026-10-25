@@ -175,11 +175,11 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 136, date: 'Oktober 2026', title: 'Noch flüssiger', items: [
+      ['fix', '⚡', 'Boden, Straßen, Wege, Büsche, Gras, Blumen, Beete und Bänke werden jetzt als fertige Bildkacheln eingesetzt, Baumkronen als fertige Bilder. Wasser, Brunnen, Rauch und Tiere bewegen sich weiter. Das Spiel misst danach einmal neu, ob es auf deinem Handy schneller ist'] ] },
     { v: 135, date: 'Oktober 2026', title: 'Flüssiger', items: [
       ['fix', '⚡', 'Deutlich weniger Rechenarbeit pro Bild: Häuser und Gebäude werden einmal fertig gezeichnet und dann als Bild eingesetzt (das Spiel prüft selbst, ob das auf deinem Handy schneller ist), und „Hoch“ zeichnet höchstens doppelt so fein. Auf iPhones sind damit mehr Bilder pro Sekunde drin'],
       ['neu', '📦', 'Gang-Lager mit genauer Liste: jede Sorte frisch, getrocknet und verpackt einzeln rein und raus, mit Mengenregler. Einlagern darf jeder, rausnehmen nur Boss und Vize'] ] },
-    { v: 134, date: 'Oktober 2026', title: 'Bildrate', items: [
-      ['neu', '📈', 'Unter Einstellungen → Anzeige gibt es „Bildrate anzeigen“: oben in der Mitte steht dann, wie viele Bilder pro Sekunde dein Handy schafft. Auf 120-Hz-Handys läuft das Spiel mit bis zu 120'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

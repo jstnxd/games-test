@@ -49,6 +49,7 @@
   }
   const mapCols = [], mapObs = [];
   function applyWorld() {
+    try { gtlClear(); } catch (e) {} // v136: Bodenkacheln neu zeichnen
     for (const c of mapCols) { const i = colliders.indexOf(c); if (i >= 0) colliders.splice(i, 1); } mapCols.length = 0;
     for (const o of mapObs) { const i = OBST.indexOf(o); if (i >= 0) OBST.splice(i, 1); } mapObs.length = 0;
     for (const it of WORLD.items) {

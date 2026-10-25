@@ -155,7 +155,7 @@
     const g = ctx.createLinearGradient(0, r.y0, 0, r.y1); g.addColorStop(0, '#2F7FB8'); g.addColorStop(0.5, '#2670A6'); g.addColorStop(1, '#1F5C8C');
     ctx.fillStyle = g; ctx.fillRect(x0, r.y0, x1 - x0, r.y1 - r.y0);
     ctx.strokeStyle = 'rgba(255,255,255,.26)'; ctx.lineWidth = 2;
-    for (let x = Math.floor(x0 / 90) * 90; x < x1; x += 90) { const o = ((x / 90) % 3) * 12 + Math.sin(gt * 1.3 + x) * 4; for (const [dy, dx] of [[14, 0], [34, 40], [56, 18]]) { ctx.beginPath(); ctx.moveTo(x + o + dx, r.y0 + dy); ctx.quadraticCurveTo(x + o + dx + 14, r.y0 + dy - 6, x + o + dx + 28, r.y0 + dy); ctx.stroke(); } }
+    if (gsPass === 0) for (let x = Math.floor(x0 / 90) * 90; x < x1; x += 90) { const o = ((x / 90) % 3) * 12 + Math.sin(gt * 1.3 + x) * 4; for (const [dy, dx] of [[14, 0], [34, 40], [56, 18]]) { ctx.beginPath(); ctx.moveTo(x + o + dx, r.y0 + dy); ctx.quadraticCurveTo(x + o + dx + 14, r.y0 + dy - 6, x + o + dx + 28, r.y0 + dy); ctx.stroke(); } }
     drawPier(); // v109
     ctx.fillStyle = '#7C8794'; for (let x = Math.floor(x0 / 18) * 18; x < x1; x += 18) { if (ALLB.some(b => x > b.x0 - 4 && x < b.x1 + 4) || (x > PIER.x0 - 4 && x < PIER.x1 + 4)) continue; ctx.fillRect(x, UFER_N + 12, 2, 6); ctx.fillRect(x, UFER_S - 18, 2, 6); } // Gelaenderpfosten
     ctx.fillStyle = '#8C96A3'; ctx.fillRect(x0, UFER_N + 12, x1 - x0, 1.5); ctx.fillRect(x0, UFER_S - 17, x1 - x0, 1.5);
@@ -184,8 +184,8 @@
       const a = Math.max(b.y0, viewY0 - 20), e = Math.min(b.y1, viewY1 + 20);
       ctx.fillStyle = '#4A5A4E'; ctx.fillRect(b.x - 16, a, 32, e - a); ctx.fillStyle = '#6E7A70'; for (let y = Math.floor(a / 14) * 14; y < e; y += 14) { ctx.beginPath(); ctx.arc(b.x - 14, y + 4, 3, 0, TAU); ctx.arc(b.x + 14, y + 11, 3, 0, TAU); ctx.fill(); }
       const g = ctx.createLinearGradient(b.x - 11, 0, b.x + 11, 0); g.addColorStop(0, '#2A6E9E'); g.addColorStop(0.5, '#3A8CC4'); g.addColorStop(1, '#2A6E9E'); ctx.fillStyle = g; ctx.fillRect(b.x - 11, a, 22, e - a);
-      ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1.4; const ph = (gt * 26) % 28; for (let y = Math.floor(a / 28) * 28 + ph; y < e; y += 28) { ctx.beginPath(); ctx.moveTo(b.x - 6, y); ctx.quadraticCurveTo(b.x, y + 5, b.x + 6, y); ctx.stroke(); }
-      ctx.strokeStyle = '#5E7A3A'; ctx.lineWidth = 2; for (let y = Math.floor(a / 46) * 46 + 10; y < e; y += 46) { const sx = (y / 46) % 2 ? b.x - 15 : b.x + 15; ctx.beginPath(); ctx.moveTo(sx, y); ctx.lineTo(sx + Math.sin(gt + y) * 1.5, y - 13); ctx.moveTo(sx + 3, y); ctx.lineTo(sx + 4, y - 10); ctx.stroke(); }
+      ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1.4; const ph = (gt * 26) % 28; if (gsPass === 0) for (let y = Math.floor(a / 28) * 28 + ph; y < e; y += 28) { ctx.beginPath(); ctx.moveTo(b.x - 6, y); ctx.quadraticCurveTo(b.x, y + 5, b.x + 6, y); ctx.stroke(); }
+      ctx.strokeStyle = '#5E7A3A'; ctx.lineWidth = 2; for (let y = Math.floor(a / 46) * 46 + 10; y < e; y += 46) { const sx = (y / 46) % 2 ? b.x - 15 : b.x + 15; ctx.beginPath(); ctx.moveTo(sx, y); ctx.lineTo(sx + (gsPass === 1 ? 0 : Math.sin(gt + y) * 1.5), y - 13); ctx.moveTo(sx + 3, y); ctx.lineTo(sx + 4, y - 10); ctx.stroke(); }
       if (b.y0 > RIVER.y1 || b.y1 < RIVER.y0) { const sy = b.y0 < RIVER.y0 ? b.y0 : b.y1; if (b.y1 !== RIVER.y0 && b.y0 !== RIVER.y1) { ctx.fillStyle = '#8A929C'; ell(b.x, sy, 18, 9); ctx.fill(); ctx.fillStyle = '#5E7FA0'; ell(b.x, sy, 11, 5); ctx.fill(); } else { ctx.fillStyle = '#3E4650'; ctx.fillRect(b.x - 16, b.y0 > RIVER.y1 ? b.y1 - 6 : b.y0 - 2, 32, 8); } } // Quelle oder Rohr
     }
   }
@@ -297,7 +297,7 @@
   }
   function drawPark() {
     // Brunnen mit drei Becken
-    if (inView(FOUNTAIN.x, FOUNTAIN.y, 80)) {
+    if (gsPass !== 1 && inView(FOUNTAIN.x, FOUNTAIN.y, 80)) {
       const f = FOUNTAIN;
       ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.arc(f.x + 4, f.y + 6, f.r + 2, 0, TAU); ctx.fill();
       ctx.fillStyle = '#8B97A5'; ctx.beginPath(); ctx.arc(f.x, f.y, f.r + 2, 0, TAU); ctx.fill();
@@ -310,7 +310,7 @@
       const h = 4 + Math.sin(gt * 3) * 1.2; ctx.beginPath(); ctx.arc(f.x, f.y - 3, h, 0, TAU); ctx.fill();
     }
     // Teich mit Seerosen und Schilf
-    if (inView(POND.x + POND.w / 2, POND.y + POND.h / 2, 180)) {
+    if (gsPass !== 1 && inView(POND.x + POND.w / 2, POND.y + POND.h / 2, 180)) {
       const p = POND, cx = p.x + p.w / 2, cy = p.y + p.h / 2;
       ctx.fillStyle = '#3B4A3A'; ell(cx, cy, p.w / 2 + 6, p.h / 2 + 6); ctx.fill();
       const pg = ctx.createRadialGradient(cx - 20, cy - 10, 10, cx, cy, p.w / 2); pg.addColorStop(0, '#3E8FC8'); pg.addColorStop(1, '#245E8A'); ctx.fillStyle = pg; ell(cx, cy, p.w / 2, p.h / 2); ctx.fill();
@@ -321,19 +321,56 @@
     }
     // Blumenbeete am Park
     const bed = (x, y) => { ctx.fillStyle = '#2B1F18'; ell(x, y, 22, 8); ctx.fill(); for (let k = 0; k < 7; k++) { ctx.fillStyle = ['#F28BB0', '#F6E27A', '#F4F4F8', '#B9A0FF'][k % 4]; ctx.beginPath(); ctx.arc(x - 16 + k * 5.4, y - 2 + Math.sin(k * 2.1) * 3, 2, 0, TAU); ctx.fill(); } };
-    [[1186, 760], [1346, 760], [1186, 1268], [1346, 1268], [826, 980], [826, 1050], [1706, 980], [1706, 1050]].forEach(([x, y]) => { if (inView(x, y, 40)) bed(x, y); });
-    for (const b of BENCHES) if (inView(b.x, b.y, 40)) drawBench(b);
-    for (const s of SHEDS) { if (!inView(s.x + s.w / 2, s.y + s.h / 2, 60)) continue; ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(s.x + 4, s.y + 5, s.w, s.h); ctx.fillStyle = s.c; ctx.fillRect(s.x, s.y, s.w, s.h); ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(s.x, s.y, s.w, s.h * 0.5); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(s.x, s.y, s.w, 2); ctx.fillStyle = '#20150F'; ctx.fillRect(s.x + s.w / 2 - 6, s.y + s.h - 14, 12, 14); }
-    drawFences(); drawSkatepark(); drawPlayground(); drawPitchProps(); drawDogPark();
+    if (gsPass !== 2) { [[1186, 760], [1346, 760], [1186, 1268], [1346, 1268], [826, 980], [826, 1050], [1706, 980], [1706, 1050]].forEach(([x, y]) => { if (inView(x, y, 40)) bed(x, y); });
+    for (const b of BENCHES) if (inView(b.x, b.y, 40)) drawBench(b); }
+    if (gsPass !== 2) for (const s of SHEDS) { if (!inView(s.x + s.w / 2, s.y + s.h / 2, 60)) continue; ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(s.x + 4, s.y + 5, s.w, s.h); ctx.fillStyle = s.c; ctx.fillRect(s.x, s.y, s.w, s.h); ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(s.x, s.y, s.w, s.h * 0.5); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(s.x, s.y, s.w, 2); ctx.fillStyle = '#20150F'; ctx.fillRect(s.x + s.w / 2 - 6, s.y + s.h - 14, 12, 14); }
+    if (gsPass !== 1) { drawFences(); drawSkatepark(); drawPlayground(); drawPitchProps(); drawDogPark(); }
   }
   // Haeuser: Fassade mit Tuer zur Strasse, Satteldach, Walmdach oder Flachdach
   function houseWins(h) { const up = h.face === -1, fh = h.h * 0.36, wy = up ? h.y + fh * 0.52 : h.y + h.h - fh * 0.48; return [[h.x + 30, wy], [h.x + h.w - 30, wy]]; }
   // v135: fertig gezeichnete Häuser und Gebäude als Bild zwischenspeichern (spart tausende Zeichenbefehle pro Bild)
-  const BC = new Map(); let bcR = 0;
+  const BC = new Map(), SPR = new Map(); let bcR = 0, sprR = 0;
+  let gsPass = 0; // v136: 0 = alles zeichnen, 1 = nur Unbewegliches (für die Bodenkacheln), 2 = nur Bewegtes (live über den Kacheln)
+  const curR = (mx) => { const tr = ctx.getTransform ? ctx.getTransform() : null; return tr && tr.a > 0 ? clamp(Math.ceil(Math.hypot(tr.a, tr.b) * 2) / 2, 1, mx) : 0; };
+  function sprDraw(key, x0, y0, w, h, fn) { // v136: kleine Einzelbilder (Baumkronen), eigener Speicher
+    if (bcOff || !document.createElement) { fn(); return; } const R = curR(3); if (!R) { fn(); return; } if (R !== sprR) { SPR.clear(); sprR = R; }
+    let e = SPR.get(key); if (!e) { const c = document.createElement('canvas'); c.width = Math.ceil(w * R); c.height = Math.ceil(h * R); const x = c.getContext && c.getContext('2d'); if (!x || !x.setTransform) { fn(); return; }
+      x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const s0 = ctx; ctx = x; try { fn(); } finally { ctx = s0; } e = c; if (SPR.size >= 400) SPR.delete(SPR.keys().next().value); SPR.set(key, e); }
+    ctx.drawImage(e, x0, y0, w, h);
+  }
+  // v136: Bodenkacheln: Boden, Straßen, Wege, Büsche, Grasbüschel, Blumen, Beete, Bänke, Hydranten als fertige Bilder (256 x 256 Welt-Einheiten)
+  const GTL = new Map(), GTS = 256, GTP = 6; let gtlR = 0;
+  const gtlKey = () => (KR_NEUTRAL || !G ? 'n' : seasonI()) + (state === 'edit' ? 'e' : '');
+  function gtlBuild(ix, iy, R) {
+    const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP, c = document.createElement('canvas'); c.width = Math.ceil(S * R); c.height = Math.ceil(S * R); const x = c.getContext && c.getContext('2d'); if (!x || !x.setTransform) return null;
+    x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const v = [viewX0, viewX1, viewY0, viewY1], s0 = ctx; viewX0 = x0 - 2; viewX1 = x0 + S + 2; viewY0 = y0 - 2; viewY1 = y0 + S + 2; ctx = x; gsPass = 1;
+    try { ctx.fillStyle = '#17261F'; ctx.fillRect(x0, y0, S, S); if (viewX1 > 0) drawCityGround(); if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); drawPaths(); drawMapGround(); drawBushes(); drawAmbientGround(); drawDetailsGround(); drawPark(); }
+    finally { ctx = s0; gsPass = 0; [viewX0, viewX1, viewY0, viewY1] = v; }
+    return c;
+  }
+  function gtlClear() { GTL.clear(); }
+  function drawGroundTiles() { // gibt false zurück, wenn diesmal live gezeichnet werden soll
+    if (bcOff || state === 'admin' || viewX0 < 0 || !document.createElement) return false; const R = curR(2.5); if (!R) return false; if (R !== gtlR) { GTL.clear(); gtlR = R; }
+    const sk = gtlKey(), ix0 = Math.floor(viewX0 / GTS), ix1 = Math.floor(viewX1 / GTS), iy0 = Math.floor(viewY0 / GTS), iy1 = Math.floor(viewY1 / GTS), need = [];
+    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = ix + ',' + iy + ',' + sk; if (!GTL.has(k)) need.push([ix, iy, k]); }
+    let built = 0; for (const [ix, iy, k] of need) { if (built >= 3) break; const c = gtlBuild(ix, iy, R); if (!c) return false; if (GTL.size >= 30) GTL.delete(GTL.keys().next().value); GTL.set(k, c); built++; }
+    if (need.length > built) return false; // noch nicht alle Kacheln fertig: dieses Bild noch live zeichnen
+    const sp = GTP * R, sw = GTS * R;
+    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = ix + ',' + iy + ',' + sk, c = GTL.get(k); GTL.delete(k); GTL.set(k, c); ctx.drawImage(c, sp, sp, sw, sw, ix * GTS, iy * GTS, GTS, GTS); }
+    return true;
+  }
+  function drawGroundLive() { // was sich auf dem Boden bewegt: Wellen im Fluss und Wasser in den Bächen
+    const r = RIVER; if (!(viewY1 < r.y0 - 60 || viewY0 > r.y1 + 60)) { const x0 = Math.max(0, viewX0), x1 = Math.min(WW, viewX1); ctx.strokeStyle = 'rgba(255,255,255,.26)'; ctx.lineWidth = 2;
+      for (let x = Math.floor(x0 / 90) * 90; x < x1; x += 90) { const o = ((x / 90) % 3) * 12 + Math.sin(gt * 1.3 + x) * 4; for (const [dy, dx] of [[14, 0], [34, 40], [56, 18]]) { const sx = x + o + dx; if (ALLB.some(b => sx + 28 > b.x0 && sx < b.x1) || (sx + 28 > PIER.x0 - 2 && sx < PIER.x1 + 2 && dy < 40)) continue; ctx.beginPath(); ctx.moveTo(sx, r.y0 + dy); ctx.quadraticCurveTo(sx + 14, r.y0 + dy - 6, sx + 28, r.y0 + dy); ctx.stroke(); } } }
+    for (const b of BROOKS) { if (b.x + 30 < viewX0 || b.x - 30 > viewX1 || b.y1 < viewY0 - 20 || b.y0 > viewY1 + 20) continue; const a = Math.max(b.y0, viewY0 - 20), e = Math.min(b.y1, viewY1 + 20);
+      ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1.4; const ph = (gt * 26) % 28; for (let y = Math.floor(a / 28) * 28 + ph; y < e; y += 28) { if (onRoadway(b.x, y) || onRoadway(b.x, y + 5)) continue; ctx.beginPath(); ctx.moveTo(b.x - 6, y); ctx.quadraticCurveTo(b.x, y + 5, b.x + 6, y); ctx.stroke(); } }
+  }
+  function drawBushes() { for (const b of bushes) { if (!inView(b.x, b.y, 20)) continue; drawBush1(b); } }
+  function drawBush1(b) { ctx.fillStyle = '#12201A'; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.fill(); ctx.fillStyle = '#1D3A2B'; ctx.beginPath(); ctx.arc(b.x - b.r * .2, b.y - b.r * .2, b.r * .7, 0, TAU); ctx.fill(); }
   let bcMode = (() => { try { const v = localStorage.getItem('kellergruen.bc'); return v === '0' || v === '1' ? v : 'a'; } catch (e) { return 'a'; } })(); // a = automatisch, 1 = an, 0 = aus
-  let bcAuto = (() => { try { const v = localStorage.getItem('kellergruen.bcA'); return v === '0' || v === '1' ? v : ''; } catch (e) { return ''; } })(); // Ergebnis der Messung auf diesem Gerät
+  let bcAuto = (() => { try { const v = localStorage.getItem('kellergruen.bcA2'); return v === '0' || v === '1' ? v : ''; } catch (e) { return ''; } })(); // Ergebnis der Messung auf diesem Gerät
   let bcOff = bcMode === '0' || (bcMode === 'a' && bcAuto === '0');
-  function setBc(m) { bcMode = m; BC.clear(); try { localStorage.setItem('kellergruen.bc', m); } catch (e) {} if (m === 'a') { bcAuto = ''; try { localStorage.removeItem('kellergruen.bcA'); } catch (e) {} bcT.i = 0; bcT.r = [0, 0]; bcT.n = [0, 0]; } bcOff = m === '0' || (m === 'a' && bcAuto === '0'); }
+  function setBc(m) { bcMode = m; BC.clear(); SPR.clear(); GTL.clear(); try { localStorage.setItem('kellergruen.bc', m); } catch (e) {} if (m === 'a') { bcAuto = ''; try { localStorage.removeItem('kellergruen.bcA2'); } catch (e) {} bcT.i = 0; bcT.r = [0, 0]; bcT.n = [0, 0]; } bcOff = m === '0' || (m === 'a' && bcAuto === '0'); }
   // Selbsttest: draußen abwechselnd 2 Sekunden mit und ohne Zwischenspeicher, dann das Schnellere behalten
   const bcT = { i: 0, s: 0, c: 0, r: [0, 0], n: [0, 0] };
   function bcTick(int) {
@@ -341,7 +378,7 @@
     if (AREA_KEYS.some(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; })) return;
     const ph = bcT.i % 2; bcOff = ph === 1; bcT.s += int; bcT.c++; if (bcT.s < 2) return;
     if (bcT.i > 0) { bcT.r[ph] += bcT.s / bcT.c; bcT.n[ph]++; } bcT.s = 0; bcT.c = 0; bcT.i++; // das allererste Fenster nicht werten (Bilder werden erst erzeugt)
-    if (bcT.n[0] >= 3 && bcT.n[1] >= 3) { const on = bcT.r[0] / bcT.n[0], off = bcT.r[1] / bcT.n[1]; bcAuto = on <= off * 1.03 ? '1' : '0'; bcOff = bcAuto === '0'; if (bcOff) BC.clear(); try { localStorage.setItem('kellergruen.bcA', bcAuto); } catch (e) {} }
+    if (bcT.n[0] >= 3 && bcT.n[1] >= 3) { const on = bcT.r[0] / bcT.n[0], off = bcT.r[1] / bcT.n[1]; bcAuto = on <= off * 1.03 ? '1' : '0'; bcOff = bcAuto === '0'; if (bcOff) { BC.clear(); SPR.clear(); GTL.clear(); } try { localStorage.setItem('kellergruen.bcA2', bcAuto); } catch (e) {} }
   }
   function bcDraw(key, x0, y0, w, h, fn) {
     if (bcOff || typeof document === 'undefined' || !document.createElement) { fn(); return; }
@@ -349,7 +386,7 @@
     const R = clamp(Math.ceil(Math.hypot(tr.a, tr.b) * 2) / 2, 1, 3.5); if (R !== bcR) { BC.clear(); bcR = R; }
     let e = BC.get(key);
     if (!e) { const c = document.createElement('canvas'); c.width = Math.ceil(w * R); c.height = Math.ceil(h * R); const x = c.getContext && c.getContext('2d'); if (!x || !x.setTransform) { fn(); return; }
-      x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const s0 = ctx; ctx = x; try { fn(); } finally { ctx = s0; } e = c; if (BC.size >= 70) BC.delete(BC.keys().next().value); BC.set(key, e); }
+      x.setTransform(R, 0, 0, R, -x0 * R, -y0 * R); const s0 = ctx; ctx = x; try { fn(); } finally { ctx = s0; } e = c; if (BC.size >= 50) BC.delete(BC.keys().next().value); BC.set(key, e); }
     else { BC.delete(key); BC.set(key, e); } // zuletzt benutzt nach hinten
     ctx.drawImage(e, x0, y0, w, h);
   }
@@ -624,7 +661,7 @@
     for (const m of DET.holes) { if (!inView(m.x, m.y, 20)) continue; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.arc(m.x + 1, m.y + 1.5, 8, 0, TAU); ctx.fill(); ctx.fillStyle = '#4A4F57'; ctx.beginPath(); ctx.arc(m.x, m.y, 8, 0, TAU); ctx.fill(); ctx.strokeStyle = '#2E3238'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(m.x, m.y, 6.2, 0, TAU); ctx.stroke(); for (let k = -1; k <= 1; k++) { ctx.beginPath(); ctx.moveTo(m.x - 5, m.y + k * 2.6); ctx.lineTo(m.x + 5, m.y + k * 2.6); ctx.stroke(); } }
     const FC = ['#FF8FB8', '#FFD24A', '#FFFFFF', '#B58CFF', '#FF7A5A'], GC = aut ? ['#8A7A3A', '#A0882E'] : win ? ['#9AA8A0', '#B8C4BE'] : ['#3E7A3A', '#5A9A48'];
     for (const t of DET.tufts) { if (!inView(t.x, t.y, 12)) continue; const s = t.s;
-      if (t.k === 0 || (win && t.k === 1)) { ctx.strokeStyle = GC[t.c % 2]; ctx.lineWidth = 1.3; ctx.beginPath(); for (const o of [-2.5, 0, 2.5]) { ctx.moveTo(t.x + o * s, t.y + 2); ctx.lineTo(t.x + o * s * 1.6 + Math.sin(gt * 1.3 + t.x) * 0.6, t.y - 4.5 * s); } ctx.stroke(); }
+      if (t.k === 0 || (win && t.k === 1)) { ctx.strokeStyle = GC[t.c % 2]; ctx.lineWidth = 1.3; ctx.beginPath(); for (const o of [-2.5, 0, 2.5]) { ctx.moveTo(t.x + o * s, t.y + 2); ctx.lineTo(t.x + o * s * 1.6 + (gsPass === 1 ? 0 : Math.sin(gt * 1.3 + t.x) * 0.6), t.y - 4.5 * s); } ctx.stroke(); }
       else if (t.k === 1) { ctx.strokeStyle = '#3E7A3A'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(t.x, t.y + 2); ctx.lineTo(t.x, t.y - 3); ctx.stroke(); ctx.fillStyle = FC[t.c]; for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(t.x + Math.cos(k * 1.256) * 1.8 * s, t.y - 4 + Math.sin(k * 1.256) * 1.8 * s, 1.3 * s, 0, TAU); ctx.fill(); } ctx.fillStyle = '#FFE27A'; ctx.beginPath(); ctx.arc(t.x, t.y - 4, 1 * s, 0, TAU); ctx.fill(); }
       else if (t.k === 2) { ctx.fillStyle = 'rgba(0,0,0,.2)'; ell(t.x + 1, t.y + 1.5, 4 * s, 2.6 * s); ctx.fill(); ctx.fillStyle = '#8A8F96'; ell(t.x, t.y, 4 * s, 2.8 * s); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.18)'; ell(t.x - 1, t.y - 1, 2 * s, 1.2 * s); ctx.fill(); }
       else if (!win) { ctx.fillStyle = aut ? '#9A6A2A' : '#4E9A4A'; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(t.x + Math.cos(k * 2.1) * 2.2, t.y + Math.sin(k * 2.1) * 2.2, 2 * s, 0, TAU); ctx.fill(); } } }
@@ -816,14 +853,18 @@
   function drawWorld() {
     // Boden
     ctx.fillStyle = '#17261F'; ctx.fillRect(viewX0 - 20, viewY0 - 20, viewX1 - viewX0 + 40, viewY1 - viewY0 + 40);
+    const tiles = drawGroundTiles(); // v136: Boden aus fertigen Kacheln, Bewegtes darüber
+    if (tiles) { drawGroundLive(); gsPass = 2; if (state !== 'edit') drawAmbientGround(); gsPass = 0; } else {
     if (viewX1 > 0) drawCityGround(); // v72: neue Stadt
     if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); // v110: Waldrand ausserhalb der Karte
     if (viewX0 < 0) drawPlotGround(); // Keller der Freunde (abseits)
     drawPaths(); drawMapGround();
-    for (const b of bushes) { if (!inView(b.x, b.y, 20)) continue; ctx.fillStyle = '#12201A'; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.fill(); ctx.fillStyle = '#1D3A2B'; ctx.beginPath(); ctx.arc(b.x - b.r * .2, b.y - b.r * .2, b.r * .7, 0, TAU); ctx.fill(); }
+    drawBushes();
     if (state !== 'edit') drawAmbientGround();
     if (state !== 'edit') drawDetailsGround(); // v94
-    drawPark(); drawGym2(); drawKiosk(); drawStall(); drawAutohof(); drawLager(); drawPrPad(); drawWerk(); drawContainers(); drawCasino(); drawApotheke(); drawGangHof(); drawGangHof2(); drawBoulevard(); drawMarkt(); drawGym(); drawBank(); drawPizza(); drawClub(); drawMapTop();
+    }
+    if (viewX0 < 0 && tiles) drawPlotGround();
+    if (tiles) gsPass = 2; drawPark(); gsPass = 0; drawGym2(); drawKiosk(); drawStall(); drawAutohof(); drawLager(); drawPrPad(); drawWerk(); drawContainers(); drawCasino(); drawApotheke(); drawGangHof(); drawGangHof2(); drawBoulevard(); drawMarkt(); drawGym(); drawBank(); drawPizza(); drawClub(); drawMapTop();
     drawBridges();
     if (state !== 'edit') drawDucks();
     // Häuser

@@ -171,20 +171,20 @@
   }
   function drawAmbientGround() {
     const L = lightK();
-    drawBins();
-    for (const [x, y, k] of HYDRANTS) {
+    if (gsPass !== 1) drawBins(); // v136: Tonnen live (Inhalt ändert sich), Hydranten und Fahrradständer in den Bodenkacheln
+    if (gsPass !== 2) for (const [x, y, k] of HYDRANTS) {
       if (!inView(x, y, 30)) continue;
       if (k === 'm') { ctx.fillStyle = '#2A2F38'; ctx.fillRect(x - 1.5, y - 3, 3, 6); ctx.fillStyle = '#F2C94C'; ctx.fillRect(x - 5, y - 13, 10, 11); ctx.fillStyle = '#B8921E'; ctx.fillRect(x - 5, y - 13, 10, 2); ctx.fillStyle = '#14161C'; ctx.fillRect(x - 3, y - 9, 6, 1.6); }
       else { ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(x + 1, y + 3, 6, 2.5); ctx.fill(); ctx.fillStyle = '#C94B4B'; ctx.fillRect(x - 3, y - 7, 6, 9); ctx.fillRect(x - 5, y - 4, 10, 3); ctx.fillStyle = '#E8E8EE'; ctx.fillRect(x - 3, y - 9, 6, 2); }
     }
     // Fahrradstaender am Park und vor dem Kiosk
-    [[960, 760], [1560, 1268], [2360, 1520]].forEach(([x, y]) => {
+    if (gsPass !== 2) [[960, 760], [1560, 1268], [2360, 1520]].forEach(([x, y]) => {
       if (!inView(x, y, 50)) return;
       ctx.strokeStyle = '#9AA6B3'; ctx.lineWidth = 1.6; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.arc(x - 18 + k * 12, y, 5, Math.PI, 0); ctx.stroke(); }
       ctx.fillStyle = '#9AA6B3'; ctx.fillRect(x - 24, y - 0.5, 48, 1.6);
       ctx.strokeStyle = '#E05555'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x - 12, y - 1, 4, 0, TAU); ctx.moveTo(x - 4, y - 1); ctx.arc(x, y - 1, 4, 0, TAU); ctx.moveTo(x - 12, y - 1); ctx.lineTo(x - 8, y - 6); ctx.lineTo(x, y - 1); ctx.moveTo(x - 8, y - 6); ctx.lineTo(x - 3, y - 6); ctx.stroke();
     });
-    if (amb.rain > 0.12) { // Pfuetzen bei Regen
+    if (gsPass !== 1 && amb.rain > 0.12) { // Pfuetzen bei Regen
       const pa = Math.min(1, amb.rain * 1.3);
       PUDDLES.forEach(([x, y], i) => {
         if (!inView(x, y, 40)) return;
@@ -192,7 +192,16 @@
         const ph = (gt * 0.8 + i * 0.37) % 1; ctx.strokeStyle = 'rgba(210,225,245,' + 0.5 * pa * (1 - ph) + ')'; ctx.lineWidth = 1; ell(x + Math.sin(i * 3) * 6, y, 2 + ph * 9, 1 + ph * 3); ctx.stroke();
       });
     }
-    if (L < 0.2) { ctx.fillStyle = 'rgba(10,20,40,.07)'; const span = WW + 900; for (let i = 0; i < 4; i++) { const cx = -450 + ((gt * 9 + i * 1400) % span), cy = 260 + i * 560; if (cx > viewX0 - 260 && cx < viewX1 + 260) { ell(cx, cy, 240, 110); ctx.fill(); ell(cx + 140, cy + 40, 150, 70); ctx.fill(); } } } // Wolkenschatten
+    if (gsPass !== 1 && L < 0.2) { ctx.fillStyle = 'rgba(10,20,40,.07)'; const span = WW + 900; for (let i = 0; i < 4; i++) { const cx = -450 + ((gt * 9 + i * 1400) % span), cy = 260 + i * 560; if (cx > viewX0 - 260 && cx < viewX1 + 260) { ell(cx, cy, 240, 110); ctx.fill(); ell(cx + 140, cy + 40, 150, 70); ctx.fill(); } } } // Wolkenschatten
+  }
+  function treeCrown(t, sw, TC) {
+      ctx.fillStyle = TC[0]; ctx.beginPath(); ctx.arc(t[0] + sw, t[1] - 14, 26, 0, TAU); ctx.fill();
+      ctx.fillStyle = TC[1]; ctx.beginPath(); ctx.arc(t[0] - 8 + sw, t[1] - 20, 16, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.arc(t[0] + 11 + sw, t[1] - 10, 13, 0, TAU); ctx.fill();
+      ctx.fillStyle = TC[2]; ctx.beginPath(); ctx.arc(t[0] - 5 + sw, t[1] - 24, 8, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,.13)'; ctx.beginPath(); ctx.arc(t[0] + sw, t[1] - 14, 26, 0.15, Math.PI * 0.95); ctx.arc(t[0] + sw - 4, t[1] - 18, 22, Math.PI * 0.95, 0.15, true); ctx.fill(); // v94: Schattenseite
+      ctx.fillStyle = 'rgba(255,255,255,.10)'; ctx.beginPath(); ctx.arc(t[0] - 9 + sw, t[1] - 22, 9, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.10)'; for (let q = 0; q < 5; q++) { ctx.beginPath(); ctx.arc(t[0] + sw + Math.cos(q * 2.5 + t[1]) * 15, t[1] - 14 + Math.sin(q * 1.7 + t[0]) * 12, 2.6, 0, TAU); ctx.fill(); }
+      if (TC === SEA_TREE[0] && !KR_NEUTRAL) { ctx.fillStyle = '#FFC2DC'; for (let q = 0; q < 6; q++) { ctx.beginPath(); ctx.arc(t[0] + sw + Math.cos(q * 1.9 + t[0]) * 16, t[1] - 16 + Math.sin(q * 2.3 + t[1]) * 12, 2.2, 0, TAU); ctx.fill(); } }
+      else if (TC === SEA_TREE[3]) { ctx.fillStyle = 'rgba(244,248,255,.9)'; ctx.beginPath(); ctx.arc(t[0] + sw - 4, t[1] - 26, 12, Math.PI * 1.05, Math.PI * 1.95); ctx.fill(); ctx.beginPath(); ctx.arc(t[0] + sw + 10, t[1] - 16, 8, Math.PI * 1.05, Math.PI * 1.95); ctx.fill(); }
   }
   function drawAmbientObjects() {
     const L = lightK();
@@ -215,20 +224,15 @@
       if (i % 2 === 0 && (skyC.a > 0.08 || amb.rain > 0.3)) for (let k = 0; k < 3; k++) { const ph = (gt * 0.22 + k / 3 + i * 0.37) % 1; ctx.fillStyle = 'rgba(200,205,215,' + (0.22 * (1 - ph)) + ')'; ctx.beginPath(); ctx.arc(cx + 6 + Math.sin(gt + i + k) * 4 * ph, cy - 4 - ph * 36, 3 + ph * 6, 0, TAU); ctx.fill(); }
     });
     // Bäume
-    for (const t of TREES) {
+    { const TC = treeCols(), tk = SEA_TREE.indexOf(TC) + (KR_NEUTRAL ? 'n' : ''); // v136: Baumkrone als fertiges Bild, wiegt sich als Ganzes
+    for (let ti = 0; ti < TREES.length; ti++) { const t = TREES[ti];
       if (!inView(t[0], t[1], 60)) continue;
       ctx.fillStyle = 'rgba(0,0,0,.28)'; ell(t[0] + 6, t[1] + 16, 24, 9); ctx.fill();
       ctx.fillStyle = '#5A3B26'; ctx.fillRect(t[0] - 5, t[1] - 4, 10, 24);
       const sw = Math.sin(gt * 0.9 + t[0]) * 1.2;
-      const TC = treeCols(); // v81: Laub je Jahreszeit
-      ctx.fillStyle = TC[0]; ctx.beginPath(); ctx.arc(t[0] + sw, t[1] - 14, 26, 0, TAU); ctx.fill();
-      ctx.fillStyle = TC[1]; ctx.beginPath(); ctx.arc(t[0] - 8 + sw, t[1] - 20, 16, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.arc(t[0] + 11 + sw, t[1] - 10, 13, 0, TAU); ctx.fill();
-      ctx.fillStyle = TC[2]; ctx.beginPath(); ctx.arc(t[0] - 5 + sw, t[1] - 24, 8, 0, TAU); ctx.fill();
-      ctx.fillStyle = 'rgba(0,0,0,.13)'; ctx.beginPath(); ctx.arc(t[0] + sw, t[1] - 14, 26, 0.15, Math.PI * 0.95); ctx.arc(t[0] + sw - 4, t[1] - 18, 22, Math.PI * 0.95, 0.15, true); ctx.fill(); // v94: Schattenseite
-      ctx.fillStyle = 'rgba(255,255,255,.10)'; ctx.beginPath(); ctx.arc(t[0] - 9 + sw, t[1] - 22, 9, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.10)'; for (let q = 0; q < 5; q++) { ctx.beginPath(); ctx.arc(t[0] + sw + Math.cos(q * 2.5 + t[1]) * 15, t[1] - 14 + Math.sin(q * 1.7 + t[0]) * 12, 2.6, 0, TAU); ctx.fill(); }
-      if (TC === SEA_TREE[0] && !KR_NEUTRAL) { ctx.fillStyle = '#FFC2DC'; for (let q = 0; q < 6; q++) { ctx.beginPath(); ctx.arc(t[0] + sw + Math.cos(q * 1.9 + t[0]) * 16, t[1] - 16 + Math.sin(q * 2.3 + t[1]) * 12, 2.2, 0, TAU); ctx.fill(); } }
-      else if (TC === SEA_TREE[3]) { ctx.fillStyle = 'rgba(244,248,255,.9)'; ctx.beginPath(); ctx.arc(t[0] + sw - 4, t[1] - 26, 12, Math.PI * 1.05, Math.PI * 1.95); ctx.fill(); ctx.beginPath(); ctx.arc(t[0] + sw + 10, t[1] - 16, 8, Math.PI * 1.05, Math.PI * 1.95); ctx.fill(); }
-    }
+      if (bcOff) { treeCrown(t, sw, TC); continue; }
+      ctx.save(); ctx.translate(sw, 0); sprDraw('t' + ti + ':' + tk, t[0] - 36, t[1] - 52, 72, 66, () => treeCrown(t, 0, TC)); ctx.restore();
+    } }
     // v49: Fahnenmasten am Platz und fallende Blätter
     [1206, 1308].forEach((fx, i) => { // v72: am Eingang zum Stadtpark
       const o = 520; if (!inView(fx, 252 + o, 60)) return;
