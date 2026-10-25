@@ -822,7 +822,7 @@ body.port-ok .clockrow .seapill { max-width: calc(50vw - 84px); margin-right: 6p
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 121 · Neu: Eigene Gangs mit Hauptquartier · Wochenziele · Bestenliste<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 122 · Neu: Notknopf im Keller · Razzia nimmt nur Ware, Pflanzen und Geld<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -1980,6 +1980,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     }
   }
   function workerUpdate(w, dt) {
+    if (G && G.pn && G.pn.on && w.ar === AREAS.keller) { panicWorker(w, dt); return; } // v122: Notknopf
     if (w.st !== 'walk' && w.st !== 'work' && crewOff(w)) return; // v81: krank
     w.cool -= dt;
     if (w.st === 'walk') {
@@ -2041,6 +2042,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     for (const w of workers) {
       if (!GH_ON && (w.ar.isFloor ? w.ar.f : 0) !== (player.fl || 0)) continue; // nur Helfer auf deiner Etage
+      if (w.gone) continue; // v122: nach dem Notknopf weg
       const r = ROLES[w.role], bob = w.st === 'walk' ? Math.sin(w.step) * 1.2 : 0;
       ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(w.x + 2, w.y + 5, 8, 4.5); ctx.fill();
       ctx.fillStyle = r.col; ctx.beginPath(); ctx.arc(w.x, w.y + bob * 0.3, 8.5, 0, TAU); ctx.fill();
@@ -2578,7 +2580,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
   function newGame() {
     G = {
       money: 60, rep: 0, earned: 0, eod: 0, day: 1, sOff: 0, time: 9 * 60, won: false, bank: 0, buf: {}, club: { n: -1, s: 0 }, biz: {}, heat: 0, raid: null, heatE: 0,
-      up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, shoes: 0, bag: 0, sack: 0, cart: 0, seed: 0, water: 0, compass: 0 }, repP: 0, prest: 0, prN: 0, lg: lgDef(), gang: null,
+      up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, shoes: 0, bag: 0, sack: 0, cart: 0, seed: 0, water: 0, compass: 0 }, repP: 0, prest: 0, prN: 0, lg: lgDef(), gang: null, pn: pnDef(),
       pots: POTS.map(() => ({ s: 0, p: 0, w: 1 })),
       rack: { wet: 0, dry: 0 }, inv: { fresh: 0, dried: 0, bags: 0 },
       orders: [], nextOrder: 5, oid: 1, kr: krDef(), tut: '',
@@ -2629,7 +2631,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     if (raw) store.set(SAVE_KEY + '.bak', raw);
   }
   let saveBlocked = false;
-  function saveObj() { return { ver: SAVE_VER, sts: Date.now(), flag: G.flag || undefined, cmdU: G.cmdU || cmdOk ? 1 : undefined, money: G.money, rep: G.rep, earned: G.earned, eod: G.eod, day: G.day, sOff: G.sOff || 0, time: G.time, won: G.won, up: G.up, pots: G.pots, rack: G.rack, inv: G.inv, cos: G.cos, wpn: G.wpn, staff: G.staff, tab: G.tab, staffUp: G.staffUp, look: G.look, wear: G.wear, stat: G.stat, ach: G.ach, tut: G.tut || '', kr: G.kr, gv: G.gv, gvOk: G.gvOk ? 1 : 0, veh: { owned: G.veh.owned, eq: G.veh.eq, bike: G.veh.bike || 'none', car: G.veh.car || 'none', col: G.veh.col || {}, tune: G.veh.tune || {} }, bw: 1, lager: G.lager, pr: G.pr, cas: G.cas, bank: G.bank || 0, biz: G.biz || {}, heat: G.heat || 0, raid: G.raid || null, heatE: G.heatE || 0, buf: G.buf || {}, club: G.club || { n: -1, s: 0 }, t: G.t, b: G.b, dec: G.dec, lay: G.lay, build: G.build, repP: G.repP, prest: G.prest || 0, prN: G.prN || 0, lg: G.lg, gang: G.gang || undefined, fl: G.fl, crate: G.crate, stash: G.stash }; }
+  function saveObj() { return { ver: SAVE_VER, sts: Date.now(), flag: G.flag || undefined, cmdU: G.cmdU || cmdOk ? 1 : undefined, money: G.money, rep: G.rep, earned: G.earned, eod: G.eod, day: G.day, sOff: G.sOff || 0, time: G.time, won: G.won, up: G.up, pots: G.pots, rack: G.rack, inv: G.inv, cos: G.cos, wpn: G.wpn, staff: G.staff, tab: G.tab, staffUp: G.staffUp, look: G.look, wear: G.wear, stat: G.stat, ach: G.ach, tut: G.tut || '', kr: G.kr, gv: G.gv, gvOk: G.gvOk ? 1 : 0, veh: { owned: G.veh.owned, eq: G.veh.eq, bike: G.veh.bike || 'none', car: G.veh.car || 'none', col: G.veh.col || {}, tune: G.veh.tune || {} }, bw: 1, lager: G.lager, pr: G.pr, cas: G.cas, bank: G.bank || 0, biz: G.biz || {}, heat: G.heat || 0, raid: G.raid || null, heatE: G.heatE || 0, buf: G.buf || {}, club: G.club || { n: -1, s: 0 }, t: G.t, b: G.b, dec: G.dec, lay: G.lay, build: G.build, repP: G.repP, prest: G.prest || 0, prN: G.prN || 0, lg: G.lg, gang: G.gang || undefined, pn: G.pn, fl: G.fl, crate: G.crate, stash: G.stash }; }
 
   // ---------- v113: Konten (Name + Passwort) und Online-Spielstand ueber Firebase ----------
   // Firebase-Projekt: Authentication (E-Mail/Passwort) und Firestore. Der Spielername wird intern zu einer Kunst-Adresse, es gibt keine echte E-Mail.
@@ -2969,9 +2971,11 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     const dNeed = { masterpiece: done('hagen') ? 1 : 0, citykey: done('lindner') ? 1 : 0, prtrophy: P };
     for (const [id, mx] of Object.entries(dNeed)) if ((G.dec.owned[id] || 0) > mx) { G.dec.owned[id] = mx; for (const key of DEC_KEYS) { let over = placedCount(id) - mx; for (let i = G.dec.items[key].length - 1; i >= 0 && over > 0; i--) if (G.dec.items[key][i].id === id) { G.dec.items[key].splice(i, 1); over--; } } flagAdd('item:' + id); }
   }
+  let bakT = Date.now();
   function save() {
     if (!G || saveBlocked || (state !== 'play' && state !== 'edit')) return;
-    cheatScan(); store.set(SAVE_KEY, signSave(saveObj())); cloudSoon(); cmdPoll(false);
+    cheatScan(); if (Date.now() - bakT > 300000) { bakT = Date.now(); try { const cur = store.get(SAVE_KEY, null); if (cur && JSON.parse(cur).money !== undefined) store.set(SAVE_KEY + '.auto', cur); } catch (e) {} } // v122: alle 5 Minuten eine frische Sicherung
+    store.set(SAVE_KEY, signSave(saveObj())); cloudSoon(); cmdPoll(false);
   }
   // Uebernimmt nur bekannte Felder mit endlichen Zahlen >= 0; fehlende Felder behalten ihren Standardwert
   function clampUp(up, area) { for (const u of UPS) if ((u.area === area || (area === 'keller' && u.area === 'all')) && typeof up[u.id] === 'number') up[u.id] = Math.min(u.max, Math.floor(up[u.id])); }
@@ -3021,6 +3025,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     s.ver = SAVE_VER;
     return s;
   }
+  function loadKey(k) { const raw = store.get(k, null), cur = store.get(SAVE_KEY, null); if (!raw) return false; store.set(SAVE_KEY + '.kaputt', cur || ''); store.set(SAVE_KEY, raw); if (load()) return true; if (cur !== null) store.set(SAVE_KEY, cur); return false; }
   function load(fromBak) {
     try {
       let s = JSON.parse(store.get(fromBak ? SAVE_KEY + '.bak' : SAVE_KEY, 'null'));
@@ -3035,7 +3040,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
       G.bank = Math.max(0, Math.min(1e10, Math.floor(+s.bank) || 0)); G.buf = {}; if (s.buf && typeof s.buf === 'object') { if (s.buf.gym && GYM_TR[s.buf.gym.k] && Number.isFinite(+s.buf.gym.u)) G.buf.gym = { k: s.buf.gym.k, u: +s.buf.gym.u }; if (Number.isFinite(+s.buf.pizza)) G.buf.pizza = +s.buf.pizza; } G.club = { n: Math.floor(+(s.club && s.club.n)) || -1, s: Math.max(0, Math.floor(+(s.club && s.club.s)) || 0) }; // v94
       { const so = Math.floor(+s.sOff); if (Number.isFinite(so) && so >= 0 && so < 1e6 && s.sOff !== undefined) G.sOff = so; else { const d = G.day - 1, si = Math.floor(d / 5), sd = d % 5; G.sOff = si * 7 + sd - d; } } // v92: alte Spielstaende (5-Tage-Jahreszeiten) bleiben in ihrer Jahreszeit und am selben Tag
       G.repP = Math.min(REP_MAX, Math.max(G.rep, Number.isFinite(+s.repP) ? +s.repP : 0)); G.rep = Math.floor(G.repP + 1e-9); // v112: Ruf endet bei 100
-      G.prest = clamp(Math.floor(+s.prest) || 0, 0, PRES_MAX); G.prN = clamp(Math.floor(+s.prN) || 0, 0, 1e6); G.lg = cleanLg(s.lg); G.gang = cleanGangSave(s.gang); // v121
+      G.prest = clamp(Math.floor(+s.prest) || 0, 0, PRES_MAX); G.prN = clamp(Math.floor(+s.prN) || 0, 0, 1e6); G.lg = cleanLg(s.lg); G.gang = cleanGangSave(s.gang); G.pn = cleanPn(s.pn); // v121, v122
       mergeNum(G.up, s.up); clampUp(G.up, 'keller');
       if (Array.isArray(s.pots)) s.pots.forEach((p, i) => { if (G.pots[i]) mergeNum(G.pots[i], p); });
       mergeNum(G.rack, s.rack); mergeNum(G.inv, s.inv);
@@ -3113,7 +3118,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
       cheatScan();
       saveBlocked = false;
       return true;
-    } catch (e) { return false; }
+    } catch (e) { try { store.set('kellergruen.loaderr', new Date().toISOString() + ' ' + String((e && e.message) || e).slice(0, 200)); } catch (e2) {} return false; }
   }
 
   // ---------- Ton ----------
@@ -3294,6 +3299,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
       const zd = ZONE_DEF.find(d => d.name === z.name) || z; zoneSign(lx, ly, { name: zd.name, rep: z.rep }); shown++;
     }
   }
+  const LEFT_GAP = [524, 724]; // Hauptstrasse an der linken Kante
   function move(e, dx, dy, r) {
     const px = e.x, py = e.y;
     e.x += dx; e.y += dy; const ef = e.fl || 0;
@@ -3313,6 +3319,11 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     if (e.x < 0 && e === player) ghostWalls(e, r); // v86: Freundes-Gebaeude links neben dem Keller, zu Fuss erreichbar
     e.x = clamp(e.x, (e === player ? XMIN : 0) + r, WW - r);
     e.y = clamp(e.y, YMIN + r, WH - r);
+    if (e === player && XMIN < 0 && !ef && !GH_ON) { // v122: linke Kartengrenze, nur ueber die Hauptstrasse geht es zu den Besucher-Kellern
+      const road = y => y > LEFT_GAP[0] + r && y < LEFT_GAP[1] - r;
+      if ((px >= 0) !== (e.x >= 0) && !road(e.y)) e.x = px >= 0 ? Math.max(0, px) : Math.min(-0.5, px);
+      if (e.x < 0) e.y = clamp(e.y, 4 + r, LEFT_GAP[1] - r);
+    }
     if (e === player && zoneLocked(e.x, e.y)) { // v86: gesperrte Stadtteile
       const need = zoneRepAt(e.x, e.y);
       if (!zoneLocked(e.x, py)) e.y = py; else if (!zoneLocked(px, e.y)) e.x = px; else { e.x = px; e.y = py; }
@@ -3695,12 +3706,14 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     c.on('error', () => { if (++world.fails >= 2) { world.fails = 0; world.bi++; try { c.end(true); } catch (e) {} if (world.client === c) worldOpen(lib); } });
   }
   // ---- v68: Nachricht an alle Spieler (Befehl -update oder -info). Bleibt beim Online-Dienst liegen, wer spaeter startet, sieht sie auch (3 Tage lang, je Nachricht nur einmal).
-  const INFO_TOPIC = 'kellergruen-v1/welt/info', NEWS_KEY = 'kellergruen.news', NEWS_MAX_AGE = 3 * 864e5;
+  const INFO_TOPIC = 'kellergruen-v1/welt/info', NEWS_KEY = 'kellergruen.news', NEWS_MAX_AGE = 3 * 864e5, NEWS_TEXT_AGE = 864e5;
+  const NEWS_BLOCK = [/ich\s*liebe\s*dich/i]; let newsCleared = false; // v122: private Nachricht, wird nie mehr angezeigt und vom Server geloescht
   const NEWS_UPDATE = 'Es gibt ein neues Update! Bitte speichere und starte das Spiel neu, damit du die neue Version hast.';
   function cleanNews(o) { if (!o || typeof o !== 'object' || !Number.isFinite(+o.ts) || typeof o.tx !== 'string') return null; const tx = o.tx.replace(/[\u0000-\u0009\u000B-\u001F<>]/g, '').trim().slice(0, 240); return tx ? { ts: +o.ts, tx, up: o.up ? 1 : 0 } : null; }
   function newsIncoming(pl) {
     try { const raw = typeof pl === 'string' ? pl : new TextDecoder().decode(pl); if (!raw) return; const o = cleanNews(JSON.parse(raw)); if (!o) return;
-      const seen = +store.get(NEWS_KEY, '0') || 0; if (o.ts <= seen || Date.now() - o.ts > NEWS_MAX_AGE || o.ts > Date.now() + 864e5) return;
+      if (NEWS_BLOCK.some(re => re.test(o.tx))) { if (!newsCleared) { newsCleared = true; setTimeout(() => { try { publishNews(null, true); } catch (e) {} }, 4000); } return; }
+      const seen = +store.get(NEWS_KEY, '0') || 0; if (o.ts <= seen || Date.now() - o.ts > (o.up ? NEWS_MAX_AGE : NEWS_TEXT_AGE) || o.ts > Date.now() + 864e5) return;
       showNews(o); } catch (e) {}
   }
   function showNews(o) {
@@ -3714,11 +3727,11 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
   let newsT = null;
   function hideNews() { clearTimeout(newsT); $('news').hidden = true; }
   function newsReload() { try { if (G) save(); } catch (e) {} hideNews(); try { location.reload(); } catch (e) {} }
-  function publishNews(o) { // an alle Dienste, als liegen bleibende Nachricht; o = null loescht sie
+  function publishNews(o, quiet) { // an alle Dienste, als liegen bleibende Nachricht; o = null loescht sie
     const payload = o ? JSON.stringify(o) : '';
     try { if (world.client && world.client.connected) world.client.publish(INFO_TOPIC, payload, { qos: 1, retain: true }); } catch (e) {}
     mpLoadLib(lib => {
-      if (!lib) { msg('Kein Internet: Die Nachricht konnte nicht verschickt werden', true); return; }
+      if (!lib) { if (!quiet) msg('Kein Internet: Die Nachricht konnte nicht verschickt werden', true); return; }
       MP_BROKERS.forEach((url, i) => { try { const c = lib.connect(url, { clientId: 'kgn_' + mp.id + '_' + i + '_' + (Date.now() % 1e6), connectTimeout: 7000, reconnectPeriod: 0, clean: true }); c.on('connect', () => { try { c.publish(INFO_TOPIC, payload, { qos: 1, retain: true }, () => { try { c.end(); } catch (e) {} }); } catch (e) {} }); c.on('error', () => { try { c.end(true); } catch (e) {} }); } catch (e) {} });
     });
     return true;
@@ -3875,6 +3888,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
       if (!best) for (const nm of ['rack', 'table']) { const f = ar.fields[nm]; if (Math.hypot(px - (f.x0 + f.x1) / 2, py - (f.y0 + f.y1) / 2) < 95) best = { type: 'field', idx: 0, ar, what: nm }; }
       return best;
     }
+    if (px >= 0 && Math.hypot(px - PANIC_AT.x, py - PANIC_AT.y) < 40) cons('panic', 0, Math.hypot(px - PANIC_AT.x, py - PANIC_AT.y) * 0.6, 40, AREAS.keller); // v122
     for (const ar of openAreas()) {
       for (let i = 0; i < potsOpen(ar); i++) cons('pot', i, Math.hypot(px - ar.POTS[i].x, py - ar.POTS[i].y), 40, ar);
       for (let i = potsOpen(ar); i < ar.POTS.length; i++) cons('potbuy', i, Math.hypot(px - ar.POTS[i].x, py - ar.POTS[i].y), 30, ar); // v54: schwarzer Platz = Topf kaufen
@@ -3938,6 +3952,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     if (tg.type === 'bexit' || tg.type === 'gexit') return 'A  Raus auf die Straße';
     if (tg.type === 'ghq') return myGid() && !(G.gang && G.gang.req) ? 'A  Ins Hauptquartier deiner Gang' + (gTag() ? ' [' + gTag() + ']' : '') : 'Gang-Hauptquartier: nur für Mitglieder';
     if (tg.type === 'gsafe') return 'A  Gang-Kasse';
+    if (tg.type === 'panic') { const P = PN(); return P.tr ? 'Helfer sind unterwegs …' : P.on ? 'A  Entwarnung: Helfer zurückholen' : 'A  NOTKNOPF: Helfer raus' + (P.lv >= 2 ? ', Ware ins Mietlager' : ''); }
     if (tg.type === 'gslot') { const id = pgang && pgang.deco['s' + tg.idx], d = id && DECOR.find(x => x.id === id); return 'A  Platz ' + (tg.idx + 1) + (d ? ': ' + d.name + ' austauschen' : ' einrichten'); }
     if (tg.type === 'gboard') return 'A  Planungstafel: Hauptquartier einrichten';
     if (tg.type === 'gym') return atGym2() ? 'A  Iron Gym Express: trainieren' : 'A  Iron Gym' + (bizOwn('gym') ? ' (dein Laden)' : ': trainieren');
@@ -4033,6 +4048,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     } else if (tg.type === 'bshelf' && aEdge) { openB('bshelf')();
     } else if (tg.type === 'bexit' && aEdge) { bizLeave();
     } else if (tg.type === 'gexit' && aEdge) { ghqLeave();
+    } else if (tg.type === 'panic' && aEdge) { panicPress(false);
     } else if (tg.type === 'ghq' && aEdge) { ghqEnter();
     } else if (tg.type === 'gsafe' && aEdge) { openPg('info');
     } else if (tg.type === 'gboard' && aEdge) { openPg('hq');
@@ -5200,15 +5216,90 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
   function raidPay() { if (!raidPending() || G.money < raidBribe()) return false; G.money -= raidBribe(); G.raid = null; G.heat = Math.max(0, G.heat - 25); sfx.cash(); save(); msg('Bezahlt. Die Razzia wurde „verschoben“.'); return true; }
   const raidSeizable = () => { const st = S(AREAS.keller); let n = (st.rack.wet || 0) + (st.rack.dry || 0) + (st.tab.dry || 0) + (st.tab.bags || 0) * 3 + (G.crate || 0) * 3; for (const f of ['u', 'o']) { const q = G.fl && G.fl[f]; if (q && q.own) n += (q.rack.wet || 0) + (q.rack.dry || 0) + (q.tab.dry || 0) + (q.tab.bags || 0) * 3; } return Math.round(n); };
   let raidVis = null;
+  // ---------- v122: Notknopf im Keller (Razzia) ----------
+  // Stufe 1: Helfer lassen alles stehen und liegen und verlassen den Keller, bis du Entwarnung gibst oder die Razzia vorbei ist.
+  // Stufe 2: Sie bringen vorher alle Ware aus dem Keller ins Mietlager-Regal und nach der Razzia zurueck.
+  // Stufe 3: Was nicht ins Regal passt, kommt in ein Geheimversteck; der Knopf wird bei angekuendigter Razzia von selbst gedrueckt.
+  const PANIC_AT = { x: 318, y: 494 }; R(PANIC_AT.x - 14, PANIC_AT.y - 8, 28, 16).fl = 0;
+  const PANIC_UP = [0, 25000, 90000], PANIC_TR = 12; // Kosten je Stufe (Stufe 1 gratis), Dauer des Transports in Sekunden
+  const pnDef = () => ({ lv: 1, on: 0, mv: [0, 0, 0], hid: [0, 0, 0], tr: null });
+  function cleanPn(o) { const P = pnDef(); if (!o || typeof o !== 'object') return P; const n = (v, a, b) => clamp(Number.isFinite(+v) ? +v : 0, a, b);
+    P.lv = Math.round(n(o.lv, 1, 3)) || 1; P.on = o.on ? 1 : 0; for (const k of ['mv', 'hid']) if (Array.isArray(o[k])) P[k] = [0, 1, 2].map(i => Math.floor(n(o[k][i], 0, 99999)));
+    if (o.tr && (o.tr.d === 'out' || o.tr.d === 'back')) P.tr = { d: o.tr.d, t: n(o.tr.t, 0, PANIC_TR) }; return P; }
+  const PN = () => G.pn || (G.pn = pnDef());
+  const panicOn = () => !!(G && G.pn && G.pn.on);
+  function panicPress(auto) {
+    const P = PN();
+    if (P.tr) { msg('Deine Helfer sind noch unterwegs …'); return false; }
+    if (!P.on) {
+      P.on = 1; sfx.siren && sfx.siren(); vibrate([120, 60, 120]);
+      for (const w of workers) if (w.ar === AREAS.keller) panicDrop(w);
+      if (P.lv >= 2 && (G.lager.own || P.lv >= 3)) { P.tr = { d: 'out', t: 0 }; msg((auto ? '🚨 Razzia angekündigt: Der Notknopf wurde automatisch gedrückt. ' : '🚨 Notknopf! ') + 'Deine Helfer räumen den Keller leer und bringen alles weg.', true); }
+      else msg('🚨 Notknopf! Deine Helfer lassen alles stehen und liegen und verschwinden. ' + (P.lv >= 2 ? 'Ohne Mietlager können sie nichts mitnehmen.' : 'Bring die Ware selbst in Sicherheit, z. B. ins Mietlager.'), true);
+    } else panicBack(false);
+    save(); return true;
+  }
+  function panicBack(afterRaid) { // Entwarnung: Ware zurueck (ab Stufe 2), dann arbeiten alle weiter
+    const P = PN(); if (!P.on || P.tr) return;
+    if (P.lv >= 2 && (P.mv.some(v => v > 0) || P.hid.some(v => v > 0))) { P.tr = { d: 'back', t: 0 }; msg(afterRaid ? 'Die Polizei ist weg. Deine Helfer bringen die Ware zurück in den Keller.' : 'Entwarnung: Deine Helfer bringen die Ware zurück.'); }
+    else { P.on = 0; panicResume(); msg(afterRaid ? 'Die Polizei ist weg. Deine Helfer arbeiten weiter.' : 'Entwarnung: Deine Helfer arbeiten weiter.'); }
+  }
+  function panicDrop(w) { // alles fallen lassen, was sie gerade tragen (bleibt im Keller)
+    const st = S(AREAS.keller); if (w.carry > 0) { if (w.kind === 'gardener') st.rack.wet += w.carry; else if (w.kind === 'rack') st.tab.dry += w.carry; else G.crate = Math.min(CRATE_MAX, (G.crate || 0) + Math.floor(w.carry)); w.carry = 0; }
+    w.job = null; w.path = []; w.st = 'flee';
+  }
+  function panicResume() { for (const w of workers) if (w.ar === AREAS.keller && (w.gone || w.st === 'flee')) { w.gone = 0; w.x = DOOR.x - 20 + Math.random() * 40; w.y = DOOR.y - 10; w.st = 'idle'; w.job = null; w.path = []; w.cool = 0.5 + Math.random(); } }
+  function panicWorker(w, dt) { if (w.gone) return; if (w.st !== 'flee') panicDrop(w); const dx = DOOR.x - w.x, dy = DOOR.y + 20 - w.y, d = Math.hypot(dx, dy), sp = 170 * dt; if (d < 8) { w.gone = 1; return; } w.x += dx / d * Math.min(d, sp); w.y += dy / d * Math.min(d, sp); w.ang = Math.atan2(dy, dx); w.step += dt * 14; }
+  function panicMoveOut() {
+    const P = PN(), st = S(AREAS.keller), a = G.lager.inv; let room = G.lager.own ? Math.max(0, lagerCap() - stashSum(a)) : 0;
+    const take = [st.rack.wet || 0, (st.rack.dry || 0) + (st.tab.dry || 0), (st.tab.bags || 0) + (G.crate || 0)].map(v => Math.floor(v));
+    st.rack.wet -= take[0]; let dr = take[1]; const fromT = Math.min(st.tab.dry || 0, dr); st.tab.dry -= fromT; st.rack.dry = Math.max(0, (st.rack.dry || 0) - (dr - fromT));
+    const fromB = Math.min(st.tab.bags || 0, take[2]); st.tab.bags -= fromB; G.crate = Math.max(0, (G.crate || 0) - (take[2] - fromB));
+    let toL = 0, toH = 0;
+    for (const j of [2, 1, 0]) { const v = Math.min(take[j], room); a[j] += v; P.mv[j] += v; room -= v; toL += v; const rest = take[j] - v; if (rest > 0) { if (P.lv >= 3) { P.hid[j] += rest; toH += rest; } else { if (j === 0) st.rack.wet += rest; else if (j === 1) st.tab.dry += rest; else G.crate = Math.min(CRATE_MAX, (G.crate || 0) + rest); } } }
+    const left = Math.round((st.rack.wet || 0) + (st.rack.dry || 0) + (st.tab.dry || 0) + (st.tab.bags || 0) + (G.crate || 0));
+    msg('📦 Keller geräumt: ' + toL + ' Stück ins Mietlager' + (toH ? ', ' + toH + ' ins Geheimversteck' : '') + (left ? '. ' + left + ' Stück passten nicht mehr rein und liegen noch im Keller!' : '. Der Keller ist leer.'), !!left);
+  }
+  function panicMoveBack() {
+    const P = PN(), st = S(AREAS.keller), a = G.lager.inv; let back = 0;
+    for (const j of [0, 1, 2]) { const v = Math.min(P.mv[j], a[j]) + P.hid[j]; a[j] -= Math.min(P.mv[j], a[j]); P.mv[j] = 0; P.hid[j] = 0; back += v; if (!v) continue;
+      if (j === 0) st.rack.wet += v; else if (j === 1) st.tab.dry += v; else { const t = Math.min(v, Math.max(0, bagsMax() - (st.tab.bags || 0))); st.tab.bags += t; G.crate = Math.min(CRATE_MAX, (G.crate || 0) + v - t); } }
+    msg('📦 Deine Helfer haben ' + back + ' Stück zurück in den Keller gebracht und arbeiten weiter.');
+  }
+  function panicTick(dt) {
+    if (!G) return; const P = PN();
+    if (P.lv >= 3 && !P.on && raidPending() && G.raid.at - absMin() <= 180) panicPress(true);
+    if (!P.tr) return; P.tr.t += dt;
+    if (P.tr.t >= PANIC_TR) { const d = P.tr.d; P.tr = null; if (d === 'out') panicMoveOut(); else { panicMoveBack(); P.on = 0; panicResume(); } sfx.put(); save(); }
+  }
+  function drawPanicBtn() {
+    const x = PANIC_AT.x, y = PANIC_AT.y, on = panicOn(), bl = on && Math.floor(gt * 4) % 2;
+    if (on) { const g = ctx.createRadialGradient(x, y, 2, x, y, 46); g.addColorStop(0, 'rgba(255,60,60,' + (bl ? .45 : .2) + ')'); g.addColorStop(1, 'rgba(255,60,60,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 46, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; rr(x - 13, y - 6, 28, 18, 4); ctx.fill(); ctx.fillStyle = '#F2C14E'; rr(x - 14, y - 8, 28, 18, 4); ctx.fill();
+    ctx.fillStyle = '#10151C'; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x - 14 + k * 8, y + 10); ctx.lineTo(x - 10 + k * 8, y - 8); ctx.lineTo(x - 7 + k * 8, y - 8); ctx.lineTo(x - 11 + k * 8, y + 10); ctx.fill(); }
+    ctx.fillStyle = '#2A2F38'; ctx.beginPath(); ctx.arc(x, y + 1, 8, 0, TAU); ctx.fill(); ctx.fillStyle = on ? (bl ? '#FF8A8A' : '#FF3B3B') : '#E5383B'; ctx.beginPath(); ctx.arc(x, y, 6.2, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(x - 2, y - 2, 1.8, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(16,21,28,.82)'; rr(x - 16, y - 24, 32, 12, 3); ctx.fill(); signTxt('NOT', x, y - 18, '900 7.5px sans-serif', on ? '#FF8A8A' : '#FFD0D0');
+    const P = G.pn; if (P && P.tr) { const p = P.tr.t / PANIC_TR; ctx.fillStyle = 'rgba(16,21,28,.85)'; rr(x - 30, y - 40, 60, 10, 4); ctx.fill(); ctx.fillStyle = P.tr.d === 'out' ? '#FFB547' : '#5FE584'; rr(x - 28, y - 38, 56 * p, 6, 3); ctx.fill(); }
+  }
+  function panicCard(b) { // im Handy: Geschaeft -> Ausbau (Keller)
+    const P = PN(), nx = P.lv < 3 ? PANIC_UP[P.lv] : 0, c = uiEl('div', 'card');
+    const txt = ['', 'Stufe 1: Deine Helfer lassen alles stehen und liegen und verlassen den Keller. So füllt er sich vor einer Razzia nicht wieder.', 'Stufe 2: Sie bringen vorher alle Ware aus dem Keller ins Mietlager-Regal und nach der Razzia wieder zurück.', 'Stufe 3: Was nicht ins Regal passt, kommt ins Geheimversteck. Bei einer angekündigten Razzia drücken sie den Knopf von selbst.'];
+    c.appendChild(uiEl('div', 'nm', '🚨 Notknopf · Stufe ' + P.lv + ' / 3' + (P.on ? ' · gedrückt' : ''))); c.appendChild(uiEl('div', 'pr', nx ? fmt(nx) : 'max.'));
+    const ds = uiEl('div', 'ds'); ds.innerHTML = 'Roter Knopf unten an der Wand neben der Kellertür.<br>' + txt[P.lv] + (nx ? '<br><b>Nächste Stufe:</b> ' + txt[P.lv + 1].replace(/^Stufe \d: /, '') : '') + (P.lv >= 2 && !G.lager.own ? '<br><b style="color:var(--amber)">Dafür brauchst du das Mietlager im Gewerbegebiet.</b>' : ''); c.appendChild(ds);
+    const bt = uiEl('button', 'buy', nx ? 'Ausbauen' : 'Fertig'); bt.disabled = !nx || G.money < nx; bt.addEventListener('click', () => { if (!nx || G.money < nx) return; G.money -= nx; P.lv++; sfx.buy(); save(); msg('🚨 Notknopf Stufe ' + P.lv); renderPhone(); }); c.appendChild(bt); b.appendChild(c);
+  }
   function raidRun() {
+    try { store.set(SAVE_KEY + '.vorRazzia', signSave(saveObj())); } catch (e) {} // v122: Sicherung vor jeder Razzia
     const st = S(AREAS.keller), inK = (player.fl === -1 || player.fl === 1) || (!player.fl && areaAt(player.x, player.y) === 'keller'); let bags = (st.tab.bags || 0) + (G.crate || 0), raw = (st.rack.wet || 0) + (st.rack.dry || 0) + (st.tab.dry || 0);
     st.rack.wet = 0; st.rack.dry = 0; st.tab.dry = 0; st.tab.bags = 0; G.crate = 0;
     for (const f of ['u', 'o']) { const q = G.fl && G.fl[f]; if (!q || !q.own) continue; bags += q.tab.bags || 0; raw += (q.rack.wet || 0) + (q.rack.dry || 0) + (q.tab.dry || 0); q.rack.wet = 0; q.rack.dry = 0; q.tab.dry = 0; q.tab.bags = 0; }
-    let fine = 0; if (inK) { bags += G.inv.bags; G.inv.bags = 0; G.inv.fresh = 0; G.inv.dried = 0; fine = Math.round(G.money * 0.15); G.money -= fine; }
+    let plants = 0; for (let i = 0; i < potsOpen(AREAS.keller); i++) { const p = G.pots[i]; if (p && p.s > 0) { plants++; p.s = 0; p.p = 0; } } // v122: Pflanzen weg, Toepfe bleiben
+    let fine = Math.round(G.money * (inK ? 0.2 : 0.1)); if (inK) { bags += G.inv.bags; G.inv.bags = 0; G.inv.fresh = 0; G.inv.dried = 0; } G.money -= fine; // v122: immer Geldstrafe, im Keller hoeher
     G.raid = null; G.heat = Math.max(0, (G.heat || 0) - 45); G.stat.raid = (G.stat.raid || 0) + 1; raidVis = { t: 0 };
-    sfx.siren(); vibrate([200, 80, 200]); msg('🚨 Razzia im Keller! Beschlagnahmt: ' + bags + ' Beutel und ' + Math.round(raw) + ' Stück Ernte' + (fine ? ' · ' + fmt(fine) + ' Strafe' : '') + '. Pflanzen und Konto sind sicher.', true); save();
+    sfx.siren(); vibrate([200, 80, 200]); msg('🚨 Razzia im Keller! Beschlagnahmt: ' + bags + ' Beutel, ' + Math.round(raw) + ' Stück Ernte' + (plants ? ', ' + plants + ' Pflanzen' : '') + (fine ? ' · ' + fmt(fine) + ' Strafe' : '') + '. Ruf, Töpfe, Ausbauten, Konto und Mietlager bleiben dir.', true);
+    if (panicOn()) setTimeout(() => { try { panicBack(true); } catch (e) {} }, 2500); save();
   }
-  function raidTick(dt) { if (raidVis) { raidVis.t += dt; if (raidVis.t > 30) raidVis = null; } if (G && G.raid && absMin() >= G.raid.at) raidRun();
+  function raidTick(dt) { panicTick(dt); if (raidVis) { raidVis.t += dt; if (raidVis.t > 30) raidVis = null; } if (G && G.raid && absMin() >= G.raid.at) raidRun();
     const el = $('raidPill'); if (el) { const on = raidPending(); if (el.hidden === on) el.hidden = !on; if (on) { const m = G.raid.at - absMin(), d = new Date(0); const t = (G.time + m) % 1440; el.textContent = '🚨 Razzia um ' + String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(Math.floor(t % 60)).padStart(2, '0') + ' · tippen'; } } }
   function drawRaid() { if (!raidVis || player.fl) return; const t = raidVis.t, a = Math.min(1, t / 1.5) * Math.min(1, (30 - t) / 3);
     for (let k = 0; k < 3; k++) { const x = DOOR.x - 40 + k * 40, y = 532 + (k % 2) * 6; ctx.globalAlpha = a; drawFigure(x, y, -Math.PI / 2, gt * 3, COP_LOOK); ctx.fillStyle = Math.floor(gt * 5 + k) % 2 ? '#FF5C7A' : '#4B8DFF'; ctx.beginPath(); ctx.arc(x, y - 17, 2.6, 0, TAU); ctx.fill(); }
@@ -5488,7 +5579,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
   function renderRaid(b) {
     if (!raidPending()) { uiInfo(b, 'Gerade ist keine Razzia angekündigt. Ab Ruf ' + RAID_REP + ' kann die Polizei deinen Keller durchsuchen, wenn du zu viel Aufsehen erregst (Gefahr: ' + Math.round(G.heat || 0) + ' %).'); return; }
     const m = G.raid.at - absMin(), t = (G.time + m) % 1440, hh = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(Math.floor(t % 60)).padStart(2, '0');
-    uiInfo(b, '🚨 <b>Razzia heute um ' + hh + ' Uhr in deinem Keller</b> (noch etwa ' + Math.ceil(m / 60) + ' Spielstunden).<br>Die Polizei nimmt alles aus Gestellen, Packtischen mit (gerade ' + raidSeizable() + ' Stück). Bist du dann im Keller, ist auch deine Ware weg und es gibt 15 % Strafe auf dein Bargeld. Pflanzen, Mietlager, Regale in deinen Läden, Tonnen-Verstecke und dein Konto sind sicher.<br><br>Tipps: Ware abholen und ins Mietlager, ins Regal deiner Läden oder in Tonnen bringen, Bargeld waschen oder zur Bank bringen.');
+    uiInfo(b, '🚨 <b>Razzia heute um ' + hh + ' Uhr in deinem Keller</b> (noch etwa ' + Math.ceil(m / 60) + ' Spielstunden).<br>Die Polizei nimmt alles aus Gestellen, Packtischen mit (gerade ' + raidSeizable() + ' Stück). Bist du dann im Keller, ist auch deine Ware weg. Auch die Pflanzen in den Töpfen nimmt sie mit, und es gibt immer eine Geldstrafe (10 %, bist du im Keller 20 % deines Bargelds). Ruf, Töpfe, Ausbauten, Mietlager, Regale in deinen Läden, Tonnen-Verstecke und dein Konto sind sicher.<br><br>Tipp: Drück den roten Notknopf im Keller, dann füllt sich der Keller nicht wieder.<br>Weitere Tipps: Ware abholen und ins Mietlager, ins Regal deiner Läden oder in Tonnen bringen, Bargeld waschen oder zur Bank bringen.');
     const c = uiEl('div', 'card'); c.innerHTML = '<div class="nm">🤝 Jemanden bestechen</div><div class="pr">' + fmt(raidBribe()) + '</div><div class="ds">Die Razzia fällt aus und die Gefahr sinkt.</div>';
     const bt = uiEl('button', 'buy', 'Bezahlen'); bt.disabled = G.money < raidBribe(); bt.addEventListener('click', () => { if (raidPay()) renderPhone(); }); c.appendChild(bt); b.appendChild(c);
   }
@@ -6646,6 +6737,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
       }
       const ar = AREAS[G.area]; areaBanner(b, ar);
       if (!isOpen(ar)) { lockedCard(b, ar); return; }
+      if (ar.key === 'keller') panicCard(b); // v122
       const addUp = u => upCard(b, u);
       const ah = document.createElement('div'); ah.className = 'grp'; ah.textContent = 'Gebiet: ' + ar.name; b.appendChild(ah);
       UPS.filter(u => u.area === G.area && u.id !== 'pots').forEach(addUp); // v54: Toepfe kauft man am schwarzen Platz
@@ -10951,6 +11043,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     }
     drawRackFor(AREAS.keller); drawTableFor(AREAS.keller); // v61
     drawDecorFor(AREAS.keller, 1);
+    if (!GH_ON) drawPanicBtn(); // v122
   }
   // ---------- v72: Stadt zeichnen (Boden, Strassen, Fluss) ----------
   const GROUNDS = [
@@ -11289,6 +11382,12 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     if (h.st !== 2 && hi % 4 === 1) { const sx = x + w * 0.3, sy = up ? ry0 + rh * 0.3 : ry0 + rh * 0.25; ctx.fillStyle = 'rgba(0,0,0,.25)'; ell(sx + 2, sy + 2, 6, 5); ctx.fill(); ctx.fillStyle = '#E8ECF2'; ell(sx, sy, 6, 5); ctx.fill(); ctx.fillStyle = '#B5BDC7'; ell(sx + 1, sy + 1, 3, 2.4); ctx.fill(); ctx.fillStyle = '#5E6670'; ctx.fillRect(sx + 3, sy - 1, 5, 1.5); }
     if (h.st === 1 && hi % 3 === 2) { const sx = x + w * 0.62, sy = ry0 + (up ? rh * 0.55 : rh * 0.2); ctx.fillStyle = '#3A3F47'; ctx.fillRect(sx, sy, 16, 12); ctx.fillStyle = dk && winLit(hi, 5) ? '#FFE08A' : '#7FA9C4'; ctx.fillRect(sx + 2, sy + 2, 12, 8); ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(sx + 2, sy + 2, 12, 2); }
   }
+  function leftFence() { // v122: Zaun an der linken Stadtkante, Luecke nur auf der Hauptstrasse
+    for (const [y0, y1] of [[YMIN, LEFT_GAP[0]], [LEFT_GAP[1], WH]]) { if (y1 < viewY0 - 20 || y0 > viewY1 + 20) continue;
+      ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(-2, y0, 8, y1 - y0); ctx.fillStyle = '#6B5A44'; ctx.fillRect(-4, y0, 5, y1 - y0);
+      ctx.fillStyle = '#8A7558'; for (let y = Math.ceil(Math.max(y0, viewY0 - 40) / 26) * 26; y < Math.min(y1, viewY1 + 40); y += 26) ctx.fillRect(-6, y, 9, 6); }
+    ctx.fillStyle = '#C0392B'; for (const y of [LEFT_GAP[0], LEFT_GAP[1]]) { ctx.fillRect(-7, y - 6, 12, 12); ctx.fillStyle = '#F4F4F8'; ctx.fillRect(-5, y - 2, 8, 4); ctx.fillStyle = '#C0392B'; }
+  }
   function drawPlotGround() { // v86: Grundstuecke der Freunde links neben dem Keller, die Hauptstrasse laeuft durch
     const nK = mp.slots.length, nF = (mp.farms || []).length, x0 = XMIN, x1 = 0; if (x0 >= 0) return;
     ctx.fillStyle = '#1A2C22'; ctx.fillRect(x0, 0, x1 - x0, WH);
@@ -11296,6 +11395,8 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     ctx.fillStyle = 'rgba(255,255,255,.35)'; for (let x = Math.ceil(x0 / 70) * 70; x < x1 - 20; x += 70) ctx.fillRect(x, 622, 36, 4);
     ctx.fillStyle = '#16301F'; const hedge = x => { ctx.fillRect(x - 5, 0, 10, 520); ctx.fillRect(x - 5, 728, 10, WH - 728); };
     for (let j = 0; j <= nK; j++) hedge(-KW * j); ctx.fillRect(x0, 0, 10, WH);
+    ctx.fillStyle = '#1A2C22'; ctx.fillRect(x0, LEFT_GAP[1], x1 - x0, WH - LEFT_GAP[1]); // v122: unterhalb der Strasse kein Gelaende mehr
+    leftFence();
     for (let i = 0; i < nF; i++) { const ox = fOx(i); if (ox > viewX1 || ox + FW < viewX0) continue; hedge(ox); }
     if (nF) { const bx = -KW * nK; ctx.fillStyle = 'rgba(32,38,46,.9)'; rr(bx - 150, 735, 140, 24, 6); ctx.fill(); ctx.fillStyle = '#E8C84A'; ctx.font = '800 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('← FARMEN DER FREUNDE', bx - 80, 747.5); ctx.textBaseline = 'alphabetic'; }
   }
@@ -12747,7 +12848,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 121;
+  const MP_DEF_ROOM = '111026', GAME_VER = 122;
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -12838,6 +12939,18 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     }
     c.appendChild(st); b.appendChild(c);
   }
+  let bkSure = '';
+  function renderBackups(b, mk) { // v122: Sicherungen anzeigen und zurueckholen
+    const L = [['.auto', 'Automatische Sicherung (alle 5 Minuten)'], ['.vorRazzia', 'Vor der letzten Razzia'], ['.prest', 'Vor dem letzten Prestige'], ['.vorReset', 'Vor einer Admin-Änderung'], ['.vorWiederherstellen', 'Vor dem letzten Zurückholen'], ['.bak', 'Ältere Sicherung']].map(([k, n]) => { let o = null; try { o = JSON.parse(store.get(SAVE_KEY + k, 'null')); } catch (e) {} return o && Number.isFinite(+o.money) ? { k, n, o } : null; }).filter(Boolean);
+    if (!L.length) return;
+    const c = mk('div', '', 'card'); c.style.gridTemplateColumns = '1fr'; c.appendChild(mk('div', '🛟 Sicherungen', 'nm'));
+    c.appendChild(mk('div', 'Falls etwas schiefgeht, kannst du hier einen früheren Stand zurückholen. Dein jetziger Stand wird vorher selbst gesichert.', 'ds'));
+    const st = mk('div', '', 'ds');
+    for (const x of L) { const o = x.o, r = mk('div'); r.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px';
+      const t = mk('div', '', 'ds'); t.style.flex = '1'; t.innerHTML = '<b>' + x.n + '</b><br>Tag ' + (o.day || 1) + ' · Ruf ' + Math.floor(+o.rep || 0) + ' · ' + fmt(Math.round(+o.money || 0)) + (o.sts ? ' · ' + new Date(+o.sts).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''); r.appendChild(t);
+      const bt = mk('button', 'Laden', 'buy alt'); bt.addEventListener('click', () => { if (bkSure !== x.k) { bkSure = x.k; st.innerHTML = '<b style="color:var(--amber)">Nochmal auf „Laden“ tippen: ' + x.n + ' zurückholen.</b>'; return; } bkSure = ''; save(); const cur = store.get(SAVE_KEY, null); const raw = store.get(SAVE_KEY + x.k, null); if (cur) store.set(SAVE_KEY + '.vorWiederherstellen', cur); store.set(SAVE_KEY, raw); if (load()) { closePhone(); begin(false); msg('Sicherung geladen: ' + x.n); save(); } else { if (cur) store.set(SAVE_KEY, cur); load(); st.textContent = 'Diese Sicherung ist nicht lesbar.'; } }); r.appendChild(bt); c.appendChild(r); }
+    c.appendChild(st); b.appendChild(c);
+  }
   function renderProfileRest(b, mk) {
     const card = mk('div', '', 'card'); card.style.gridTemplateColumns = '1fr';
     if (fbOk() && accOn()) card.style.display = 'none'; // mit Konto ist der Name fest
@@ -12848,6 +12961,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     go.addEventListener('click', () => { if (setPlayerName(nm.value)) { st.textContent = 'Gespeichert. Du heißt jetzt ' + mp.name + '.'; sfx.buy(); } else { st.textContent = 'Bitte mindestens 2 Zeichen.'; sfx.bad(); } });
     nm.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go.click(); } e.stopPropagation(); }); nm.addEventListener('keyup', e => e.stopPropagation());
     card.appendChild(nm); card.appendChild(go); card.appendChild(st); b.appendChild(card);
+    renderBackups(b, mk); // v122
     { const tc = mk('div', '', 'card'); tc.appendChild(mk('div', 'Einführung', 'nm')); tc.appendChild(mk('div', G.tut === 'skip' ? 'Übersprungen. Du kannst sie jederzeit ansehen.' : G.tut === 'done' ? 'Abgeschlossen. Du kannst sie jederzeit noch einmal ansehen.' : 'Noch nicht gesehen.', 'ds')); const tb = mk('button', 'Ansehen', 'buy'); tb.addEventListener('click', () => { closePhone(); tutStart(0); }); tc.appendChild(tb); b.appendChild(tc); } // v84
     const c = mpLoadCfg(), g2 = mk('div', '', 'card'); g2.style.gridTemplateColumns = '1fr auto';
     const t = mk('div', mp.on ? '🟢 Online · ' + Object.keys(mp.friends).length + ' andere Spieler' : c.auto ? 'Verbindet …' : '⚪ Offline', 'ds');
@@ -13005,7 +13119,8 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
     begin(true);
   });
   $('cont').addEventListener('click', () => {
-    if (load() || load(true)) begin(false);
+    if (load()) begin(false);
+    else if (loadKey(SAVE_KEY + '.auto') || load(true)) { begin(false); msg('Dein Spielstand war nicht lesbar. Die letzte Sicherung wurde geladen.', true); }
     else { saveBlocked = true; const b = $('cont'); b.textContent = 'Spielstand nicht lesbar – bleibt gesichert'; }
   });
   $('mute').addEventListener('click', () => { unlock(); setMuted(!muted); });
@@ -13039,6 +13154,13 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 122, date: 'Oktober 2026', title: 'Notknopf', items: [
+      ['neu', '🚨', 'Roter Notknopf im Keller (unten neben der Tür): Deine Helfer lassen alles stehen und liegen und verschwinden, damit sich der Keller vor einer Razzia nicht wieder füllt'],
+      ['neu', '📦', 'Notknopf ausbauen (Geschäft → Ausbau → Keller): Ab Stufe 2 bringen die Helfer alle Ware ins Mietlager und danach zurück, ab Stufe 3 auch ins Geheimversteck und von selbst'],
+      ['chg', '👮', 'Eine Razzia nimmt nur Ware, Pflanzen und einen Teil vom Bargeld (10 %, im Keller 20 %). Ruf, Töpfe, Ausbauten, Gebäude und Mietlager bleiben dir'],
+      ['neu', '🛟', 'Sicherungen: alle 5 Minuten und vor jeder Razzia. Unter Einstellungen → Profil kannst du einen früheren Stand zurückholen'],
+      ['fix', '🚧', 'Links endet die Stadt jetzt an einem Zaun. Zu den Kellern der anderen Spieler geht es nur noch über die Hauptstraße'],
+      ['fix', '✉️', 'Eine alte Nachricht an alle wird nicht mehr angezeigt. Nachrichten an alle sieht man nur noch einen Tag lang'] ] },
     { v: 121, date: 'Oktober 2026', title: 'Gangs und Endspiel', items: [
       ['neu', '🏴', 'Eigene Gang gründen (ab Ruf 20) oder beitreten: Handy → Freunde → Gang. Mit gemeinsamer Kasse, Gang-Chat, Boss und Vize'],
       ['neu', '🏠', 'Euer Hauptquartier im Gangviertel richtet ihr zusammen ein. Wer es ausbaut, bekommt mehr Platz, mehr Mitglieder und bis zu 5 % mehr von den Kunden'],
@@ -13052,11 +13174,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
       ['neu', '📍', 'Neue App „Stadt“: alle wichtigen Orte mit Entfernung und einem Knopf „Hinführen“, der dir den Weg zeigt'],
       ['chg', '🏢', 'Der Mietraum hat jetzt überall einen eigenen Knopf: unter Geschäft → Ausbau und Anheuern sowie unter Wohnen → Meine Häuser. Ausbauen und Helfer anheuern geht von überall'],
       ['chg', '✨', 'Style: Der Reiter „Effekte“ fasst Auren, Effekte um dich herum und Spuren zusammen. Die Spuren waren vorher bei den Begleitern versteckt'],
-      ['chg', '🛒', 'Wo es etwas nur an einem Ort gibt (Kiosk, Autohof), bringt dich ein Knopf „Hinführen“ direkt dorthin'] ] },
-    { v: 119, date: 'Oktober 2026', title: 'Gangs passend zu dir', items: [
-      ['chg', '🧢', 'Gangs fragen dich nur noch nach Ware, die du selbst herstellen kannst. Sie laufen weiterhin für alle Spieler sichtbar durch die Stadt'],
-      ['chg', '🌸', 'Die Jahreszeit steht oben jetzt links neben der Uhrzeit'],
-      ['fix', '🏢', 'Behoben: Im Mietraum und im Hinterzimmer deiner Läden lag das Dach vom Keller über dem Raum, man sah nichts und konnte nichts machen'] ] }
+      ['chg', '🛒', 'Wo es etwas nur an einem Ort gibt (Kiosk, Autohof), bringt dich ein Knopf „Hinführen“ direkt dorthin'] ] }
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
@@ -13243,7 +13361,7 @@ window.addEventListener('error', function (e) { try { var d = document.getElemen
   } catch (e) {}
   loadWorldLocal(); setTimeout(worldStart, 1500); // v59: gemeinsame Karte
   if (r3Want) setTimeout(r3Start, 50); // v90: 3D-Ansicht vom letzten Mal
-  if (window.__KG_DEBUG) window.__KG_DEBUG({ get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
+  if (window.__KG_DEBUG) window.__KG_DEBUG({ get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
   requestAnimationFrame(frame);
 })();
 </script>
