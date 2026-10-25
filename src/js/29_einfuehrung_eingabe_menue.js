@@ -175,12 +175,12 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 131, date: 'Oktober 2026', title: 'Ruhe im HQ', items: [
+      ['chg', '🧭', 'Im Gang-Hauptquartier wird der Lieferkompass nicht mehr angezeigt'],
+      ['neu', '💰', 'Im Gang-Hauptquartier steht die Gang-Kasse oben links unter deinem Geld'] ] },
     { v: 130, date: 'Oktober 2026', title: 'Neue Begleiter und Deko', items: [
       ['neu', '🐾', '7 neue Begleiter, jeder mit eigenem Vorteil: Schildkröte, Füchschen, Pinguin, Eule, Axolotl in der Wasserkugel, Gespenst und Mini-Einhorn'],
       ['neu', '🎠', '12 neue Deko-Stücke, die sich bewegen: Glühwürmchen-Glas, Sternen-Mobile, Schaukelstuhl, Kugelpendel, Kuckucksuhr, Plasmakugel, Zimmerbrunnen, Saugroboter, Seifenblasen-Maschine, Modelleisenbahn, Mini-Karussell und Quallen-Aquarium. Im Deko-Laden unter „✨ Neu“'] ] },
-    { v: 129, date: 'Oktober 2026', title: 'Reviere auf der Karte', items: [
-      ['neu', '🗺️', 'Wer in einer Gang ist, sieht auf der Minikarte und der großen Karte, welche Viertel gerade welcher Gang gehören: in der Farbe der Gang, eure eigenen mit durchgezogenem Rand, in der Legende der großen Karte mit Kürzel. Ohne Gang bleibt die Karte wie bisher'],
-      ['fix', '🔋', 'Im Energiesparmodus ruckelt es weniger: Kamera und Übergänge laufen jetzt auch bei 30 Bildern pro Sekunde gleichmäßig, und drosselt das Handy, schaltet das Spiel automatisch auf sparsamere Grafik (abschaltbar unter Einstellungen → Anzeige)'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

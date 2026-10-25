@@ -1038,7 +1038,7 @@
     return best;
   }
   function drawCompass() {
-    if (!G.up.compass) return;
+    if (!G.up.compass || player.fl === 4) return; // v131: im Gang-HQ kein Lieferkompass
     let slot = 0;
     for (const ar of openAreas()) {
       const have = S(ar).inv.bags; if (have <= 0) continue;

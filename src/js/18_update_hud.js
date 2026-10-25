@@ -357,6 +357,7 @@
     setText('money', fmt(G.money));
     setText('rep', String(G.rep));
     { const bh = $('bankHud'); if (bh) { const on = (G.bank || 0) > 0; if (bh.hidden === on) bh.hidden = !on; if (on) { hudFitRep(); setText('bankV', bankTxt(G.bank)); } } } // v95: Kontostand neben Ruf, v110: passt sich an
+    { const gk = $('gkHud'), on = player.fl === 4 && !!pgang && pgMember(); if (gk) { if (gk.hidden === on) gk.hidden = !on; if (on) setText('gkV', fmt(pgang.kasse || 0)); } } // v131: im HQ die Gang-Kasse anzeigen
     krHud();
     drawMini(); wayTick();
     setText('bags', totalBags() + '/' + bagCap()); // v64: Sorten stehen untereinander

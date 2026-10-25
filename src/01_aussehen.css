@@ -686,6 +686,8 @@ body.port-ok .clockrow .seapill { max-width: calc(50vw - 84px); margin-right: 6p
 .bm-zoom button:disabled { opacity: .35; }
 .bm-leg { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; font-size: 12px; color: var(--muted); }
 .bm-leg[hidden] { display: none; }
+.gkhud { color: #FFD24A; margin-top: 1px; }
+.gkhud[hidden] { display: none; }
 .bm-leg i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
 #phClose::after, #bigClose::after { content: ''; position: absolute; inset: -10px -8px; }
 #bigClose { min-height: 52px; padding: 0 22px; font-size: 16px; position: relative; }
