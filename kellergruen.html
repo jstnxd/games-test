@@ -91,6 +91,13 @@ body { position: fixed; inset: 0; }
 .notes { position: absolute; z-index: 3; left: calc(env(safe-area-inset-left, 0px) + 16px); top: calc(env(safe-area-inset-top, 0px) + 112px); display: flex; flex-direction: column; align-items: flex-start; gap: 4px; max-width: min(40vw, 320px); pointer-events: none; }
 .hint { padding: 3px 9px; border-radius: 8px; background: rgba(16, 21, 28, .7); font-size: 11px; font-weight: 600; color: var(--muted); line-height: 1.25; text-align: left; display: none; }
 .hint.on { display: block; }
+.tipc { pointer-events: auto; position: relative; width: min(300px, 40vw); min-width: 220px; padding: 9px 30px 9px 11px; border-radius: 12px; background: rgba(16, 21, 28, .88); border-left: 3px solid #FFD24A; box-shadow: 0 4px 16px rgba(0, 0, 0, .35); color: #EEF2F7; font-size: 12px; font-weight: 600; line-height: 1.35; animation: tipIn .3s ease-out; }
+.tipc b { display: block; font-size: 12.5px; color: #FFE9A0; margin-bottom: 2px; }
+.tipc .tx { position: absolute; right: 4px; top: 4px; width: 26px; height: 26px; border: 0; border-radius: 999px; background: transparent; color: rgba(238, 242, 247, .6); font: inherit; font-size: 15px; }
+.tipc .tgo { margin-top: 7px; font: inherit; font-size: 12px; font-weight: 800; border: 0; border-radius: 999px; padding: 5px 12px; min-height: 30px; background: linear-gradient(180deg, #FFC463, #F5A32A); color: #3A2400; }
+.tipc[hidden] { display: none; }
+@keyframes tipIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (orientation: portrait) { .tipc { width: min(300px, 78vw); } }
 .msg { display: none; flex-direction: column; align-items: flex-start; gap: 3px; max-width: 100%; }
 .msg.on { display: flex; }
 .mi { position: relative; max-width: 100%; padding: 3px 9px 3px 10px; border-radius: 7px; background: rgba(16, 21, 28, .66); color: rgba(238, 242, 247, .9); font-size: 11px; font-weight: 600; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: miIn .22s ease-out; }
@@ -464,6 +471,12 @@ body.port-ok .card.cos button.buy { grid-column: 3; grid-row: 2; justify-self: e
 .pv { background: linear-gradient(180deg, #1B2531, #131A23); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); border-radius: 12px; }
 .chip { border-radius: 999px; background: rgba(255, 255, 255, .09); }
 .chip.on { background: linear-gradient(180deg, #6BCB7E, #4FAE63); }
+.lfbar { display: flex; flex-direction: column; gap: 6px; margin: 0 0 8px; }
+.lfbar input { font: inherit; font-size: 14px; min-height: 38px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .12); background: rgba(0, 0, 0, .25); color: var(--fg); padding: 0 12px; outline: none; }
+.lfbar input:focus { border-color: rgba(107, 203, 126, .7); }
+.lfchips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.lfchips .chip { flex-shrink: 0; min-height: 32px; font-size: 12.5px; }
+.lfnew { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .04em; padding: 1px 6px; border-radius: 6px; background: #FFB547; color: #3A2400; vertical-align: 2px; }
 .ph button.close { border-radius: 999px; background: linear-gradient(180deg, #FFC463, #F5A32A); box-shadow: 0 2px 10px rgba(255, 181, 71, .3); }
 .ph button.close.alt { background: rgba(255, 255, 255, .1); box-shadow: none; }
 .ph button#phClose { min-height: 66px; min-width: 160px; padding: 0 32px; font-size: 20px; flex-shrink: 0; } /* v54: groesser, leichter zu treffen */
@@ -765,7 +778,7 @@ body.port-ok .clockrow .seapill { max-width: calc(50vw - 84px); margin-right: 6p
       <canvas class="mini" id="mini" width="264" height="136" aria-label="Minikarte (antippen für große Karte)"></canvas><div class="loc" id="locHud"></div>
     </div>
   </div>
-  <div class="notes"><div class="msg" id="msg"></div><div class="hint" id="hint"></div></div>
+  <div class="notes"><div class="tipc" id="tipCard" hidden></div><div class="msg" id="msg"></div><div class="hint" id="hint"></div></div>
 </div>
 
 <div class="chat" id="chat" hidden>
@@ -830,7 +843,7 @@ body.port-ok .clockrow .seapill { max-width: calc(50vw - 84px); margin-right: 6p
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 127 · Neu: Polizeilicht statt Verdacht-Balken<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 128 · Neu: Revierkampf, Großauftrag, Tipps und Filter<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -957,6 +970,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   // v98: Bildqualitaet (pro Geraet): 0 = sparsam, 1 = hoch (volle Aufloesung), 2 = ultra (Supersampling); Farbfilter an/aus
   let GFX_Q = (() => { try { const v = +localStorage.getItem('kellergruen.gq'); return v === 0 && localStorage.getItem('kellergruen.gq') !== null ? 0 : 1; /* v107: Ultra entfernt, alte Einstellung 2 wird zu Hoch */ } catch (e) { return 1; } })();
   let GFX_FX = (() => { try { return localStorage.getItem('kellergruen.gfx') !== '0'; } catch (e) { return true; } })();
+  let LOFX = (() => { try { return localStorage.getItem('kellergruen.lofx') === '1'; } catch (e) { return false; } })(); // v128: Weniger Effekte (pro Gerät)
+  function setLofx(v) { LOFX = !!v; try { localStorage.setItem('kellergruen.lofx', LOFX ? '1' : '0'); } catch (e) {} }
   function resize() {
     { const dp = window.devicePixelRatio || 1; DPR = GFX_Q === 0 ? Math.min(dp, 1.5) : Math.min(dp, 3); }
     W = window.innerWidth; H = window.innerHeight;
@@ -2596,7 +2611,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   function newGame() {
     G = {
       money: 60, rep: 0, earned: 0, eod: 0, day: 1, sOff: 0, time: 9 * 60, won: false, bank: 0, buf: {}, club: { n: -1, s: 0 }, biz: {}, heat: 0, raid: null, heatE: 0,
-      up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, shoes: 0, bag: 0, sack: 0, cart: 0, seed: 0, water: 0, compass: 0 }, repP: 0, prest: 0, prN: 0, lg: lgDef(), gang: null, pn: pnDef(),
+      up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, shoes: 0, bag: 0, sack: 0, cart: 0, seed: 0, water: 0, compass: 0 }, repP: 0, prest: 0, prN: 0, lg: lgDef(), gang: null, pn: pnDef(), ui: uiDef(),
       pots: POTS.map(() => ({ s: 0, p: 0, w: 1 })),
       rack: { wet: 0, dry: 0 }, inv: { fresh: 0, dried: 0, bags: 0 },
       orders: [], nextOrder: 5, oid: 1, kr: krDef(), tut: '',
@@ -2647,7 +2662,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (raw) store.set(SAVE_KEY + '.bak', raw);
   }
   let saveBlocked = false;
-  function saveObj() { return { ver: SAVE_VER, sts: Date.now(), flag: G.flag || undefined, cmdU: G.cmdU || cmdOk ? 1 : undefined, money: G.money, rep: G.rep, earned: G.earned, eod: G.eod, day: G.day, sOff: G.sOff || 0, time: G.time, won: G.won, up: G.up, pots: G.pots, rack: G.rack, inv: G.inv, cos: G.cos, wpn: G.wpn, staff: G.staff, tab: G.tab, staffUp: G.staffUp, look: G.look, wear: G.wear, stat: G.stat, ach: G.ach, tut: G.tut || '', kr: G.kr, gv: G.gv, gvOk: G.gvOk ? 1 : 0, veh: { owned: G.veh.owned, eq: G.veh.eq, bike: G.veh.bike || 'none', car: G.veh.car || 'none', col: G.veh.col || {}, tune: G.veh.tune || {} }, bw: 1, lager: G.lager, pr: G.pr, cas: G.cas, bank: G.bank || 0, bk: G.bk || 0, busCd: G.busCd || 0, biz: G.biz || {}, heat: G.heat || 0, raid: G.raid || null, heatE: G.heatE || 0, buf: G.buf || {}, club: G.club || { n: -1, s: 0 }, t: G.t, b: G.b, dec: G.dec, lay: G.lay, build: G.build, repP: G.repP, prest: G.prest || 0, prN: G.prN || 0, lg: G.lg, gang: G.gang || undefined, pn: G.pn, binP: G.binP && G.binP.length ? G.binP : undefined, fl: G.fl, crate: G.crate, stash: G.stash }; }
+  function saveObj() { return { ver: SAVE_VER, sts: Date.now(), flag: G.flag || undefined, cmdU: G.cmdU || cmdOk ? 1 : undefined, money: G.money, rep: G.rep, earned: G.earned, eod: G.eod, day: G.day, sOff: G.sOff || 0, time: G.time, won: G.won, up: G.up, pots: G.pots, rack: G.rack, inv: G.inv, cos: G.cos, wpn: G.wpn, staff: G.staff, tab: G.tab, staffUp: G.staffUp, look: G.look, wear: G.wear, stat: G.stat, ach: G.ach, tut: G.tut || '', kr: G.kr, gv: G.gv, gvOk: G.gvOk ? 1 : 0, veh: { owned: G.veh.owned, eq: G.veh.eq, bike: G.veh.bike || 'none', car: G.veh.car || 'none', col: G.veh.col || {}, tune: G.veh.tune || {} }, bw: 1, lager: G.lager, pr: G.pr, cas: G.cas, bank: G.bank || 0, bk: G.bk || 0, busCd: G.busCd || 0, biz: G.biz || {}, heat: G.heat || 0, raid: G.raid || null, heatE: G.heatE || 0, buf: G.buf || {}, club: G.club || { n: -1, s: 0 }, t: G.t, b: G.b, dec: G.dec, lay: G.lay, build: G.build, repP: G.repP, prest: G.prest || 0, prN: G.prN || 0, lg: G.lg, gang: G.gang || undefined, pn: G.pn, ui: G.ui, binP: G.binP && G.binP.length ? G.binP : undefined, fl: G.fl, crate: G.crate, stash: G.stash }; }
 
   // ---------- v113: Konten (Name + Passwort) und Online-Spielstand ueber Firebase ----------
   // Firebase-Projekt: Authentication (E-Mail/Passwort) und Firestore. Der Spielername wird intern zu einer Kunst-Adresse, es gibt keine echte E-Mail.
@@ -3091,7 +3106,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       G.bank = Math.max(0, Math.min(1e10, Math.floor(+s.bank) || 0)); G.bk = clamp(Math.floor(+s.bk) || 0, 0, 3); G.busCd = Math.max(0, +s.busCd || 0); G.buf = {}; if (s.buf && typeof s.buf === 'object') { if (s.buf.gym && GYM_TR[s.buf.gym.k] && Number.isFinite(+s.buf.gym.u)) G.buf.gym = { k: s.buf.gym.k, u: +s.buf.gym.u }; if (Number.isFinite(+s.buf.pizza)) G.buf.pizza = +s.buf.pizza; } G.club = { n: Math.floor(+(s.club && s.club.n)) || -1, s: Math.max(0, Math.floor(+(s.club && s.club.s)) || 0) }; // v94
       { const so = Math.floor(+s.sOff); if (Number.isFinite(so) && so >= 0 && so < 1e6 && s.sOff !== undefined) G.sOff = so; else { const d = G.day - 1, si = Math.floor(d / 5), sd = d % 5; G.sOff = si * 7 + sd - d; } } // v92: alte Spielstaende (5-Tage-Jahreszeiten) bleiben in ihrer Jahreszeit und am selben Tag
       G.repP = Math.min(REP_MAX, Math.max(G.rep, Number.isFinite(+s.repP) ? +s.repP : 0)); G.rep = Math.floor(G.repP + 1e-9); // v112: Ruf endet bei 100
-      G.prest = clamp(Math.floor(+s.prest) || 0, 0, PRES_MAX); G.prN = clamp(Math.floor(+s.prN) || 0, 0, 1e6); G.lg = cleanLg(s.lg); G.gang = cleanGangSave(s.gang); G.pn = cleanPn(s.pn); // v121, v122
+      G.prest = clamp(Math.floor(+s.prest) || 0, 0, PRES_MAX); G.prN = clamp(Math.floor(+s.prN) || 0, 0, 1e6); G.lg = cleanLg(s.lg); G.gang = cleanGangSave(s.gang); G.pn = cleanPn(s.pn); G.ui = cleanUi(s.ui); // v121, v122, v128
       mergeNum(G.up, s.up); clampUp(G.up, 'keller');
       if (Array.isArray(s.pots)) s.pots.forEach((p, i) => { if (G.pots[i]) mergeNum(G.pots[i], p); });
       mergeNum(G.rack, s.rack); mergeNum(G.inv, s.inv);
@@ -4130,8 +4145,9 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       const i = G.orders.findIndex(x => x.id === tg.idx); if (i < 0) return;
       const o = G.orders[i], h = HOUSES[o.house];
       if (inv.bags >= o.qty) {
-        const pay = Math.round(o.price * (petPerk().tip || 1) * krTip()), bonus = o.t > o.tmax * (KR_NEUTRAL ? 0.6 : 0.6 - Math.min(0.2, 0.04 * specSum('kunde'))) ? Math.round(pay * 0.15) : 0;
+        const pay = Math.round(o.price * (petPerk().tip || 1) * krTip() * rkMul(orderPos(o))), bonus = o.t > o.tmax * (KR_NEUTRAL ? 0.6 : 0.6 - Math.min(0.2, 0.04 * specSum('kunde'))) ? Math.round(pay * 0.15) : 0;
         G.stat.del++; if (o.vip) G.stat.vip++; if (!KR_NEUTRAL && KR().ev && KR().ev.id === 'stamm' && KR().ev.n > 0) KR().ev.n--;
+        rkPoint(orderPos(o), o.qty); // v128: Revierkampf
         inv.bags -= o.qty; G.money += pay + bonus; G.earned += pay + bonus; G.orders.splice(i, 1); if (o.remote) { mpSteal(o); msg('Kunde von ' + ((mp.friends[o.remote] || {}).name || 'Freund') + ' weggeschnappt!'); } addRep((bonus ? REP_FAST : REP_SLOW) * (o.vip ? 2 : 1));
         sfx.cash(); { const pp = orderPos(o); floater(pp.x, pp.y - 10, '+' + fmt(pay + bonus), '#FFB547'); }
         if (bonus) msg('Pünktlich geliefert: +' + fmt(bonus) + ' Trinkgeld, Ruf +' + String(REP_FAST).replace('.', ','));
@@ -6195,7 +6211,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     for (const f of Object.values(mp.friends)) { if (!f.vis || !f.vh || !VEH_BY[f.vh] || !VEH_BY[f.vh].car || !f.vt) { f.pAng = f.ang; continue; } const da = Math.abs(Math.atan2(Math.sin(f.ang - (f.pAng ?? f.ang)), Math.cos(f.ang - (f.pAng ?? f.ang)))); if (f.vt[1] >= 0 && f.moving && da / Math.max(dt, 1e-3) > 2.6) spawnSmoke(f.x, f.y, f.ang, f.vh, f.vt[1]); f.pAng = f.ang; }
     for (let i = smokes.length - 1; i >= 0; i--) { const p = smokes[i]; p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.95; p.vy *= 0.95; if (p.t >= p.max) smokes.splice(i, 1); }
   }
-  function drawSmoke() { for (const p of smokes) { if (!inView(p.x, p.y, 30)) continue; const k = p.t / p.max; ctx.globalAlpha = 0.45 * (1 - k); ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, 3 + k * 9, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; }
+  function drawSmoke() { if (LOFX) return; for (const p of smokes) { if (!inView(p.x, p.y, 30)) continue; const k = p.t / p.max; ctx.globalAlpha = 0.45 * (1 - k); ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, 3 + k * 9, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; }
   const inCar = () => riding() && !!VEH_BY[G.veh.eq].car;
   // ---------- Muelleimer-Verstecke (v61) ----------
   // G.stash[i] = [Frische, Trockene, Beutel] fuer Keller, Tabak und Brauerei (9 Zahlen). Polizei und Gangs sehen das nicht.
@@ -6334,7 +6350,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     // Zeit
     G.time += dt * timeRate(G.time); if (G.time >= 1440) { G.time -= 1440; G.day++; payDaily(); }
     // Aufträge
-    lgTick(dt); // v121
+    lgTick(dt); tipTick(dt); // v121, v128
     if (!sleepS) G.nextOrder -= dt; // v98: im Schlaf kommen keine neuen Kunden
     if (G.nextOrder <= 0) { addOrder(); G.nextOrder = clamp(20 - G.rep * 0.8, 7, 20) * (0.7 + Math.random() * 0.6) / (1 + 0.5 * Math.min(4, Object.keys(mp.friends).length)) / krOrd(); }
     for (let i = G.orders.length - 1; i >= 0; i--) { if (G.orders[i].remote || sleepS) continue; G.orders[i].t -= dt; if (G.orders[i].t <= 0) { msg('Auftrag von ' + HOUSES[G.orders[i].house].name + ' ist abgelaufen' + (KR_NEUTRAL ? '' : ' (Ruf −0,1)'), true); if (!KR_NEUTRAL) { G.repP = Math.max(0, (G.repP || G.rep) - 0.1); G.rep = Math.floor(G.repP + 1e-9); } G.orders.splice(i, 1); } }
@@ -6449,7 +6465,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     row.classList.add('t1'); if (row.scrollWidth <= lim + 1) return; row.classList.remove('t1'); row.classList.add('t2'); if (row.scrollWidth <= lim + 1) return;
     bankCompact = true;
   }
-  function locTick() { if (gt - locT < 0.3) return; locT = gt; const t = locName(), s = t ? '📍 ' + t : '', el = $('locHud'), mi = $('mini'); if (el && mi) { const w = Math.round(mi.getBoundingClientRect().width); if (w && el._w !== w) { el._w = w; el.style.width = w + 'px'; el.style.maxWidth = w + 'px'; } } if (s !== locLast) { locLast = s; if (el) { el.textContent = s; el.style.fontSize = ''; for (const fs of [9.5, 9, 8.5]) { if (el.scrollWidth <= el.clientWidth + 1) break; el.style.fontSize = fs + 'px'; } } } }
+  function locTick() { if (gt - locT < 0.3) return; locT = gt; const t = locName(), s = t ? '📍 ' + rkTagHere() + t : '', el = $('locHud'), mi = $('mini'); if (el && mi) { const w = Math.round(mi.getBoundingClientRect().width); if (w && el._w !== w) { el._w = w; el.style.width = w + 'px'; el.style.maxWidth = w + 'px'; } } if (s !== locLast) { locLast = s; if (el) { el.textContent = s; el.style.fontSize = ''; for (const fs of [9.5, 9, 8.5]) { if (el.scrollWidth <= el.clientWidth + 1) break; el.style.fontSize = fs + 'px'; } } } }
   // ---------- v119: App Stadt: alle Orte, die man sonst nur durch Hinlaufen findet, mit Wegpunkt ----------
   function renderOrte(b) {
     const P = [
@@ -6715,7 +6731,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { id: 'cosm', name: 'Style', sub: 'Look & Begleiter', ic: IC.cosm, c: '#FF8FD0', c2: '#C44F96', tabs: [['kopf', 'Kopf'], ['figur', 'Figur'], ['kleid', 'Kleidung'], ['shoes', 'Schuhe'], ['ruecken', 'Rücken'], ['kost', 'Kostüme'], ['pets', 'Begleiter'], ['aura', 'Effekte']] },
     { id: 'gear', name: 'Ausrüstung', sub: 'Rucksack, Rad, Waffen', ic: IC.fzg, c: '#6EE0A0', c2: '#2F9A6A', tabs: [['gearup', 'Für dich'], ['veh', 'Fahrzeuge'], ['wpn', 'Waffen']] },
     { id: 'wohn', name: 'Wohnen', sub: 'Deko & Häuser', ic: IC.deko, c: '#D9A066', c2: '#9A6A3C', tabs: [['deko', 'Einrichten'], ['dshop', 'Deko-Laden'], ['hmine', 'Meine Häuser'], ['hnbr', 'Nachbarn']] },
-    { id: 'gang', name: 'Gang', sub: 'Deine Gang', ic: '<span class="gic">🏴</span>', c: '#FF5C7A', c2: '#A8243F', tabs: [['g_info', 'Übersicht'], ['g_chat', 'Chat'], ['g_mem', 'Mitglieder'], ['g_hq', 'HQ'], ['g_deko', 'Einrichten'], ['g_set', 'Einstellungen']] },
+    { id: 'gang', name: 'Gang', sub: 'Deine Gang', ic: '<span class="gic">🏴</span>', c: '#FF5C7A', c2: '#A8243F', tabs: [['g_info', 'Übersicht'], ['g_chat', 'Chat'], ['g_mem', 'Mitglieder'], ['g_hq', 'HQ'], ['g_rev', 'Revier'], ['g_deko', 'Einrichten'], ['g_set', 'Einstellungen']] },
     { id: 'social', name: 'Freunde', sub: 'Online, Gang & Chat', ic: IC.social, c: '#7FD0C8', c2: '#2F9A92', tabs: [['friends', 'Spieler'], ['gang', 'Gang'], ['group', 'Online']] },
     { id: 'stadt', name: 'Stadt', sub: 'Orte & Projekte', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"><path d="M16 28s-9-8.2-9-15a9 9 0 0 1 18 0c0 6.8-9 15-9 15z"/><circle cx="16" cy="13" r="3.4" fill="#fff"/></svg>', c: '#FF7AB6', c2: '#C2407F', tabs: [['orte', 'Orte'], ['proj', 'Projekte']] },
     { id: 'set', name: 'Einstellungen', sub: 'Anzeige & Ton', ic: IC.set, c: '#AAB6C6', c2: '#6B778A', tabs: [['profil', 'Profil'], ['view', 'Anzeige'], ['hudset', 'Steuerung'], ['sound', 'Ton'], ['system', 'Hilfe']] }
@@ -6815,6 +6831,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         c.appendChild(btn); b.appendChild(c);
   }
   function renderPhone() {
+    if (lfTab !== tab) { lfFlush(); lfTab = tab; lfQ = ''; } // v128: angesehene Neuheiten merken, Suche beim Tab-Wechsel leeren
     $('phMoney').textContent = fmt(G.money);
     renderNav();
     const b = $('phBody'); b.innerHTML = '';
@@ -7003,12 +7020,74 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const w = WEAR_BY[id]; if (!w || w.ach || w.qx || (w.kiosk && !viaKiosk) || w.cost === 0 || G.wear.owned[id] || G.money < w.cost || G.rep < w.rep) return false;
     G.money -= w.cost; G.wear.owned[id] = true; G.look[WEAR_KEY[w.slot]] = id; sfx.buy(); save(); return true;
   }
+  // v128: Kurze Tipps genau dann, wenn etwas Neues freigeschaltet wird (statt langer Einführung). Jeder Tipp kommt nur einmal.
+  const way = (at, nm) => () => { wayPt = { x: at.x, y: at.y }; msg('📍 Wegpunkt: ' + nm); };
+  const goTab = (t, f) => () => { openPhone(); if (f) f(); tab = t; renderPhone(); };
+  const TIPS = [
+    { id: 'bank', ok: () => G.rep >= BANK_LV[0].rep, t: '🏦 Die Bank kennt dich jetzt', d: 'Geld auf dem Konto bringt jeden Tag Zinsen und ist bei einer Razzia sicher.', go: way(BANK_AT, 'Bank') },
+    { id: 'gang', ok: () => G.rep >= PG_REP && !myGid(), t: '🏴 Eigene Gang', d: 'Ab jetzt kannst du mit Freunden eine Gang gründen: gemeinsames HQ, Kasse und Chat.', go: goTab('gang') },
+    { id: 'lager', ok: () => G.rep >= LAGER_REP && !(G.lager && G.lager.own), t: '🏢 Mietraum frei', d: 'Im Gewerbegebiet kannst du einen Lagerraum mieten. Was dort liegt, findet die Polizei nicht.', go: way(LAGER_AT, 'Lager-Tor') },
+    { id: 'pizza', ok: () => G.rep >= BIZ.pizza.rep && !(G.biz.pizza && G.biz.pizza.own), t: '🍕 Pizzeria zu verkaufen', d: 'Ein eigenes Geschäft wäscht dein Bargeld und bringt einen Vorteil.', go: way(PIZZA_AT, 'Pizzeria') },
+    { id: 'gv', ok: () => G.rep >= GV_REP, t: '🕶️ Hehler im Gangviertel', d: 'Der Hehler kauft dir Ware in großen Mengen ab, der Preis schwankt.', go: way(GV_AT, 'Hehler') },
+    { id: 'tabak', ok: () => G.rep >= AREAS.tabak.needRep && !isOpen(AREAS.tabak), t: '🍂 Die Scheune ist frei', d: 'Mit der Tabakfarm bestellen die Kunden auch Päckchen.', go: goTab('hmine') },
+    { id: 'gym', ok: () => G.rep >= BIZ.gym.rep && !(G.biz.gym && G.biz.gym.own), t: '🏋️ Iron Gym zu verkaufen', d: 'Das nächste Geschäft für dein Bargeld.', go: way(GYM_AT, 'Iron Gym') },
+    { id: 'club', ok: () => G.rep >= BIZ.club.rep && !(G.biz.club && G.biz.club.own), t: '🪩 Neon Club zu verkaufen', d: 'Das größte Geschäft der Stadt, mit Club-Lieferungen in der Nacht.', go: way(CLUB_AT, 'Neon Club') },
+    { id: 'brau', ok: () => G.rep >= AREAS.brau.needRep && !isOpen(AREAS.brau), t: '⚗️ Chemielabor frei', d: 'Dein drittes Haus. Rein fiktive Ware, neue Kunden.', go: goTab('hmine') },
+    { id: 'heat', ok: () => (G.heat || 0) >= 35, t: '🔴 Die Polizei wird aufmerksam', d: 'Droht eine Razzia, drück den roten Notknopf im Keller: deine Helfer räumen alles raus.', go: way(PANIC_AT, 'Notknopf') },
+    { id: 'woche', ok: () => G.rep >= 30, t: '🎟️ Wochenziele', d: 'Jede Woche gibt es neue Ziele mit Geld und Marken. Unter Karriere → Woche.', go: goTab('woche') },
+    { id: 'pres', ok: () => presCan(), t: '✦ Neustart mit Bonus möglich', d: 'Du hast Ruf 100. Unter Karriere → Ruf kannst du mit dauerhaftem Bonus neu anfangen.', go: goTab('ruf') },
+    { id: () => 'nw' + Math.floor(G.rep / 10), ok: () => lfNewCount(['w', 'c']) >= 3, t: '👕 Neue Kleidung und Effekte', d: 'Mit deinem Ruf ist neues Zeug freigeschaltet.', go: goTab('kleid', () => { lfMode = 'new'; }) },
+    { id: () => 'nd' + Math.floor(G.rep / 10), ok: () => lfNewCount(['d']) >= 3, t: '🪴 Neue Deko im Laden', d: 'Schau im Deko-Laden, was neu dazugekommen ist.', go: goTab('dshop', () => { lfMode = 'new'; }) }
+  ];
+  let tipT = 3, tipCur = null, tipHide = 0;
+  const tipId = t => typeof t.id === 'function' ? t.id() : t.id;
+  function tipClose(seen) { const el = $('tipCard'); if (el) el.hidden = true; if (tipCur && seen) UI().tp[tipCur] = 1; tipCur = null; tipT = 25; }
+  function tipShow(t) {
+    const el = $('tipCard'); if (!el) return; const id = tipId(t); tipCur = id; UI().tp[id] = 1; tipHide = 14; // gilt als gesehen, sobald er einmal auftaucht
+    el.innerHTML = ''; el.appendChild(uiEl('b', '', t.t)); el.appendChild(uiEl('div', '', t.d));
+    const x = uiEl('button', 'tx', '✕'); x.setAttribute('aria-label', 'Tipp schließen'); x.addEventListener('click', e => { e.stopPropagation(); tipClose(true); }); el.appendChild(x);
+    if (t.go) { const g = uiEl('button', 'tgo', 'Zeig mir'); g.addEventListener('click', e => { e.stopPropagation(); tipClose(true); try { t.go(); } catch (er) {} }); el.appendChild(g); }
+    el.hidden = false; try { sfx.pop && sfx.pop(); } catch (e) {}
+  }
+  function tipTick(dt) {
+    if (!G || KR_NEUTRAL || state !== 'play') return;
+    if (tipCur) { if (!phoneOpen) tipHide -= dt; if (tipHide <= 0) tipClose(true); return; }
+    tipT -= dt; if (tipT > 0) return; tipT = 4;
+    const u = UI();
+    if (!u.tp0) { TIPS.forEach(t => { try { if (t.ok()) u.tp[tipId(t)] = 1; } catch (e) {} }); u.tp0 = 1; return; } // alte Spielstände: schon Freigeschaltetes nicht nochmal erklären
+    if (phoneOpen || tutOpen || !G.tut || chatOpen || nameGateOpen) return;
+    for (const t of TIPS) { let id, ok = false; try { id = tipId(t); ok = !u.tp[id] && t.ok(); } catch (e) {} if (ok) { tipShow(t); return; } }
+  }
+  // v128: Filter und Suche in langen Listen (Kleidung, Effekte, Deko, Fahrzeuge). 'neu' = frisch freigeschaltet und noch nie angesehen.
+  let lfMode = 'all', lfQ = '', lfPend = {}, lfTab = '';
+  const UI = () => G.ui || (G.ui = uiDef());
+  function uiDef() { return { ls: {}, tp: {}, ls0: 0, tp0: 0 }; }
+  function cleanUi(o) { const u = uiDef(); if (!o || typeof o !== 'object') return u; const m = x => { const r = {}; if (x && typeof x === 'object') for (const k of Object.keys(x).slice(0, 3000)) if (typeof k === 'string' && k.length < 40) r[k] = 1; return r; }; u.ls = m(o.ls); u.tp = m(o.tp); u.ls0 = o.ls0 ? 1 : 0; u.tp0 = o.tp0 ? 1 : 0; return u; }
+  function lfAll() { const r = []; WEAR.forEach(w => r.push(['w:' + w.id, w.rep || 0, !!(w.ach || w.qx || w.kiosk)])); COS.forEach(c => r.push(['c:' + c.id, c.rep || 0, false])); DECOR.forEach(d => r.push(['d:' + d.id, d.rep || 0, !!d.qx])); VEHS.forEach(v => r.push(['v:' + v.id, v.rep || 0, !!v.car])); return r; }
+  function lfSeed() { const u = UI(); if (u.ls0) return; lfAll().forEach(([k, rp]) => { if (G.rep >= rp) u.ls[k] = 1; }); u.ls0 = 1; } // alte Spielstände: alles schon Freigeschaltete gilt als gesehen
+  function lfIsNew(k, owned, locked, special) { lfSeed(); if (owned || locked || special) return false; return UI().ls[k] ? false : k; }
+  function lfFlush() { const u = UI(); for (const k of Object.keys(lfPend)) u.ls[k] = 1; lfPend = {}; }
+  function lfNewCount(prefixes) { lfSeed(); const u = UI(); let n = 0; lfAll().forEach(([k, rp, sp]) => { if (!sp && G.rep >= rp && !u.ls[k] && prefixes.includes(k[0])) { const id = k.slice(2), own = k[0] === 'w' ? wearOwned(id) : k[0] === 'c' ? !!G.cos.owned[id] : k[0] === 'd' ? !!G.dec.owned[id] : !!G.veh.owned[id]; if (!own) n++; } }); return n; }
+  // Gibt false zurück, wenn der Eintrag beim aktuellen Filter ausgeblendet wird
+  function lfPass(owned, cost, locked, isNew, buyable) { if (lfMode === 'own') return owned; if (lfMode === 'buy') return !owned && !locked && buyable !== false && canPay(cost); if (lfMode === 'new') return !!isNew; return true; }
+  function lfBadge(isNew) { if (isNew) lfPend[isNew] = 1; return isNew ? ' <span class="lfnew">NEU</span>' : ''; }
+  function lfBar(b, reAll) {
+    const w = uiEl('div', 'lfbar'), inp = uiEl('input'); inp.type = 'search'; inp.placeholder = '🔍 Suchen …'; inp.value = lfQ; inp.setAttribute('aria-label', 'Liste durchsuchen'); inp.maxLength = 30;
+    inp.addEventListener('input', () => { const was = !!lfQ.trim(); lfQ = inp.value; if (reAll && was !== !!lfQ.trim()) { renderPhone(); const n = document.querySelector('#phBody .lfbar input'); if (n) { try { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } catch (e) {} } } else lfApply(b); }); /* reAll: beim Suchen alle Kategorien zeigen */ inp.addEventListener('keydown', e => e.stopPropagation()); w.appendChild(inp);
+    const ch = uiEl('div', 'lfchips'); [['all', 'Alle'], ['own', 'Gekauft'], ['buy', 'Leistbar'], ['new', '✨ Neu']].forEach(([k, t]) => { const c = uiEl('button', 'chip' + (lfMode === k ? ' on' : ''), t); c.addEventListener('click', () => { lfMode = k; renderPhone(); }); ch.appendChild(c); }); w.appendChild(ch);
+    b.appendChild(w); return w;
+  }
+  // Suche blendet nur Karten aus (kein Neuzeichnen, damit die Tastatur offen bleibt); leere Abschnitte zeigen einen Hinweis
+  function lfApply(b) { const q = lfQ.trim().toLowerCase(); let shown = 0; b.querySelectorAll('.card.cos').forEach(c => { const nm = (c.querySelector('.nm') || c).textContent.toLowerCase(), ok = !q || nm.includes(q); c.style.display = ok ? '' : 'none'; if (ok) shown++; });
+    { let hd = null, n = 0; const fin = () => { if (hd) hd.style.display = n ? '' : 'none'; }; for (const el of Array.from(b.children)) { if (el.classList.contains('grp')) { fin(); hd = el; n = 0; } else if (el.classList.contains('cos') && el.style.display !== 'none') n++; } fin(); } // leere Überschriften ausblenden
+    let e = b.querySelector('.lfempty'); if (!shown) { if (!e) { e = uiEl('div', 'empty lfempty'); b.appendChild(e); } e.textContent = lfMode === 'all' && !q ? 'Hier gibt es nichts.' : 'Nichts gefunden. Probier einen anderen Filter.'; } else if (e) e.remove(); }
   function wearSection(b, slot, title) {
       const hd = document.createElement('div'); hd.className = 'grp'; hd.textContent = title; b.appendChild(hd);
       WEAR.filter(w => w.slot === slot).sort((x, y) => x.rep - y.rep || x.cost - y.cost).forEach(w => {
-        const owned = wearOwned(w.id), on = G.look[WEAR_KEY[slot]] === w.id, locked = !owned && G.rep < w.rep;
+        const owned = wearOwned(w.id), on = G.look[WEAR_KEY[slot]] === w.id, locked = !owned && G.rep < w.rep, sp = !!(w.ach || w.qx || w.kiosk), nw = lfIsNew('w:' + w.id, owned, locked, sp);
+        if (!lfPass(owned || w.cost === 0, w.cost, locked, nw, !sp)) return;
         const c = document.createElement('div'); c.className = 'card cos';
-        c.innerHTML = '<canvas class="pv" data-wear="' + w.id + '" width="264" height="128"></canvas><div class="nm">' + w.name + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (w.cost === 0 ? 'gratis' : owned ? (w.qx ? 'exklusiv' : 'gekauft') : w.ach || w.qx ? 'Belohnung' : fmt(w.cost)) + '</div><div class="ds">' + w.desc + (w.rep && w.rep < 999 && !owned && G.rep < w.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + w.rep + '</b>' : '') + '</div>';
+        c.innerHTML = '<canvas class="pv" data-wear="' + w.id + '" width="264" height="128"></canvas><div class="nm">' + w.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (w.cost === 0 ? 'gratis' : owned ? (w.qx ? 'exklusiv' : 'gekauft') : w.ach || w.qx ? 'Belohnung' : fmt(w.cost)) + '</div><div class="ds">' + w.desc + (w.rep && w.rep < 999 && !owned && G.rep < w.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + w.rep + '</b>' : '') + '</div>';
         const btn = document.createElement('button'); btn.className = 'buy';
         if (!owned && w.ach) { btn.textContent = 'Ziel: ' + ((ACH.find(a => a.id === w.ach) || {}).name || '?'); btn.disabled = true; }
         else if (!owned && w.qx) { btn.textContent = w.qx; btn.disabled = true; c.classList.add('excl'); }
@@ -7019,9 +7098,9 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       });
   }
   function renderWear(b, which) {
-    const info = document.createElement('div'); info.className = 'ds'; info.style.margin = '0 0 6px'; info.textContent = 'Ruf ' + G.rep + '. Mit mehr Ruf schaltest du bessere Kleidung und Kostüme frei. Mützen und Frisuren findest du unter Kopf, Farben unter Figur.'; b.appendChild(info);
+    const info = document.createElement('div'); info.className = 'ds'; info.style.margin = '0 0 6px'; info.textContent = 'Ruf ' + G.rep + '. Mit mehr Ruf schaltest du bessere Kleidung und Kostüme frei. Mützen und Frisuren findest du unter Kopf, Farben unter Figur.'; b.appendChild(info); lfBar(b);
     [['top', 'Oberteile'], ['bot', 'Hosen und Röcke'], ['hat', 'Mützen und Kappen'], ['band', 'Bandanas (am Kiosk)'], ['shoe', 'Schuhe'], ['cos', 'Kostüme (ersetzen Kleidung, Hut und Schuhe)'], ['back', 'Rücken: Flügel, Umhänge und Taschen']].filter(([slot]) => !which || (which === 'kost' ? slot === 'cos' : which === 'shoes' ? slot === 'shoe' : which === 'ruecken' ? slot === 'back' : which === 'kopf' ? slot === 'hat' || slot === 'band' : slot === 'top' || slot === 'bot')).forEach(([slot, title]) => wearSection(b, slot, title));
-    startPreviews(b);
+    lfApply(b); startPreviews(b);
   }
   function renderWpn(b) {
     const info = document.createElement('div'); info.className = 'empty';
@@ -7081,36 +7160,39 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   let dshopCat = 0; // v106: gewaehlte Kategorie im Deko-Laden
   function renderDShop(b) {
     const info = document.createElement('div'); info.className = 'ds'; info.style.margin = '0 0 6px'; info.textContent = 'Alles, was du kaufst, kannst du in Keller, Scheune und Chemielabor aufstellen (App Wohnen → Einrichten, Umbau-Modus). Mit mehr Ruf kommen neue Stücke dazu.'; b.appendChild(info);
-    const seen = {}, cats = [['✨ Neu', DEC_NEW]].concat(DCAT); if (!(dshopCat >= 0 && dshopCat < cats.length)) dshopCat = 0;
-    const seg = document.createElement('div'); seg.className = 'tmseg'; cats.forEach(([title], i) => { const c = document.createElement('button'); c.className = 'tmsg' + (i === dshopCat ? ' on' : ''); c.textContent = title; c.addEventListener('click', () => { dshopCat = i; renderPhone(); }); seg.appendChild(c); }); b.appendChild(seg);
-    [cats[dshopCat]].forEach(([title, ids]) => {
+    lfBar(b, true); const seen = {}, cats = [['✨ Neu', DEC_NEW]].concat(DCAT), allC = lfMode === 'new' || !!lfQ.trim(); if (!(dshopCat >= 0 && dshopCat < cats.length)) dshopCat = 0;
+    const seg = document.createElement('div'); seg.className = 'tmseg'; if (allC) seg.style.display = 'none'; cats.forEach(([title], i) => { const c = document.createElement('button'); c.className = 'tmsg' + (i === dshopCat ? ' on' : ''); c.textContent = title; c.addEventListener('click', () => { dshopCat = i; renderPhone(); }); seg.appendChild(c); }); b.appendChild(seg);
+    (allC ? cats.slice(1) : [cats[dshopCat]]).forEach(([title, ids]) => { // v128: bei Neu und beim Suchen alle Kategorien
       const hd = document.createElement('div'); hd.className = 'grp'; hd.textContent = title; b.appendChild(hd);
       ids.map(id => DECOR.find(d => d.id === id)).filter(Boolean).sort((x, y) => x.rep - y.rep || x.cost - y.cost).forEach(d => {
-        seen[d.id] = 1;
+        if (seen[d.id]) return; seen[d.id] = 1;
+        const dOwn = !!G.dec.owned[d.id], dLk = G.rep < (d.rep || 0), nw = lfIsNew('d:' + d.id, dOwn, dLk, !!d.qx);
+        if (!lfPass(dOwn, d.cost, dLk, nw, !d.qx)) return;
         const c = document.createElement('div'); c.className = 'card cos';
-        c.innerHTML = '<canvas class="pv" data-dec="' + d.id + '" width="264" height="128"></canvas><div class="nm">' + d.name + '</div><div class="pr">' + (d.qx ? 'exklusiv' : fmt(d.cost)) + '</div><div class="ds">' + d.desc + ' · Besitz ' + (G.dec.owned[d.id] || 0) + ', frei ' + decStock(d.id) + (d.rep && G.rep < d.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + d.rep + '</b>' : '') + '</div>';
+        c.innerHTML = '<canvas class="pv" data-dec="' + d.id + '" width="264" height="128"></canvas><div class="nm">' + d.name + lfBadge(nw) + '</div><div class="pr">' + (d.qx ? 'exklusiv' : fmt(d.cost)) + '</div><div class="ds">' + d.desc + ' · Besitz ' + (G.dec.owned[d.id] || 0) + ', frei ' + decStock(d.id) + (d.rep && G.rep < d.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + d.rep + '</b>' : '') + '</div>';
         const lk = G.rep < (d.rep || 0), btn = document.createElement('button'); btn.className = 'buy'; btn.textContent = lk ? 'Ab Ruf ' + d.rep : 'Kaufen'; btn.disabled = lk || G.money < d.cost;
         if (d.qx) { btn.textContent = G.dec.owned[d.id] ? 'Im Besitz (App Deko)' : 'Belohnung: ' + d.qx; btn.disabled = true; c.classList.add('excl'); }
         btn.addEventListener('click', () => { if (buyDecor(d.id)) renderPhone(); });
         c.appendChild(btn); b.appendChild(c);
       });
     });
-    startPreviews(b);
+    lfApply(b); startPreviews(b);
   }
   function wayBtn(b, label, at, nm) { const bt = uiEl('button', 'buy alt', '📍 ' + label); bt.style.cssText = 'margin:2px 0 8px;width:100%'; bt.addEventListener('click', () => { wayPt = { x: at.x, y: at.y }; closePhone(); msg('📍 Wegpunkt: ' + nm); }); b.appendChild(bt); return bt; } // v119
   function renderVeh(b) {
     const info = document.createElement('div'); info.className = 'ds'; info.style.margin = '0 0 6px';
-    info.textContent = 'Fahrzeuge machen dich schneller. Mit dem Rad-Knopf (Taste V) steigst du auf dein ausgewähltes Rad oder den Roller, mit dem Auto-Knopf (Taste C) ins ausgewählte Auto. Drinnen steigst du automatisch ab. Autos gibt es nur am Autohof im Gewerbegebiet ganz im Osten, Tuning in der Autowerkstatt im Süden.'; b.appendChild(info);
+    info.textContent = 'Fahrzeuge machen dich schneller. Mit dem Rad-Knopf (Taste V) steigst du auf dein ausgewähltes Rad oder den Roller, mit dem Auto-Knopf (Taste C) ins ausgewählte Auto. Drinnen steigst du automatisch ab. Autos gibt es nur am Autohof im Gewerbegebiet ganz im Osten, Tuning in der Autowerkstatt im Süden.'; b.appendChild(info); lfBar(b);
     VEHS.filter(v => !v.car || G.veh.owned[v.id]).forEach(v => {
-      const owned = !!G.veh.owned[v.id], on = (v.car ? selCar() : selBike()) === v.id, locked = !owned && G.rep < v.rep;
+      const owned = !!G.veh.owned[v.id], on = (v.car ? selCar() : selBike()) === v.id, locked = !owned && G.rep < v.rep, nw = lfIsNew('v:' + v.id, owned, locked, !!v.car);
+      if (!lfPass(owned, v.cost, locked, nw)) return;
       const c = document.createElement('div'); c.className = 'card cos';
-      c.innerHTML = '<canvas class="pv" data-veh="' + v.id + '" width="264" height="128"></canvas><div class="nm">' + v.name + (on ? ' <span style="color:var(--green);font-weight:700">ausgewählt</span>' : '') + '</div><div class="pr">' + (owned ? 'gekauft' : fmt(v.cost)) + '</div><div class="ds">' + v.desc + (v.rep && !owned && G.rep < v.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + v.rep + '</b>' : '') + '</div>';
+      c.innerHTML = '<canvas class="pv" data-veh="' + v.id + '" width="264" height="128"></canvas><div class="nm">' + v.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">ausgewählt</span>' : '') + '</div><div class="pr">' + (owned ? 'gekauft' : fmt(v.cost)) + '</div><div class="ds">' + v.desc + (v.rep && !owned && G.rep < v.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + v.rep + '</b>' : '') + '</div>';
       const btn = document.createElement('button'); btn.className = 'buy';
       if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + v.rep : 'Kaufen'; btn.disabled = locked || !canPay(v.cost); btn.addEventListener('click', () => { if (buyVeh(v.id)) renderPhone(); }); }
       else { btn.textContent = on ? 'Ausgewählt' : 'Auswählen'; if (on) { btn.classList.add('alt'); btn.disabled = true; } btn.addEventListener('click', () => { equipVeh(v.id); renderPhone(); }); }
       c.appendChild(btn); b.appendChild(c);
     });
-    startPreviews(b);
+    lfApply(b); startPreviews(b);
     b.appendChild(uiEl('div', 'grp', 'Autos')); wayBtn(b, 'Autos gibt es nur am Autohof: Hinführen', AH_AT, 'Autohof'); // v119
   }
   function renderHMine(b) {
@@ -7158,6 +7240,11 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       cQ.querySelectorAll('[data-gq]').forEach(e => e.addEventListener('click', () => { GFX_Q = +e.dataset.gq ? 1 : 0; try { localStorage.setItem('kellergruen.gq', String(GFX_Q)); } catch (x) {} resize(); paintQ(); }));
       cQ.querySelectorAll('[data-gf]').forEach(e => e.addEventListener('click', () => { GFX_FX = e.dataset.gf === '1'; try { localStorage.setItem('kellergruen.gfx', GFX_FX ? '1' : '0'); } catch (x) {} resize(); paintQ(); }));
       paintQ(); b.appendChild(cQ);
+      const cL = document.createElement('div'); cL.className = 'card look'; // v128
+      cL.innerHTML = '<div class="nm">Weniger Effekte</div><div class="ds" style="margin:2px 0 8px">Ruhigeres Bild und weniger Akku: Polizeilicht ohne Blinken, kein Regen, Schnee und Laub, kein Rauch, Auren anderer Spieler aus, kein Wackeln, weniger Partikel. Gilt nur auf diesem Gerät.</div><div class="chips"><button class="chip" data-lf="1">An</button><button class="chip" data-lf="0">Aus</button></div>';
+      const paintL = () => cL.querySelectorAll('[data-lf]').forEach(e => e.classList.toggle('on', (e.dataset.lf === '1') === LOFX));
+      cL.querySelectorAll('[data-lf]').forEach(e => e.addEventListener('click', () => { setLofx(e.dataset.lf === '1'); paintL(); }));
+      paintL(); b.appendChild(cL);
     }
     if (part === 'system') { const hdS = document.createElement('div'); hdS.className = 'grp'; hdS.textContent = 'Hilfe bei Problemen'; b.appendChild(hdS);
       const cV = document.createElement('div'); cV.className = 'card look'; cV.innerHTML = '<div class="nm">Kellergrün · Version ' + GAME_VER + '</div><div class="ds" style="margin:2px 0 8px">Dein Spielstand wird automatisch gespeichert. Frei erfundenes Spiel.</div>'; const bCL = document.createElement('button'); bCL.className = 'buy'; bCL.textContent = '✨ Was ist neu?'; bCL.style.gridColumn = '1 / -1'; bCL.addEventListener('click', () => showChangelog(true)); cV.appendChild(bCL); b.appendChild(cV);
@@ -7168,20 +7255,23 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const cosList = ([kind, title]) => {
       const hd = document.createElement('div'); hd.className = 'grp'; hd.textContent = title; b.appendChild(hd);
       COS.filter(x => x.kind === kind).forEach(cs => {
-        const owned = !!G.cos.owned[cs.id], on = kind === 'pet' ? activePets().includes(cs.id) : kind === 'orbit' ? orbitList().includes(cs.id) : G.cos[kind] === cs.id, locked = !owned && G.rep < (cs.rep || 0);
+        const owned = !!G.cos.owned[cs.id], on = kind === 'pet' ? activePets().includes(cs.id) : kind === 'orbit' ? orbitList().includes(cs.id) : G.cos[kind] === cs.id, locked = !owned && G.rep < (cs.rep || 0), nw = lfIsNew('c:' + cs.id, owned, locked, false);
+        if (!lfPass(owned, cs.cost, locked, nw)) return;
         const c = document.createElement('div'); c.className = 'card cos';
-        c.innerHTML = '<canvas class="pv" data-cos="' + cs.id + '" width="264" height="128"></canvas><div class="nm">' + cs.name + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (owned ? 'gekauft' : fmt(cs.cost)) + '</div><div class="ds">' + cs.desc + (PERKS[cs.id] ? '<br><b style="color:var(--amber);font-weight:700">Vorteil: ' + PERKS[cs.id].text + '</b>' : '') + '</div>';
+        c.innerHTML = '<canvas class="pv" data-cos="' + cs.id + '" width="264" height="128"></canvas><div class="nm">' + cs.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (owned ? 'gekauft' : fmt(cs.cost)) + '</div><div class="ds">' + cs.desc + (PERKS[cs.id] ? '<br><b style="color:var(--amber);font-weight:700">Vorteil: ' + PERKS[cs.id].text + '</b>' : '') + '</div>';
         const btn = document.createElement('button'); btn.className = 'buy';
         if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen'; btn.disabled = locked || G.money < cs.cost; btn.addEventListener('click', () => { if (buyCos(cs.id)) renderPhone(); }); }
         else { btn.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) btn.classList.add('alt'); btn.addEventListener('click', () => { equipCos(cs.id); renderPhone(); }); }
         c.appendChild(btn); b.appendChild(c);
       });
     };
+    if (part === 'pets' || part === 'aura') lfBar(b);
     if (!part || part === 'pets') [['pet', 'Begleiter (bis zu 2 gleichzeitig)']].forEach(cosList);
     if (!part || part === 'aura') { // v119: alle Effekte an einem Ort, mit Unterteilung
       const seg = document.createElement('div'); seg.className = 'tmseg'; [['aura', '✨ Auren'], ['orbit', '💫 Um dich herum'], ['trail', '👣 Spuren']].forEach(([k, t]) => { const c = document.createElement('button'); c.className = 'tmsg' + (fxSel === k ? ' on' : ''); c.textContent = t; c.addEventListener('click', () => { fxSel = k; renderPhone(); }); seg.appendChild(c); }); b.appendChild(seg);
       if (fxSel === 'aura') wearSection(b, 'aura', 'Auren (leuchten um dich)'); else if (fxSel === 'orbit') cosList(['orbit', 'Fliegt um dich herum (bis zu 2 gleichzeitig)']); else cosList(['trail', 'Spur beim Laufen']);
     }
+    if (part === 'pets' || part === 'aura') lfApply(b);
     startPreviews(b);
     if (part && part !== 'figur' && part !== 'kopf') return;
     const hairOn = part !== 'figur', bodyOn = part !== 'kopf';
@@ -7224,7 +7314,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (part === 'kopf') { wearSection(b, 'hat', 'Mützen und Kappen'); wearSection(b, 'band', 'Bandanas (am Kiosk)'); startPreviews(b); } // v79: Kopf = Frisur, Mützen, Bandanas
   }
   function openPhone() { if (state !== 'play') return; closeChat(); G.area = curKey; tmSel = player.fl === 2 && !prVisit ? 'pr' : ''; phoneOpen = true; $('phone').hidden = false; renderPhone(); }
-  function closePhone() { phoneOpen = false; tab = 'home'; $('phone').hidden = true; save(); }
+  function closePhone() { lfFlush(); lfTab = ''; phoneOpen = false; tab = 'home'; $('phone').hidden = true; save(); }
 
 
   // =====================================================================================================
@@ -7874,6 +7964,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const vw = viewX1 - viewX0, vh = viewY1 - viewY0;
     ctx.save(); ctx.globalAlpha = out;
     const tint = ['rgba(255,170,210,.04)', 'rgba(255,220,120,.05)', 'rgba(230,140,60,.06)', 'rgba(220,235,255,.10)'][si]; ctx.fillStyle = tint; ctx.fillRect(viewX0, viewY0, vw, vh);
+    if (LOFX) { ctx.restore(); return; } // v128: nur die Farbstimmung, keine fallenden Blätter oder Flocken
     const n = si === 3 ? 70 : si === 1 ? 0 : 26;
     for (let i = 0; i < n; i++) {
       const s1 = (i * 97.13) % 1, s2 = (i * 57.71) % 1, sp = si === 3 ? 26 + s2 * 20 : 18 + s2 * 14, t = gt * sp;
@@ -8179,7 +8270,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     o.mem = o.mem && typeof o.mem === 'object' ? o.mem : {}; o.req = o.req && typeof o.req === 'object' ? o.req : {}; o.deco = o.deco && typeof o.deco === 'object' ? o.deco : {};
     o.chat = Array.isArray(o.chat) ? o.chat.filter(m => m && typeof m.m === 'string') : []; o.log = Array.isArray(o.log) ? o.log.filter(x => typeof x === 'string') : [];
     o.dk = o.dk && typeof o.dk === 'object' ? o.dk : {}; o.don = o.don && typeof o.don === 'object' ? o.don : {}; o.ann = typeof o.ann === 'string' ? o.ann.slice(0, 140) : '';
-    o.beet = o.beet && typeof o.beet === 'object' ? o.beet : {}; o.wz = o.wz && typeof o.wz === 'object' ? o.wz : null;
+    o.beet = o.beet && typeof o.beet === 'object' ? o.beet : {}; o.wz = o.wz && typeof o.wz === 'object' ? o.wz : null; o.rk = o.rk && typeof o.rk === 'object' ? o.rk : null; o.rkl = o.rkl && typeof o.rkl === 'object' ? o.rkl : null; o.go = o.go && typeof o.go === 'object' ? o.go : null; o.rkc = Math.floor(+o.rkc || 0);
     o.kasse = Math.max(0, Math.floor(+o.kasse || 0)); o.lv = clamp(Math.floor(+o.lv || 0), 0, 5); o.floor = clamp(Math.floor(+o.floor || 0), 0, GFLOOR.length - 1); o.col = clamp(Math.floor(+o.col || 0), 0, GCOL.length - 1);
     return o;
   }
@@ -8208,6 +8299,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (!G || !fbOk() || !accOn()) return;
     if (!myGid()) { if (pgFound !== acc.uid && !pgBusy) { pgFound = acc.uid; pgBusy = true; pgFind().catch(() => {}).finally(() => { pgBusy = false; }); } return; }
     if (pgMember() && !pgBusy) wzFlush().catch(() => {}); // v123
+    if (pgMember() && Date.now() - rkT > 600000) rkLoad().catch(() => {}); // v128: Revier-Stand alle 10 Minuten
     pgPollT -= dt; if (pgPollT > 0 || pgBusy) return;
     pgPollT = pgOpenTab() || player.fl === 4 ? 8 : 60; pgBusy = true;
     pgRefresh().then(() => { pgErr = ''; }, e => { pgErr = e.message || 'Fehler'; }).finally(() => { pgBusy = false; if (pgOpenTab() && !pgTyping()) renderPhone(); pgAppSync(); });
@@ -8363,6 +8455,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (pgSeg === 'mem') return renderPgMem(b);
     if (pgSeg === 'hq') { renderPgProgress(b); renderPgLager(b); return; }
     if (pgSeg === 'deko') return renderPgDeko(b);
+    if (pgSeg === 'rev') return renderPgRev(b); // v128
     if (pgSeg === 'set') return renderPgSet(b);
     // Uebersicht: Ankuendigung, Anfragen, Kasse, Spenden, Ausbau, Taxi, Logbuch
     if (g.ann) krCard(b, '📌 Ankündigung', '', g.ann.replace(/[<>&]/g, ''));
@@ -8466,6 +8559,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const gbLeft = b => b ? Math.max(0, (+b.t || 0) + GB_GROW * (b.w ? 1 - GB_WATER : 1) - Date.now()) : 0;
   const gbProg = b => b ? clamp(1 - gbLeft(b) / (GB_GROW * (b.w ? 1 - GB_WATER : 1)), 0, 1) : 0;
   async function pgCommitAt(fields, masks, log, trf) { // schreibt nur, wenn sich die Gang seitdem nicht geaendert hat (sonst neu laden und nochmal)
+    if (typeof masks === 'string' && !log) log = masks; // v128: Logbuch-Text darf auch an zweiter Stelle stehen (so rufen es die meisten auf)
     for (let i = 0; i < 3; i++) {
       const f = typeof fields === 'function' ? fields() : fields; if (!f) return false;
       const w = { update: { name: fsDocName('gangs/' + pgang.id), fields: fsF(f.fields) }, updateMask: { fieldPaths: f.masks }, currentDocument: { updateTime: pgang.ut } };
@@ -8485,16 +8579,92 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   }
   const wzCur = () => { const z = pgang && pgang.wz; return z && z.wk === weekNo() ? { wk: z.wk, p: +z.p || 0, c: +z.c || 0 } : { wk: weekNo(), p: 0, c: 0 }; };
   const wzNext = add => { const z = wzCur(); return { wk: z.wk, p: z.p + add, c: z.c }; };
-  let wzDel0 = -1, wzT = 0;
+  let wzDel0 = -1, wzT = 0, wzU = '';
   async function wzFlush() { // Lieferungen der Mitglieder zaehlen fuers Gang-Wochenziel (gesammelt, hoechstens einmal pro Minute)
-    if (!pgMember() || !G) return; if (wzDel0 < 0) { wzDel0 = G.stat.del; return; }
+    if (!pgMember() || !G) return; if (wzU !== acc.uid) { if (wzU) rkPend = {}; wzU = acc.uid; wzDel0 = -1; } if (wzDel0 < 0) { wzDel0 = G.stat.del; return; } // v128: nach Kontowechsel neu zählen
     const d = G.stat.del - wzDel0; if (d <= 0 || Date.now() - wzT < 60000) return; wzT = Date.now();
-    try { await pgCommitAt(() => ({ fields: { wz: wzNext(Math.min(d, 200)) }, masks: ['wz'] })); wzDel0 += d; } catch (e) {}
+    const pend = rkPend; rkPend = {};
+    try { await pgCommitAt(() => { const f = { wz: wzNext(Math.min(d, 200)) }, m = ['wz'], rk = rkMerge(pend); if (rk) { Object.assign(f, rk.f); m.push(...rk.m); } return { fields: f, masks: m }; }); wzDel0 += d; } catch (e) { for (const k of Object.keys(pend)) rkPend[k] = (rkPend[k] || 0) + pend[k]; }
   }
   async function wzClaim() {
     if (!pgMember()) throw new Error('Nur für Mitglieder.'); let rw = 0;
     await pgCommitAt(() => { const z = wzCur(), t = GWZ[z.c]; if (!t || z.p < t[0]) return null; rw = t[1]; return { fields: { kasse: pgang.kasse + t[1], wz: { wk: z.wk, p: z.p, c: z.c + 1 } }, masks: ['kasse', 'wz'] }; }, 'hat das Gang-Wochenziel abgeholt');
     if (rw) { sfx.cash(); return 'Belohnung: +' + fmt(rw) + ' für die Gang-Kasse'; } return '';
+  }
+  // ---------- v128: Revierkampf (Gang gegen Gang um die Stadtviertel, je Woche) und Gang-Großauftrag ----------
+  // Jede Lieferung eines Mitglieds an einen Kunden bringt der Gang Punkte im Viertel des Kunden. Wer in der letzten Woche in einem Viertel vorne lag,
+  // hält das Revier diese Woche: alle Mitglieder bekommen dort +5 % für jede Lieferung, und die Gang holt einmal pro Woche eine Belohnung für die Kasse ab.
+  const RK_MUL = 0.05, RK_PAY = 20000, RK_MIN = 10;
+  let rkPend = {}, rkList = null, rkT = -1e9, rkBusy = false, rkErr = '';
+  const rkZone = (x, y) => { if (x < 0) return -1; for (let i = 0; i < ZONE_DEF.length; i++) if (ZONE_DEF[i].r.some(([x0, y0, x1, y1]) => x >= x0 && x < x1 && y >= y0 && y < y1)) return i; return -1; };
+  const rkZ = o => { const r = {}; if (o && o.z && typeof o.z === 'object') for (const [k, v] of Object.entries(o.z)) { const i = +k; if (i >= 0 && i < ZONE_DEF.length && Number.isFinite(+v) && +v > 0) r[i] = Math.min(1e6, Math.floor(+v)); } return r; };
+  const rkNow = g => g && g.rk && +g.rk.wk === weekNo() ? rkZ(g.rk) : {};
+  const rkLast = g => { const W = weekNo() - 1; if (g && g.rk && +g.rk.wk === W) return rkZ(g.rk); if (g && g.rkl && +g.rkl.wk === W) return rkZ(g.rkl); return {}; };
+  function rkPoint(at, n) { if (!pgMember()) return; const z = rkZone(at.x, at.y); if (z < 0) return; rkPend[z] = (rkPend[z] || 0) + Math.max(1, Math.min(50, Math.floor(n) || 1)); }
+  function rkMerge(pend) { // neue Punkte auf den frischen Stand der Gang rechnen; beim Wochenwechsel die alte Woche als rkl aufheben
+    if (!Object.keys(pend).length) return null; const W = weekNo(), cur = pgang.rk, z = cur && +cur.wk === W ? rkZ(cur) : {};
+    for (const [k, v] of Object.entries(pend)) z[k] = (z[k] || 0) + v;
+    const f = { rk: { wk: W, z } }, m = ['rk']; if (cur && +cur.wk === W - 1) { f.rkl = { wk: W - 1, z: rkZ(cur) }; m.push('rkl'); }
+    return { f, m };
+  }
+  async function rkLoad(force) {
+    if (!fbOk() || !accOn() || rkBusy) return; if (!force && Date.now() - rkT < 60000) return; rkBusy = true; rkT = Date.now();
+    try { const r = await fsReq('GET', 'gangs', null, null, 'pageSize=300&' + ['n', 'tag', 'col', 'rk', 'rkl'].map(f => 'mask.fieldPaths=' + f).join('&')); if (!r.ok) throw new Error('Revier-Stand gerade nicht erreichbar (' + r.status + ').'); const j = await r.json(); rkList = (j.documents || []).map(d => { const g = pgParse(d); return { id: g.id, tag: g.tag, n: g.n, col: g.col, now: rkNow(g), last: rkLast(g) }; }); rkErr = ''; }
+    catch (e) { rkErr = e.message || 'Fehler'; } finally { rkBusy = false; }
+  }
+  function rkBoard(key) { // je Viertel die Gangs nach Punkten
+    const out = ZONE_DEF.map(() => []); if (!rkList) return out;
+    for (const g of rkList) for (const [k, v] of Object.entries(g[key])) out[k].push({ id: g.id, tag: g.tag, n: g.n, col: g.col, v });
+    out.forEach(a => a.sort((x, y) => y.v - x.v || (x.id < y.id ? -1 : 1))); return out;
+  }
+  function rkOwners() { return rkBoard('last').map(a => a[0] && a[0].v >= RK_MIN ? a[0] : null); } // wer das Viertel diese Woche hält
+  function rkMul(at) { if (!pgMember() || !rkList) return 1; const z = rkZone(at.x, at.y), o = z >= 0 ? rkOwners()[z] : null; return o && o.id === myGid() ? 1 + RK_MUL : 1; }
+  function rkTagHere() { if (!rkList || player.fl || player.x < 0) return ''; if (AREA_KEYS.some(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; })) return ''; const z = rkZone(player.x, player.y), o = z >= 0 ? rkOwners()[z] : null; return o ? '🏴' + o.tag + ' · ' : ''; }
+  const rkMine = () => rkOwners().map((o, i) => o && o.id === myGid() ? i : -1).filter(i => i >= 0);
+  async function rkClaim() {
+    if (!pgMember()) throw new Error('Nur für Mitglieder.'); await rkLoad(true); const won = rkMine(); if (!won.length) throw new Error('Deine Gang hält diese Woche kein Viertel.');
+    let got = 0; await pgCommitAt(() => { if (pgang.rkc === weekNo()) return null; got = won.length * RK_PAY; return { fields: { kasse: pgang.kasse + got, rkc: weekNo() }, masks: ['kasse', 'rkc'] }; }, 'hat die Revier-Belohnung abgeholt (' + won.length + ' Viertel)');
+    if (!got) throw new Error('Die Belohnung wurde diese Woche schon abgeholt.'); sfx.cash(); return '+' + fmt(got) + ' für die Gang-Kasse';
+  }
+  // Großauftrag: einmal pro Woche will ein Großkunde viel verpackte Ware auf einmal. Alle liefern aus dem Gang-Lager zu, die Kasse bekommt am Ende alles mit Aufschlag.
+  const GO_MUL = 1.8, GO_BONUS = 25000;
+  const goNeed = g => clamp(150 + 75 * Object.keys(g.mem).length, 150, 1200);
+  const goCur = () => { const o = pgang && pgang.go, W = weekNo(); if (o && +o.wk === W) return { wk: W, n: Math.max(1, Math.floor(+o.n) || 1), p: Math.max(0, Math.floor(+o.p) || 0), v: Math.max(0, Math.floor(+o.v) || 0), d: o.d ? 1 : 0, by: o.by && typeof o.by === 'object' ? o.by : {} }; return { wk: W, n: goNeed(pgang), p: 0, v: 0, d: 0, by: {} }; };
+  async function goDeliver() {
+    if (!pgMember()) throw new Error('Nur für Mitglieder.'); let moved = 0, done = 0, pay = 0;
+    await pgCommitAt(() => { const o = goCur(), a = lagArr(); moved = 0; done = 0; if (o.d) return null; let left = o.n - o.p, val = 0;
+      for (let k = 0; k < 3 && left > 0; k++) { const v = Math.min(a[k * 3 + 2], left); if (v > 0) { a[k * 3 + 2] -= v; left -= v; moved += v; val += v * basePrice(['keller', 'tabak', 'brau'][k]) * GO_MUL; } }
+      if (!moved) return null; const by = Object.assign({}, o.by); by[acc.uid] = { n: acc.name, v: (Math.floor(+(by[acc.uid] && by[acc.uid].v)) || 0) + moved };
+      const go = { wk: o.wk, n: o.n, p: o.p + moved, v: o.v + Math.round(val), d: 0, by }, f = { lag: a, go }, m = ['lag', 'go'];
+      if (go.p >= go.n) { go.d = 1; done = 1; pay = go.v + GO_BONUS; f.kasse = pgang.kasse + pay; m.push('kasse'); }
+      return { fields: f, masks: m }; }, null, 'hat Ware für den Großauftrag geliefert');
+    if (!moved) throw new Error(goCur().d ? 'Der Großauftrag ist schon erledigt.' : 'Im Gang-Lager liegt keine verpackte Ware. Leg im HQ Ware ins Lager.');
+    if (done) { sfx.cash(); return '🎉 Großauftrag erledigt! +' + fmt(pay) + ' für die Gang-Kasse'; }
+    sfx.put(); return moved + ' Stück geliefert.';
+  }
+  function renderPgRev(b) {
+    if (Date.now() - rkT > 60000 && !rkBusy) rkLoad().then(() => { if (phoneOpen && tab === 'g_rev') renderPhone(); });
+    const g = pgang, me = myGid(), W = weekNo();
+    // Großauftrag
+    const o = goCur(); krGrp(b, '📦 Großauftrag der Woche');
+    { const c = krCard(b, o.d ? '✅ Erledigt' : 'Großkunde will ' + o.n + ' verpackte Ware', o.d ? '' : '+ ' + fmt(GO_BONUS) + ' Bonus', o.d ? 'Diese Woche geschafft. Nächste Woche gibt es einen neuen Auftrag.' : 'Zusammen liefern: jeder kann verpackte Ware aus dem Gang-Lager zuschießen. Bezahlt wird erst, wenn alles da ist, dann aber mit ' + Math.round((GO_MUL - 1) * 100) + ' % Aufschlag und Bonus, alles in die Kasse.');
+      const bar = uiEl('div', 'bar'); bar.style.gridColumn = '1/-1'; bar.innerHTML = '<i style="width:' + Math.round(clamp(o.p / o.n, 0, 1) * 100) + '%"></i>'; c.appendChild(bar); c.appendChild(uiEl('div', 'ds gst', o.p + ' / ' + o.n + ' geliefert' + (o.v ? ' · Wert bisher ' + fmt(o.v) : '')));
+      const by = Object.values(o.by).filter(x => x && x.v > 0).sort((x, y) => y.v - x.v).slice(0, 5); if (by.length) c.appendChild(uiEl('div', 'ds gst', 'Dabei: ' + by.map(x => String(x.n).slice(0, 16) + ' ' + x.v).join(' · ')));
+      if (!o.d) { const st = uiEl('div', 'ds gst'), r = gRow(), sb = lagArr(); const bt = gBtn(r, 'Aus dem Gang-Lager liefern (' + (sb[2] + sb[5] + sb[8]) + ' da)', '', goDeliver, st); bt.disabled = !(sb[2] + sb[5] + sb[8]); c.appendChild(r); c.appendChild(st); } }
+    // Revierkampf
+    krGrp(b, '🏴 Revierkampf');
+    uiInfo(b, 'Jede Lieferung von euch zählt im Viertel des Kunden. Die Gang mit den meisten Punkten (mindestens ' + RK_MIN + ') hält das Viertel die ganze nächste Woche: dort +' + Math.round(RK_MUL * 100) + ' % für jede Lieferung, und einmal pro Woche ' + fmt(RK_PAY) + ' je Viertel für die Kasse.');
+    if (rkErr) b.appendChild(uiEl('div', 'ds adm-f', rkErr));
+    if (!rkList) { b.appendChild(uiEl('div', 'empty', rkBusy ? 'Lade den Stand …' : 'Noch kein Stand geladen.')); return; }
+    const won = rkMine(), own = rkOwners(), now = rkBoard('now');
+    { const c = krCard(b, won.length ? '👑 Ihr haltet ' + won.length + ' Viertel' : 'Ihr haltet gerade kein Viertel', won.length ? fmt(won.length * RK_PAY) : '', won.length ? won.map(i => ZONE_DEF[i].name).join(', ') + '. Dort bekommt ihr diese Woche +' + Math.round(RK_MUL * 100) + ' %.' : 'Liefert diese Woche fleißig, dann gehört euch nächste Woche ein Viertel.');
+      if (won.length) { const st = uiEl('div', 'ds gst'), r = gRow(), bt = gBtn(r, g.rkc === W ? 'Schon abgeholt' : 'Belohnung abholen', '', rkClaim, st); bt.disabled = g.rkc === W; c.appendChild(r); c.appendChild(st); } }
+    ZONE_DEF.forEach((z, i) => {
+      const top = now[i].slice(0, 3), mine = now[i].find(x => x.id === me), ho = own[i], esc = t => String(t).replace(/[<>&]/g, '');
+      const lines = top.length ? 'Diese Woche: ' + top.map((x, k) => ['🥇', '🥈', '🥉'][k] + ' <span style="color:' + GCOL[x.col] + '">[' + esc(x.tag) + ']</span> ' + x.v).join(' · ') : 'Diese Woche noch keine Punkte.';
+      krCard(b, z.name, ho ? '🏴 ' + ho.tag : 'frei', lines + (mine && !top.includes(mine) ? '<br>Ihr: ' + mine.v : '') + (ho ? '<br>Hält gerade: <span style="color:' + GCOL[ho.col] + '">[' + esc(ho.tag) + '] ' + esc(ho.n) + '</span>' : ''));
+    });
+    { const r = gRow(), st = uiEl('div', 'ds gst'); gBtn(r, '↻ Stand neu laden', 'alt', () => rkLoad(true).then(() => ''), st); const c = uiEl('div', 'card'); c.appendChild(r); c.appendChild(st); b.appendChild(c); }
   }
   function drawGangBeete() {
     if (!pgang || !pgMember()) return;
@@ -8519,7 +8689,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const GICOLS = [['#FF5C7A', '#A8243F'], ['#FFB547', '#C46A12'], ['#FFD24A', '#B08A10'], ['#5FE584', '#1F8A45'], ['#4BC8FF', '#1E6FA8'], ['#B58CFF', '#5B32B5'], ['#FF8FD0', '#B33A82'], ['#8A93A3', '#2B313B'], ['#1C1F26', '#000000']];
   const pgIsApp = t => typeof t === 'string' && t.slice(0, 2) === 'g_';
   const pgOpenTab = () => phoneOpen && (tab === 'gang' || pgIsApp(tab));
-  const PG_TABS = { g_info: 'info', g_chat: 'chat', g_mem: 'mem', g_hq: 'hq', g_deko: 'deko', g_set: 'set' };
+  const PG_TABS = { g_info: 'info', g_chat: 'chat', g_mem: 'mem', g_hq: 'hq', g_rev: 'rev', g_deko: 'deko', g_set: 'set' };
   function pgAppSync() { // Name, Symbol und Farben der Gang-App
     const a = APPS.find(x => x.id === 'gang'); if (!a) return;
     if (!pgang || !pgMember()) { a.name = 'Gang'; return; }
@@ -9133,7 +9303,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       if (p.k === 'petal') { p.vx += Math.sin(p.t * 6 + p.rot) * 40 * dt; p.rot += dt * 3; }
       if (p.k === 'confetti') { p.vy += 170 * dt; p.vx *= 0.98; p.rot += dt * 8; }
     }
-    if (fx.length > 160) fx.splice(0, fx.length - 160);
+    { const cap = LOFX ? 50 : 160; if (fx.length > cap) fx.splice(0, fx.length - cap); } // v128: weniger Partikel
   }
   function starPath(x, y, r) {
     ctx.beginPath();
@@ -9953,7 +10123,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   function drawFigure(px, py, pang, pstep, look) {
     const L = look || G.look, bob = Math.abs(Math.sin(pstep)) * 0.9, s1 = 1.3 * L.size;
     const cx = Math.cos(pang), sy = Math.sin(pang), dir = Math.abs(sy) > Math.abs(cx) * 1.05 ? (sy < 0 ? 'u' : 'd') : (cx < 0 ? 'l' : 'r');
-    if (L.aura && L.aura !== 'none') drawAura(px, py, L.aura, gt);
+    if (L.aura && L.aura !== 'none' && (!LOFX || L === G.look)) drawAura(px, py, L.aura, gt); // v128: bei Weniger Effekte nur die eigene Aura
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(px, py + 8.5 * s1, 7.5 * s1, 3 * s1); ctx.fill();
     ctx.save(); ctx.translate(px, py - bob - 1); ctx.scale(s1, s1);
     if (L.outline) for (const o of [[-0.9, 0], [0.9, 0], [0, -0.9], [0, 0.9]]) { ctx.save(); ctx.translate(o[0], o[1]); sprite(L, dir, pstep, '#10151C'); ctx.restore(); }
@@ -10349,7 +10519,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   function pvTick() {
     if (!phoneOpen || !['style', 'deko', 'wpn', 'kiosk', 'wear', 'kopf', 'figur', 'pets', 'kleid', 'shoes', 'kost', 'ruecken', 'aura', 'veh', 'dshop', 'autohof', 'werk', 'gang', 'g_deko'].includes(tab)) return;
     const now = Date.now(), dt = Math.min(0.06, (now - (pvLast || now - 33)) / 1000); pvLast = now;
-    for (const p of pvList) pvDraw(p, dt);
+    for (const p of pvList) { const cd = p.el.closest && p.el.closest('.card'); if (cd && cd.style.display === 'none') continue; pvDraw(p, dt); } // v128: ausgefilterte Karten nicht zeichnen
     pvTimer = setTimeout(pvTick, 33);
   }
   let pvMode = false, pvNight = false, pvLiveT = 0;
@@ -12515,7 +12685,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   }
   function drawRain() {
     const r = amb.rain; if (r < 0.02) return;
-    ctx.fillStyle = 'rgba(28,40,62,' + 0.16 * r + ')'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(28,40,62,' + 0.16 * r + ')'; ctx.fillRect(0, 0, W, H); if (LOFX) return; // v128: nur etwas dunkler, keine Tropfen
     ctx.strokeStyle = 'rgba(190,210,235,' + 0.35 * r + ')'; ctx.lineWidth = 1.1; ctx.beginPath();
     for (let i = 0; i < 90; i++) { const x = (i * 97.3 + gt * 70) % (W + 40) - 20, y = (i * 53.9 + gt * 520 + (i % 7) * 40) % (H + 40) - 20; ctx.moveTo(x, y); ctx.lineTo(x - 4, y + 12); }
     ctx.stroke();
@@ -12567,8 +12737,12 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   let copLt = 0, copPh = 0, copBust = -99;
   function drawCopLights() {
     const bt = gt - copBust; if (bt >= 0 && bt < 1.8) { // erwischt: der ganze Bildschirm blinkt blau-rot (die Anzeigen bleiben darueber)
-      const on = Math.floor(bt * 8) % 2, f = bt < 1.2 ? 1 : 1 - (bt - 1.2) / 0.6; ctx.save(); ctx.fillStyle = on ? 'rgba(255,30,50,' + (0.55 * f).toFixed(3) + ')' : 'rgba(30,90,255,' + (0.55 * f).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); ctx.restore(); return; }
+      const on = LOFX ? 1 : Math.floor(bt * 8) % 2, f = bt < 1.2 ? 1 : 1 - (bt - 1.2) / 0.6; ctx.save(); if (LOFX) { ctx.fillStyle = 'rgba(120,60,200,' + (0.35 * f).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); ctx.restore(); return; } ctx.fillStyle = on ? 'rgba(255,30,50,' + (0.55 * f).toFixed(3) + ')' : 'rgba(30,90,255,' + (0.55 * f).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); ctx.restore(); return; }
     const k = clamp(sus, 0, 1); copLt += ((k > 0.02 ? 1 : 0) - copLt) * 0.1; if (copLt < 0.01 && k < 0.02) return;
+    if (LOFX) { // v128: ruhige Variante ohne Blinken: links blau, rechts rot, wird mit dem Verdacht breiter
+      const a0 = (0.12 + 0.3 * k) * copLt, th0 = Math.min(W, H) * (0.08 + 0.4 * Math.pow(k, 1.6)); ctx.save();
+      for (const [x0, nx, col] of [[0, 1, '40,110,255'], [W, -1, '255,40,60']]) { const g = ctx.createLinearGradient(x0, 0, x0 + nx * th0, 0); g.addColorStop(0, 'rgba(' + col + ',' + a0.toFixed(3) + ')'); g.addColorStop(1, 'rgba(' + col + ',0)'); ctx.fillStyle = g; ctx.fillRect(nx > 0 ? 0 : W - th0, 0, th0, H); }
+      ctx.restore(); return; }
     copPh += (0.05 + k * 0.35) * (1 / 60) * 60 / 6; // Blinktempo
     const side = Math.floor(copPh * (2 + k * 6)) % 2, a = (0.14 + 0.36 * k) * copLt, n = 2 + Math.round(k * 10), th = Math.min(W, H) * (0.08 + 0.5 * Math.pow(k, 1.6)); // wird mit dem Verdacht breiter, bis es fast den ganzen Bildschirm fuellt
     const cols = side ? ['255,40,60', '40,110,255'] : ['40,110,255', '255,40,60'];
@@ -12615,7 +12789,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     viewX0 = cam.x - vw / 2 - 80; viewX1 = cam.x + vw / 2 + 80; viewY0 = cam.y - vh / 2 - 80; viewY1 = cam.y + vh / 2 + 80;
     { const cx = clamp(tx, XMIN + vw / 2, WW - vw / 2); if (Math.abs(cx - cam.x) > 900) cam.x = cx; else cam.x += (cx - cam.x) * 0.15; } // v72: Freundes-Keller getrennt von der Stadt
     { const pad = state === 'play' ? vh * (port ? 0.3 : 0.2) : 0; cam.y += (clamp(ty, YMIN + vh / 2 - pad, WH - vh / 2 + pad) - cam.y) * 0.15; } // v110: am Kartenrand etwas weiter schauen, damit die Figur nicht unter der Anzeige verschwindet
-    if (troll.shake > gt) { cam.x += (Math.random() - 0.5) * 14; cam.y += (Math.random() - 0.5) * 14; }
+    if (troll.shake > gt && !LOFX) { cam.x += (Math.random() - 0.5) * 14; cam.y += (Math.random() - 0.5) * 14; }
     if (r3On()) { r3Frame(); return; } // v90: 3D-Ansicht
     ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc));
     drawWorld();
@@ -13179,7 +13353,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 127; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 128; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -13490,6 +13664,12 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 128, date: 'Oktober 2026', title: 'Revierkampf', items: [
+      ['neu', '🏴', 'Revierkampf: Jede Lieferung zählt für deine Gang im Viertel des Kunden. Wer in einer Woche vorne liegt, hält das Viertel die nächste Woche: +5 % auf jede Lieferung dort und 20.000 € je Viertel für die Kasse. Neuer Reiter „Revier“ in der Gang-App'],
+      ['neu', '📦', 'Gang-Großauftrag: Einmal pro Woche will ein Großkunde viel verpackte Ware. Alle liefern aus dem Gang-Lager zu, am Ende gibt es alles mit Aufschlag und Bonus für die Kasse'],
+      ['neu', '💡', 'Kurze Tipps genau dann, wenn etwas Neues freigeschaltet wird, mit „Zeig mir“-Knopf'],
+      ['neu', '🔍', 'Suche und Filter in langen Listen (Kleidung, Effekte, Begleiter, Deko, Fahrzeuge): Gekauft, Leistbar, Neu. Neues ist mit NEU markiert'],
+      ['neu', '🍃', 'Einstellung „Weniger Effekte“ unter Anzeige: ruhiges Polizeilicht, kein Regen und Laub, weniger Partikel, schont den Akku'] ] },
     { v: 127, date: 'Oktober 2026', title: 'Polizeilicht', items: [
       ['neu', '🚨', 'Hat dich die Polizei im Blick, leuchtet der Bildschirmrand blau und rot. Je knapper es wird, desto heller, schneller und breiter, bis am Ende der ganze Bildschirm blinkt. Der Verdacht-Balken ist weg'],
       ['fix', '🗺️', 'Tabak-Kunden sind auf der Minikarte jetzt türkis wie im Spiel, Labor-Kunden blau'] ] },
@@ -13499,11 +13679,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ['chg', '🧭', 'Der Lieferkompass zeigt jetzt, wie viel der Kunde haben will'],
       ['neu', '📱', 'Unten im Handy gibt es jetzt auch Schließen und Zurück, für die Bedienung mit einer Hand'],
       ['chg', '🚌', 'Nach einer Busfahrt kommt der nächste Bus erst nach 2 Spielstunden'] ] },
-    { v: 125, date: 'Oktober 2026', title: 'Gang-App', items: [
-      ['neu', '📱', 'Wer in einer Gang ist, hat jetzt eine eigene Gang-App: Übersicht, Chat, Mitglieder, HQ, Einrichten und Einstellungen. Boss und Vize wählen Symbol und Farbe der App'],
-      ['neu', '🛋️', 'Im Hauptquartier stellst du Deko frei auf: hingehen, A zum Aufheben, hinlaufen, A zum Abstellen. Wegräumen gibt die Hälfte zurück in die Kasse'],
-      ['neu', '📦', 'Gang-Lager im HQ: gemeinsame Ware für alle Mitglieder, sicher vor Razzien und Dieben'],
-      ['neu', '📌', 'Dazu: Ankündigung vom Boss, Rangliste der größten Einzahler, Taxi ins HQ für 500 € und neue Nachrichten im Gang-Chat werden in der App angezeigt'] ] }
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
@@ -13690,7 +13865,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   } catch (e) {}
   loadWorldLocal(); setTimeout(worldStart, 1500); // v59: gemeinsame Karte
   if (r3Want) setTimeout(r3Start, 50); // v90: 3D-Ansicht vom letzten Mal
-  if (window.__KG_DEBUG) window.__KG_DEBUG({ get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, set sus(v) { sus = v; }, bustNow() { copBust = gt; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, mpBinAcks, binRestore, canPay, payCost, bankUp, bankLv, bankHere, busWait, pgBuyDeco, pgMoveDeco, pgRemoveDeco, hqItems, lagPut, lagTake, lagArr, donList, hqTaxi, pgAppSync, hqPick, hqDrop, get hqCarry() { return hqCarry; }, pgSet, gbUse, wzClaim, wzCur, GBEET, renderAdmErr, errLocal, pgMakeBoss, pgReqN, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
+  if (window.__KG_DEBUG) window.__KG_DEBUG({ get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, set sus(v) { sus = v; }, bustNow() { copBust = gt; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, mpBinAcks, binRestore, wzReset() { wzDel0 = -1; wzT = 0; }, rkZone, rkPoint, rkMerge, rkLoad, rkBoard, rkOwners, rkMul, rkClaim, goCur, goDeliver, goNeed, get rkList() { return rkList; }, set rkList(v) { rkList = v; }, get rkPend() { return rkPend; }, renderPgRev, wzFlush, TIPS, tipTick, tipShow, tipClose, get tipCur() { return tipCur; }, lfBar, lfNewCount, get lfMode() { return lfMode; }, set lfMode(v) { lfMode = v; }, get LOFX() { return LOFX; }, setLofx, drawCopLights, uiDef, cleanUi, canPay, payCost, bankUp, bankLv, bankHere, busWait, pgBuyDeco, pgMoveDeco, pgRemoveDeco, hqItems, lagPut, lagTake, lagArr, donList, hqTaxi, pgAppSync, hqPick, hqDrop, get hqCarry() { return hqCarry; }, pgSet, gbUse, wzClaim, wzCur, GBEET, renderAdmErr, errLocal, pgMakeBoss, pgReqN, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
   requestAnimationFrame(frame);
 })();
 </script>
