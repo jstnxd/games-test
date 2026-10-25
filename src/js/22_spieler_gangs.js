@@ -23,7 +23,7 @@
   const ghqSlots = lv => 8 + 4 * clamp(lv || 0, 0, 5), gMemMax = lv => 6 + 2 * clamp(lv || 0, 0, 5);
   const GSLOT = []; for (const y of [176, 252, 328, 404]) for (const x of [168, 232, 296, 360, 424, 488, 552]) GSLOT.push({ x, y }); // 28 Plaetze im Raster (v123: links Platz fuer die Gang-Beete)
   const GHQ_EXIT = { x: 410, y: 482 }, GHQ_SAFE = { x: 536, y: 104 }, GHQ_BOARD = { x: 120, y: 96 };
-  R(370, 508, 80, T).fl = 4; R(600, 400, T, 100).fl = 4; R(GHQ_SAFE.x - 24, GHQ_SAFE.y - 30, 48, 40).fl = 4; R(GHQ_BOARD.x - 40, GHQ_BOARD.y - 30, 80, 26).fl = 4;
+  R(370, 508, 80, T).fl = 4; R(600, 400, T, 100).fl = 4; const GHQ_SAFE_R = R(GHQ_SAFE.x - 24, GHQ_SAFE.y - 30, 48, 40); GHQ_SAFE_R.fl = 4; const GHQ_BOARD_R = R(GHQ_BOARD.x - 40, GHQ_BOARD.y - 30, 80, 26); GHQ_BOARD_R.fl = 4;
   const GHQ_HOUSE = HOUSES.find(h => h.gang && h.x === 4840) || HOUSES.find(h => h.gang);
   const GHQ_AT = GHQ_HOUSE ? { x: GHQ_HOUSE.dx, y: GHQ_HOUSE.dy } : { x: -9999, y: -9999 };
   const ghqDeco = () => DECOR.filter(d => !d.qx && d.cost > 1);
@@ -58,7 +58,7 @@
     const last = g.chat.length ? Math.max(...g.chat.map(m => +m.t || 0)) : 0;
     if (pgang && last > pgLastChat && !(phoneOpen && (tab === 'g_chat' || (tab === 'gang' && pgSeg === 'chat')))) { const m = g.chat.filter(x => +x.t === last)[0]; if (m && m.u !== acc.uid) msg('💬 [' + g.tag + '] ' + m.n + ': ' + m.m); }
     if (pgang && g.mem[acc.uid] && (g.own === acc.uid || g.mem[acc.uid].r === 'vize')) for (const [u, q] of Object.entries(g.req)) if (!pgang.req[u]) { msg('🙋 ' + q.n + ' möchte deiner Gang beitreten · Handy → Freunde → Gang'); sfx.ping(); } // v123
-    pgLastChat = last; pgang = g; Object.assign(G.gang, { tag: g.tag, n: g.n, col: g.col });
+    pgLastChat = last; pgang = g; Object.assign(G.gang, { tag: g.tag, n: g.n, col: g.col }); ghqApplyLay(); // v133
     if (pgMember() && (g.chat.length > 60 || g.log.length > 40) && pgLead()) pgTrim().catch(() => {});
   }
   async function pgTrim() { await fsReq('PATCH', 'gangs/' + pgang.id, { fields: fsF({ chat: pgang.chat.slice(-40), log: pgang.log.slice(-25) }) }, ['chat', 'log'], 'currentDocument.updateTime=' + encodeURIComponent(pgang.ut)); }
@@ -156,7 +156,7 @@
   function ghqEnter() {
     if (!fbOk() || !accOn()) { msg('Das Gang-Hauptquartier gibt es nur mit Konto.', true); return false; }
     if (!myGid() || (G.gang && G.gang.req)) { msg('Nur für Gang-Mitglieder. Gründe eine Gang oder tritt einer bei: Handy → Freunde → Gang', true); return false; }
-    if (riding()) toggleRide(false); player.fl = 4; player.x = GHQ_EXIT.x; player.y = GHQ_EXIT.y - 40; cam.x = player.x; cam.y = player.y; petSnap(); sfx.put(); pgPollT = 0;
+    if (riding()) toggleRide(false); ghqApplyLay(); player.fl = 4; player.x = GHQ_EXIT.x; player.y = GHQ_EXIT.y - 40; cam.x = player.x; cam.y = player.y; petSnap(); sfx.put(); pgPollT = 0;
     msg(pgang && pgang.ann ? '📌 ' + pgang.ann : '🏴 Hauptquartier' + (pgang ? ' von ' + pgang.n : '') + ' · Deko mit A verschieben'); return true;
   }
   function ghqLeave() { hqCarry = null; player.fl = 0; player.x = GHQ_AT.x; player.y = GHQ_AT.y + (GHQ_HOUSE && GHQ_HOUSE.face === 1 ? 6 : -6); cam.x = player.x; cam.y = player.y; petSnap(); sfx.put(); return true; }
@@ -183,7 +183,7 @@
     ctx.fillStyle = 'rgba(0,0,0,.35)'; rr(236, 60, 180, 40, 8); ctx.fill(); ctx.fillStyle = col; rr(232, 56, 180, 40, 8); ctx.fill(); ctx.fillStyle = '#10151C'; rr(236, 60, 172, 32, 6); ctx.fill();
     signTxt(g ? '[' + g.tag + ']' : 'GANG-HQ', 322, 70, '900 12px sans-serif', col); signTxt(g ? g.n.toUpperCase().slice(0, 22) : '', 322, 84, '800 8px sans-serif', '#EEF2F7');
     // Deko
-    if (g) { for (const it of (state === 'edit' && ed.ak === 'ghq' ? ed.hq : hqItems()).slice().sort((a, c) => a.y - c.y)) { if (hqCarry && hqCarry.k === it.k) continue; try { drawDecorItem(it.id, it.x, it.y, 1); } catch (e) {} } // v125: frei platziert
+    if (g) { for (const it of (state === 'edit' && ed.ak === 'ghq' ? ed.hq : hqItems()).slice().sort((a, c) => a.y - c.y)) { if (hqCarry && hqCarry.k === it.k) continue; try { if (it.q) { rotBegin(it.x, it.y, it.q * Math.PI / 2); drawDecorItem(it.id, it.x, it.y, 1); rotEnd(); } else drawDecorItem(it.id, it.x, it.y, 1); } catch (e) {} } // v133: gedreht // v125: frei platziert
       if (hqCarry) { ctx.save(); ctx.globalAlpha = 0.65 + 0.2 * Math.sin(gt * 6); try { const [cx, cy] = hqClampPos(player.x, player.y - 4); drawDecorItem(hqCarry.id, cx, cy, 1); } catch (e) {} ctx.restore(); }
       // Gang-Lager-Regal
       { const L0 = GHQ_LAGER, n = lagArr().reduce((s, v) => s + v, 0); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(L0.x - 20, L0.y - 24, 44, 34); ctx.fillStyle = '#5A4632'; ctx.fillRect(L0.x - 22, L0.y - 28, 44, 34); ctx.fillStyle = '#3A2C20'; ctx.fillRect(L0.x - 19, L0.y - 25, 38, 12); ctx.fillRect(L0.x - 19, L0.y - 10, 38, 12);
@@ -325,7 +325,7 @@
     try { startPreviews(b); } catch (e) {}
   }
   // ---------- v123: Fortschritt im Gang-HQ: Gang-Beete und Gang-Wochenziel (alles fuer die Gang-Kasse) ----------
-  const GBEET = [{ x: 86, y: 176 }, { x: 86, y: 252 }, { x: 86, y: 328 }, { x: 86, y: 404 }];
+  const GBEET = [{ x: 86, y: 176 }, { x: 86, y: 252 }, { x: 86, y: 328 }, { x: 86, y: 404 }, { x: 146, y: 176 }, { x: 146, y: 252 }, { x: 146, y: 328 }, { x: 146, y: 404 }]; // v133: 8 Beete
   const GB_GROW = 20 * 60000, GB_WATER = 0.25; // 20 Minuten echte Zeit, Giessen spart 25 %
   const gbValue = () => 3000 + 1500 * clamp((pgang && pgang.lv) || 0, 0, 5);
   const GWZ = [[60, 15000], [250, 50000], [800, 150000]]; // Wochenziel-Stufen: Punkte und Belohnung fuer die Kasse
@@ -356,7 +356,7 @@
   const wzNext = add => { const z = wzCur(); return { wk: z.wk, p: z.p + add, c: z.c }; };
   let wzDel0 = -1, wzT = 0, wzU = '';
   // ---------- v132: Anbau-Kette im HQ: Beet -> Gang-Lager (frisch) -> Trockengestell -> Packtisch -> Verkauf ----------
-  const GHQ_DRY = { x: 566, y: 206 }, GHQ_PACK = { x: 566, y: 318 }; R(GHQ_DRY.x - 20, GHQ_DRY.y - 30, 40, 40).fl = 4; R(GHQ_PACK.x - 22, GHQ_PACK.y - 16, 44, 28).fl = 4;
+  const GHQ_DRY = { x: 566, y: 206 }, GHQ_PACK = { x: 566, y: 318 }, GHQ_DRY_R = R(GHQ_DRY.x - 20, GHQ_DRY.y - 30, 40, 40), GHQ_PACK_R = R(GHQ_PACK.x - 22, GHQ_PACK.y - 16, 44, 28); GHQ_DRY_R.fl = 4; GHQ_PACK_R.fl = 4;
   const hqLv = () => clamp((pgang && pgang.lv) || 0, 0, 5);
   const gbYield = () => 45 + 12 * hqLv(); // frische Ware pro Beet-Ernte
   const GD_TIME = 8 * 60000, gdCap = () => 60 + 20 * hqLv(); // Trocknen: 8 Minuten echte Zeit pro Ladung
@@ -505,7 +505,7 @@
       try { drawPlantAt(P.x, P.y, b ? { s: pr >= 1 ? 2 : 1, p: pr, w: b.w ? 1 : 0.6 } : { s: 0, p: 0, w: 1 }, 0); } catch (e) {}
       if (b && pr >= 1) { const bob = Math.sin(gt * 4) * 2; ctx.fillStyle = '#5FE584'; ctx.beginPath(); ctx.arc(P.x + 18, P.y - 22 + bob, 6, 0, TAU); ctx.fill(); signTxt('€', P.x + 18, P.y - 22 + bob, '900 8px sans-serif', '#10151C'); }
       else if (b) { ctx.fillStyle = 'rgba(16,21,28,.8)'; rr(P.x - 22, P.y + 20, 44, 6, 3); ctx.fill(); ctx.fillStyle = b.w ? '#4BC8FF' : '#FFB547'; rr(P.x - 21, P.y + 21, 42 * pr, 4, 2); ctx.fill(); } }
-    signTxt('GANG-BEETE', 86, 136, '900 7.5px sans-serif', 'rgba(255,255,255,.55)');
+
   }
   function renderPgProgress(b) { // im Handy: Hauptquartier-Reiter
     { const a = lagArr(), d = gdOf(), fr = a[0] + a[3] + a[6], dr = a[1] + a[4] + a[7], bg = a[2] + a[5] + a[8], ripe = GBEET.filter((_, i) => { const x = gbOf(i); return x && gbLeft(x) <= 0; }).length; // v132: die ganze Kette auf einen Blick
@@ -538,9 +538,9 @@
   }
   const pgUnread = () => !pgang || !G.gang ? 0 : pgang.chat.filter(m => m.u !== acc.uid && +m.t > (G.gang.rd || 0)).length;
   // --- frei platzierbare Deko: dk = { key: { id, x, y } }, alte feste Plaetze (deco.sN) werden beim Verschieben umgewandelt ---
-  const HQ_BOX = { x0: 132, y0: 128, x1: 536, y1: 462 }; // v132: rechts stehen jetzt Trockengestell und Packtisch
+  const HQ_BOX = { x0: 76, y0: 112, x1: 580, y1: 462 }; // v133: alles frei im ganzen Raum
   function hqItems() { if (!pgang) return []; const out = [];
-    for (const [k, v] of Object.entries(pgang.dk || {})) if (v && DECOR.find(d => d.id === v.id)) out.push({ k, id: v.id, x: clamp(+v.x || 300, HQ_BOX.x0, HQ_BOX.x1), y: clamp(+v.y || 300, HQ_BOX.y0, HQ_BOX.y1) });
+    for (const [k, v] of Object.entries(pgang.dk || {})) if (v && DECOR.find(d => d.id === v.id)) out.push({ k, id: v.id, x: clamp(+v.x || 300, HQ_BOX.x0, HQ_BOX.x1), y: clamp(+v.y || 300, HQ_BOX.y0, HQ_BOX.y1), q: clamp(Math.floor(+v.q) || 0, 0, 3) });
     for (const [k, id] of Object.entries(pgang.deco || {})) { const i = +k.slice(1); if (id && GSLOT[i] && DECOR.find(d => d.id === id)) out.push({ k, id, x: GSLOT[i].x, y: GSLOT[i].y, old: 1 }); }
     return out; }
   const hqClampPos = (x, y) => { x = clamp(x, HQ_BOX.x0, HQ_BOX.x1); y = clamp(y, HQ_BOX.y0, HQ_BOX.y1); if (x > 360 && x < 460 && y > 430) y = 430; return [Math.round(x), Math.round(y)]; };
@@ -555,8 +555,9 @@
   }
   async function pgMoveDeco(it, x, y) {
     [x, y] = hqClampPos(x, y);
-    if (it.old) { const k = newKey(); await pgCommitAt(() => ({ fields: { dk: { [k]: { id: it.id, x, y } } }, masks: [fpath('deco', it.k), fpath('dk', k)] })); }
-    else await pgCommitAt(() => pgang.dk && pgang.dk[it.k] ? { fields: { dk: { [it.k]: { id: it.id, x, y } } }, masks: [fpath('dk', it.k)] } : null);
+    const v = it.q ? { id: it.id, x, y, q: it.q } : { id: it.id, x, y }; // v133: Drehung bleibt erhalten
+    if (it.old) { const k = newKey(); await pgCommitAt(() => ({ fields: { dk: { [k]: v } }, masks: [fpath('deco', it.k), fpath('dk', k)] })); }
+    else await pgCommitAt(() => pgang.dk && pgang.dk[it.k] ? { fields: { dk: { [it.k]: v } }, masks: [fpath('dk', it.k)] } : null);
   }
   async function pgRemoveDeco(it) {
     if (!pgCanDeco()) throw new Error('Nur Boss und Vize dürfen gerade einrichten.'); const d = DECOR.find(x => x.id === it.id), back = d ? Math.round(ghqPrice(d) / 2) : 0;
@@ -566,7 +567,16 @@
   function hqPick(it) { if (!pgCanDeco()) { msg('Nur Boss und Vize dürfen gerade einrichten.', true); return; } hqCarry = it; sfx.put(); msg('📦 ' + ((DECOR.find(d => d.id === it.id) || {}).name || 'Deko') + ' aufgehoben. Lauf hin, wo es stehen soll, und drück A. B bricht ab.'); }
   async function hqDrop() { const it = hqCarry; if (!it) return; hqCarry = null; try { await pgMoveDeco(it, player.x, player.y - 4); sfx.put(); msg('Abgestellt.'); } catch (e) { msg(e.message || 'Ging nicht', true); } }
   // --- Gang-Lager im HQ: gemeinsame Ware, sicher vor Razzien ---
-  const GHQ_LAGER = { x: 470, y: 98 }; R(GHQ_LAGER.x - 22, GHQ_LAGER.y - 28, 44, 34).fl = 4;
+  const GHQ_LAGER = { x: 470, y: 98 }, GHQ_LAGER_R = R(GHQ_LAGER.x - 22, GHQ_LAGER.y - 28, 44, 34); GHQ_LAGER_R.fl = 4;
+  // v133: alle Stationen im HQ sind verschiebbar (Gang-Feld lay = { key: [x, y] }), Beete ohne Kollision
+  const GHQ_ST = () => [['safe', 'Kasse', GHQ_SAFE, GHQ_SAFE_R, -24, -30], ['board', 'Planungstafel', GHQ_BOARD, GHQ_BOARD_R, -40, -30], ['lager', 'Gang-Lager', GHQ_LAGER, GHQ_LAGER_R, -22, -28], ['dry', 'Trockengestell', GHQ_DRY, GHQ_DRY_R, -20, -30], ['pack', 'Packtisch', GHQ_PACK, GHQ_PACK_R, -22, -16]].concat(GBEET.map((p, i) => ['b' + i, 'Beet ' + (i + 1), p, null, -26, -26]));
+  const GHQ_DEF = {}; for (const [k, , o] of GHQ_ST()) GHQ_DEF[k] = [o.x, o.y];
+  const stBox = k => k[0] === 'b' ? [0, 0, 26, 26] : k === 'board' ? [0, -17, 42, 16] : k === 'safe' ? [0, -10, 25, 21] : k === 'dry' ? [0, -10, 21, 21] : k === 'lager' ? [0, -11, 23, 18] : [0, -3, 23, 13]; // Mitte (dx, dy) und halbe Größe, so wie gezeichnet
+  const stClamp = (x, y) => { x = clamp(Math.round(x), 80, 572); y = clamp(Math.round(y), 92, 456); if (x > 350 && x < 470 && y > 420) y = 420; return [x, y]; };
+  function stSet(key, x, y) { const s = GHQ_ST().find(z => z[0] === key); if (!s) return; [x, y] = stClamp(x, y); s[2].x = x; s[2].y = y; if (s[3]) { s[3].x = x + s[4]; s[3].y = y + s[5]; } }
+  function ghqApplyLay() { const L = (pgang && pgang.lay && typeof pgang.lay === 'object') ? pgang.lay : {}; if (state === 'edit' && ed.ak === 'ghq' && ed.drag) return; for (const [k] of GHQ_ST()) { const v = Array.isArray(L[k]) && L[k].length === 2 && Number.isFinite(+L[k][0]) ? L[k] : GHQ_DEF[k]; stSet(k, +v[0], +v[1]); } }
+  async function stSave(key) { const s = GHQ_ST().find(z => z[0] === key); if (!s) return; await pgCommitAt(() => ({ fields: { lay: { [key]: [s[2].x, s[2].y] } }, masks: [fpath('lay', key)] })); }
+
   const lagCap = () => 200 + 100 * clamp((pgang && pgang.lv) || 0, 0, 5);
   const lagArr = () => { const a = pgang && Array.isArray(pgang.lag) ? pgang.lag : []; return [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => Math.max(0, Math.floor(+a[i] || 0))); };
   async function lagPut() {

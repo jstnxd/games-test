@@ -115,7 +115,7 @@
     joy.id = null; joy.dx = joy.dy = 0; aHeld = false;
     renderEditPanel(); edMsg('Tippe ein Teil an und ziehe es. Unten kaufst du neue Deko aus der Gang-Kasse.', false); return true;
   }
-  const ghqRefresh = () => { if (ed.ak === 'ghq' && state === 'edit') { const k = ed.sel && ed.hq[ed.sel.i] && ed.hq[ed.sel.i].k; ed.hq = hqItems(); const i = k ? ed.hq.findIndex(x => x.k === k) : -1; ed.sel = i >= 0 ? { kind: 'hq', i } : null; renderEditPanel(); } };
+  const ghqRefresh = () => { if (ed.ak === 'ghq' && state === 'edit') { if (ed.sel && ed.sel.kind === 'hst') { renderEditPanel(); return; } const k = ed.sel && ed.hq[ed.sel.i] && ed.hq[ed.sel.i].k; ed.hq = hqItems(); const i = k ? ed.hq.findIndex(x => x.k === k) : -1; ed.sel = i >= 0 ? { kind: 'hq', i } : null; renderEditPanel(); } };
   async function ghqDo(fn, ok) { if (ed.busy) return; ed.busy = true; edMsg('Einen Moment …', false); try { const r = await fn(); edMsg(typeof r === 'string' && r ? r : ok, false); sfx.put(); } catch (e) { edMsg(e.message || 'Ging nicht', true); sfx.bad(); } finally { ed.busy = false; ghqRefresh(); } }
   function startEdit(ak) {
     const ar0 = AREAS[ak]; if (state !== 'play' || !ar0 || !isOpen(ar0)) return false;
@@ -142,7 +142,8 @@
     save(); msg('Umbau gespeichert');
   }
   function editHit(ak, wx, wy) {
-    if (ak === 'ghq') { for (let i = ed.hq.length - 1; i >= 0; i--) { const it = ed.hq[i], h = dHalf(it.id); if (Math.abs(wx - it.x) <= h[0] + 4 && Math.abs(wy - it.y) <= h[1] + 4) return { kind: 'hq', i }; } return null; } // v132
+    if (ak === 'ghq') { for (let i = ed.hq.length - 1; i >= 0; i--) { const it = ed.hq[i], h0 = dHalf(it.id), h = (it.q || 0) % 2 ? [h0[1], h0[0]] : h0; if (Math.abs(wx - it.x) <= h[0] + 4 && Math.abs(wy - it.y) <= h[1] + 4) return { kind: 'hq', i }; }
+      for (const [k, , o] of GHQ_ST()) { const b = stBox(k); if (Math.abs(wx - o.x - b[0]) <= b[2] + 4 && Math.abs(wy - o.y - b[1]) <= b[3] + 4) return { kind: 'hst', k }; } return null; } // v132, v133: auch Beete und Stationen
     const ar = AREAS[ak], arr = G.dec.items[ak];
     for (let i = arr.length - 1; i >= 0; i--) { const it = arr[i]; if (RUGS.includes(it.id)) continue; const h = dHalfIt(it); if (Math.abs(wx - it.x) <= h[0] + 4 && Math.abs(wy - it.y) <= h[1] + 4) return { kind: 'decor', i }; }
     for (let i = 0; i < ar.POTS.length; i++) if (Math.hypot(wx - ar.POTS[i].x, wy - ar.POTS[i].y) <= 24) return { kind: 'pot', i };
@@ -154,7 +155,7 @@
     for (let i = arr.length - 1; i >= 0; i--) { const it = arr[i]; if (!RUGS.includes(it.id)) continue; const h = dHalfIt(it); if (Math.abs(wx - it.x) <= h[0] && Math.abs(wy - it.y) <= h[1]) return { kind: 'decor', i }; }
     return null;
   }
-  const selPos = s => s.kind === 'hq' ? [ed.hq[s.i].x, ed.hq[s.i].y] : (s.kind === 'decor' ? [G.dec.items[ed.ak][s.i].x, G.dec.items[ed.ak][s.i].y] : stationPos(AREAS[ed.ak], s.kind, s.i));
+  const selPos = s => s.kind === 'hst' ? (o => [o.x, o.y])(GHQ_ST().find(z => z[0] === s.k)[2]) : s.kind === 'hq' ? [ed.hq[s.i].x, ed.hq[s.i].y] : (s.kind === 'decor' ? [G.dec.items[ed.ak][s.i].x, G.dec.items[ed.ak][s.i].y] : stationPos(AREAS[ed.ak], s.kind, s.i));
   function editDown(e) {
     ed.ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
     { const ids = Object.keys(ed.ptrs); if (ids.length === 2) { const a = ed.ptrs[ids[0]], b = ed.ptrs[ids[1]]; if (ed.drag && ed.drag.moved && ed.sel) { const ar = AREAS[ed.ak]; if (ed.sel.kind === 'decor') { const it = G.dec.items[ed.ak][ed.sel.i]; if (it) clampDecor(ed.ak, it, ed.drag.orig[0], ed.drag.orig[1]); } else { applyStation(ar, ed.sel.kind, ed.sel.i, ed.drag.orig[0], ed.drag.orig[1]); rebuildNav(ar); ed.bad = false; } } ed.drag = null; ed.pan = null; ed.pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: ed.zoom }; return; } } // zwei Finger: zoomen
@@ -164,7 +165,7 @@
     if (hit) {
       const pos = selPos(hit); ed.drag = { id: e.pointerId, ox: pos[0] - p.x, oy: pos[1] - p.y, orig: pos.slice(), moved: false };
       try { cv.setPointerCapture(e.pointerId); } catch (x) {}
-      if (hit.kind === 'hq') edMsg(((DECOR.find(d => d.id === ed.hq[hit.i].id) || {}).name || 'Deko') + ': ziehen zum Verschieben', false); else
+      if (hit.kind === 'hst') edMsg(GHQ_ST().find(z => z[0] === hit.k)[1] + ': ziehen zum Verschieben', false); else if (hit.kind === 'hq') edMsg(((DECOR.find(d => d.id === ed.hq[hit.i].id) || {}).name || 'Deko') + ': ziehen zum Verschieben', false); else
       edMsg(hit.kind === 'decor' ? DECOR.find(d => d.id === G.dec.items[ed.ak][hit.i].id).name + ': ziehen zum Verschieben' : (hit.kind === 'pot' ? 'Topf' : hit.kind === 'stair' ? 'Treppe' : hit.kind === 'crate' ? 'Sammelkiste' : hit.kind === 'rack' ? AREAS[ed.ak].lbl.rack : 'Packtisch') + ': ziehen zum Verschieben, ⟳ dreht', false);
     }
     if (hit) { const ep = $('edit'); if (ep && ep.scrollTop > 0) ep.scrollTop = 0; } // v60: Drehen/Einlagern sofort sichtbar
@@ -178,7 +179,8 @@
     const p = toWorldE(e), nx = p.x + d.ox, ny = p.y + d.oy;
     if (!d.moved && Math.hypot(nx - d.orig[0], ny - d.orig[1]) < 4) return;
     d.moved = true;
-    if (ed.sel.kind === 'hq') { const it = ed.hq[ed.sel.i]; if (it) [it.x, it.y] = hqClampPos(nx, ny); } // v132
+    if (ed.sel.kind === 'hst') stSet(ed.sel.k, nx, ny); // v133
+    else if (ed.sel.kind === 'hq') { const it = ed.hq[ed.sel.i]; if (it) [it.x, it.y] = hqClampPos(nx, ny); } // v132
     else if (ed.sel.kind === 'decor') clampDecor(ed.ak, G.dec.items[ed.ak][ed.sel.i], nx, ny);
     else { const ar = AREAS[ed.ak]; applyStation(ar, ed.sel.kind, ed.sel.i, Math.round(nx / 2) * 2, Math.round(ny / 2) * 2); ed.bad = !layoutValid(ar); }
   }
@@ -187,6 +189,7 @@
     if (ed.pan && e.pointerId === ed.pan.id) { ed.pan = null; return; }
     const d = ed.drag; if (!d || e.pointerId !== d.id) return; ed.drag = null;
     if (!d.moved || !ed.sel) return;
+    if (ed.sel.kind === 'hst') { const k = ed.sel.k; ghqDo(() => stSave(k).catch(e => { ghqApplyLay(); throw e; }), 'Gesetzt'); return; } // v133
     if (ed.sel.kind === 'hq') { const it = ed.hq[ed.sel.i]; if (it) ghqDo(() => pgMoveDeco(it, it.x, it.y), 'Gesetzt'); return; } // v132: sofort für die ganze Gang speichern
     const ar = AREAS[ed.ak];
     if (ed.sel.kind === 'decor') { save(); sfx.put(); return; }
@@ -195,7 +198,7 @@
   }
   function renderEditPanel() {
     if (ed.ak === 'ghq') return renderGhqPanel(); // v132
-    $('edReset').hidden = false;
+    $('edReset').hidden = false; $('edReset').textContent = 'Stationen zurück';
     const ar = AREAS[ed.ak];
     $('edTitle').textContent = 'Umbau · ' + ar.name;
     $('edDel').disabled = !(ed.sel && ed.sel.kind === 'decor'); $('edRot').disabled = !ed.sel;
@@ -228,8 +231,8 @@
     sfx.bad(); edMsg('Zum Drehen ist hier kein Platz. Schieb es erst etwas weg von Wand und Möbeln.', true); return false;
   }
   function renderGhqPanel() {
-    const g = pgang; if (!g) return; const n = ghqSlots(g.lv), full = ed.hq.length >= n, it = ed.sel && ed.hq[ed.sel.i], d0 = it && DECOR.find(x => x.id === it.id);
-    $('edTitle').textContent = 'Einrichten · Gang-HQ'; $('edReset').hidden = true; $('edRot').disabled = true;
+    const g = pgang; if (!g) return; const n = ghqSlots(g.lv), full = ed.hq.length >= n, it = ed.sel && ed.sel.kind === 'hq' && ed.hq[ed.sel.i], d0 = it && DECOR.find(x => x.id === it.id);
+    $('edTitle').textContent = 'Einrichten · Gang-HQ'; $('edReset').hidden = false; $('edReset').textContent = 'Stationen zurück'; $('edRot').disabled = !it;
     $('edDel').disabled = !it; $('edDel').textContent = it ? 'Wegräumen (+' + fmt(Math.round(ghqPrice(d0) / 2)) + ')' : 'Wegräumen';
     const list = $('edList'); list.innerHTML = '';
     const hd = uiEl('div', 'grp', 'Kaufen aus der Kasse · ' + fmt(g.kasse) + ' · Plätze ' + ed.hq.length + '/' + n); list.appendChild(hd);
@@ -241,11 +244,15 @@
       c.addEventListener('click', () => { const before = new Set(ed.hq.map(z => z.k)); ghqDo(async () => { const r = await pgBuyDeco(x.id, [(HQ_BOX.x0 + HQ_BOX.x1) / 2 + (ed.hq.length % 5) * 10, (HQ_BOX.y0 + HQ_BOX.y1) / 2]); ed.hq = hqItems(); const i = ed.hq.findIndex(z => !before.has(z.k)); ed.sel = i >= 0 ? { kind: 'hq', i } : null; return x.name + ' steht in der Mitte. Zieh es an den richtigen Platz.'; }, ''); });
       if (q && !x.name.toLowerCase().includes(q)) c.style.display = 'none'; chips.push([c, x.name.toLowerCase()]); list.appendChild(c); }
   }
-  async function ghqDelSel() { const it = ed.sel && ed.hq[ed.sel.i]; if (!it) return; ed.sel = null; await ghqDo(() => pgRemoveDeco(it), 'Weggeräumt'); }
+  async function ghqRot() { const it = ed.sel && ed.sel.kind === 'hq' && ed.hq[ed.sel.i]; if (!it) { edMsg('Stationen und Beete lassen sich verschieben, aber nicht drehen.', true); return; } it.q = ((it.q || 0) + 1) % 4; await ghqDo(() => pgMoveDeco(it, it.x, it.y), 'Gedreht: ' + ['steht normal', 'zeigt nach links', 'steht kopfüber', 'zeigt nach rechts'][it.q]); } // v133
+  async function ghqResetSt() { await ghqDo(() => pgCommitAt(() => ({ fields: {}, masks: ['lay'] })).then(() => { ghqApplyLay(); return 'Beete und Stationen stehen wieder an ihren alten Plätzen'; }), ''); }
+  async function ghqDelSel() { const it = ed.sel && ed.sel.kind === 'hq' && ed.hq[ed.sel.i]; if (!it) return; ed.sel = null; await ghqDo(() => pgRemoveDeco(it), 'Weggeräumt'); }
   function drawEditOverlay() {
     if (ed.ak === 'ghq') { const I = GHQ_EDA.IN; ctx.fillStyle = 'rgba(255,255,255,.1)'; for (let x = I.x0 + 20; x < I.x1; x += 20) for (let y = I.y0 + 20; y < I.y1; y += 20) ctx.fillRect(x - 0.7, y - 0.7, 1.4, 1.4); // v132
       ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(255,181,71,.4)'; ctx.strokeRect(HQ_BOX.x0 - 12, HQ_BOX.y0 - 12, HQ_BOX.x1 - HQ_BOX.x0 + 24, HQ_BOX.y1 - HQ_BOX.y0 + 24); ctx.setLineDash([]);
-      const it = ed.sel && ed.hq[ed.sel.i]; if (it) { const h = dHalf(it.id); ctx.lineWidth = 3; ctx.strokeStyle = '#FFB547'; ctx.fillStyle = 'rgba(255,181,71,.14)'; rr(it.x - h[0] - 3, it.y - h[1] - 3, h[0] * 2 + 6, h[1] * 2 + 6, 7); ctx.fill(); ctx.stroke(); }
+      ctx.setLineDash([4, 3]); ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(95,229,132,.5)'; for (const [k, , o] of GHQ_ST()) { const b = stBox(k); ctx.strokeRect(o.x + b[0] - b[2], o.y + b[1] - b[3], b[2] * 2, b[3] * 2); } ctx.setLineDash([]); // v133: Stationen sind verschiebbar
+      if (ed.sel && ed.sel.kind === 'hst') { const o = GHQ_ST().find(z => z[0] === ed.sel.k)[2], b = stBox(ed.sel.k); ctx.lineWidth = 3; ctx.strokeStyle = '#5FE584'; ctx.fillStyle = 'rgba(95,229,132,.14)'; rr(o.x + b[0] - b[2] - 3, o.y + b[1] - b[3] - 3, b[2] * 2 + 6, b[3] * 2 + 6, 7); ctx.fill(); ctx.stroke(); }
+      const it = ed.sel && ed.sel.kind === 'hq' && ed.hq[ed.sel.i]; if (it) { const h0 = dHalf(it.id), h = (it.q || 0) % 2 ? [h0[1], h0[0]] : h0; ctx.lineWidth = 3; ctx.strokeStyle = '#FFB547'; ctx.fillStyle = 'rgba(255,181,71,.14)'; rr(it.x - h[0] - 3, it.y - h[1] - 3, h[0] * 2 + 6, h[1] * 2 + 6, 7); ctx.fill(); ctx.stroke(); }
       if (ed.busy) { ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '700 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('speichert …', (I.x0 + I.x1) / 2, I.y0 + 16); } return; }
     const ar = AREAS[ed.ak], I = ar.IN;
     ctx.fillStyle = 'rgba(255,255,255,.1)';
