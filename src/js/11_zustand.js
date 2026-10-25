@@ -108,7 +108,7 @@
     { id: 'roundrug', name: 'Runder Teppich', desc: 'Bunte Ringe für die Raummitte', cost: 80 },
     { id: 'flowers', name: 'Blumentopf', desc: 'Bunte Blumen im Terrakottatopf', cost: 55 },
     { id: 'beanbag', name: 'Sitzsack', desc: 'Weich wie eine Wolke', cost: 120 },
-    { id: 'discoball', name: 'Discokugel', desc: 'Dreht sich und wirft bunte Lichtpunkte', cost: 280 },
+    { id: 'discoball', name: 'Discokugel', desc: 'Spiegelkugel, die sich dreht, blitzt und bunte Lichtpunkte über den Boden wandern lässt. Nachts mit Lichtstrahlen', cost: 280 },
     { id: 'candles', name: 'Kerzen', desc: 'Drei flackernde Kerzen auf einem Teller', cost: 45 },
     { id: 'bonsai', name: 'Bonsai', desc: 'Ein kleiner, ruhiger Baum', cost: 90 },
     { id: 'globe', name: 'Globus', desc: 'Dreht sich langsam auf dem Ständer', cost: 110 },

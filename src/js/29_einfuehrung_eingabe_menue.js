@@ -175,11 +175,10 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 139, date: 'Oktober 2026', title: 'Discokugel', items: [
+      ['chg', '🪩', 'Die Discokugel ist neu: echte Spiegelfacetten, die sich drehen, Glanzblitze, Kette an der Decke und bunte Lichtpunkte, die über den Boden wandern. Nachts mit farbigen Lichtstrahlen'] ] },
     { v: 138, date: 'Oktober 2026', title: 'Minikarte', items: [
       ['fix', '🗺️', 'Die Minikarte und die große Karte zeichnen alles, was sich selten ändert (Viertel, Gebäude-Buchstaben, Haltestellen, Reviere), nur noch neu, wenn sich wirklich etwas ändert. Pro Neuzeichnen etwa ein Drittel der Arbeit'] ] },
-    { v: 137, date: 'Oktober 2026', title: 'Gras im Wind', items: [
-      ['fix', '🧱', 'Behoben: Beim Laufen blieben Teile der Karte dunkel, Häuser und Figuren fehlten. Der Bildspeicher hat jetzt eine feste Obergrenze, gibt Speicher sofort frei und schaltet sich bei Problemen selbst ab'],
-      ['fix', '🌾', 'Grashalme und Schilf wiegen sich wieder im Wind'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

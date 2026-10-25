@@ -322,6 +322,36 @@
     const glow = (x, y, r, rgb, a) => { const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(' + rgb + ',' + Math.max(0, a).toFixed(2) + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)'); F(g); C(x, y, r); };
     const cush = (x, y, w, h, c, c2) => { F(c); rr(x, y, w, h, 3); ctx.fill(); F(c2); ctx.fillRect(x + 2, y + 1, w - 4, 1.4); };
     switch (id) {
+      case 'discoball': { // v139: neu gezeichnet: Spiegelkugel mit drehenden Facetten, Glanzblitzen, Lichtstrahlen und wandernden Lichtpunkten
+        const ang = t * 0.9, night = 0.35 + 0.65 * nt, R = 12.5, cy = -4, cols = ['255,92,168', '75,200,255', '255,210,74', '95,229,132', '181,140,255', '255,138,58'];
+        // Lichtpunkte auf dem Boden, die im Kreis wandern
+        ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        for (let k = 0; k < 10; k++) { const a = -ang * 1.3 + k * TAU / 10, rr2 = 18 + (k % 3) * 7, sx = Math.cos(a) * rr2, sy = 24 + Math.sin(a) * rr2 * 0.38, al = (0.22 + 0.25 * night) * (0.6 + 0.4 * Math.sin(t * 5 + k * 1.7));
+          if (night > 0.45) { const gb = ctx.createLinearGradient(0, cy, sx, sy); gb.addColorStop(0, 'rgba(' + cols[k % 6] + ',' + (al * 0.55).toFixed(3) + ')'); gb.addColorStop(1, 'rgba(' + cols[k % 6] + ',0)'); F(gb); ctx.beginPath(); ctx.moveTo(-1.2, cy); ctx.lineTo(sx - 2.6, sy); ctx.lineTo(sx + 2.6, sy); ctx.lineTo(1.2, cy); ctx.fill(); }
+          F('rgba(' + cols[k % 6] + ',' + al.toFixed(3) + ')'); ell(sx, sy, 3.4, 1.4); ctx.fill(); F('rgba(255,255,255,' + (al * 0.8).toFixed(3) + ')'); ell(sx, sy, 1.2, 0.5); ctx.fill(); }
+        glow(0, cy, 30, '200,220,255', 0.12 + 0.22 * night); ctx.restore();
+        F('rgba(0,0,0,.22)'); ell(0, 25, 9, 2.6); ctx.fill();
+        // Aufhängung: Deckenplatte, Kette, Motor
+        F('#3A3F47'); rr(-5, -36, 10, 3, 1.5); ctx.fill(); ctx.strokeStyle = '#9AA3AD'; ctx.lineWidth = 0.9; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.ellipse(0, -31.5 + k * 2.6, 0.9, 1.4, 0, 0, TAU); ctx.stroke(); }
+        F('#5A626E'); rr(-2.4, -22 + 2.6, 4.8, 3.6, 1); ctx.fill(); F('#C9D2DC'); ctx.fillRect(-0.6, cy - R - 1.6, 1.2, 2.2);
+        // Kugel: Grundton und Facetten auf Breitenringen, die sich mitdrehen
+        const g = ctx.createRadialGradient(-4, cy - 5, 1, 0, cy, R); g.addColorStop(0, '#E9EEF4'); g.addColorStop(0.55, '#9AA6B6'); g.addColorStop(1, '#4A5464'); F(g); C(0, cy, R);
+        ctx.save(); ctx.beginPath(); ctx.arc(0, cy, R, 0, TAU); ctx.clip();
+        const rows = 8;
+        for (let i = 0; i < rows; i++) { const la0 = -Math.PI / 2 + (i + 0.5) * Math.PI / rows, cl = Math.cos(la0), y = cy + R * Math.sin(la0), n = Math.max(4, Math.round(16 * cl)), fh = R * Math.PI / rows * 0.82;
+          for (let j = 0; j < n; j++) { const lo = (j / n) * TAU + ang + i * 0.37, cz = Math.cos(lo); if (cz <= 0.05) continue; const x = R * cl * Math.sin(lo), fw = Math.max(0.5, (TAU * R * cl / n) * cz * 0.8);
+            const hsh = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453, hv = hsh - Math.floor(hsh), lit = cz * (0.45 + 0.55 * (0.5 - 0.5 * Math.sin(la0))) + (hv - 0.5) * 0.25, tw = Math.sin(t * 6 + hv * 30) > 0.92;
+            const v = Math.round(clamp(110 + 140 * lit, 70, 250)); F(tw ? '#FFFFFF' : 'rgb(' + (v - 8) + ',' + v + ',' + Math.min(255, v + 14) + ')'); ctx.fillRect(x - fw / 2, y - fh / 2, fw, fh);
+            if (!tw && hv > 0.86) { F('rgba(' + cols[(i + j) % 6] + ',.45)'); ctx.fillRect(x - fw / 2, y - fh / 2, fw, fh); } } }
+        ctx.strokeStyle = 'rgba(30,36,46,.35)'; ctx.lineWidth = 0.35; for (let i = 1; i < rows; i++) { const y = cy + R * Math.sin(-Math.PI / 2 + i * Math.PI / rows); ctx.beginPath(); ctx.moveTo(-R, y); ctx.lineTo(R, y); ctx.stroke(); }
+        const sh = ctx.createRadialGradient(4, cy + 5, 2, 0, cy, R + 1); sh.addColorStop(0, 'rgba(0,0,0,0)'); sh.addColorStop(0.7, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(10,14,22,.45)'); F(sh); ctx.fillRect(-R, cy - R, R * 2, R * 2);
+        ctx.restore();
+        F('rgba(255,255,255,.55)'); ell(-4.5, cy - 5.5, 3.2, 2, -0.6); ctx.fill();
+        ctx.strokeStyle = 'rgba(40,46,56,.6)'; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.arc(0, cy, R, 0, TAU); ctx.stroke();
+        // Glanzblitze
+        for (let k = 0; k < 3; k++) { const ph = (t * 0.8 + k * 0.33) % 1; if (ph > 0.25) continue; const a = k * 2.3 + Math.floor(t * 0.8 + k * 0.33) * 1.7, rx = Math.cos(a) * R * 0.6, ry = cy + Math.sin(a) * R * 0.6, s = Math.sin(ph / 0.25 * Math.PI) * 5;
+          ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(rx - s, ry); ctx.lineTo(rx + s, ry); ctx.moveTo(rx, ry - s); ctx.lineTo(rx, ry + s); ctx.stroke(); glow(rx, ry, s * 1.4, '255,255,255', 0.6); ctx.restore(); }
+        return true; }
       case 'lounge': { sh(34, 21); F('#2B2F38'); rr(-34, -18, 68, 12, 5); ctx.fill(); rr(-34, -18, 14, 38, 5); ctx.fill(); F('#3E4350'); rr(-31, -14, 62, 14, 4); ctx.fill(); rr(-31, -14, 14, 32, 4); ctx.fill();
         cush(-29, -4, 20, 9, '#4A5060', 'rgba(255,255,255,.12)'); cush(-8, -4, 18, 9, '#4A5060', 'rgba(255,255,255,.12)'); cush(11, -4, 18, 9, '#4A5060', 'rgba(255,255,255,.12)'); cush(-29, 6, 11, 10, '#4A5060', 'rgba(255,255,255,.12)');
         cush(-27, -12, 9, 7, '#FF5CA8', 'rgba(255,255,255,.3)'); cush(18, -12, 9, 7, '#4BC8FF', 'rgba(255,255,255,.3)'); cush(-6, -12, 8, 6, '#FFD24A', 'rgba(255,255,255,.3)');
