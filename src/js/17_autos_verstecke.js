@@ -209,6 +209,7 @@
     const k = bizIn || 'pizza', I = IN, th = { pizza: ['#5A3424', '#B5523A', '#F2E2C4'], gym: ['#2B3039', '#4A5260', '#E05555'], club: ['#160F22', '#2A1E3A', '#FF5CA8'] }[k] || ['#333', '#555', '#fff'];
     ctx.fillStyle = th[1]; ctx.fillRect(I.x0 - 12, I.y0 - 12, I.x1 - I.x0 + 24, I.y1 - I.y0 + 24); ctx.fillStyle = th[0]; ctx.fillRect(I.x0, I.y0, I.x1 - I.x0, I.y1 - I.y0);
     ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1; ctx.beginPath(); for (let x = I.x0; x <= I.x1; x += 32) { ctx.moveTo(x, I.y0); ctx.lineTo(x, I.y1); } for (let y = I.y0; y <= I.y1; y += 32) { ctx.moveTo(I.x0, y); ctx.lineTo(I.x1, y); } ctx.stroke();
+    roomDepth(I.x0, I.y0, I.x1, I.y1); ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(I.x0 - 12, I.y0 - 12, I.x1 - I.x0 + 24, 1.5); // v148
     if (k === 'pizza') { ctx.fillStyle = '#7A4A32'; rr(70, 70, 150, 60, 10); ctx.fill(); ctx.fillStyle = '#2A1A12'; ctx.beginPath(); ctx.arc(145, 104, 22, Math.PI, 0); ctx.fill(); glow(145, 100, 40, '255,130,50', 0.4 + 0.15 * Math.sin(gt * 6)); for (let i = 0; i < 4; i++) { const x = 190 + (i % 2) * 150, y = 250 + Math.floor(i / 2) * 120; ctx.fillStyle = '#E8DCC0'; ctx.beginPath(); ctx.arc(x, y, 26, 0, TAU); ctx.fill(); ctx.strokeStyle = '#D33F3F'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 22, 0, TAU); ctx.stroke(); ctx.fillStyle = '#E8B84A'; ctx.beginPath(); ctx.arc(x, y, 9, 0, TAU); ctx.fill(); }
       for (let i = 0; i < 6; i++) { ctx.fillStyle = '#C49A6C'; ctx.fillRect(330 + (i % 3) * 30, 70 + Math.floor(i / 3) * 26, 24, 20); ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(330 + (i % 3) * 30, 70 + Math.floor(i / 3) * 26 + 8, 24, 2); } }
     else if (k === 'gym') { for (let i = 0; i < 3; i++) { const x = 160 + i * 100; ctx.fillStyle = '#1A1D22'; rr(x, 230, 60, 120, 8); ctx.fill(); ctx.fillStyle = '#3A3F47'; ctx.fillRect(x + 8, 240, 44, 100); ctx.fillStyle = '#E05555'; ctx.fillRect(x + 10, 330, 40, 6); } for (let i = 0; i < 5; i++) { ctx.fillStyle = '#5E6670'; ctx.fillRect(80 + i * 40, 80, 8, 30); ctx.fillStyle = '#20262E'; ctx.fillRect(76 + i * 40, 76, 16, 6); ctx.fillRect(76 + i * 40, 108, 16, 6); } ctx.fillStyle = '#B5BDC7'; ctx.fillRect(420, 380, 120, 8); for (const x of [420, 532]) { ctx.fillStyle = '#20262E'; ctx.fillRect(x - 4, 370, 12, 28); } }
@@ -223,6 +224,16 @@
     signTxt((BIZ[k] || {}).name ? BIZ[k].name.toUpperCase() + ' · HINTERZIMMER' : '', 300, 470, '800 11px sans-serif', th[2]);
     ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(BIZ_EXIT.x - 30, I.y1 - 6, 60, 8); signTxt('AUSGANG', BIZ_EXIT.x, I.y1 - 16, '900 9px sans-serif', th[2]);
   }
+  function emptyRoomProps(I) { // v148: leerer Mietraum mit Umzugskartons, Palette, Baulampe, Kabel und Leiter
+    const F = c => { ctx.fillStyle = c; }, box = (x, y, w, h, tape) => { F('rgba(0,0,0,.3)'); ctx.fillRect(x + 3, y + 4, w, h); F('#B8864E'); ctx.fillRect(x, y, w, h); F('#D2A06A'); ctx.fillRect(x, y, w, h * 0.3); F('rgba(0,0,0,.12)'); ctx.fillRect(x + w / 2 - 0.5, y, 1, h); if (tape) { F('rgba(230,220,190,.7)'); ctx.fillRect(x + w / 2 - 2, y, 4, h * 0.3); } };
+    const px = I.x0 + 30, py = I.y1 - 90; F('rgba(0,0,0,.3)'); ctx.fillRect(px + 3, py + 4, 70, 48); F('#9A7A50'); for (let k = 0; k < 5; k++) ctx.fillRect(px, py + k * 10, 70, 7); F('#7A5A38'); for (const xx of [px + 4, px + 31, px + 58]) ctx.fillRect(xx, py, 8, 47);
+    box(px + 6, py + 4, 28, 22, 1); box(px + 36, py + 8, 26, 20, 1); box(px + 18, py - 14, 26, 20, 0);
+    box(I.x1 - 120, I.y0 + 30, 30, 24, 1); box(I.x1 - 86, I.y0 + 34, 24, 20, 0);
+    { const lx = I.x0 + 60, ly = I.y0 + 70; F('rgba(0,0,0,.3)'); ctx.beginPath(); ctx.ellipse(lx + 2, ly + 16, 12, 4, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = '#2A2F38'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(lx - 10, ly + 16); ctx.lineTo(lx, ly - 6); ctx.lineTo(lx + 10, ly + 16); ctx.moveTo(lx, ly - 6); ctx.lineTo(lx, ly + 16); ctx.stroke(); F('#F2C14E'); rr(lx - 9, ly - 16, 18, 12, 2); ctx.fill(); F('#FFF6D0'); ctx.fillRect(lx - 6, ly - 13, 12, 6); glow(lx, ly - 4, 60, '255,240,200', 0.22);
+      ctx.strokeStyle = '#14161C'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx, ly + 16); ctx.bezierCurveTo(lx + 60, ly + 40, lx + 20, ly + 120, lx + 110, ly + 150); ctx.bezierCurveTo(lx + 180, ly + 170, lx + 240, ly + 130, lx + 300, ly + 170); ctx.stroke(); F('#E05555'); rr(lx + 296, ly + 166, 10, 7, 2); ctx.fill(); }
+    { const lx = I.x1 - 70, ly = I.y1 - 150; ctx.save(); ctx.translate(lx, ly); ctx.rotate(0.25); F('rgba(0,0,0,.25)'); ctx.fillRect(3, 4, 20, 90); F('#9AA3AD'); ctx.fillRect(0, 0, 3, 90); ctx.fillRect(17, 0, 3, 90); for (let y = 6; y < 90; y += 12) ctx.fillRect(0, y, 20, 2.4); ctx.restore(); }
+    { const rx = I.x0 + 190, ry = I.y1 - 60; F('rgba(0,0,0,.25)'); ctx.beginPath(); ctx.ellipse(rx + 2, ry + 6, 30, 7, 0, 0, TAU); ctx.fill(); F('rgba(200,220,235,.55)'); rr(rx - 30, ry - 6, 60, 12, 6); ctx.fill(); F('rgba(255,255,255,.4)'); ctx.fillRect(rx - 26, ry - 4, 52, 2); }
+  }
   function drawPremiumRoom() {
     const visit = prVisit && mp.friends[prVisit] && mp.friends[prVisit].gs ? mp.friends[prVisit] : null;
     if (prVisit && !visit) { roomLeave(); return; }
@@ -233,6 +244,7 @@
       ctx.fillStyle = '#E4E8EE'; ctx.fillRect(I.x0 - 12, I.y0 - 12, I.x1 - I.x0 + 24, 12); ctx.fillRect(I.x0 - 12, I.y1, I.x1 - I.x0 + 24, 12); ctx.fillRect(I.x0 - 12, I.y0 - 12, 12, I.y1 - I.y0 + 24); ctx.fillRect(I.x1, I.y0 - 12, 12, I.y1 - I.y0 + 24);
       ctx.fillStyle = '#2F3A44'; ctx.fillRect(I.x0, I.y0, I.x1 - I.x0, I.y1 - I.y0);
       ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1; ctx.beginPath(); for (let x = I.x0; x <= I.x1; x += 30) { ctx.moveTo(x, I.y0); ctx.lineTo(x, I.y1); } for (let y = I.y0; y <= I.y1; y += 30) { ctx.moveTo(I.x0, y); ctx.lineTo(I.x1, y); } ctx.stroke();
+      roomDepth(I.x0, I.y0, I.x1, I.y1); if (!setUp) emptyRoomProps(I); // v148
       ctx.fillStyle = 'rgba(95,229,132,.5)'; ctx.fillRect(I.x0, I.y0, I.x1 - I.x0, 2); // LED-Leiste
       ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.font = '800 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(visit ? 'MIETRAUM VON ' + visit.name.toUpperCase() : 'MIETRAUM · PREMIUM-ANBAU', 326, 24);
       // Klimaanlage und Anzeige

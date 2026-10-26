@@ -76,17 +76,14 @@
       if ((c.dir > 0 && c.p > (c.h ? WW : WH) + 120) || (c.dir < 0 && c.p < (c.h ? 0 : YMIN) - 120)) traffic.splice(i, 1);
     }
   }
-  function drawTraffic() {
+  const TMODELS = ['mini', 'mini', 'suv', 'van', 'pickup', 'muscle', 'suv', 'mini', 'sport', 'lowrider'];
+  function drawTraffic() { // v148: Verkehr nutzt dieselben Automodelle wie die Spielerautos
     for (const c of traffic) {
       if (!inView(c.x, c.y, 70)) continue;
-      ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.h ? (c.dir > 0 ? 0 : Math.PI) : (c.dir > 0 ? Math.PI / 2 : -Math.PI / 2));
-      const w = c.truck ? 62 : 44;
-      ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(-w / 2 + 2, -8, w, 22);
-      if (c.truck) { ctx.fillStyle = '#C9CED8'; ctx.fillRect(-31, -11, 40, 22); ctx.fillStyle = 'rgba(0,0,0,.12)'; for (let k = -27; k < 6; k += 6) ctx.fillRect(k, -11, 1, 22); ctx.fillStyle = c.col; rr(9, -10, 22, 20, 4); ctx.fill(); ctx.fillStyle = '#26324A'; ctx.fillRect(21, -8, 7, 16); }
-      else { ctx.fillStyle = c.col; rr(-22, -10, 44, 20, 5); ctx.fill(); ctx.fillStyle = '#26324A'; ctx.fillRect(3, -8, 8, 16); ctx.fillRect(-13, -8, 5, 16); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(-20, -9, 20, 3); }
-      ctx.fillStyle = '#FFE9A0'; ctx.fillRect(c.truck ? 29 : 19, -8, 3, 4); ctx.fillRect(c.truck ? 29 : 19, 4, 3, 4);
-      if (c.v < 8) { ctx.fillStyle = '#FF5C5C'; ctx.fillRect(c.truck ? -32 : -22, -8, 2, 4); ctx.fillRect(c.truck ? -32 : -22, 4, 2, 4); }
-      ctx.restore();
+      if (!c.m) { const r = (Math.abs(Math.sin((c.p || 0) * 12.9898 + c.vt * 78.233)) * 43758.5453) % 1; c.m = c.truck ? 'truck' : TMODELS[Math.floor(r * TMODELS.length)]; c.ci = Math.floor(((r * 7.31) % 1) * CAR_COLS.length); c.lk = Object.assign({}, DEF_LOOK, { skin: Math.floor(r * 97) % SKIN_COLS.length, hair: Math.floor(r * 53) % HAIR_COLS.length, r: 60 + Math.floor(r * 150), g: 60 + Math.floor(r * 911) % 150, b: 60 + Math.floor(r * 353) % 150 }); }
+      const ang = c.h ? (c.dir > 0 ? 0 : Math.PI) : (c.dir > 0 ? Math.PI / 2 : -Math.PI / 2);
+      if (!VEH_BY[c.m]) { c.m = 'mini'; } drawCar(c.x, c.y - 2, ang, c.m, c.ci, c.lk, false, null, null);
+      if (c.v < 8) { const L = VEH_BY[c.m].len, bx = c.x - Math.cos(ang) * (L / 2 + 1), by = c.y - Math.sin(ang) * (L / 2 + 1); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(bx, by, 0, bx, by, 10); g.addColorStop(0, 'rgba(255,60,60,.45)'); g.addColorStop(1, 'rgba(255,60,60,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bx, by, 10, 0, TAU); ctx.fill(); ctx.restore(); }
     }
   }
   function ambUpdate(dt) {

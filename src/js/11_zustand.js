@@ -424,7 +424,7 @@
       for (let cx = Math.floor((c.x - 12) / 80); cx <= Math.floor((c.x + c.w + 12) / 80); cx++) for (let cy = Math.floor((c.y - 12) / 80); cy <= Math.floor((c.y + c.h + 12) / 80); cy++) { const k = cgCell(cx, cy); let L = CG.m.get(k); if (!L) CG.m.set(k, L = []); L.push(c); }
     }
   }
-  function blockedPt(x, y, r) {
+  function blockedPt(x, y, r = 0) { // v148: ohne Radius galt nie etwas als blockiert (Katzen liefen durch Haeuser)
     if (CG.n !== colliders.length) cgBuild();
     const L = CG.m.get(cgCell(Math.floor(x / 80), Math.floor(y / 80))); if (!L) return false;
     for (const c of L) if (x > c.x - r && x < c.x + c.w + r && y > c.y - r && y < c.y + c.h + r) return true;

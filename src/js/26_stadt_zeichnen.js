@@ -691,8 +691,9 @@
     const stops = busStops(); // v104: Buslinie mit Haltestelle in jedem Stadtteil
     const racks = [{ x: GYM.x + 18, y: GYM.y + GYM.h + 26, n: 3 }, { x: 3070, y: RDH[0].c1 + 12, n: 4 }, { x: PIZZA.x + PIZZA.w + 14, y: PIZZA.y - 14, n: 2, v: true }];
     const cats = [];
-    const homes = SHEDS.slice(0, 3).map(sh => ({ x: sh.x + sh.w / 2, y: sh.y + sh.h / 2, roof: true })).concat([{ x: 1300, y: 1600 }, { x: 4100, y: 1120 }, { x: 420, y: 1150 }]);
-    homes.forEach((hm, i) => cats.push({ hx: hm.x, hy: hm.y, x: hm.x, y: hm.y, tx: hm.x, ty: hm.y, roof: !!hm.roof, c: ['#E8913A', '#8A8F99', '#2A2A30', '#F2EDE4', '#B07A4A', '#E8913A'][i % 6], st: 'sit', t: 2 + i, a: rnd() * TAU, run: 0 }));
+    const freeNear = (x, y) => { for (const [dx, dy] of [[0, 0], [0, 26], [0, -26], [26, 0], [-26, 0], [30, 30], [-30, 30], [0, 44], [44, 0], [-44, 0], [0, -44]]) if (!blockedPt(x + dx, y + dy, 8)) return { x: x + dx, y: y + dy }; return { x, y }; }; // v148: keine Katzen mehr auf Daechern
+    const homes = SHEDS.slice(0, 3).map(sh => freeNear(sh.x + sh.w / 2, sh.y + sh.h + 16)).concat([{ x: 1300, y: 1600 }, { x: 4100, y: 1120 }, { x: 420, y: 1150 }]);
+    homes.map(hm => freeNear(hm.x, hm.y)).forEach((hm, i) => cats.push({ hx: hm.x, hy: hm.y, x: hm.x, y: hm.y, tx: hm.x, ty: hm.y, roof: false, c: ['#E8913A', '#8A8F99', '#2A2A30', '#F2EDE4', '#B07A4A', '#E8913A'][i % 6], st: 'sit', t: 2 + i, a: rnd() * TAU, run: 0 }));
     DET = { tufts, holes, cracks, signs, stops, racks, cats };
   }
   function drawDetailsGround() {
@@ -838,10 +839,10 @@
   function catUpdate(dt) {
     if (!DET) return;
     for (const c of DET.cats) { const dp = Math.hypot(player.x - c.x, player.y - c.y);
-      if (!c.roof && dp < 46 && c.st !== 'flee') { c.st = 'flee'; const a = Math.atan2(c.y - player.y, c.x - player.x); c.tx = c.x + Math.cos(a) * 70; c.ty = c.y + Math.sin(a) * 70; }
+      if (!c.roof && dp < 46 && c.st !== 'flee') { c.st = 'flee'; const a = Math.atan2(c.y - player.y, c.x - player.x); let ok = false; for (const da of [0, 0.6, -0.6, 1.2, -1.2, 1.9, -1.9]) { const tx = c.x + Math.cos(a + da) * 70, ty = c.y + Math.sin(a + da) * 70; if (!blockedPt(tx, ty, 8) && !blockedPt((c.x + tx) / 2, (c.y + ty) / 2, 6)) { c.tx = tx; c.ty = ty; ok = true; break; } } if (!ok) { c.tx = c.hx; c.ty = c.hy; } }
       c.t -= dt;
-      if (c.st === 'sit' && c.t <= 0) { if (c.roof) { c.t = 4 + Math.random() * 6; c.a += (Math.random() - 0.5) * 1.5; } else { c.st = 'walk'; const a = Math.random() * TAU, r = 18 + Math.random() * 44; c.tx = c.hx + Math.cos(a) * r; c.ty = c.hy + Math.sin(a) * r; if (blockedPt && blockedPt(c.tx, c.ty)) { c.tx = c.hx; c.ty = c.hy; } } }
-      if (c.st === 'walk' || c.st === 'flee') { const dx = c.tx - c.x, dy = c.ty - c.y, d = Math.hypot(dx, dy), sp = (c.st === 'flee' ? 110 : 26) * dt; if (d < 2) { c.st = 'sit'; c.t = 3 + Math.random() * 7; } else { c.x += dx / d * Math.min(sp, d); c.y += dy / d * Math.min(sp, d); c.a = Math.atan2(dy, dx); c.ph = (c.ph || 0) + dt * (c.st === 'flee' ? 18 : 8); } } }
+      if (c.st === 'sit' && c.t <= 0) { if (c.roof) { c.t = 4 + Math.random() * 6; c.a += (Math.random() - 0.5) * 1.5; } else { c.st = 'walk'; const a = Math.random() * TAU, r = 18 + Math.random() * 44; c.tx = c.hx + Math.cos(a) * r; c.ty = c.hy + Math.sin(a) * r; if (blockedPt(c.tx, c.ty, 8) || blockedPt((c.hx + c.tx) / 2, (c.hy + c.ty) / 2, 6)) { c.tx = c.hx; c.ty = c.hy; } } }
+      if (c.st === 'walk' || c.st === 'flee') { const dx = c.tx - c.x, dy = c.ty - c.y, d = Math.hypot(dx, dy), sp = (c.st === 'flee' ? 110 : 26) * dt; if (d < 2) { c.st = 'sit'; c.t = 3 + Math.random() * 7; } else { const nx = c.x + dx / d * Math.min(sp, d), ny = c.y + dy / d * Math.min(sp, d); if (blockedPt(nx, ny, 4)) { c.st = 'sit'; c.t = 1 + Math.random() * 3; continue; } c.x = nx; c.y = ny; c.a = Math.atan2(dy, dx); c.ph = (c.ph || 0) + dt * (c.st === 'flee' ? 18 : 8); } } }
   }
   function drawCat(c) {
     if (!inView(c.x, c.y, 30)) return; const mv = c.st !== 'sit', sw = Math.sin(gt * (mv ? 6 : 2) + c.hx) * (mv ? 0.5 : 0.9), lg = mv ? Math.sin(c.ph || 0) * 2 : 0;
