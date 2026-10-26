@@ -85,6 +85,7 @@
   cv.addEventListener('pointerdown', e => {
     if (state === 'admin') { e.preventDefault(); admDown(e); return; }
     if (state === 'edit') { e.preventDefault(); editDown(e); return; }
+    if (joy.id !== null && (e.isPrimary || e.pointerId === joy.id)) joyReset(); // v146: haengender Joystick wird beim naechsten Antippen frei
     if (state !== 'play' || phoneOpen || chatOpen) return;
     e.preventDefault(); unlock();
     if (joy.id === null && (e.clientX < W * 0.55 || isPort())) { joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY; joy.dx = joy.dy = 0; try { cv.setPointerCapture(e.pointerId); } catch (x) {} }
@@ -93,12 +94,21 @@
     if (state === 'admin') { admMove(e); return; }
     if (state === 'edit') { editMove(e); return; }
     if (e.pointerId !== joy.id) return;
+    if (e.pointerType === 'mouse' && !e.buttons) { joyReset(); return; } // v146: Maustaste schon losgelassen
     let dx = e.clientX - joy.ox, dy = e.clientY - joy.oy; const d = Math.hypot(dx, dy), m = 56;
     if (d > m) { joy.ox += dx / d * (d - m); joy.oy += dy / d * (d - m); dx = dx / d * m; dy = dy / d * m; }
     joy.dx = dx / m; joy.dy = dy / m;
   });
   const endJoy = e => { if (state === 'admin') { admUp(e); return; } if (state === 'edit') { editUp(e); return; } if (e.pointerId === joy.id) { joy.id = null; joy.dx = joy.dy = 0; } };
   cv.addEventListener('pointerup', endJoy); cv.addEventListener('pointercancel', endJoy);
+  // v146: Joystick bleibt nie mehr haengen: Loslassen wird ueberall erkannt, auch wenn iOS das Ende woanders hin schickt
+  function joyReset() { joy.id = null; joy.dx = joy.dy = 0; }
+  cv.addEventListener('lostpointercapture', e => { if (e.pointerId === joy.id && state !== 'admin' && state !== 'edit') joyReset(); });
+  for (const ev of ['pointerup', 'pointercancel']) window.addEventListener(ev, e => { if (e.pointerId === joy.id && state !== 'admin' && state !== 'edit') joyReset(); }, true);
+  const touchCheck = e => { if (joy.id !== null && e.touches && e.touches.length === 0) joyReset(); };
+  for (const ev of ['touchend', 'touchcancel']) window.addEventListener(ev, touchCheck, { capture: true, passive: true });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) joyReset(); }); window.addEventListener('pagehide', joyReset);
+  { const jt = setInterval(() => { if (joy.id !== null && (state !== 'play' || phoneOpen || chatOpen)) joyReset(); }, 500); if (jt && jt.unref) jt.unref(); }
 
   function bindBtn(id, down, up) {
     const b = $(id);
@@ -126,7 +136,7 @@
     if (e.code.startsWith('Arrow')) e.preventDefault();
   });
   window.addEventListener('keyup', e => { if (e.code === 'KeyE' || e.code === 'Space') aHeld = false; if (e.code === 'KeyQ' || e.code === 'KeyB') bHeld = false; keys[e.code] = false; });
-  window.addEventListener('blur', () => { aHeld = false; for (const k in keys) keys[k] = false; joy.id = null; });
+  window.addEventListener('blur', () => { aHeld = false; for (const k in keys) keys[k] = false; joy.id = null; joy.dx = joy.dy = 0; });
 
   $('newGame').addEventListener('click', () => {
     const b = $('newGame');
@@ -175,6 +185,9 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 146, date: 'Oktober 2026', title: 'Joystick-Fix', items: [
+      ['fix', '🕹️', 'Der Joystick bleibt nicht mehr hängen. Das Loslassen wird jetzt überall erkannt, auch wenn das Handy es verschluckt. Und falls doch mal etwas klemmt: einmal antippen reicht, kein Neustart mehr nötig'],
+      ['chg', '⚡', 'Spezialwaffen neu gezeichnet: Elektroschocker mit Griff und Kontakten, Wasserpistole mit Wassertank, Zwille als Astgabel, Netzwerfer als Rohr, Blendgranate mit Sicherungsring'] ] },
     { v: 145, date: 'Oktober 2026', title: 'Waffen-Glow-up', items: [
       ['chg', '🏏', 'Die Schläger haben jetzt echte Schlägerform mit Griffband: Holz mit Maserung, Alu mit blauen Streifen, Neon mit Lichtwelle, Gold mit wanderndem Glanz und Funkeln'],
       ['chg', '🍳', 'Bratpfanne mit Rand, Nieten und Glanz, Teleskopstab mit Gummigriff und Chromteilen, Quietsch-Hammer mit Faltenkopf, Schlagschild mit Metallrand und Nieten'] ] },
@@ -183,11 +196,6 @@
       ['chg', '🃏', 'Im Casino sind die Automaten und die Blackjack-Tische neu: Ledertisch mit Filz, Chip-Ablage, Kartenschlitten, Einsatzfelder mit Chips und Karten, die der Dealer aufdeckt'],
       ['chg', '☕', 'Neu gezeichnet: Kaffeemaschine, Arcade-Automat, Hängematte, Bücherstapel, Pflanzenwand, Graffiti-Leinwand, Gartenzwerg, Pokal-Vitrine, Blumentopf, Bonsai und Klavier'],
       ['chg', '👖', 'Standard-Hose, Jeans und Anzughose sehen jetzt unterschiedlich aus. Goldanzug, Neon-Anzug und Königsgewand schimmern und funkeln'] ] },
-    { v: 143, date: 'Oktober 2026', title: 'Foto-Modus', items: [
-      ['neu', '📸', 'Foto-Modus in den Einstellungen: blendet 10 Sekunden lang Kompass, Minikarte, Geld, Knöpfe und alle Anzeigen aus. Tippen beendet ihn früher'],
-      ['chg', '👻', 'Gespenst leuchtet, schwebt mit Nebelspur und funkelt. Die Schildkröte hat einen gewölbten Panzer mit Schildplatten und laufende Beine. Goldschuhe glänzen, LED-Sohlen pulsieren'],
-      ['chg', '🛏️', 'Neu gezeichnet: Bett, Hochbett, Futon, Tischtennisplatte mit springendem Ball, Gaming-PC mit RGB-Lüftern und Getränkeautomat'],
-      ['fix', '⭐', 'Sternenschwarm und Sternenstaub waren unsichtbar und sind wieder da. Rauchspur ist jetzt weicher Rauch, die Blitzspur leuchtet'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
