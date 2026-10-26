@@ -592,6 +592,9 @@
       const paintA = () => cA.querySelectorAll('[data-al]').forEach(e => e.classList.toggle('on', (e.dataset.al === '1') === autoOn));
       cA.querySelectorAll('[data-al]').forEach(e => e.addEventListener('click', () => { setAutoOn(e.dataset.al === '1'); paintA(); }));
       paintA(); b.appendChild(cA);
+      const cS = document.createElement('div'); cS.className = 'card look'; // v143: Foto-Modus
+      cS.innerHTML = '<div class="nm">📸 Foto-Modus</div><div class="ds" style="margin:2px 0 8px">Blendet für 10 Sekunden Kompass, Minikarte, Geld, Knöpfe und alle anderen Anzeigen aus, damit du schöne Screenshots machen kannst. Tippen beendet ihn früher.</div>';
+      const bS = document.createElement('button'); bS.className = 'buy'; bS.textContent = '10 Sekunden ohne Anzeigen'; bS.style.gridColumn = '1 / -1'; bS.addEventListener('click', () => shotStart(10)); cS.appendChild(bS); b.appendChild(cS);
     }
     if (part === 'system') { const hdS = document.createElement('div'); hdS.className = 'grp'; hdS.textContent = 'Hilfe bei Problemen'; b.appendChild(hdS);
       const cV = document.createElement('div'); cV.className = 'card look'; cV.innerHTML = '<div class="nm">Kellergrün · Version ' + GAME_VER + '</div><div class="ds" style="margin:2px 0 8px">Dein Spielstand wird automatisch gespeichert. Frei erfundenes Spiel.</div>'; const bCL = document.createElement('button'); bCL.className = 'buy'; bCL.textContent = '✨ Was ist neu?'; bCL.style.gridColumn = '1 / -1'; bCL.addEventListener('click', () => showChangelog(true)); cV.appendChild(bCL); b.appendChild(cV);
@@ -663,6 +666,12 @@
     if (part === 'kopf') { wearSection(b, 'hat', 'Mützen und Kappen'); wearSection(b, 'band', 'Bandanas (am Kiosk)'); startPreviews(b); } // v79: Kopf = Frisur, Mützen, Bandanas
   }
   function openPhone() { if (state !== 'play') return; closeChat(); G.area = curKey; tmSel = player.fl === 2 && !prVisit ? 'pr' : ''; phoneOpen = true; $('phone').hidden = false; renderPhone(); }
+  // v143: Foto-Modus: alle Anzeigen kurz weg
+  let shotUntil = 0, shotT = null;
+  function shotOn() { return shotUntil > 0; }
+  function shotEnd() { if (!shotUntil) return; shotUntil = 0; clearTimeout(shotT); document.body.classList.remove('shot'); document.removeEventListener('pointerdown', shotTap, true); msg('📸 Foto-Modus beendet'); }
+  function shotTap(e) { if (performance.now() - shotUntil + 10000 < 600) return; e.preventDefault(); e.stopPropagation(); shotEnd(); }
+  function shotStart(sec) { closePhone(); shotUntil = performance.now() + sec * 1000; document.body.classList.add('shot'); clearTimeout(shotT); shotT = setTimeout(shotEnd, sec * 1000); setTimeout(() => { if (shotUntil) document.addEventListener('pointerdown', shotTap, true); }, 400); }
   function closePhone() { petViewClose(); lfFlush(); lfTab = ''; phoneOpen = false; tab = 'home'; $('phone').hidden = true; save(); }
 
 

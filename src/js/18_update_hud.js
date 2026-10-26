@@ -207,7 +207,7 @@
     bigMapDraw();
   }
   function wayTick() { if (wayPt && G && player.x >= 0 && Math.hypot(player.x - wayPt.x, player.y - wayPt.y) < 50) { wayPt = null; sfx.cash(); msg('📍 Ziel erreicht', false, 'ok'); } if (bigOpen && gt - BIGM.t > 0.15) bigMapDraw(); }
-  function drawWayPt() { // Fahne am Ziel und ein Pfeil am Bildrand, wenn es nicht zu sehen ist
+  function drawWayPt() { if (shotOn()) return; // Fahne am Ziel und ein Pfeil am Bildrand, wenn es nicht zu sehen ist
     if (!wayPt || player.x < 0) return; const p = wayPt, bob = Math.sin(gt * 3) * 2;
     if (inView(p.x, p.y, 30)) { ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, 9, 3.5, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,92,168,.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, 14 + 4 * Math.sin(gt * 4), 6, 0, 0, TAU); ctx.stroke();
       ctx.fillStyle = '#E8E2D0'; ctx.fillRect(p.x - 1, p.y - 30 + bob, 2, 32); ctx.fillStyle = '#FF5CA8'; ctx.beginPath(); ctx.moveTo(p.x + 1, p.y - 30 + bob); ctx.lineTo(p.x + 16, p.y - 25 + bob + Math.sin(gt * 6) * 1.5); ctx.lineTo(p.x + 1, p.y - 19 + bob); ctx.closePath(); ctx.fill(); return; }

@@ -982,7 +982,7 @@
     if (state !== 'edit') drawSkyFx();
   }
 
-  function drawJoystick() {
+  function drawJoystick() { if (shotOn()) return;
     if (joy.id === null) return;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.arc(joy.ox, joy.oy, 56, 0, TAU); ctx.fill();

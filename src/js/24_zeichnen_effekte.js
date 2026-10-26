@@ -153,11 +153,6 @@
     }
     { const cap = LOFX ? 50 : 160; if (fx.length > cap) fx.splice(0, fx.length - cap); } // v128: weniger Partikel
   }
-  function starPath(x, y, r) {
-    ctx.beginPath();
-    for (let i = 0; i < 8; i++) { const a = -Math.PI / 2 + i * Math.PI / 4, rr = i % 2 ? r * 0.38 : r; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
-    ctx.closePath(); ctx.fill();
-  }
   function drawTrail() {
     if (hist.length > 1) {
       ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -202,14 +197,13 @@
       } else if (p.k === 'petal') {
         ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = 1 - k; ctx.fillStyle = 'hsl(' + Math.round(p.hue) + ',85%,78%)'; ctx.beginPath(); ctx.ellipse(0, 0, 4, 2.2, 0, 0, TAU); ctx.fill(); ctx.restore();
       } else if (p.k === 'bolt') {
-        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = 1 - k; ctx.strokeStyle = '#BFE6FF'; ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(p.ln * .4, -3); ctx.lineTo(p.ln * .6, 3); ctx.lineTo(p.ln, 0); ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = 1 - k; ctx.globalCompositeOperation = 'lighter'; const bp = () => { ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(p.ln * .4, -3); ctx.lineTo(p.ln * .6, 3); ctx.lineTo(p.ln, 0); }; ctx.lineJoin = 'round';
+        ctx.strokeStyle = 'rgba(110,170,255,.45)'; ctx.lineWidth = 4.4; bp(); ctx.stroke(); ctx.strokeStyle = '#9FD8FF'; ctx.lineWidth = 1.8; bp(); ctx.stroke(); ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 0.7; bp(); ctx.stroke(); ctx.restore(); /* v143: leuchtender Blitz */
       } else if (p.k === 'coin') {
         const w = Math.abs(Math.cos(p.t * 9 + p.rot)) * 3 + 0.6;
         ctx.globalAlpha = 1 - k * k; ctx.fillStyle = '#FFD24A'; ctx.beginPath(); ctx.ellipse(p.x, p.y, w, 3.2, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = '#B8860B'; ctx.lineWidth = 0.8; ctx.stroke();
       } else {
-        ctx.globalAlpha = 0.42 * (1 - k); ctx.fillStyle = '#DDE3EA';
-        ctx.beginPath(); ctx.arc(p.x, p.y, 3 + k * 9, 0, TAU); ctx.fill();
+        const r = 3 + k * 10, a0 = 0.5 * Math.sin(Math.min(1, k * 3 + 0.15) * Math.PI / 2) * (1 - k), g = ctx.createRadialGradient(p.x - r * 0.25, p.y - r * 0.25, 0, p.x, p.y, r); g.addColorStop(0, 'rgba(225,230,238,' + a0.toFixed(3) + ')'); g.addColorStop(0.6, 'rgba(190,198,210,' + (a0 * 0.55).toFixed(3) + ')'); g.addColorStop(1, 'rgba(170,178,190,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill(); /* v143: weicher Rauch */
       }
     }
     ctx.globalAlpha = 1;
@@ -610,11 +604,11 @@
       else if (sT === 'boots') { Rc(x - .3, yf - 2, w + .6, 3.5, '#4A3326'); Rc(x - .3, yf + 1.2, w + .6 + tz, .5, '#1A1210'); if (tz) Rc(x + w - .3, yf + .2, tz, 1, '#4A3326'); }
       else if (sT === 'clogs') { Rc(x - .4, yf - .3, w + .8 + tz, 1.8, '#5FB86A'); Rc(x + .2, yf + .1, .5, .5, '#2E7D3E'); Rc(x + w - .7, yf + .1, .5, .5, '#2E7D3E'); Rc(x - .4, yf + 1.1, w + .8 + tz, .4, '#3E8A4A'); }
       else if (sT === 'highs') { Rc(x - .4, yf - 1.8, w + .8, 3.3, '#E05555'); Rc(x - .4, yf - 1.8, w + .8, .6, '#F4F4F8'); Rc(x - .4, yf + .9, w + .8 + tz, .7, '#F4F4F8'); if (tz) Rc(x + w, yf + .1, tz, 1, '#E05555'); if (!up) Rc(x + .3, yf - .4, w * .5, .4, '#F4F4F8'); }
-      else if (sT === 'goldshoe') { Rc(x - .3, yf - .1, w + .6 + tz, 1.2, '#E8B93A'); Rc(x - .3, yf + 1.1, w + .6 + tz, .4, '#8A6A12'); Rc(x + .3, yf + .1, .6, .4, '#FFF0B0'); }
+      else if (sT === 'goldshoe') { Rc(x - .3, yf - .1, w + .6 + tz, 1.2, '#E8B93A'); Rc(x - .3, yf + 1.1, w + .6 + tz, .4, '#8A6A12'); const sp = ((gt * 1.4 + (isL ? 0 : .5)) % 2.2) / 2.2 * (w + 1.4) - .7; Rc(x + Math.max(-.3, Math.min(w, sp)), yf - .1, .5, 1.2, '#FFF6CC'); Rc(x + .3, yf + .1, .6, .4, '#FFF0B0'); const tw = (gt * .9 + (isL ? 0 : .45)) % 1; if (tw < .18) { const s2 = Math.sin(tw / .18 * Math.PI) * 1.4; ctx.globalAlpha = .9; Rc(x + w * .5 - .15, yf - .6 - s2, .3, s2 * 2, '#FFFFFF'); Rc(x + w * .5 - s2, yf - .75, s2 * 2, .3, '#FFFFFF'); ctx.globalAlpha = 1; } } // v143: Glanz wandert, Funkeln
       else if (sT === 'led') {
         const c = 'hsl(' + Math.floor((gt * 140 + (isL ? 0 : 90)) % 360) + ',100%,60%)';
         Rc(x - .3, yf - .1, w + .6 + tz, 1, '#1E2430');
-        ctx.globalAlpha = .3; Rc(x - 1, yf + .6, w + 2 + tz, 1.8, c); ctx.globalAlpha = 1;
+        const pu = .55 + .45 * Math.abs(Math.sin(gt * 4 + (isL ? 0 : 1.6))); ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .22 * pu; Rc(x - 1.6, yf + .4, w + 3.2 + tz, 2.4, c); ctx.globalAlpha = .4 * pu; Rc(x - .8, yf + .7, w + 1.6 + tz, 1.4, c); ctx.restore(); // v143: pulsierender Lichtschein
         Rc(x - .3, yf + .9, w + .6 + tz, .7, c); Rc(x + .2, yf + .1, w * .5, .35, c);
       } else Rc(x - .2, yf, w + .4, 1.5, lg.shoe);
     };
@@ -899,7 +893,7 @@
     for (const [a, l] of f) { ctx.save(); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(0, -s * l * 0.55, s * 0.13, s * l * 0.55, 0, 0, TAU); ctx.fill(); ctx.restore(); }
     ctx.fillRect(-s * 0.04, 0, s * 0.08, s * 0.35); ctx.restore();
   }
-  function starPath(x, y, r1, r2, n = 5, rot = -Math.PI / 2) { ctx.beginPath(); for (let i = 0; i < n * 2; i++) { const r = i % 2 ? r2 : r1, a = rot + i * Math.PI / n; i ? ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r) : ctx.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } ctx.closePath(); }
+  function starPath(x, y, r1, r2, n = 5, rot = -Math.PI / 2) { if (r2 === undefined) { ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = -Math.PI / 2 + i * Math.PI / 4, rr = i % 2 ? r1 * 0.38 : r1; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); return; } /* v143: alte Kurzform mit 3 Werten zeichnet wieder (Sternenschwarm, Sternenstaub waren unsichtbar) */ ctx.beginPath(); for (let i = 0; i < n * 2; i++) { const r = i % 2 ? r2 : r1, a = rot + i * Math.PI / n; i ? ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r) : ctx.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } ctx.closePath(); }
   const BACK_FRONT = { fanny: 1 }; // wird vorne getragen
   // v142: Umhang-Farben und Fuellung mit Falten und Muster
   function capeCols(id, t) { return ({ capeleaf: ['#2E7D3E', '#1E5A2A'], capered: ['#C23B3B', '#8E2424'], capegold: ['#E0A92E', '#9A6C14'], capecheck: ['#F2F2F2', '#20232C'], capestar: ['#1E2A5A', '#10183A'], capeprism: ['hsl(' + ((t * 60) % 360).toFixed(0) + ',80%,55%)', 'hsl(' + ((t * 60 + 40) % 360).toFixed(0) + ',70%,35%)'] })[id]; }

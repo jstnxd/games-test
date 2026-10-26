@@ -759,3 +759,6 @@ body.port-ok .clockrow .seapill { max-width: calc(50vw - 84px); margin-right: 6p
 @media (max-width: 360px) { .tut-skip { padding: 6px 9px; font-size: 11.5px; } .tut-t { font-size: 18px; } }
 @keyframes tutPulse { 0%, 100% { border-color: #FFD24A; } 50% { border-color: #FFF3C4; } }
 @keyframes tutIn { from { opacity: 0; transform: scale(.94); } }
+
+/* v143: Foto-Modus */
+body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot #instArrow, body.shot .hudedit { visibility: hidden !important; }
