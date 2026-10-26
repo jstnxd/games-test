@@ -23,6 +23,82 @@
   }
   // ---------- v89: Zeichnen: Casino (Las Vegas), Apotheke, Besucher-Feld, Mietraum ----------
   let casLooks = null;
+  // ---------- v144: Spielautomat (Casino und Deko) ----------
+  const SLOT_DRAW = ['cherry', 'seven', 'bell', 'diamond', 'bar', 'star'];
+  function slotSym(k, x, y, s) { // s = Hoehe des Symbols
+    const F = c => { ctx.fillStyle = c; };
+    switch (SLOT_DRAW[((k % 6) + 6) % 6]) {
+      case 'cherry': ctx.strokeStyle = '#2E8B3E'; ctx.lineWidth = s * 0.09; ctx.beginPath(); ctx.moveTo(x - s * 0.18, y + s * 0.05); ctx.quadraticCurveTo(x, y - s * 0.4, x + s * 0.2, y - s * 0.38); ctx.moveTo(x + s * 0.2, y + s * 0.08); ctx.quadraticCurveTo(x + s * 0.18, y - s * 0.2, x + s * 0.2, y - s * 0.38); ctx.stroke(); F('#D8203A'); ctx.beginPath(); ctx.arc(x - s * 0.18, y + s * 0.16, s * 0.2, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.arc(x + s * 0.2, y + s * 0.2, s * 0.2, 0, TAU); ctx.fill(); F('rgba(255,255,255,.6)'); ctx.beginPath(); ctx.arc(x - s * 0.24, y + s * 0.1, s * 0.06, 0, TAU); ctx.fill(); break;
+      case 'seven': ctx.font = '900 ' + (s * 0.95).toFixed(2) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = s * 0.12; ctx.strokeStyle = '#7A0A14'; ctx.strokeText('7', x, y + s * 0.04); F('#E8203A'); ctx.fillText('7', x, y + s * 0.04); break;
+      case 'bell': F('#E8B22A'); ctx.beginPath(); ctx.moveTo(x - s * 0.32, y + s * 0.26); ctx.quadraticCurveTo(x - s * 0.28, y - s * 0.38, x, y - s * 0.38); ctx.quadraticCurveTo(x + s * 0.28, y - s * 0.38, x + s * 0.32, y + s * 0.26); ctx.closePath(); ctx.fill(); F('#A8781A'); ctx.fillRect(x - s * 0.36, y + s * 0.22, s * 0.72, s * 0.09); ctx.beginPath(); ctx.arc(x, y + s * 0.36, s * 0.08, 0, TAU); ctx.fill(); F('rgba(255,255,255,.5)'); ctx.fillRect(x - s * 0.16, y - s * 0.24, s * 0.06, s * 0.36); break;
+      case 'diamond': F('#3ABCE8'); ctx.beginPath(); ctx.moveTo(x, y - s * 0.4); ctx.lineTo(x + s * 0.34, y - s * 0.06); ctx.lineTo(x, y + s * 0.4); ctx.lineTo(x - s * 0.34, y - s * 0.06); ctx.closePath(); ctx.fill(); F('#A6E8FF'); ctx.beginPath(); ctx.moveTo(x, y - s * 0.4); ctx.lineTo(x + s * 0.12, y - s * 0.06); ctx.lineTo(x, y + s * 0.4); ctx.lineTo(x - s * 0.12, y - s * 0.06); ctx.closePath(); ctx.fill(); break;
+      case 'bar': F('#14161C'); ctx.fillRect(x - s * 0.4, y - s * 0.2, s * 0.8, s * 0.4); F('#F4F4F8'); ctx.font = '900 ' + (s * 0.3).toFixed(2) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('BAR', x, y + s * 0.02); break;
+      case 'star': F('#FFC82A'); starPath(x, y, s * 0.4, s * 0.17); ctx.fill(); F('#FFF0A0'); starPath(x - s * 0.04, y - s * 0.04, s * 0.16, s * 0.07); ctx.fill(); break;
+    }
+    ctx.textBaseline = 'alphabetic';
+  }
+  // o: { theme: 'red'|'neon', label, spin (true = dreht gerade), seed, auto (Deko: dreht von selbst), dark (0..1 Nacht) }
+  function drawSlotMachine(x, y, o) {
+    const F = c => { ctx.fillStyle = c; }, t = gt, neon = o.theme === 'neon', seed = o.seed || 0;
+    let spin = !!o.spin, stopAt = [0, 0, 0], win = false, wp = 0, res = [0, 0, 0];
+    const hh = (a, b) => { const v = Math.sin(a * 127.1 + b * 311.7 + seed * 74.7) * 43758.5453; return Math.floor((v - Math.floor(v)) * 6); };
+    let rp = [0, 0, 0];
+    if (o.auto) { const T = 7, cy = Math.floor((t + seed * 2.3) / T), ph = (t + seed * 2.3) - cy * T; win = cy % 3 === 1; res = win ? [hh(cy, 9), hh(cy, 9), hh(cy, 9)] : [hh(cy, 0), hh(cy, 1), hh(cy, 2)]; if (!win && res[0] === res[1] && res[1] === res[2]) res[2] = (res[2] + 1) % 6;
+      for (let r = 0; r < 3; r++) { const stop = 0.9 + r * 0.32; rp[r] = ph < stop ? res[r] + 6 * 4 - (stop - ph) * 22 : res[r]; } spin = ph < 1.6; wp = win && ph > 1.6 && ph < 4.2 ? (ph - 1.6) / 2.6 : 0; win = wp > 0; }
+    else { const cy = Math.floor(t / 5 + seed); for (let r = 0; r < 3; r++) { res[r] = hh(cy, r); rp[r] = spin ? t * (18 + r * 3) : res[r]; } }
+    ctx.save(); ctx.translate(x, y);
+    const glowC = neon ? '180,90,255' : '255,80,90';
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; const ga = 0.12 + 0.08 * Math.sin(t * 2) + (win ? 0.25 * Math.sin(wp * Math.PI) : 0) + 0.1 * (o.dark || 0); const g0 = ctx.createRadialGradient(0, -4, 2, 0, -4, 34); g0.addColorStop(0, 'rgba(' + glowC + ',' + ga.toFixed(3) + ')'); g0.addColorStop(1, 'rgba(' + glowC + ',0)'); F(g0); ctx.beginPath(); ctx.arc(0, -4, 34, 0, TAU); ctx.fill(); ctx.restore();
+    F('rgba(0,0,0,.35)'); ctx.beginPath(); ctx.ellipse(1, 23, 15, 3.6, 0, 0, TAU); ctx.fill();
+    // Seitliche Lichtleisten
+    for (const sx of [-15.6, 13.6]) { F('#14161C'); rr(sx, -21, 2, 42, 1); ctx.fill(); for (let k = 0; k < 7; k++) { const on = (Math.floor(t * 8) + k + (sx > 0 ? 3 : 0)) % 4 === 0; F(on ? (neon ? '#E6B8FF' : '#FFE27A') : (neon ? '#6A3AA8' : '#8A5A20')); ctx.fillRect(sx + 0.4, -19 + k * 5.8, 1.2, 3); } }
+    // Gehaeuse
+    const gb = ctx.createLinearGradient(-14, 0, 14, 0); if (neon) { gb.addColorStop(0, '#22123E'); gb.addColorStop(0.5, '#4A2490'); gb.addColorStop(1, '#22123E'); } else { gb.addColorStop(0, '#6A0C18'); gb.addColorStop(0.5, '#D8223A'); gb.addColorStop(1, '#6A0C18'); }
+    F(gb); rr(-14, -22, 28, 44, 4); ctx.fill(); ctx.strokeStyle = '#C9D2DC'; ctx.lineWidth = 0.9; rr(-14, -22, 28, 44, 4); ctx.stroke(); F('rgba(255,255,255,.14)'); ctx.fillRect(-12, -21, 3, 41);
+    // Aufsatz mit Lauflichtern
+    F('#14161C'); rr(-13.4, -33, 26.8, 12, 5); ctx.fill(); F(neon ? '#2A1650' : '#3A0A12'); rr(-12.4, -32, 24.8, 10, 4); ctx.fill();
+    for (let k = 0; k < 14; k++) { const u = k / 14, px = -11.6 + (k < 7 ? u * 2 * 23.2 : (1 - (u - 0.5) * 2) * 23.2), py = k < 7 ? -31.4 : -22.6; const on = (Math.floor(t * 10) + k) % 3 === 0 || win; F(on ? '#FFF2B0' : '#7A5A20'); ctx.beginPath(); ctx.arc(px, py, 0.7, 0, TAU); ctx.fill(); }
+    ctx.save(); ctx.font = '900 5.2px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const lab = o.label || (neon ? 'JACKPOT' : 'LUCKY 7'), pu = 0.75 + 0.25 * Math.sin(t * 3); ctx.globalCompositeOperation = 'lighter'; ctx.lineJoin = 'round'; ctx.strokeStyle = neon ? 'rgba(220,120,255,' + (0.5 * pu).toFixed(2) + ')' : 'rgba(255,200,60,' + (0.5 * pu).toFixed(2) + ')'; ctx.lineWidth = 2; ctx.strokeText(lab, 0, -27); F(neon ? '#F4D8FF' : '#FFE27A'); ctx.fillText(lab, 0, -27); ctx.restore();
+    // Walzenfenster
+    F('#C9D2DC'); rr(-12, -17.4, 24, 15.4, 2.4); ctx.fill(); F('#14161C'); rr(-11.2, -16.6, 22.4, 13.8, 2); ctx.fill();
+    for (let r = 0; r < 3; r++) { const rx = -10.4 + r * 7.2, rw = 6.6; ctx.save(); ctx.beginPath(); ctx.rect(rx, -16, rw, 12.6); ctx.clip(); const gr = ctx.createLinearGradient(0, -16, 0, -3.4); gr.addColorStop(0, '#9AA3AD'); gr.addColorStop(0.3, '#FFFFFF'); gr.addColorStop(0.7, '#FFFFFF'); gr.addColorStop(1, '#9AA3AD'); F(gr); ctx.fillRect(rx, -16, rw, 12.6);
+      const p = rp[r], base = Math.floor(p), fr = p - base, cyR = -9.7, sp = 6.2; for (let q = -1; q <= 1; q++) { const sym = base - q, yy = cyR + (q + fr) * sp - 0; if (spin && Math.abs(p - Math.round(p)) > 0.01) { ctx.globalAlpha = 0.85; } slotSym(sym, rx + rw / 2, yy, 5); ctx.globalAlpha = 1; }
+      if (spin && (o.auto ? Math.abs(p - Math.round(p)) > 0.01 : true)) { F('rgba(255,255,255,.35)'); ctx.fillRect(rx, -16, rw, 12.6); }
+      F('rgba(0,0,0,.25)'); ctx.fillRect(rx, -16, rw, 1.6); ctx.fillRect(rx, -5, rw, 1.6); ctx.restore(); }
+    ctx.strokeStyle = win ? 'rgba(255,240,120,' + (0.6 + 0.4 * Math.sin(t * 20)).toFixed(2) + ')' : 'rgba(255,60,80,.8)'; ctx.lineWidth = win ? 1 : 0.5; ctx.beginPath(); ctx.moveTo(-11, -9.7); ctx.lineTo(11, -9.7); ctx.stroke(); F('#FF3C50'); for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * 12.6, -9.7); ctx.lineTo(s * 11.4, -11); ctx.lineTo(s * 11.4, -8.4); ctx.closePath(); ctx.fill(); }
+    // Anzeige, Knoepfe, Muenzschale
+    F('#0E1014'); rr(-11, -1, 22, 4.4, 1); ctx.fill(); ctx.save(); ctx.font = '700 3px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; F(win ? '#FFE27A' : '#FF5A3A'); ctx.fillText(win ? 'GEWINN!' : 'CREDIT ' + String(420 + Math.floor(t * 3) % 80).padStart(4, '0'), 0, 1.2); ctx.restore();
+    [['#E0243A', -7], ['#F2C14E', 0], ['#3FD06A', 7]].forEach(([c, bx], k) => { F('#2A2F38'); ctx.beginPath(); ctx.ellipse(bx, 7, 2.8, 1.8, 0, 0, TAU); ctx.fill(); const lit = 0.6 + 0.4 * Math.sin(t * 5 + k * 2); ctx.save(); ctx.globalAlpha = lit; F(c); ctx.beginPath(); ctx.ellipse(bx, 6.6, 2.2, 1.3, 0, 0, TAU); ctx.fill(); ctx.restore(); F('rgba(255,255,255,.5)'); ctx.fillRect(bx - 1, 6, 1, 0.5); });
+    F('#5A626E'); rr(-11, 11.4, 22, 8, 2); ctx.fill(); F('#14161C'); rr(-9.6, 12.6, 19.2, 5.6, 1.6); ctx.fill(); F('#E8B22A'); for (let k = 0; k < (win ? 7 : 3); k++) { ctx.beginPath(); ctx.ellipse(-6 + (k * 2.3) % 12 + (k > 4 ? 1 : 0), 16.4 - (k % 2) * 0.8, 1.5, 0.8, 0, 0, TAU); ctx.fill(); }
+    F('#2A2F38'); ctx.fillRect(-4, 20.6, 8, 1.6);
+    // Hebel
+    const pull = o.auto ? (spin && (t + seed * 2.3) % 7 < 0.4 ? 1 : 0) : (spin ? 0.6 + 0.4 * Math.sin(t * 10) : 0); ctx.save(); ctx.translate(15, -2); ctx.rotate(0.22 + pull * 1.3); F('#9AA3AD'); rr(-0.9, -12, 1.8, 12, 0.9); ctx.fill(); F('rgba(255,255,255,.6)'); ctx.fillRect(-0.4, -11.4, 0.5, 10); const gk = ctx.createRadialGradient(-0.8, -13.4, 0.3, 0, -12.6, 2.8); gk.addColorStop(0, '#FF8A9A'); gk.addColorStop(1, neon ? '#7A2AD0' : '#B0122A'); F(gk); ctx.beginPath(); ctx.arc(0, -12.8, 2.6, 0, TAU); ctx.fill(); ctx.restore(); F('#5A626E'); rr(13.6, -4, 2.8, 4, 1); ctx.fill();
+    // Gewinn: Muenzen springen heraus
+    if (win) { for (let k = 0; k < 8; k++) { const p = (wp * 2.2 + k / 8) % 1, ax = (k % 2 ? 1 : -1) * (2 + (k * 3.7) % 10), cx = ax * p, cy0 = 14 - 30 * p + 34 * p * p; ctx.globalAlpha = 1 - p * 0.6; const w2 = Math.abs(Math.cos(t * 9 + k)) * 1.6 + 0.3; F('#FFD24A'); ctx.beginPath(); ctx.ellipse(cx, cy0, w2, 1.6, 0, 0, TAU); ctx.fill(); F('#C9962A'); ctx.beginPath(); ctx.ellipse(cx, cy0, w2 * 0.5, 0.8, 0, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1;
+      ctx.save(); ctx.font = '900 6px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.globalAlpha = Math.sin(wp * Math.PI); ctx.lineWidth = 2; ctx.strokeStyle = '#7A0A14'; ctx.strokeText('WIN!', 0, -38 - wp * 4); F('#FFE27A'); ctx.fillText('WIN!', 0, -38 - wp * 4); ctx.restore(); }
+    ctx.restore();
+  }
+  // ---------- v144: Blackjack-Tisch ----------
+  function drawBJTable(x, y, i, min) {
+    const F = c => { ctx.fillStyle = c; }, t = gt;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; const gl = ctx.createRadialGradient(x, y - 2, 4, x, y - 2, 46); gl.addColorStop(0, 'rgba(255,225,160,.16)'); gl.addColorStop(1, 'rgba(255,225,160,0)'); F(gl); ctx.beginPath(); ctx.arc(x, y - 2, 46, 0, TAU); ctx.fill(); ctx.restore();
+    F('rgba(0,0,0,.35)'); ctx.beginPath(); ctx.ellipse(x + 2, y + 6, 34, 18, 0, 0, Math.PI); ctx.fill(); ctx.fillRect(x - 32, y - 10, 68, 16);
+    const shape = (rx, ry, top) => { ctx.beginPath(); ctx.moveTo(x - rx, top); ctx.lineTo(x + rx, top); ctx.lineTo(x + rx, y); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI); ctx.closePath(); };
+    F('#2A140A'); shape(33.4, 19.4, y - 15); ctx.fill(); const gr = ctx.createLinearGradient(x, y - 14, x, y + 18); gr.addColorStop(0, '#7A4424'); gr.addColorStop(1, '#4A2412'); F(gr); shape(32.4, 18.4, y - 14.4); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,220,170,.35)'; ctx.lineWidth = 0.4; ctx.setLineDash([1, 1]); ctx.beginPath(); ctx.ellipse(x, y, 30.6, 16.6, 0, 0, Math.PI); ctx.stroke(); ctx.setLineDash([]);
+    const gf = ctx.createRadialGradient(x, y - 6, 2, x, y - 2, 32); gf.addColorStop(0, '#22A058'); gf.addColorStop(1, '#0C5A2C'); F(gf); shape(28, 14, y - 11.6); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,215,110,.7)'; ctx.lineWidth = 0.6; ctx.beginPath(); ctx.ellipse(x, y - 2, 21, 9, 0, 0.12, Math.PI - 0.12); ctx.stroke(); ctx.beginPath(); ctx.ellipse(x, y - 2, 15, 5.6, 0, 0.18, Math.PI - 0.18); ctx.stroke();
+    ctx.save(); ctx.font = '800 2.6px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; F('rgba(255,215,110,.85)'); ctx.fillText('BLACKJACK ZAHLT 3 : 2', x, y + 1.6); F('rgba(255,255,255,.45)'); ctx.font = '700 2px sans-serif'; ctx.fillText('DEALER ZIEHT BIS 16', x, y + 4.4); ctx.restore();
+    for (let k = 0; k < 5; k++) { const a = Math.PI * (0.16 + k * 0.17), cx = x + Math.cos(a) * 23.5, cy = y + Math.sin(a) * 11.4; ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.ellipse(cx, cy, 2.8, 1.6, 0, 0, TAU); ctx.stroke();
+      if ((k + i) % 2 === 0) { const cols = [['#E0243A', '#FFFFFF'], ['#2F6FD6', '#FFFFFF'], ['#14161C', '#F2C14E']][(k + i) % 3]; for (let q = 0; q < 2 + (k % 3); q++) { F(cols[0]); ctx.beginPath(); ctx.ellipse(cx, cy - q * 1.1, 2.3, 1.3, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = cols[1]; ctx.setLineDash([0.6, 0.8]); ctx.lineWidth = 0.4; ctx.beginPath(); ctx.ellipse(cx, cy - q * 1.1, 1.9, 1, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); } }
+      if (k === 1 || k === 3) { for (let c = 0; c < 2; c++) { ctx.save(); ctx.translate(cx - 1.6 + c * 2.4, cy - 4.6); ctx.rotate(-0.2 + c * 0.35); F('#FFFFFF'); rr(-1.6, -2.2, 3.2, 4.4, 0.5); ctx.fill(); F(c ? '#E0243A' : '#14161C'); ctx.font = '800 2.2px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(['A', 'K', '7', 'Q', '9', '10'][(k + c + i) % 6], 0, -0.5); ctx.restore(); } } }
+    F('#14161C'); rr(x - 11, y - 13.6, 22, 4.4, 1); ctx.fill(); const chipC = ['#E0243A', '#2F6FD6', '#3FAE6A', '#14161C', '#B58CFF', '#F2C14E']; for (let k = 0; k < 6; k++) { F(chipC[k]); ctx.fillRect(x - 10.2 + k * 3.5, y - 13, 2.8, 3.2); F('rgba(255,255,255,.35)'); for (let q = 0; q < 3; q++) ctx.fillRect(x - 10.2 + k * 3.5, y - 12.6 + q, 2.8, 0.25); }
+    const flip = (t * 0.5 + i * 0.7) % 4; for (let c = 0; c < 2; c++) { ctx.save(); ctx.translate(x - 2 + c * 4, y - 6.4); ctx.rotate(-0.1 + c * 0.2); const down = c === 1 && flip < 3; F('#FFFFFF'); rr(-1.8, -2.4, 3.6, 4.8, 0.5); ctx.fill(); if (down) { F('#B0122A'); rr(-1.4, -2, 2.8, 4, 0.4); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 0.3; for (let q = -2; q < 3; q++) { ctx.beginPath(); ctx.moveTo(-1.4, q); ctx.lineTo(1.4, q + 1.4); ctx.stroke(); } } else { F(c ? '#E0243A' : '#14161C'); ctx.font = '800 2.4px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(c ? '♥' : 'A', 0, -0.4); } ctx.restore(); }
+    F('#8A1020'); ctx.save(); ctx.translate(x + 19, y - 9); ctx.rotate(0.2); rr(-3.4, -2.4, 6.8, 4.8, 1); ctx.fill(); F('#FFFFFF'); ctx.fillRect(-2.6, -1.8, 4, 3.4); F('#6A0C18'); ctx.fillRect(1.4, -2.4, 2, 4.8); ctx.restore();
+    F('#14161C'); rr(x - 26, y - 11, 4, 4, 0.8); ctx.fill(); F('#E8ECF2'); ctx.fillRect(x - 25.4, y - 10.4, 2.8, 2);
+    F('#2A140A'); rr(x - 12, y + 18.6, 24, 6.4, 2); ctx.fill(); F(ctx.createLinearGradient(x - 11, 0, x + 11, 0)); { const gp = ctx.createLinearGradient(x - 11, 0, x + 11, 0); gp.addColorStop(0, '#9A6C14'); gp.addColorStop(0.5, '#FFE27A'); gp.addColorStop(1, '#9A6C14'); F(gp); } rr(x - 11.2, y + 19.2, 22.4, 5.2, 1.6); ctx.fill();
+    ctx.save(); ctx.font = '900 3.6px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; F('#3A2408'); ctx.fillText('MIN ' + fmt(min), x, y + 21.9); ctx.restore(); ctx.textBaseline = 'alphabetic';
+  }
   function drawCasino() {
     const C = CAS; if (!inView(C.x + C.w / 2, C.y + C.h / 2, 420)) return;
     const inside = inCasino(), I = CAS_IN;
@@ -53,29 +129,13 @@
       ctx.fillStyle = '#FFD24A'; ctx.beginPath(); ctx.arc(W0.x, W0.y, 5, 0, TAU); ctx.fill(); ctx.fillStyle = '#FF5C7A'; ctx.beginPath(); ctx.moveTo(W0.x - 5, W0.y - 36); ctx.lineTo(W0.x + 5, W0.y - 36); ctx.lineTo(W0.x, W0.y - 26); ctx.closePath(); ctx.fill();
       if (wheelReady()) { ctx.fillStyle = 'rgba(255,210,74,' + (0.5 + 0.5 * Math.sin(gt * 4)).toFixed(2) + ')'; ctx.font = '900 9px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('HEUTE GRATIS!', W0.x, W0.y + 52); ctx.textBaseline = 'alphabetic'; } }
     // Slotmaschinen
-    CAS_SLOTS.forEach((s, i) => { const x = s.x, y = s.y;
-      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x - 12, y - 18, 30, 44);
-      const g = ctx.createLinearGradient(x - 14, 0, x + 14, 0); g.addColorStop(0, '#8A1020'); g.addColorStop(.5, '#E0243A'); g.addColorStop(1, '#8A1020'); ctx.fillStyle = g; rr(x - 14, y - 22, 28, 44, 5); ctx.fill();
-      ctx.fillStyle = '#FFD24A'; rr(x - 12, y - 20, 24, 7, 2); ctx.fill(); ctx.fillStyle = '#8A1020'; ctx.font = '900 5px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('LUCKY ' + (i + 1), x, y - 16.3);
-      ctx.fillStyle = '#F4F4F8'; rr(x - 11, y - 10, 22, 12, 2); ctx.fill();
-      const sy = ['🍒', '7', '💎', '⭐', '🔔']; ctx.font = '7px sans-serif'; for (let k = 0; k < 3; k++) { ctx.fillStyle = '#10151C'; ctx.fillText(sy[(Math.floor(gt * (slotBusy && casIdx === i ? 12 : 0.6)) + k * 2 + i) % sy.length], x - 7 + k * 7, y - 3.6); }
-      ctx.fillStyle = '#2B1A10'; rr(x - 10, y + 6, 20, 10, 2); ctx.fill(); ctx.fillStyle = (Math.floor(gt * 3) + i) % 2 ? '#5FE584' : '#FFD24A'; ctx.fillRect(x - 7, y + 9, 4, 4); ctx.fillRect(x + 3, y + 9, 4, 4);
-      ctx.strokeStyle = '#C9D2DC'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 14, y - 6); ctx.lineTo(x + 19, y - 14); ctx.stroke(); ctx.fillStyle = '#E0243A'; ctx.beginPath(); ctx.arc(x + 19, y - 15, 3, 0, TAU); ctx.fill();
-      ctx.textBaseline = 'alphabetic'; });
+    CAS_SLOTS.forEach((s, i) => drawSlotMachine(s.x, s.y, { theme: i % 2 ? 'neon' : 'red', label: 'LUCKY ' + (i + 1), spin: slotBusy && casIdx === i, seed: i * 3.1 })); // v144: neue Automaten
     // Bar an der Ostwand
     ctx.fillStyle = '#2B1A10'; rr(5138, 880, 22, 150, 4); ctx.fill(); ctx.fillStyle = '#5A3A22'; ctx.fillRect(5138, 880, 4, 150);
     for (let k = 0; k < 9; k++) { ctx.fillStyle = ['#E8B44A', '#4FD1C5', '#E05A9A', '#9BD05A'][k % 4]; ctx.fillRect(5150, 888 + k * 16, 5, 10); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(5151, 889 + k * 16, 1, 6); }
     // Blackjack-Tische mit Dealer
     if (!casLooks) casLooks = [0, 1, 2].map(i => LK({ r: 24, g: 24, b: 30, top: 'suit', bot: 'suitpants', hair: [0, 2, 1][i], hs: [3, 6, 8][i], skin: [1, 3, 0][i], sex: i === 1 ? 'f' : 'm', shoe: 'dress' }));
-    CAS_BJ.forEach((t, i) => { const x = t.x, y = t.y;
-      drawFigure(x, y - 28, Math.PI / 2, 0, casLooks[i]);
-      ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x + 2, y + 4, 32, 18, 0, 0, Math.PI); ctx.fill(); ctx.fillRect(x - 30, y - 12, 64, 16);
-      ctx.fillStyle = '#5A3418'; ctx.beginPath(); ctx.moveTo(x - 32, y - 14); ctx.lineTo(x + 32, y - 14); ctx.lineTo(x + 32, y); ctx.ellipse(x, y, 32, 18, 0, 0, Math.PI); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#16703C'; ctx.beginPath(); ctx.moveTo(x - 28, y - 11); ctx.lineTo(x + 28, y - 11); ctx.lineTo(x + 28, y); ctx.ellipse(x, y, 28, 14, 0, 0, Math.PI); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,230,150,.5)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.ellipse(x, y, 20, 8, 0, 0, Math.PI); ctx.stroke();
-      ctx.fillStyle = '#F4F4F8'; for (let k = 0; k < 2; k++) { ctx.save(); ctx.translate(x - 4 + k * 6, y - 6); ctx.rotate(-0.15 + k * 0.3); ctx.fillRect(-2.4, -3.4, 4.8, 6.8); ctx.fillStyle = k ? '#E0243A' : '#10151C'; ctx.fillRect(-1, -1.5, 2, 2); ctx.restore(); ctx.fillStyle = '#F4F4F8'; }
-      [['#E0243A', -16], ['#2F6FD6', 14], ['#10151C', 18]].forEach(([c, dx], k) => { for (let q = 0; q < 3; q++) { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x + dx, y + 2 - q * 1.4 - k * 0.5, 2.6, 1.6, 0, 0, TAU); ctx.fill(); } });
-      ctx.fillStyle = 'rgba(255,210,74,.9)'; ctx.font = '800 7px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('MIN ' + fmt(t.min), x, y + 22); ctx.textBaseline = 'alphabetic'; });
+    CAS_BJ.forEach((t, i) => { drawFigure(t.x, t.y - 28, Math.PI / 2, 0, casLooks[i]); drawBJTable(t.x, t.y, i, t.min); }); // v144: neuer Tisch
     // Kronleuchter-Licht
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (const [lx, ly] of [[4960, 960], [5080, 960], [5020, 1180]]) { const g = ctx.createRadialGradient(lx, ly, 2, lx, ly, 70); g.addColorStop(0, 'rgba(255,220,150,.18)'); g.addColorStop(1, 'rgba(255,220,150,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(lx, ly, 70, 0, TAU); ctx.fill(); } ctx.restore();
     if (!inside) drawCasinoRoof();

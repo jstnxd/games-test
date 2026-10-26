@@ -288,7 +288,12 @@
     { id: 'speakerwall', name: 'Boxenturm', desc: 'Die Membranen wummern im Takt, bei jedem Bass leuchtet die Kante', cost: 1500, rep: 18 },
     { id: 'cooler', name: 'Kühlbox', desc: 'Deckel klappt auf, kalte Limo-Dosen und Kältedampf', cost: 500, rep: 6 }
   );
-  const GHQ_CHILL = ['lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler'];
+  DECOR.push( // v144: Casino-Automaten
+    { id: 'slotmachine', name: 'Spielautomat', desc: 'Einarmiger Bandit: Lauflichter, drehende Walzen, und ab und zu ein Gewinn mit Münzregen', cost: 1900, rep: 24 },
+    { id: 'slotneon', name: 'Neon-Automat', desc: 'Lila Automat mit leuchtender Jackpot-Schrift, drehenden Walzen und Münzregen bei Gewinn', cost: 2800, rep: 30 }
+  );
+  Object.assign(DHALF, { slotmachine: [15, 24], slotneon: [15, 24] }); DEC_NEW.unshift('slotmachine', 'slotneon');
+  const GHQ_CHILL = ['slotmachine', 'slotneon', 'lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler'];
   Object.assign(DHALF, { lounge: [34, 22], firepit: [18, 14], console: [32, 20], djbooth: [26, 18], neonsign: [24, 14], pokertable: [30, 20], tagwall: [30, 16], sneakerwall: [26, 20], hoops: [14, 22], moneycount: [20, 12], speakerwall: [18, 22], cooler: [13, 12] });
   Object.assign(DHALF, { firefly: [8, 14], mobile: [14, 18], rocker: [16, 18], newton: [14, 10], cuckoo: [12, 20], plasma: [10, 14], fountain: [16, 16], robovac: [18, 16], bubbles: [10, 14], trainset: [28, 18], carousel: [18, 20], jellytank: [14, 22] });
   const placedCount = id => DEC_KEYS.reduce((n, k) => n + G.dec.items[k].filter(d => d.id === id).length, 0);

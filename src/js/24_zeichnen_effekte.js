@@ -572,7 +572,7 @@
     else if (tp === 'trench') { body = '#B59A6A'; bdk = '#8A7248'; }
     const slv = tp === 'tank' ? sk : tp === 'varsity' ? '#F4F4F8' : body;
     // ----- Hose -----
-    const bt = cs ? 'cs' : (L.bot === 'auto' || !L.bot ? (fem ? 'skirt' : 'jeans') : L.bot);
+    const bt = cs ? 'cs' : (L.bot === 'auto' || !L.bot ? (fem ? 'skirt' : 'plain') : L.bot); // v144: Standard ist eine schlichte Stoffhose, Jeans hat Naehte
     const lg = { col: '#35405F', pl: 4, skirt: false, bare: false, wide: false, ex: '', shoe: '#1C2030' };
     if (bt === 'skirt') { lg.skirt = true; lg.bare = true; lg.col = cd; }
     else if (bt === 'shorts') { lg.col = '#3E5A8A'; lg.pl = 2; lg.bare = true; }
@@ -580,12 +580,12 @@
     else if (bt === 'baggy') { lg.col = '#2C3E66'; lg.wide = true; }
     else if (bt === 'jogger') { lg.col = '#7C8394'; lg.ex = 'jog'; }
     else if (bt === 'camo') { lg.col = '#566B3C'; lg.ex = 'camo'; }
-    else if (bt === 'jeans') lg.col = '#3F5A8C';
+    else if (bt === 'jeans') { lg.col = '#3F5A8C'; lg.ex = 'jeans'; }
     else if (bt === 'bermuda') { lg.col = '#9A8A5E'; lg.pl = 3; lg.bare = true; }
     else if (bt === 'sports') { lg.col = '#2B2F45'; lg.pl = 2; lg.bare = true; lg.ex = 'sport'; }
     else if (bt === 'leggings') lg.col = '#17171E';
     else if (bt === 'plaid') { lg.skirt = true; lg.bare = true; lg.col = '#9B2F3A'; lg.ex2 = 'plaid'; }
-    else if (bt === 'suitpants') lg.col = '#222633';
+    else if (bt === 'suitpants') { lg.col = '#2A2F40'; lg.ex = 'crease'; }
     else if (bt === 'leatherp') { lg.col = '#24242A'; lg.ex = 'shine'; }
     else if (bt === 'cs') { lg.col = cs.legs; lg.shoe = cs.shoe || '#1C2030'; }
     const ly = 4, lh = lg.skirt ? 3 : 4, yo = lg.skirt ? 1 : 0;
@@ -621,6 +621,8 @@
       else if (lg.ex === 'camo') { Rc(x + .4, y0 + .5, 1, 1, '#2F3E22'); Rc(x + 1.3, y0 + 2, 1, 1, '#8A9A5A'); Rc(x + .3, y0 + 2.6, .9, .9, '#2F3E22'); }
       if (lg.ex === 'sport') { if (!up) Rc(isL ? x : x + w - .6, y0, .6, pl, '#F4F4F8'); }
       else if (lg.ex === 'shine') Rc(x + .4, y0 + .4, .5, lh - 1, 'rgba(255,255,255,.25)');
+      else if (lg.ex === 'jeans') { Rc(isL ? x + .2 : x + w - .55, y0, .35, lh - .6, '#7A95C8'); Rc(x, y0 + lh - .9, w, .6, '#5A78AE'); if (!up && !side) Rc(isL ? x + w - 1.1 : x + .3, y0 + .3, .8, .5, '#C9A13A'); }
+      else if (lg.ex === 'crease') { Rc(x + w / 2 - .15, y0, .3, lh - .5, '#474E66'); Rc(x, y0 + lh - .7, w, .5, '#1A1D28'); }
       shoeAt(x, w, y0 + lh - .2, isL);
     };
     if (side) { const o = mv ? (lf ? 1.2 : -1.2) : 0; leg(-1.5 - o, 2.4, 0, true); leg(-.9 + o, 2.4, 0, false); }
@@ -895,6 +897,7 @@
   }
   function starPath(x, y, r1, r2, n = 5, rot = -Math.PI / 2) { if (r2 === undefined) { ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = -Math.PI / 2 + i * Math.PI / 4, rr = i % 2 ? r1 * 0.38 : r1; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); return; } /* v143: alte Kurzform mit 3 Werten zeichnet wieder (Sternenschwarm, Sternenstaub waren unsichtbar) */ ctx.beginPath(); for (let i = 0; i < n * 2; i++) { const r = i % 2 ? r2 : r1, a = rot + i * Math.PI / n; i ? ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r) : ctx.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } ctx.closePath(); }
   const BACK_FRONT = { fanny: 1 }; // wird vorne getragen
+  const COS_SHIM = { gold: ['255,210,90', '#FFF2B0'], neon: ['255,80,190', '#9FFFF0'], royal: ['180,120,255', '#F2D36B'] }; // v144: Schimmer und Funkeln
   // v142: Umhang-Farben und Fuellung mit Falten und Muster
   function capeCols(id, t) { return ({ capeleaf: ['#2E7D3E', '#1E5A2A'], capered: ['#C23B3B', '#8E2424'], capegold: ['#E0A92E', '#9A6C14'], capecheck: ['#F2F2F2', '#20232C'], capestar: ['#1E2A5A', '#10183A'], capeprism: ['hsl(' + ((t * 60) % 360).toFixed(0) + ',80%,55%)', 'hsl(' + ((t * 60 + 40) % 360).toFixed(0) + ',70%,35%)'] })[id]; }
   function capeFill(id, shape, c, cd, t, sw, x0, y0, w, h) {
@@ -996,7 +999,9 @@
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(px, py + 8.5 * s1, 7.5 * s1, 3 * s1); ctx.fill();
     ctx.save(); ctx.translate(px, py - bob - 1); ctx.scale(s1, s1);
     if (L.outline) for (const o of [[-0.9, 0], [0.9, 0], [0, -0.9], [0, 0.9]]) { ctx.save(); ctx.translate(o[0], o[1]); sprite(L, dir, pstep, '#10151C'); ctx.restore(); }
+    const shim = COS_SHIM[L.cos]; if (shim && (!LOFX || L === G.look)) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(0, -1, 1, 0, -1, 12); g.addColorStop(0, 'rgba(' + shim[0] + ',' + (0.22 + 0.1 * Math.sin(gt * 3)).toFixed(3) + ')'); g.addColorStop(1, 'rgba(' + shim[0] + ',0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, -1, 12, 0, TAU); ctx.fill(); ctx.restore(); } // v144: Leucht-Kostueme
     drawBack(L, dir, pstep, 0); sprite(L, dir, pstep, null); drawBack(L, dir, pstep, 1); // v76: Ruecken-Kosmetik
+    if (shim && (!LOFX || L === G.look)) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let k = 0; k < 4; k++) { const p = (gt * 0.9 + k * 0.27 + (L.r || 0) * 0.01) % 1; if (p > 0.3) continue; const hv = Math.sin(k * 91.3 + Math.floor(gt * 0.9 + k * 0.27) * 17.1) * 43758.5; const fx2 = (hv - Math.floor(hv)) * 8 - 4, fy = ((hv * 7) - Math.floor(hv * 7)) * 14 - 9, s2 = Math.sin(p / 0.3 * Math.PI) * 1.6; ctx.fillStyle = shim[1]; ctx.fillRect(fx2 - .2, fy - s2, .4, s2 * 2); ctx.fillRect(fx2 - s2, fy - .2, s2 * 2, .4); } ctx.restore(); }
     ctx.restore();
   }
   // ---------- Fahrzeuge zeichnen (v48) ----------
