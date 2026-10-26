@@ -14,7 +14,7 @@
   }
   function nthWeekday(y, mo, wd, n) { const d = new Date(y, mo, 1); const off = (wd - d.getDay() + 7) % 7; return new Date(y, mo, 1 + off + (n - 1) * 7); } // mo: 0 = Januar, wd: 0 = Sonntag
   const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-  const CAL_BDAY = 1025; // Kellergrün-Geburtstag (Monat * 100 + Tag)
+  const CAL_BDAY = 1011; // Kellergrün-Geburtstag (Monat * 100 + Tag)
   const CAL = [
     { id: 'halloween', ic: '🎃', name: 'Halloween', col: '#FF8A2A', on: d => { const m = calMD(d); return m >= 1024 && m <= 1101; }, inst: d => 'hw' + d.getFullYear(),
       desc: 'Kürbisse vor den Häusern. Geh an eine Haustür mit Kürbis und drück A: Süßes oder Saures! Nach 8 Häusern gibt es den Kürbiskopf. Geisterlaken und Gespenst 30 % billiger.', disc: { w: { ghost: 0.7 }, c: { ghost: 0.7 } } },

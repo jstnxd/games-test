@@ -877,7 +877,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 155 · Neu: echte Kalender-Events (Halloween, Advent, Silvester …)<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 156 · Neu: echte Kalender-Events (Halloween, Advent, Silvester …)<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -8379,7 +8379,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   }
   function nthWeekday(y, mo, wd, n) { const d = new Date(y, mo, 1); const off = (wd - d.getDay() + 7) % 7; return new Date(y, mo, 1 + off + (n - 1) * 7); } // mo: 0 = Januar, wd: 0 = Sonntag
   const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-  const CAL_BDAY = 1025; // Kellergrün-Geburtstag (Monat * 100 + Tag)
+  const CAL_BDAY = 1011; // Kellergrün-Geburtstag (Monat * 100 + Tag)
   const CAL = [
     { id: 'halloween', ic: '🎃', name: 'Halloween', col: '#FF8A2A', on: d => { const m = calMD(d); return m >= 1024 && m <= 1101; }, inst: d => 'hw' + d.getFullYear(),
       desc: 'Kürbisse vor den Häusern. Geh an eine Haustür mit Kürbis und drück A: Süßes oder Saures! Nach 8 Häusern gibt es den Kürbiskopf. Geisterlaken und Gespenst 30 % billiger.', disc: { w: { ghost: 0.7 }, c: { ghost: 0.7 } } },
@@ -14891,7 +14891,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 155; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 156; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -15218,6 +15218,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 156, date: 'Oktober 2026', title: 'Geburtstag', items: [
+      ['chg', '🎂', 'Kellergrün hat am 11. Oktober Geburtstag, an dem Tag gibt es Konfetti und ein Geschenk'] ] },
     { v: 155, date: 'Oktober 2026', title: 'Echte Events', items: [
       ['neu', '🎃', 'Halloween (24.10.–1.11.): Kürbisse vor den Häusern, an jeder Kürbis-Tür A drücken für Süßes oder Saures. Nach 8 Häusern gibt es den Kürbiskopf'],
       ['neu', '🎄', 'Advent mit Türchen-Kalender, Lichterketten und Weihnachtsbaum, 🎆 Silvester-Feuerwerk, 💘 Valentinstag, 🐣 Ostereier-Suche, 🏷️ Black Friday, 🎪 Sommerfest und 🎂 Kellergrün-Geburtstag'],
@@ -15228,8 +15230,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ['neu', '🍂', 'Herbst mit welkem Gras und Laub auf den Wiesen, Frühling mit frischem Grün und Blüten, Sommer warm und sonnig'],
       ['neu', '🔋', 'Einstellungen: „Akku sparen“ begrenzt das Spiel auf 60 Bilder pro Sekunde'],
       ['chg', '⚡', 'Spürbar flüssiger: Räume unter geschlossenem Dach werden nicht mehr unsichtbar mitgezeichnet, weniger Ruckler beim Laufen, hinter dem Handy-Menü läuft das Spiel sparsamer'] ] },
-    { v: 153, date: 'Oktober 2026', title: 'Spiel im Spiel', items: [
-      ['neu', '🎮', 'Auf dem linken Bildschirm des Gaming-Tischs läuft echtes Kellergrün: deine eigene Figur läuft durch den Stadtpark, mit Geld, Uhrzeit, Minikarte, Joystick und A-Knopf wie im Spiel'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

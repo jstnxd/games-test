@@ -185,6 +185,8 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 156, date: 'Oktober 2026', title: 'Geburtstag', items: [
+      ['chg', '🎂', 'Kellergrün hat am 11. Oktober Geburtstag, an dem Tag gibt es Konfetti und ein Geschenk'] ] },
     { v: 155, date: 'Oktober 2026', title: 'Echte Events', items: [
       ['neu', '🎃', 'Halloween (24.10.–1.11.): Kürbisse vor den Häusern, an jeder Kürbis-Tür A drücken für Süßes oder Saures. Nach 8 Häusern gibt es den Kürbiskopf'],
       ['neu', '🎄', 'Advent mit Türchen-Kalender, Lichterketten und Weihnachtsbaum, 🎆 Silvester-Feuerwerk, 💘 Valentinstag, 🐣 Ostereier-Suche, 🏷️ Black Friday, 🎪 Sommerfest und 🎂 Kellergrün-Geburtstag'],
@@ -195,8 +197,6 @@
       ['neu', '🍂', 'Herbst mit welkem Gras und Laub auf den Wiesen, Frühling mit frischem Grün und Blüten, Sommer warm und sonnig'],
       ['neu', '🔋', 'Einstellungen: „Akku sparen“ begrenzt das Spiel auf 60 Bilder pro Sekunde'],
       ['chg', '⚡', 'Spürbar flüssiger: Räume unter geschlossenem Dach werden nicht mehr unsichtbar mitgezeichnet, weniger Ruckler beim Laufen, hinter dem Handy-Menü läuft das Spiel sparsamer'] ] },
-    { v: 153, date: 'Oktober 2026', title: 'Spiel im Spiel', items: [
-      ['neu', '🎮', 'Auf dem linken Bildschirm des Gaming-Tischs läuft echtes Kellergrün: deine eigene Figur läuft durch den Stadtpark, mit Geld, Uhrzeit, Minikarte, Joystick und A-Knopf wie im Spiel'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
