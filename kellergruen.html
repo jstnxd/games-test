@@ -877,7 +877,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 154 · Neu: Schneelandschaft im Winter, flüssigeres Spiel<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 155 · Neu: echte Kalender-Events (Halloween, Advent, Silvester …)<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -1620,6 +1620,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { id: 'confetti', slot: 'aura', name: 'Konfetti', cost: 3400, rep: 19, desc: 'Bunte Schnipsel fliegen und fallen' },
     { id: 'disco', slot: 'aura', name: 'Disco-Lichter', cost: 9500, rep: 40, desc: 'Bunte Lichtkegel drehen sich um dich' },
     // v112: exklusiv, nur als Belohnung (Kategorie, Questkette oder Prestige)
+    { id: 'pumpkin', slot: 'hat', name: 'Kürbiskopf', cost: 1, rep: 999, qx: 'Halloween: 8 Häuser Süßes oder Saures', desc: 'Ein geschnitzter Kürbis als Hut, mit Gruselgesicht' }, // v155
     { id: 'capegold', slot: 'back', name: 'Unternehmer-Umhang', cost: 1, rep: 999, qx: 'Kategorie Unternehmer (Ruf 50)', desc: 'Goldener Umhang mit €-Abzeichen' },
     { id: 'legend', slot: 'aura', name: 'Legenden-Aura', cost: 1, rep: 999, qx: 'Kategorie Branchenlegende (Ruf 100)', desc: 'Goldene Ringe und Sterne, nur für Legenden' },
     { id: 'capecheck', slot: 'back', name: 'Zielflaggen-Umhang', cost: 1, rep: 999, qx: 'Questkette Toni', desc: 'Schwarz-weiß kariert, wie die Zielflagge' },
@@ -2769,7 +2770,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (raw) store.set(SAVE_KEY + '.bak', raw);
   }
   let saveBlocked = false;
-  function saveObj() { return { ver: SAVE_VER, sts: Date.now(), flag: G.flag || undefined, cmdU: G.cmdU || cmdOk ? 1 : undefined, money: G.money, rep: G.rep, earned: G.earned, eod: G.eod, day: G.day, sOff: G.sOff || 0, time: G.time, won: G.won, up: G.up, pots: G.pots, rack: G.rack, inv: G.inv, cos: G.cos, wpn: G.wpn, staff: G.staff, tab: G.tab, staffUp: G.staffUp, look: G.look, wear: G.wear, stat: G.stat, ach: G.ach, tut: G.tut || '', kr: G.kr, gv: G.gv, gvOk: G.gvOk ? 1 : 0, veh: { owned: G.veh.owned, eq: G.veh.eq, bike: G.veh.bike || 'none', car: G.veh.car || 'none', col: G.veh.col || {}, tune: G.veh.tune || {} }, bw: 1, lager: G.lager, pr: G.pr, cas: G.cas, bank: G.bank || 0, bk: G.bk || 0, busCd: G.busCd || 0, biz: G.biz || {}, heat: G.heat || 0, raid: G.raid || null, heatE: G.heatE || 0, buf: G.buf || {}, club: G.club || { n: -1, s: 0 }, t: G.t, b: G.b, dec: G.dec, lay: G.lay, build: G.build, repP: G.repP, prest: G.prest || 0, prN: G.prN || 0, lg: G.lg, gang: G.gang || undefined, pn: G.pn, ui: G.ui, binP: G.binP && G.binP.length ? G.binP : undefined, fl: G.fl, crate: G.crate, stash: G.stash }; }
+  function saveObj() { return { ver: SAVE_VER, sts: Date.now(), flag: G.flag || undefined, cmdU: G.cmdU || cmdOk ? 1 : undefined, money: G.money, rep: G.rep, earned: G.earned, eod: G.eod, day: G.day, sOff: G.sOff || 0, time: G.time, won: G.won, up: G.up, pots: G.pots, rack: G.rack, inv: G.inv, cos: G.cos, wpn: G.wpn, staff: G.staff, tab: G.tab, staffUp: G.staffUp, look: G.look, wear: G.wear, stat: G.stat, ach: G.ach, tut: G.tut || '', kr: G.kr, cal: G.cal || undefined, gv: G.gv, gvOk: G.gvOk ? 1 : 0, veh: { owned: G.veh.owned, eq: G.veh.eq, bike: G.veh.bike || 'none', car: G.veh.car || 'none', col: G.veh.col || {}, tune: G.veh.tune || {} }, bw: 1, lager: G.lager, pr: G.pr, cas: G.cas, bank: G.bank || 0, bk: G.bk || 0, busCd: G.busCd || 0, biz: G.biz || {}, heat: G.heat || 0, raid: G.raid || null, heatE: G.heatE || 0, buf: G.buf || {}, club: G.club || { n: -1, s: 0 }, t: G.t, b: G.b, dec: G.dec, lay: G.lay, build: G.build, repP: G.repP, prest: G.prest || 0, prN: G.prN || 0, lg: G.lg, gang: G.gang || undefined, pn: G.pn, ui: G.ui, binP: G.binP && G.binP.length ? G.binP : undefined, fl: G.fl, crate: G.crate, stash: G.stash }; }
 
   // ---------- v113: Konten (Name + Passwort) und Online-Spielstand ueber Firebase ----------
   // Firebase-Projekt: Authentication (E-Mail/Passwort) und Firestore. Der Spielername wird intern zu einer Kunst-Adresse, es gibt keine echte E-Mail.
@@ -3263,6 +3264,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       G.lager = cleanLager(s.lager); G.pr = cleanPr(s.pr); G.cas = { wd: s.cas && typeof s.cas.wd === 'string' ? s.cas.wd.slice(0, 12) : '', sp: clamp(Math.floor(+(s.cas && s.cas.sp)) || 0, 0, 1e6) }; G.veh.tune = cleanTune(s.veh && s.veh.tune); // v89: Mietraum und Casino
       retireFloorStaff(s); // v104: Helfer der Etagen ziehen ins Erdgeschoss
       G.kr = cleanKr(s.kr); // v25 (Version 81): Karriere
+      G.cal = cleanCal(s.cal); // v155: Kalender-Events
       G.tut = s.tut === 'done' || s.tut === 'skip' ? s.tut : ''; // v26 (Version 84): fehlt der Status, wird die Einführung einmal gezeigt
       G.gv = s.gv && typeof s.gv === 'object' && Number.isFinite(+s.gv.k) ? { k: clamp(+s.gv.k, 0.45, 1.2), p: clamp(+s.gv.k, 0.45, 1.2), n: 0 } : undefined; G.gvOk = s.gvOk === 1 ? 1 : 0; // v80
       G.wear = { owned: {} }; if (s.wear && typeof s.wear === 'object' && s.wear.owned && typeof s.wear.owned === 'object') for (const w of WEAR) if (w.cost > 0 && s.wear.owned[w.id] === true) G.wear.owned[w.id] = true;
@@ -4100,6 +4102,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (!best && atGhq()) best = { type: 'ghq', idx: 0, ar: AREAS.keller }; // v121
     if (!best && atGV()) best = { type: 'gv', idx: 0, ar: AREAS.keller }; // v79
     if (!best) { const bi = busNear(); if (bi >= 0) best = { type: 'bus', idx: bi, ar: AREAS.keller }; } // v104: Haltestelle
+    if (!best && !inBuilding(px, py)) best = calTarget(px, py); // v155: Halloween-Türen (vor den Mülltonnen)
     if (!best && !player.fl && !inBuilding(px, py)) { const bi = binNear(px, py); if (bi >= 0) best = { type: 'bin', idx: bi, ar: AREAS.keller }; } // v61
     if (!best) for (const ar of openAreas()) for (const nm of ['rack', 'table']) { const f = ar.fields[nm]; if (Math.hypot(px - (f.x0 + f.x1) / 2, py - (f.y0 + f.y1) / 2) < 95) best = { type: 'field', idx: 0, ar, what: nm }; }
     return best;
@@ -4111,6 +4114,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (tg.type === 'kiosk') return 'A  Kiosk: Gang-Look und Spezialwaffen';
     if (tg.type === 'treff') return !mp.on ? 'Kellertreff: erst online gehen (App Freunde)' : mp.slots.some(Boolean) ? 'A  Kellertreff: Freunde besuchen' : 'A  Kellertreff: noch kein Keller zum Besuchen';
     if (tg.type === 'bin') return binHint(tg.idx);
+    if (tg.type === 'cal') return calHint(tg); // v155
     if (tg.type === 'areabuy') return G.rep < ar.needRep ? ar.name + ': zu kaufen ab Ruf ' + ar.needRep : 'A  ' + ar.name + ' kaufen (' + fmt(ar.cost) + ')';
     if (tg.type === 'lager') return !G.lager.own ? 'A  Mietraum mieten (' + fmt(LAGER_COST) + ')' : 'A  Mietraum betreten';
     if (tg.type === 'prpad') return 'A  Mieträume von Freunden besuchen';
@@ -4214,6 +4218,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       if (ar.key === 'pr' ? buyPrPotAt(tg.idx) : buyPotAt(ar, tg.idx)) msg(ar.key === 'pr' ? 'Neue Hydro-Station aufgestellt' : 'Neuer Topf aufgestellt'); else { sfx.bad(); msg('Zu wenig Geld für den Topf', true); }
     } else if (tg.type === 'sidedoor' && aEdge) {
       if (buySide(ar)) msg('Seitentür eingebaut'); else { sfx.bad(); msg('Zu wenig Geld für die Seitentür', true); }
+    } else if (tg.type === 'cal' && aEdge) { calAct(tg); // v155
     } else if (tg.type === 'areabuy' && aEdge) { openPhone(); G.area = ar.key; tmSel = ''; tab = 'shop'; renderPhone(); sfx.ping(); // v147: Kaufen-Karte, danach direkt der Laden fuer das Gebaeude
     } else if (tg.type === 'lager' && aEdge) {
       if (G.lager.own) roomEnter(); else openLager(); // v89: Mietraum
@@ -6933,7 +6938,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { id: 'adm', name: 'Admin', sub: 'Nur für dich', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"><path d="M16 3.5l10 4v8c0 6.5-4.3 11-10 13-5.7-2-10-6.5-10-13v-8z"/><path d="M11.5 16l3.2 3.2 6-6.4" stroke-linecap="round"/></svg>', c: '#FF6B6B', c2: '#B32D3A', tabs: [['admin', 'Spieler'], ['admtool', 'Werkzeuge'], ['admtroll', 'Troll'], ['admerr', 'Fehler']] },
     { id: 'orders', name: 'Aufträge', sub: 'Kunden', ic: IC.orders, c: '#FFB547', c2: '#E8861F', tabs: [['orders', 'Offen']] },
     { id: 'biz', name: 'Geschäft', sub: 'Ausbau & Team', ic: IC.shop, c: '#63C174', c2: '#2F8F4A', tabs: [['shop', 'Ausbau'], ['team', 'Anheuern'], ['crew', 'Mitarbeiter']] },
-    { id: 'karr', name: 'Karriere', sub: 'Ruf & Quests', ic: IC.karr, c: '#FFD24A', c2: '#C4851A', tabs: [['ruf', 'Ruf'], ['woche', 'Woche'], ['quests', 'Quests'], ['liste', 'Bestenliste'], ['goals', 'Ziele'], ['welt', 'Jahreszeit']] },
+    { id: 'karr', name: 'Karriere', sub: 'Ruf & Quests', ic: IC.karr, c: '#FFD24A', c2: '#C4851A', tabs: [['ruf', 'Ruf'], ['woche', 'Woche'], ['quests', 'Quests'], ['liste', 'Bestenliste'], ['goals', 'Ziele'], ['welt', 'Events']] },
     { id: 'cosm', name: 'Style', sub: 'Look & Begleiter', ic: IC.cosm, c: '#FF8FD0', c2: '#C44F96', tabs: [['kopf', 'Kopf'], ['figur', 'Figur'], ['kleid', 'Kleidung'], ['shoes', 'Schuhe'], ['ruecken', 'Rücken'], ['kost', 'Kostüme'], ['pets', 'Begleiter'], ['aura', 'Effekte']] },
     { id: 'gear', name: 'Ausrüstung', sub: 'Rucksack, Rad, Waffen', ic: IC.fzg, c: '#6EE0A0', c2: '#2F9A6A', tabs: [['gearup', 'Für dich'], ['veh', 'Fahrzeuge'], ['wpn', 'Waffen']] },
     { id: 'wohn', name: 'Wohnen', sub: 'Deko & Häuser', ic: IC.deko, c: '#D9A066', c2: '#9A6A3C', tabs: [['deko', 'Einrichten'], ['dshop', 'Deko-Laden'], ['hmine', 'Meine Häuser'], ['hnbr', 'Nachbarn']] },
@@ -7223,8 +7228,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     G.look[k] = G.look[k] === id && off ? WEAR_DEF[k] : id; save(); return true;
   }
   function buyWear(id, viaKiosk) {
-    const w = WEAR_BY[id]; if (!w || w.ach || w.qx || (w.kiosk && !viaKiosk) || w.cost === 0 || G.wear.owned[id] || G.money < w.cost || G.rep < w.rep) return false;
-    G.money -= w.cost; G.wear.owned[id] = true; G.look[WEAR_KEY[w.slot]] = id; sfx.buy(); save(); return true;
+    const w = WEAR_BY[id], pc = shopCost('w', w); if (!w || w.ach || w.qx || (w.kiosk && !viaKiosk) || w.cost === 0 || G.wear.owned[id] || G.money < pc || G.rep < w.rep) return false;
+    G.money -= pc; G.wear.owned[id] = true; G.look[WEAR_KEY[w.slot]] = id; sfx.buy(); save(); return true;
   }
   // v128: Kurze Tipps genau dann, wenn etwas Neues freigeschaltet wird (statt langer Einführung). Jeder Tipp kommt nur einmal.
   const way = (at, nm) => () => { wayPt = { x: at.x, y: at.y }; msg('📍 Wegpunkt: ' + nm); };
@@ -7293,12 +7298,12 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         const owned = wearOwned(w.id), on = G.look[WEAR_KEY[slot]] === w.id, locked = !owned && G.rep < w.rep, sp = !!(w.ach || w.qx || w.kiosk), nw = lfIsNew('w:' + w.id, owned, locked, sp);
         if (!lfPass(owned || w.cost === 0, w.cost, locked, nw, !sp)) return;
         const c = document.createElement('div'); c.className = 'card cos';
-        c.innerHTML = '<canvas class="pv" data-wear="' + w.id + '" width="264" height="128"></canvas><div class="nm">' + w.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (w.cost === 0 ? 'gratis' : owned ? (w.qx ? 'exklusiv' : 'gekauft') : w.ach || w.qx ? 'Belohnung' : fmt(w.cost)) + '</div><div class="ds">' + w.desc + (w.rep && w.rep < 999 && !owned && G.rep < w.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + w.rep + '</b>' : '') + '</div>';
+        c.innerHTML = '<canvas class="pv" data-wear="' + w.id + '" width="264" height="128"></canvas><div class="nm">' + w.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (w.cost === 0 ? 'gratis' : owned ? (w.qx ? 'exklusiv' : 'gekauft') : w.ach || w.qx ? 'Belohnung' : shopPriceHtml('w', w)) + '</div><div class="ds">' + w.desc + (w.rep && w.rep < 999 && !owned && G.rep < w.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + w.rep + '</b>' : '') + '</div>';
         const btn = document.createElement('button'); btn.className = 'buy';
         if (!owned && w.ach) { btn.textContent = 'Ziel: ' + ((ACH.find(a => a.id === w.ach) || {}).name || '?'); btn.disabled = true; }
         else if (!owned && w.qx) { btn.textContent = w.qx; btn.disabled = true; c.classList.add('excl'); }
         else if (!owned && w.kiosk) { btn.textContent = 'Nur am Kiosk (Stadtpark)'; btn.disabled = true; }
-        else if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + w.rep : 'Kaufen'; btn.disabled = locked || G.money < w.cost; btn.addEventListener('click', () => { if (buyWear(w.id)) renderPhone(); }); }
+        else if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + w.rep : 'Kaufen'; btn.disabled = locked || G.money < shopCost('w', w); btn.addEventListener('click', () => { if (buyWear(w.id)) renderPhone(); }); }
         else { const canOff = slot === 'hat' || slot === 'cos' || slot === 'aura' || slot === 'band' || slot === 'back'; btn.textContent = on ? (canOff ? 'Ablegen' : 'Angelegt') : 'Anlegen'; if (on) btn.classList.add('alt'); if (on && !canOff) btn.disabled = true; btn.addEventListener('click', () => { equipWear(w.id); renderPhone(); }); }
         c.appendChild(btn); b.appendChild(c);
       });
@@ -7435,12 +7440,12 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ov = uiEl('div', 'petview'); ov.id = 'petView'; const card = uiEl('div', 'pv-card'); ov.appendChild(card);
     const cvs = document.createElement('canvas'); cvs.className = 'pv-big'; const dp = Math.min(2, window.devicePixelRatio || 1); cvs.width = Math.round(300 * dp); cvs.height = Math.round(220 * dp); card.appendChild(cvs);
     const owned = !!G.cos.owned[id], on = activePets().includes(id), locked = !owned && G.rep < (cs.rep || 0), pk = PERKS[id];
-    card.appendChild(uiEl('div', 'pv-nm', cs.name)); card.appendChild(uiEl('div', 'pv-pr', owned ? (on ? 'angelegt' : 'gekauft') : locked ? 'ab Ruf ' + cs.rep : fmt(cs.cost)));
+    card.appendChild(uiEl('div', 'pv-nm', cs.name)); card.appendChild(uiEl('div', 'pv-pr', owned ? (on ? 'angelegt' : 'gekauft') : locked ? 'ab Ruf ' + cs.rep : fmt(shopCost('c', cs))));
     if (pk) { const p = uiEl('div', 'pv-perk'); p.appendChild(uiEl('b', '', '⭐ Vorteil')); p.appendChild(uiEl('div', '', pk.text)); card.appendChild(p); }
     card.appendChild(uiEl('div', 'pv-ds', cs.desc + '.'));
     card.appendChild(uiEl('div', 'pv-ds pv-mut', 'Bis zu 2 Begleiter gleichzeitig. Ihre Vorteile zählen zusammen.'));
     const row = uiEl('div', 'pv-row'), bt = uiEl('button', 'buy');
-    if (!owned) { bt.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen für ' + fmt(cs.cost); bt.disabled = locked || G.money < cs.cost; bt.addEventListener('click', () => { if (buyCos(id)) { petViewClose(); renderPhone(); petView(id); } }); }
+    if (!owned) { bt.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen für ' + fmt(shopCost('c', cs)); bt.disabled = locked || G.money < shopCost('c', cs); bt.addEventListener('click', () => { if (buyCos(id)) { petViewClose(); renderPhone(); petView(id); } }); }
     else { bt.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) bt.classList.add('alt'); bt.addEventListener('click', () => { equipCos(id); petViewClose(); renderPhone(); petView(id); }); }
     const cl = uiEl('button', 'buy alt', 'Schließen'); cl.addEventListener('click', petViewClose); row.appendChild(bt); row.appendChild(cl); card.appendChild(row);
     ov.addEventListener('click', e => { if (e.target === ov) petViewClose(); });
@@ -7516,9 +7521,9 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         const owned = !!G.cos.owned[cs.id], on = kind === 'pet' ? activePets().includes(cs.id) : kind === 'orbit' ? orbitList().includes(cs.id) : G.cos[kind] === cs.id, locked = !owned && G.rep < (cs.rep || 0), nw = lfIsNew('c:' + cs.id, owned, locked, false);
         if (!lfPass(owned, cs.cost, locked, nw)) return;
         const c = document.createElement('div'); c.className = 'card cos';
-        c.innerHTML = '<canvas class="pv" data-cos="' + cs.id + '" width="264" height="128"></canvas><div class="nm">' + cs.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (owned ? 'gekauft' : fmt(cs.cost)) + '</div><div class="ds">' + cs.desc + (PERKS[cs.id] ? '<br><b style="color:var(--amber);font-weight:700">Vorteil: ' + PERKS[cs.id].text + '</b>' : '') + '</div>';
+        c.innerHTML = '<canvas class="pv" data-cos="' + cs.id + '" width="264" height="128"></canvas><div class="nm">' + cs.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (owned ? 'gekauft' : shopPriceHtml('c', cs)) + '</div><div class="ds">' + cs.desc + (PERKS[cs.id] ? '<br><b style="color:var(--amber);font-weight:700">Vorteil: ' + PERKS[cs.id].text + '</b>' : '') + '</div>';
         const btn = document.createElement('button'); btn.className = 'buy';
-        if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen'; btn.disabled = locked || G.money < cs.cost; btn.addEventListener('click', () => { if (buyCos(cs.id)) renderPhone(); }); }
+        if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen'; btn.disabled = locked || G.money < shopCost('c', cs); btn.addEventListener('click', () => { if (buyCos(cs.id)) renderPhone(); }); }
         else { btn.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) btn.classList.add('alt'); btn.addEventListener('click', () => { equipCos(cs.id); renderPhone(); }); }
         c.appendChild(btn); b.appendChild(c);
         if (kind === 'pet') { c.classList.add('tapme'); c.addEventListener('click', e => { if (e.target.closest('button')) return; petView(cs.id); }); } // v132: antippen = große Ansicht
@@ -7593,7 +7598,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const SEASON_DAYS = 7; // v92: 7 statt 5 Tage je Jahreszeit; G.sOff haelt alte Spielstaende in ihrer Jahreszeit
   const seaD = () => G.day - 1 + (G.sOff || 0);
   const SEASONS = [
-    { id: 'fr', name: 'Frühling', ic: '🌸', col: '#FF9CC8', fx: { grow: 1.1, seed: 0.9 }, txt: ['Pflanzen wachsen 10 % schneller', 'Samen 10 % billiger', 'Gärtnerin Flora ist in ihrem Blumengarten', 'Sammle Ostereier'] },
+    { id: 'fr', name: 'Frühling', ic: '🌸', col: '#FF9CC8', fx: { grow: 1.1, seed: 0.9 }, txt: ['Pflanzen wachsen 10 % schneller', 'Samen 10 % billiger', 'Gärtnerin Flora ist in ihrem Blumengarten', 'Sammle Marienkäfer'] },
     { id: 'so', name: 'Sommer', ic: '☀️', col: '#FFD24A', fx: { orders: 1.2, water: 1.3, p_brau: 1.15 }, txt: ['20 % mehr Bestellungen', 'Kristallboxen 15 % teurer', 'Töpfe trocknen 30 % schneller aus', 'DJ Jonas legt am Teich auf', 'Sammle Muscheln'] },
     { id: 'he', name: 'Herbst', ic: '🍂', col: '#E8833A', fx: { p_tabak: 1.15, p_keller: 1.05 }, txt: ['Tabak 15 % teurer', 'Kellerware 5 % teurer', 'Bauer Heinz sucht Erntehelfer', 'Sammle Kastanien'] },
     { id: 'wi', name: 'Winter', ic: '❄️', col: '#9FD4FF', fx: { grow: 0.92, upkeep: 1.3, p_vip: 1.2, orders: 0.92 }, txt: ['Heizkosten: Unterhalt +30 %', 'Pflanzen wachsen etwas langsamer', 'Spezialkunden zahlen 20 % mehr', 'Klaus steht am Weihnachtsstand', 'Sammle Schneekugeln'] }
@@ -7659,7 +7664,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const krPerk = p => KR_NEUTRAL || !G ? 0 : (KR().perk[p] || 0);
   function addPerk(p, v) { const k = KR(), c = PERK_CAP[p]; if (c === undefined) return; k.perk[p] = c < 0 ? Math.max(c, (k.perk[p] || 0) + v) : Math.min(c, (k.perk[p] || 0) + v); }
   // ---------- Modifikatoren (Jahreszeit, Ereignis, Boni) ----------
-  const evMod = key => { if (KR_NEUTRAL || !G || !G.kr || !G.kr.ev) return 1; const e = EVENTS[G.kr.ev.id]; const m = e && e.mod && e.mod(G.kr.ev); return m && m[key] !== undefined ? m[key] : 1; };
+  const evMod = key => { if (KR_NEUTRAL || !G) return 1; const cm = calMod(key); if (!G.kr || !G.kr.ev) return cm; const e = EVENTS[G.kr.ev.id]; const m = e && e.mod && e.mod(G.kr.ev); return cm * (m && m[key] !== undefined ? m[key] : 1); }; // v155: echte Kalender-Events wirken mit
   const seaMod = key => KR_NEUTRAL || !G ? 1 : (season().fx[key] || 1);
   const krGrow = () => seaMod('grow') * evMod('grow') * (1 + krPerk('grow')) * (KR_NEUTRAL ? 1 : presGrow());
   const krWater = () => seaMod('water') * evMod('water');
@@ -8086,7 +8091,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const bio = document.createElement('div'); bio.className = 'ds'; bio.style.margin = '4px 2px'; bio.textContent = c.bio; b.appendChild(bio);
   }
   // ---------- Sammelobjekte je Jahreszeit ----------
-  const COLL = [{ n: 'Ostereier', one: 'Osterei', col: ['#FF9CC8', '#FFD24A', '#7FD0C8', '#B36BFF'] }, { n: 'Muscheln', one: 'Muschel', col: ['#FFE9C8', '#F2C1A0'] }, { n: 'Kastanien', one: 'Kastanie', col: ['#7A4A28', '#9A5A30'] }, { n: 'Schneekugeln', one: 'Schneekugel', col: ['#CFEFFF', '#FFFFFF'] }];
+  const COLL = [{ n: 'Marienkäfer', one: 'Marienkäfer', col: ['#E8403A', '#F2562E', '#D93A3A', '#F06A2A'] }, { n: 'Muscheln', one: 'Muschel', col: ['#FFE9C8', '#F2C1A0'] }, { n: 'Kastanien', one: 'Kastanie', col: ['#7A4A28', '#9A5A30'] }, { n: 'Schneekugeln', one: 'Schneekugel', col: ['#CFEFFF', '#FFFFFF'] }];
   const COLL_N = 6;
   let collPts = { key: '', pts: [] };
   function collPoints() {
@@ -8117,7 +8122,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     personal: { cat: 'neg', name: 'Personalengpass', ic: '🤒', w: 2, cond: () => workers.length > 0, wf: () => Math.max(0.3, 1 - 0.25 * specSum('orga')), dur: 8 * HR, desc: 'Ein Helfer ist krank und fällt aus. Mit Überstunden der anderen läuft alles weiter.', start: e => { const ws = workers.filter(w => w.cid > 0); const w = ws[Math.floor(Math.random() * ws.length)]; e.cid = w ? w.cid : -1; const m = w && crewOf(w); if (m) { m.off = e.end; msg(m.n + ' (' + ROLES[m.r].name + ') ist krank'); } }, choice: [{ id: 'ueber', l: e => 'Überstunden zahlen (' + fmt(krOvertime(e)) + ')', cost: e => krOvertime(e), fx: e => { const m = KR().crew.find(x => x.id === e.cid); if (m) m.off = 0; return 'Die anderen übernehmen.'; } }, { id: 'warten', l: () => 'Ohne ihn auskommen', fx: () => 'Ihr kommt so klar.' }] },
     markt: { cat: 'pos', sea: 0, name: 'Frühlingsmarkt', ic: '🌷', w: 3, dur: 12 * HR, desc: 'Auf dem Frühlingsmarkt zahlen alle 10 % mehr.', mod: () => ({ price: 1.1 }) },
     hitze: { cat: 'neg', sea: 1, name: 'Hitzewelle', ic: '🔥', w: 3, dur: 16 * HR, desc: 'Die Töpfe trocknen schnell aus, aber alle wollen was Kühles: mehr Bestellungen.', mod: () => ({ water: 1.6, orders: 1.2 }) },
-    erntefest: { cat: 'pos', sea: 2, name: 'Erntefest', ic: '🎃', w: 3, dur: 16 * HR, desc: 'Erntefest in der Stadt: Tabak und Kellerware gehen besonders gut.', mod: () => ({ price: 1.12 }) },
     frost: { cat: 'neg', sea: 3, name: 'Frost', ic: '🥶', w: 3, dur: 20 * HR, desc: 'Glatte Straßen: Samen kommen teurer, Pflanzen frieren etwas. Dafür zahlen Spezialkunden noch mehr.', mod: () => ({ seed: 1.25, grow: 0.92, price: 1.04 }) }
   };
   const krRepairCost = () => Math.round((300 + krLv() * 150) * (1 - Math.min(0.5, 0.15 * specSum('prod'))));
@@ -8135,7 +8139,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     k.ev = { id, st: now, end: now + d.dur, ch: '', n: 0, b: 0, oid: -1, cid: -1, done: 0 }; k.evN++; k.cnt.ev++;
     k.evLog = k.evLog.concat(id).slice(-6);
     if (d.start) d.start(k.ev);
-    msg(d.ic + ' Ereignis: ' + d.name + (d.choice ? ' – entscheide im Handy (Karriere → Welt)' : ''), d.cat === 'neg'); sfx.ping(); save(); return true;
+    msg(d.ic + ' Ereignis: ' + d.name + (d.choice ? ' – entscheide im Handy (Karriere → Events)' : ''), d.cat === 'neg'); sfx.ping(); save(); return true;
   }
   function krEndEvent() {
     const k = KR(), e = k.ev; if (!e) return; const d = EVENTS[e.id];
@@ -8193,7 +8197,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     krT -= dt; if (krT > 0) return; krT = 0.5;
     const k = KR();
     if (k.sk !== seasonYear() * 4 + seasonI()) { const first = k.sk < 0; k.sk = seasonYear() * 4 + seasonI(); if (!first) { const s = season(); msg(s.ic + ' ' + s.name + ' beginnt: ' + s.txt.slice(0, 2).join(', ')); sfx.ping(); } }
-    krEvTick(); krTierTick(); collTick();
+    krEvTick(); krTierTick(); collTick(); calTick(); // v155
   }
   // ---------- Welt: Charaktere, Sammelobjekte, Jahreszeit ----------
   function krNear() { if (KR_NEUTRAL || !G || player.fl || player.x < 0) return null; let best = null, bd = 40; for (const c of CHARS) { if (!charHere(c)) continue; const d = Math.hypot(player.x - c.x, player.y - c.y); if (d < bd) { bd = d; best = c; } } return best; }
@@ -8215,7 +8219,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     // Sammelobjekte
     const pts = collPoints(), m = KR().col[seasonYear() + '-' + seasonI()] || 0, C = COLL[seasonI()];
     pts.forEach((p, i) => { if (m & (1 << i) || !inView(p.x, p.y, 20)) return; const bo = Math.sin(gt * 3 + i) * 1.5; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 5, 5, 2, 0, 0, TAU); ctx.fill(); ctx.save(); ctx.translate(p.x, p.y - 3 + bo);
-      const si = seasonI(); if (si === 0) { ctx.fillStyle = C.col[i % 4]; ctx.beginPath(); ctx.ellipse(0, 0, 3.6, 4.6, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillRect(-3.4, -0.6, 6.8, 1.2); }
+      const si = seasonI(); if (si === 0) { ctx.fillStyle = '#1D1F24'; ctx.beginPath(); ctx.arc(0, -3.4, 2, 0, TAU); ctx.fill(); ctx.fillStyle = C.col[i % 4]; ctx.beginPath(); ctx.ellipse(0, 0.4, 3.8, 4.2, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#1D1F24'; ctx.fillRect(-0.4, -3.6, 0.8, 8); for (const [dx, dy] of [[-2, -0.8], [2, -0.8], [-1.8, 2], [1.8, 2]]) { ctx.beginPath(); ctx.arc(dx, dy, 0.9, 0, TAU); ctx.fill(); } ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(-2.6, -2.2, 1, 1); } // v155: Marienkäfer
       else if (si === 1) { ctx.fillStyle = C.col[i % 2]; ctx.beginPath(); ctx.moveTo(0, 4); ctx.lineTo(-5, -1); ctx.quadraticCurveTo(0, -6, 5, -1); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(160,100,70,.6)'; ctx.lineWidth = 0.6; ctx.beginPath(); for (let k = -2; k <= 2; k++) { ctx.moveTo(0, 4); ctx.lineTo(k * 1.8, -3); } ctx.stroke(); }
       else if (si === 2) { ctx.fillStyle = C.col[i % 2]; ctx.beginPath(); ctx.arc(0, 0, 4, 0, TAU); ctx.fill(); ctx.fillStyle = '#E8D2B0'; ctx.beginPath(); ctx.ellipse(0, -2.6, 2.4, 1.2, 0, 0, TAU); ctx.fill(); }
       else { ctx.fillStyle = 'rgba(207,239,255,.9)'; ctx.beginPath(); ctx.arc(0, -1, 4.2, 0, TAU); ctx.fill(); ctx.fillStyle = '#7A5A3E'; ctx.fillRect(-3.4, 2.4, 6.8, 2.2); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-1, -3, 1, 1); ctx.fillRect(1.2, -1, 1, 1); }
@@ -8253,7 +8257,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     setText('tierName', KR_NEUTRAL ? '' : (presLv() ? '✦' + presLv() + ' · ' : '') + T.name + (nx ? '' : ' ★'));
     try { const f = $('tierFill'); if (f && f.style) f.style.width = Math.round(p * 100) + '%'; } catch (e) {}
     const s = season(), e = k.ev && EVENTS[k.ev.id];
-    setText('seaPill', KR_NEUTRAL ? '' : s.ic + ' ' + s.name + ' · Tag ' + seasonDay() + '/' + SEASON_DAYS + (e ? '  ' + e.ic + ' ' + e.name + (e.choice && !k.ev.ch ? ' ❗' : '') : ''));
+    setText('seaPill', KR_NEUTRAL ? '' : s.ic + calIcons() + ' ' + s.name + ' · Tag ' + seasonDay() + '/' + SEASON_DAYS + (e ? '  ' + e.ic + ' ' + e.name + (e.choice && !k.ev.ch ? ' ❗' : '') : ''));
   }
   // ---------- Handy: Karriere-App ----------
   function krCard(b, nm, pr, ds) { const c = document.createElement('div'); c.className = 'card'; c.innerHTML = '<div class="nm"></div><div class="pr"></div><div class="ds"></div>'; c.querySelector('.nm').innerHTML = nm; c.querySelector('.pr').textContent = pr || ''; if (!pr) c.querySelector('.pr').remove(); c.querySelector('.ds').innerHTML = ds || ''; b.appendChild(c); return c; }
@@ -8358,6 +8362,236 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const pc = v => Math.round((v - 1) * 100) + '\u00a0%';
     tierShow = { n: 0, pres: P, name: 'Neuer Anfang', rw: ['Startgeld ' + fmt(start), 'Kundenpreise +' + pc(presPrice()) + ', Wachstum +' + pc(presGrow()), 'Ruf +' + pc(presRep()) + ' schneller', P + ' Töpfe mehr und bessere Ausrüstung', (WEAR_BY[it] ? WEAR_BY[it].name : '') + ' (exklusiv)', 'Prestige-Pokal (Deko)'], un: ['Alle Kategorien und Läden neu erspielen', 'Deine Questketten laufen weiter'], t: gt }; showTierUp();
     return true;
+  }
+  // =====================================================================================================
+  // v155: Kalender-Events nach ECHTER Uhrzeit (Uhr des Handys), nicht nach der Spieluhr.
+  // Alle Spieler erleben sie gleichzeitig. Neues Event: einen Eintrag in CAL anlegen (on = wann aktiv),
+  // optional mod (Wirtschaft), disc (Rabatte im Shop), Zeichnen in calDrawWorld / calLights / calDrawSky.
+  // Gespeichert wird nur in G.cal (Flags, Adventstürchen, Eier, Süßes-oder-Saures), siehe cleanCal.
+  // =====================================================================================================
+  let calOv = 0; // nur für Tests: fester Zeitpunkt (ms seit 1970), 0 = echte Uhr
+  const calNow = () => new Date(calOv || Date.now());
+  const calMD = d => (d.getMonth() + 1) * 100 + d.getDate();
+  const calYMD = d => d.getFullYear() * 10000 + calMD(d);
+  function easterDate(y) { // Ostersonntag (gregorianisch, Meeus/Jones/Butcher)
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(y, mo - 1, da);
+  }
+  function nthWeekday(y, mo, wd, n) { const d = new Date(y, mo, 1); const off = (wd - d.getDay() + 7) % 7; return new Date(y, mo, 1 + off + (n - 1) * 7); } // mo: 0 = Januar, wd: 0 = Sonntag
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  const CAL_BDAY = 1025; // Kellergrün-Geburtstag (Monat * 100 + Tag)
+  const CAL = [
+    { id: 'halloween', ic: '🎃', name: 'Halloween', col: '#FF8A2A', on: d => { const m = calMD(d); return m >= 1024 && m <= 1101; }, inst: d => 'hw' + d.getFullYear(),
+      desc: 'Kürbisse vor den Häusern. Geh an eine Haustür mit Kürbis und drück A: Süßes oder Saures! Nach 8 Häusern gibt es den Kürbiskopf. Geisterlaken und Gespenst 30 % billiger.', disc: { w: { ghost: 0.7 }, c: { ghost: 0.7 } } },
+    { id: 'advent', ic: '🎄', name: 'Advent', col: '#FF5C5C', on: d => { const m = calMD(d); return m >= 1201 && m <= 1226; }, inst: d => 'ad' + d.getFullYear(),
+      desc: 'Jeden Tag ein Türchen im Adventskalender (Handy → Karriere → Events). Lichterketten an den Häusern und ein Weihnachtsbaum am Brunnen. Am 24. gibt es ein Geschenk.' },
+    { id: 'silvester', ic: '🎆', name: 'Silvester', col: '#FFD24A', on: d => { const m = calMD(d), h = d.getHours(); return (m === 1231 && h >= 18) || (m === 101 && h < 3); }, inst: d => 'sv' + (d.getMonth() === 11 ? d.getFullYear() : d.getFullYear() - 1),
+      desc: 'Feuerwerk über der Stadt, um Mitternacht am meisten. Nach 0 Uhr gibt es Neujahrsgeld.' },
+    { id: 'valentin', ic: '💘', name: 'Valentinstag', col: '#FF6FA8', on: d => calMD(d) === 214, inst: d => 'va' + d.getFullYear(),
+      desc: 'Herzen schweben durch die Stadt. Herzen-Aura und Herzchen 50 % billiger.', disc: { w: { hearts: 0.5 }, c: { hearts: 0.5 } } },
+    { id: 'ostern', ic: '🐣', name: 'Ostern', col: '#FFD24A', on: d => { const e = easterDate(d.getFullYear()), t = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(), e0 = e.getTime(); return t >= e0 - 2 * 864e5 && t <= e0 + 1 * 864e5 + 3600e3; }, inst: d => 'os' + d.getFullYear(),
+      desc: 'Ostereier-Suche: 10 bunte Eier sind im Startviertel versteckt. Alle gefunden = Geld und Ruf. Hasenkostüm 30 % billiger.', disc: { w: { bunny: 0.7 } } },
+    { id: 'wochenende', ic: '🎉', name: 'Wochenende', col: '#5FE584', on: d => { const w = d.getDay(), h = d.getHours(); return (w === 5 && h >= 18) || w === 6 || w === 0; }, inst: d => { const t = new Date(d); t.setDate(t.getDate() - ((t.getDay() + 2) % 7)); return 'we' + calYMD(t); },
+      desc: 'Wochenend-Bonus: 25 % mehr Bestellungen.', mod: { orders: 1.25 } },
+    { id: 'nachtmarkt', ic: '🏮', name: 'Nachtmarkt', col: '#FF7A4A', on: d => { const h = d.getHours(); return h >= 22 || h < 2; }, inst: d => { const t = new Date(d.getTime() - 2 * 3600e3); return 'nm' + calYMD(t); },
+      desc: 'Laternen im Park. Drei wechselnde Sachen zum Anziehen sind heute Nacht 25 % billiger.', discFn: () => nmPicks() },
+    { id: 'blackfriday', ic: '🏷️', name: 'Black Friday', col: '#EEF2F7', on: d => { const t = nthWeekday(d.getFullYear(), 10, 4, 4); t.setDate(t.getDate() + 1); return sameDay(d, t); }, inst: d => 'bf' + d.getFullYear(),
+      desc: 'Nur heute: alle Kleidung und Effekte 30 % billiger.', discAll: 0.7 },
+    { id: 'sommerfest', ic: '🎪', name: 'Sommerfest', col: '#FFD24A', on: d => { if (d.getMonth() !== 6) return false; const s = nthWeekday(d.getFullYear(), 6, 6, 2); return sameDay(d, s) || sameDay(d, new Date(s.getFullYear(), 6, s.getDate() + 1)); }, inst: d => 'sf' + d.getFullYear(),
+      desc: 'Lichterketten im Park, 20 % mehr Bestellungen und alle zahlen 10 % mehr.', mod: { orders: 1.2, price: 1.1 } },
+    { id: 'geburtstag', ic: '🎂', name: 'Kellergrün-Geburtstag', col: '#FF9CC8', on: d => calMD(d) === CAL_BDAY, inst: d => 'gb' + d.getFullYear(),
+      desc: 'Kellergrün hat Geburtstag! Konfetti über der Stadt und ein Geschenk für dich.' }
+  ];
+  const CAL_BY = Object.fromEntries(CAL.map(e => [e.id, e]));
+  const calXmasDeco = d => { const m = calMD(d); return m >= 1201 || m <= 106; }; // Lichter und Baum bleiben bis Heilige Drei Könige
+  let calC = { t: -1, ov: 0, list: [], d: null };
+  function calList() { // aktive Events, höchstens einmal pro Sekunde neu berechnet
+    if (KR_NEUTRAL || !G) return []; const n = Date.now();
+    if (n - calC.t > 1000 || calC.ov !== calOv) { const d = calNow(); calC = { t: n, ov: calOv, d, list: CAL.filter(e => { try { return e.on(d); } catch (x) { return false; } }) }; }
+    return calC.list;
+  }
+  const calOn = id => calList().some(e => e.id === id);
+  function calMod(key) { let m = 1; for (const e of calList()) if (e.mod && e.mod[key]) m *= e.mod[key]; return m; }
+  function calDisc(kind, id) { // Preis-Faktor im Shop (kind: 'w' Kleidung, 'c' Effekte)
+    let m = 1; for (const e of calList()) { if (e.discAll) m = Math.min(m, e.discAll); const t = e.disc && e.disc[kind]; if (t && t[id]) m = Math.min(m, t[id]); if (e.discFn) { const p = e.discFn(); if (p[kind] && p[kind][id]) m = Math.min(m, p[kind][id]); } }
+    return m;
+  }
+  function shopCost(kind, x) { if (!x || x.cost <= 1 || x.qx || x.ach) return x ? x.cost : 0; return Math.round(x.cost * calDisc(kind, x.id)); }
+  const shopPriceHtml = (kind, x) => { const c = shopCost(kind, x); return c < x.cost ? '<s style="opacity:.55">' + fmt(x.cost) + '</s> <b style="color:var(--green)">' + fmt(c) + '</b>' : fmt(x.cost); };
+  let nmC = { k: '', p: null };
+  function nmPicks() { // Nachtmarkt: jede Nacht drei andere Kleidungsstücke
+    const d = calNow(), k = 'nm' + calYMD(new Date(d.getTime() - 2 * 3600e3)); if (nmC.k === k) return nmC.p;
+    const pool = WEAR.filter(w => w.cost > 1 && !w.qx && !w.ach && !w.kiosk && w.rep < 999); let s = Number(k.slice(2)) % 2147483646 + 1; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647, w = {};
+    for (let i = 0; i < 3 && pool.length; i++) { const j = Math.floor(rnd() * pool.length); w[pool[j].id] = 0.75; pool.splice(j, 1); }
+    nmC = { k, p: { w } }; return nmC.p;
+  }
+  const calIcons = () => calList().filter(e => e.id !== 'nachtmarkt' && e.id !== 'wochenende').map(e => e.ic).join(''); // häufige Events nicht in der Anzeige
+  // ---------- Spielstand ----------
+  function cleanCal(o) {
+    const c = { f: {}, tt: { d: 0, l: [] }, tn: {}, adv: { y: 0, m: 0 }, egg: { y: 0, m: 0 } }; if (!o || typeof o !== 'object') return c;
+    if (o.f && typeof o.f === 'object') for (const k of Object.keys(o.f).slice(-120)) if (/^[a-z0-9:_-]{1,32}$/.test(k) && Number.isFinite(+o.f[k])) c.f[k] = +o.f[k];
+    if (o.tt && typeof o.tt === 'object') { c.tt.d = Math.floor(+o.tt.d) || 0; if (Array.isArray(o.tt.l)) c.tt.l = o.tt.l.filter(x => Number.isInteger(x) && x >= 0 && x < 999).slice(0, 60); }
+    if (o.tn && typeof o.tn === 'object') for (const k of Object.keys(o.tn).slice(-6)) if (/^hw\d{4}$/.test(k)) c.tn[k] = clamp(Math.floor(+o.tn[k]) || 0, 0, 999);
+    for (const n of ['adv', 'egg']) if (o[n] && typeof o[n] === 'object') c[n] = { y: Math.floor(+o[n].y) || 0, m: Math.floor(+o[n].m) >>> 0 };
+    return c;
+  }
+  const CS = () => { if (!G.cal || !G.cal.f) G.cal = cleanCal(G.cal); return G.cal; };
+  function giveWear(id, why) { const w = WEAR_BY[id]; if (!w) return false; if (G.wear.owned[id]) return false; G.wear.owned[id] = true; msg('🎁 ' + why + ': ' + w.name + ' (im Kleiderschrank)'); sfx.buy(); return true; }
+  // ---------- Ablauf (alle 0,5 s aus krUpdate) ----------
+  function calTick() {
+    if (KR_NEUTRAL || !G || state !== 'play') return; const c = CS(), d = calNow();
+    for (const e of calList()) { const k = 'a:' + e.inst(d); if (c.f[k]) continue; c.f[k] = 1; msg(e.ic + ' ' + e.name + ': ' + e.desc.split('. ')[0].replace(/\.$/, '')); sfx.ping(); save(); }
+    if (calOn('silvester') && calMD(d) === 101) { const k = 'ny:' + d.getFullYear(); if (!c.f[k]) { c.f[k] = 1; const v = d.getFullYear(); G.money += v; msg('🎆 Frohes neues Jahr! Neujahrsgeld: +' + fmt(v)); sfx.cash(); save(); } }
+    if (calOn('geburtstag')) { const k = 'gb:' + d.getFullYear(); if (!c.f[k]) { c.f[k] = 1; if (!giveWear('partyhat', 'Geburtstagsgeschenk')) { G.money += 1000; msg('🎂 Geburtstagsgeschenk: +' + fmt(1000)); } save(); } }
+    if (calOn('ostern') && !player.fl && player.x > 0) eggTick(d);
+  }
+  // ---------- Halloween: Kürbisse und Süßes oder Saures ----------
+  const ttHouse = (h) => !h.gang && !h.office;
+  const ttDoor = h => ({ x: h.dx + 24, y: h.face === 1 ? h.dy + 10 : h.dy - 10 });
+  function calTarget(px, py) {
+    if (KR_NEUTRAL || !calOn('halloween') || player.fl || inCar()) return null; let best = null, bd = 34;
+    for (let i = 0; i < HOUSES.length; i++) { const h = HOUSES[i]; if (!ttHouse(h)) continue; const p = ttDoor(h), dd = Math.hypot(px - p.x, py - p.y); if (dd < bd) { bd = dd; best = { type: 'cal', what: 'treat', idx: i, ar: AREAS.keller }; } }
+    return best;
+  }
+  const ttToday = () => { const c = CS(), t = calYMD(calNow()); if (c.tt.d !== t) { c.tt.d = t; c.tt.l = []; } return c.tt; };
+  function calHint(tg) {
+    if (tg.what === 'treat') { const t = ttToday(); return t.l.includes(tg.idx) ? '🎃 Hier warst du heute schon' : t.l.length >= 12 ? '🎃 Genug Süßes für heute, morgen wieder' : 'A  🎃 Süßes oder Saures!'; }
+    return '';
+  }
+  const SAURES = ['Saures! Die Tür bleibt zu, nur ein Gruselkichern ist zu hören.', 'Saures! Jemand wirft dir eine Handvoll Konfetti ins Gesicht.', 'Saures! Hinter der Tür heult ein Werwolf-Wecker.'];
+  function calAct(tg) {
+    if (tg.what !== 'treat') return; const t = ttToday(); if (t.l.includes(tg.idx) || t.l.length >= 12) { sfx.err && sfx.err(); return; }
+    t.l.push(tg.idx); const c = CS(), hk = 'hw' + calNow().getFullYear(); c.tn[hk] = (c.tn[hk] || 0) + 1; const p = ttDoor(HOUSES[tg.idx]);
+    if (Math.random() < 0.15) { msg('🎃 ' + SAURES[Math.floor(Math.random() * SAURES.length)]); floater(p.x, p.y - 22, 'Saures!', '#B36BFF'); }
+    else { const v = Math.round((40 + Math.random() * 60) * (1 + krLv() * 0.25)); G.money += v; floater(p.x, p.y - 22, '🍬 +' + fmt(v), '#FF8A2A'); sfx.cash(); }
+    if (c.tn[hk] === 8) giveWear('pumpkin', 'Halloween-Belohnung');
+    save();
+  }
+  function drawPumpkin(x, y, s, lit, seed) {
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x + 1, y + 4 * s, 7 * s, 2.4 * s, 0, 0, TAU); ctx.fill();
+    for (const [dx, w, c] of [[-3.6, 3.8, '#D9661C'], [3.6, 3.8, '#D9661C'], [0, 4.4, '#F07F24']]) { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x + dx * s, y, w * s, 4.6 * s, 0, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = 'rgba(255,220,150,.35)'; ctx.beginPath(); ctx.ellipse(x - 1.4 * s, y - 2.4 * s, 1.6 * s, 1 * s, -0.4, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#4A6A2A'; ctx.fillRect(x - 0.8 * s, y - 6.4 * s, 1.6 * s, 2.4 * s);
+    ctx.fillStyle = lit ? '#FFD86A' : '#5A2A0E'; // Gesicht
+    for (const sx of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x + sx * 3.4 * s, y - 0.6 * s); ctx.lineTo(x + sx * 1.2 * s, y - 0.6 * s); ctx.lineTo(x + sx * 2.3 * s, y - 2.6 * s); ctx.closePath(); ctx.fill(); }
+    ctx.beginPath(); ctx.moveTo(x - 3.6 * s, y + 1 * s); for (let k = 0; k <= 6; k++) ctx.lineTo(x - 3.6 * s + k * 1.2 * s, y + (k % 2 ? 2.2 : 1.4) * s); for (let k = 6; k >= 0; k--) ctx.lineTo(x - 3.6 * s + k * 1.2 * s, y + (k % 2 ? 2.8 : 3.4) * s); ctx.closePath(); ctx.fill();
+  }
+  // ---------- Ostern: Eiersuche ----------
+  const EGG_N = 10, EGG_COL = ['#FF9CC8', '#FFD24A', '#7FD0C8', '#B36BFF', '#8FE3A0', '#FF8A5A'];
+  let eggC = { y: 0, pts: [] };
+  function eggPoints(y) {
+    if (eggC.y === y) return eggC.pts; let seed = y * 131 + 17; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, pts = [];
+    for (let k = 0; k < 4000 && pts.length < EGG_N; k++) { const E = NAV.edges[Math.floor(rnd() * NAV.edges.length)], t = rnd(); if (!E) continue; const A = NAV.nodes[E.a], B = NAV.nodes[E.b], x = Math.round(A.x + (B.x - A.x) * t), y2 = Math.round(A.y + (B.y - A.y) * t); if (zoneRepAt(x, y2) > 0 || onRoadway(x, y2) || blockedPt(x, y2) || inBuilding(x, y2) || AREA_KEYS.some(q => { const I = AREAS[q].IN; return x > I.x0 - 70 && x < I.x1 + 70 && y2 > I.y0 - 90 && y2 < I.y1 + 70; }) || x < 60 || y2 < 60 || x > WW - 60 || y2 > WH - 60 || pts.some(o => Math.hypot(o.x - x, o.y - y2) < 260)) continue; pts.push({ x, y: y2 }); }
+    eggC = { y, pts }; return pts;
+  }
+  function eggState(d) { const c = CS(), y = d.getFullYear(); if (c.egg.y !== y) c.egg = { y, m: 0 }; return c.egg; }
+  function eggTick(d) {
+    const st = eggState(d), pts = eggPoints(st.y);
+    pts.forEach((p, i) => { if (st.m & (1 << i)) return; if (Math.hypot(player.x - p.x, player.y - p.y) < 22) { st.m |= 1 << i; const got = pts.filter((_, j) => st.m & (1 << j)).length; sfx.ping(); floater(p.x, p.y - 20, 'Osterei ' + got + '/' + pts.length, '#FFD24A');
+      if (got === pts.length) { const v = Math.round(1500 * krLv()); G.money += v; krRepBonus(1); msg('🐣 Alle Ostereier gefunden! +' + fmt(v) + ', Ruf +1'); sfx.cash(); } save(); } });
+  }
+  // ---------- Advent: Kalender im Handy ----------
+  function advReward(n) {
+    if (n === 24) return { t: 'Weihnachtsgeschenk', f: () => { const a = giveWear('santa', 'Frohe Weihnachten'), b = giveWear('xmas', 'Frohe Weihnachten'); if (!a && !b) { const v = Math.round(2400 * krLv()); G.money += v; return '+' + fmt(v); } return 'Weihnachtsmütze und Weihnachtspulli'; } };
+    if (n === 6) return { t: 'Nikolaus', f: () => { const v = Math.round(1200 * krLv()); G.money += v; return '+' + fmt(v); } };
+    if (n % 6 === 3) return { t: 'Ruf', f: () => { krRepBonus(0.5); return 'Ruf +0,5'; } };
+    if (n % 6 === 5) return { t: 'Gratis-Samen', f: () => { KR().freeT = Math.max(KR().freeT, absMin()) + 3 * 60; return '3 Spielstunden gratis pflanzen'; } };
+    return { t: 'Geld', f: () => { const v = Math.round((180 + n * 25) * krLv()); G.money += v; return '+' + fmt(v); } };
+  }
+  function advOpen(n) {
+    const d = calNow(), c = CS(); if (!calOn('advent') || n < 1 || n > 24 || n > d.getDate()) return false;
+    if (c.adv.y !== d.getFullYear()) c.adv = { y: d.getFullYear(), m: 0 }; if (c.adv.m & (1 << n)) return false;
+    c.adv.m = (c.adv.m | (1 << n)) >>> 0; const r = advReward(n), res = r.f(); msg('🎄 Türchen ' + n + ': ' + res); sfx.buy(); save(); return true;
+  }
+  // ---------- Handy: Karriere → Events ----------
+  function calNext(e, from) { // nächster Beginn (zum Anzeigen), sucht bis zu 400 Tage voraus
+    for (let i = 0; i < 400; i++) for (const h of [0, 12, 19, 23]) { const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i, h, 0, 0); if (d < from) continue; try { if (e.on(d)) return d; } catch (x) { return null; } }
+    return null;
+  }
+  function calWelt(b) {
+    if (KR_NEUTRAL) return; const d = calNow(), act = calList();
+    krGrp(b, 'Echte Events (nach deiner Uhr)');
+    for (const e of act) {
+      const cc = krCard(b, e.ic + ' ' + e.name, 'läuft', e.desc);
+      if (e.id === 'halloween') { const c = CS(), n = c.tn['hw' + d.getFullYear()] || 0, t = ttToday(); krBar(cc, Math.min(1, n / 8)); const x = document.createElement('div'); x.className = 'ds'; x.style.cssText = 'margin-top:6px;grid-column:1/-1'; x.textContent = (n >= 8 ? 'Kürbiskopf geholt! ' : 'Kürbiskopf: ' + n + ' / 8 Häuser. ') + 'Heute ' + t.l.length + ' / 12 Türen.'; cc.appendChild(x); }
+      if (e.id === 'ostern') { const st = eggState(d), got = eggPoints(st.y).filter((_, i) => st.m & (1 << i)).length; krBar(cc, got / EGG_N); }
+      if (e.id === 'advent') {
+        const c = CS(); if (c.adv.y !== d.getFullYear()) c.adv = { y: d.getFullYear(), m: 0 };
+        const g = document.createElement('div'); g.style.cssText = 'display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:8px;grid-column:1/-1';
+        for (let n = 1; n <= 24; n++) { const bt = document.createElement('button'), open = c.adv.m & (1 << n), can = n <= d.getDate(); bt.className = 'chip' + (open ? ' on' : ''); bt.style.cssText = 'padding:7px 0;min-width:0'; bt.textContent = open ? '✓' : n === 24 ? '🎁' : String(n); bt.disabled = !!open || !can; if (!open && can) bt.addEventListener('click', () => { if (advOpen(n)) renderPhone(); }); g.appendChild(bt); }
+        cc.appendChild(g);
+      }
+    }
+    const soon = CAL.filter(e => !act.includes(e) && e.id !== 'nachtmarkt' && e.id !== 'wochenende').map(e => ({ e, t: calNext(e, d) })).filter(x => x.t).sort((a, b) => a.t - b.t).slice(0, 3);
+    if (!act.length) { const x = document.createElement('div'); x.className = 'empty'; x.textContent = 'Gerade läuft kein echtes Event.'; b.appendChild(x); }
+    if (soon.length) { const x = document.createElement('div'); x.className = 'ds'; x.style.margin = '4px 2px 10px'; x.textContent = 'Demnächst: ' + soon.map(s => s.e.ic + ' ' + s.e.name + ' am ' + s.t.getDate() + '.' + (s.t.getMonth() + 1) + '.').join(' · ') + ' – jeden Abend ab 22 Uhr 🏮 Nachtmarkt, freitags ab 18 Uhr 🎉 Wochenend-Bonus.'; b.appendChild(x); }
+  }
+  // ---------- Zeichnen in der Welt (Weltkoordinaten) ----------
+  const XTREE = { x: FOUNTAIN.x + 150, y: FOUNTAIN.y - 120 };
+  function calDrawWorld() {
+    if (KR_NEUTRAL || state === 'edit' || !G) return; const act = calList(), d = calC.d || calNow(), dk = lightK() > 0.25;
+    if (act.some(e => e.id === 'halloween')) for (let i = 0; i < HOUSES.length; i++) { const h = HOUSES[i]; if (!ttHouse(h)) continue; const p = ttDoor(h); if (!inView(p.x, p.y, 20)) continue; drawPumpkin(p.x, p.y, 1.15, dk, i); if (i % 3 === 0) drawPumpkin(p.x + 13, p.y + 2, 0.8, dk, i + 1); }
+    if (calXmasDeco(d)) {
+      for (const h of HOUSES) { if (h.gang || h.x > viewX1 + 20 || h.x + h.w < viewX0 - 20 || h.y > viewY1 + 40 || h.y + h.h < viewY0 - 40) continue; const up = h.face === -1, ey = up ? h.y + h.h * 0.36 : h.y + h.h - h.h * 0.36;
+        ctx.strokeStyle = 'rgba(30,30,30,.6)'; ctx.lineWidth = 0.8; ctx.beginPath(); for (let x = h.x + 4; x <= h.x + h.w - 4; x += 4) ctx.lineTo(x, ey + Math.sin((x - h.x) / 14 * Math.PI) * 1.6); ctx.stroke();
+        for (let x = h.x + 8, k = 0; x < h.x + h.w - 6; x += 14, k++) { const on = ((k + Math.floor(gt * 2)) % 3) !== 0; ctx.fillStyle = on || !dk ? ['#FF5C5C', '#FFD24A', '#5CB8FF', '#63FF9A'][k % 4] : '#3A3A3A'; ctx.beginPath(); ctx.arc(x, ey + Math.sin((x - h.x) / 14 * Math.PI) * 1.6 + 1.6, 1.7, 0, TAU); ctx.fill(); } }
+      if (inView(XTREE.x, XTREE.y, 80)) drawXmasTree(XTREE.x, XTREE.y, dk);
+    }
+    const lan = act.find(e => e.id === 'nachtmarkt' || e.id === 'sommerfest');
+    if (lan && inView(FOUNTAIN.x, FOUNTAIN.y, 260)) drawLanterns(lan.id === 'nachtmarkt', dk);
+    if (act.some(e => e.id === 'ostern')) { const st = eggState(d), pts = eggPoints(st.y); pts.forEach((p, i) => { if (st.m & (1 << i) || !inView(p.x, p.y, 20)) return; const bo = Math.sin(gt * 3 + i) * 1.2; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 5, 5, 2, 0, 0, TAU); ctx.fill();
+      ctx.save(); ctx.translate(p.x, p.y - 2 + bo); ctx.fillStyle = EGG_COL[i % EGG_COL.length]; ctx.beginPath(); ctx.ellipse(0, 0, 4, 5.2, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillRect(-3.8, -1, 7.6, 1.4); ctx.fillStyle = EGG_COL[(i + 2) % EGG_COL.length]; for (const dx of [-2, 0, 2]) { ctx.beginPath(); ctx.arc(dx, 2.4, 0.8, 0, TAU); ctx.fill(); } ctx.restore();
+      if (Math.sin(gt * 5 + i * 2) > 0.8) { ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fillRect(p.x + 3, p.y - 9, 1.5, 1.5); } }); }
+  }
+  function drawXmasTree(x, y, dk) {
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x + 4, y + 30, 26, 8, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#6A4428'; ctx.fillRect(x - 4, y + 18, 8, 12); ctx.fillStyle = '#B5473A'; ctx.fillRect(x - 9, y + 24, 18, 8); ctx.fillStyle = '#F2C14E'; ctx.fillRect(x - 1, y + 24, 2, 8);
+    for (const [ty, w, c] of [[22, 30, '#1E5A34'], [6, 25, '#236A3C'], [-9, 19, '#2A7A46'], [-22, 12, '#33884F']]) { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(x - w, y + ty); ctx.lineTo(x + w, y + ty); ctx.lineTo(x, y + ty - 22); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.moveTo(x - w, y + ty); ctx.lineTo(x - w * 0.3, y + ty); ctx.lineTo(x, y + ty - 22); ctx.closePath(); ctx.fill(); }
+    if (seaSnow()) { ctx.fillStyle = 'rgba(240,246,252,.85)'; for (const [ty, w] of [[6, 25], [-9, 19], [-22, 12]]) { ctx.beginPath(); ctx.ellipse(x - w * 0.2, y + ty - 14, w * 0.35, 2, 0, 0, TAU); ctx.fill(); } }
+    const BC = ['#FF5C5C', '#FFD24A', '#5CB8FF', '#F4F4F8', '#B36BFF']; let k = 0;
+    for (const [ty, w] of [[18, 26], [3, 21], [-11, 15], [-23, 9]]) for (let q = -w + 4; q <= w - 4; q += 8) { const on = !dk || ((k + Math.floor(gt * 2.5)) % 4) !== 0; ctx.fillStyle = on ? BC[k % 5] : '#444'; ctx.beginPath(); ctx.arc(x + q, y + ty - Math.abs(q) * 0.1, 2, 0, TAU); ctx.fill(); k++; }
+    ctx.fillStyle = '#FFD24A'; ctx.save(); ctx.translate(x, y - 46); ctx.beginPath(); for (let i = 0; i < 10; i++) { const r = i % 2 ? 2.6 : 6, a = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+  const LAN_R = 196, LAN_N = 22;
+  function drawLanterns(nm, dk) { // Laternenkette rund um den Brunnenplatz
+    const f = FOUNTAIN; ctx.strokeStyle = 'rgba(40,32,28,.75)'; ctx.lineWidth = 1; ctx.beginPath();
+    for (let i = 0; i <= LAN_N * 3; i++) { const a = i / (LAN_N * 3) * TAU, sag = Math.abs(Math.sin(i / 3 * Math.PI)) * 7; ctx.lineTo(f.x + Math.cos(a) * (LAN_R - sag), f.y + Math.sin(a) * (LAN_R - sag) * 0.96); } ctx.stroke();
+    for (let i = 0; i < LAN_N; i++) { const a = (i + 0.5) / LAN_N * TAU, x = f.x + Math.cos(a) * (LAN_R - 7), y = f.y + Math.sin(a) * (LAN_R - 7) * 0.96 + Math.sin(gt * 1.6 + i) * 0.6;
+      if (nm) { ctx.fillStyle = ['#E8402E', '#FF8A2A', '#E8402E', '#FFC23A'][i % 4]; ctx.beginPath(); ctx.ellipse(x, y, 3.6, 4.6, 0, 0, TAU); ctx.fill(); ctx.fillStyle = dk ? 'rgba(255,230,160,.85)' : 'rgba(255,255,255,.3)'; ctx.fillRect(x - 1.2, y - 3, 2.4, 6); ctx.fillStyle = '#3A2A1E'; ctx.fillRect(x - 2.2, y - 5.6, 4.4, 1.4); ctx.fillRect(x - 2.2, y + 4.2, 4.4, 1.4); }
+      else { ctx.fillStyle = ['#FF5C5C', '#FFD24A', '#5CB8FF', '#63FF9A', '#FF9CC8'][i % 5]; ctx.beginPath(); ctx.arc(x, y + 2, 2.2, 0, TAU); ctx.fill(); } }
+  }
+  function calLights(L, oK) { // nachts leuchtend (im 'lighter'-Modus aus drawLights)
+    if (KR_NEUTRAL || state === 'edit' || !G) return; const act = calList(), d = calC.d || calNow();
+    if (act.some(e => e.id === 'halloween')) for (let i = 0; i < HOUSES.length; i++) { const h = HOUSES[i]; if (!ttHouse(h)) continue; const p = ttDoor(h); if (!inView(p.x, p.y, 40)) continue; glow(p.x, p.y, 22 + Math.sin(gt * 7 + i) * 2, '255,150,40', 0.4 * L * oK); }
+    if (calXmasDeco(d) && inView(XTREE.x, XTREE.y, 120)) glow(XTREE.x, XTREE.y - 10, 70, '255,210,120', 0.28 * L * oK);
+    const lan = act.find(e => e.id === 'nachtmarkt' || e.id === 'sommerfest');
+    if (lan && inView(FOUNTAIN.x, FOUNTAIN.y, 260)) for (let i = 0; i < LAN_N; i += 2) { const a = (i + 0.5) / LAN_N * TAU; glow(FOUNTAIN.x + Math.cos(a) * (LAN_R - 7), FOUNTAIN.y + Math.sin(a) * (LAN_R - 7) * 0.96, 26, lan.id === 'nachtmarkt' ? '255,140,60' : '255,220,140', 0.32 * L * oK); }
+  }
+  // ---------- Zeichnen über dem Bild (Bildschirmkoordinaten): Feuerwerk, Herzen, Konfetti ----------
+  const calH = (a, b) => { const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); };
+  function calDrawSky() {
+    if (KR_NEUTRAL || !G || LOFX || state === 'edit') return; const act = calList(); if (!act.length) return; const out = 1 - 0.85 * (indoorK || 0); if (out < 0.1) return;
+    ctx.save(); ctx.globalAlpha = out;
+    if (act.some(e => e.id === 'silvester')) drawFireworks(calC.d || calNow());
+    if (act.some(e => e.id === 'valentin')) for (let i = 0; i < 12; i++) { const ph = (gt * 0.06 + calH(i, 1)) % 1, x = W * calH(i, 2) + Math.sin(gt * 0.8 + i) * 16, y = H * (1.05 - ph * 1.15), s = 5 + calH(i, 3) * 4; ctx.globalAlpha = out * Math.sin(ph * Math.PI) * 0.75; ctx.fillStyle = i % 3 ? '#FF6FA8' : '#FF3D6E'; heartAt(x, y, s); }
+    const conf = act.some(e => e.id === 'geburtstag') ? 40 : act.some(e => e.id === 'sommerfest') ? 18 : 0;
+    for (let i = 0; i < conf; i++) { const ph = (gt * (0.05 + calH(i, 4) * 0.05) + calH(i, 5)) % 1, x = W * calH(i, 6) + Math.sin(gt * 1.3 + i) * 12, y = ph * (H + 20) - 10; ctx.globalAlpha = out * 0.9; ctx.fillStyle = ['#FF5C5C', '#FFD24A', '#5CB8FF', '#63FF9A', '#FF9CC8', '#B36BFF'][i % 6]; ctx.save(); ctx.translate(x, y); ctx.rotate(gt * 3 + i); ctx.fillRect(-3.4, -1.6, 6.8, 3.2); ctx.restore(); }
+    ctx.restore();
+  }
+  function heartAt(x, y, s) { ctx.beginPath(); ctx.moveTo(x, y + s * 0.9); ctx.bezierCurveTo(x - s * 1.6, y - s * 0.2, x - s * 0.8, y - s * 1.3, x, y - s * 0.5); ctx.bezierCurveTo(x + s * 0.8, y - s * 1.3, x + s * 1.6, y - s * 0.2, x, y + s * 0.9); ctx.fill(); }
+  function drawFireworks(d) {
+    const mins = d.getHours() * 60 + d.getMinutes(), toMid = mins >= 18 * 60 ? 1440 - mins : -mins, peak = Math.max(0, 1 - Math.abs(toMid) / 40); // 40 Minuten um Mitternacht am meisten
+    const per = 1.1 - 0.8 * peak, n = 5, t = gt, k0 = Math.floor(t / per), FC = ['255,90,90', '255,210,74', '120,200,255', '120,255,160', '255,140,220', '255,255,255'];
+    ctx.globalCompositeOperation = 'lighter';
+    for (let k = k0 - n; k <= k0; k++) { const t0 = k * per + calH(k, 7) * per * 0.5, a = t - t0; if (a < 0 || a > 2.6) continue;
+      const bx = W * (0.12 + calH(k, 8) * 0.76), by = H * (0.12 + calH(k, 9) * 0.3), col = FC[Math.floor(calH(k, 10) * FC.length)], rise = 0.8;
+      if (a < rise) { const q = a / rise, y = H + 10 + (by - H - 10) * (1 - (1 - q) * (1 - q)); ctx.fillStyle = 'rgba(255,230,180,.9)'; ctx.fillRect(bx - 1, y, 2, 6); ctx.fillStyle = 'rgba(255,200,120,.35)'; ctx.fillRect(bx - 0.5, y + 6, 1, 14); continue; }
+      const b = a - rise, f = Math.max(0, 1 - b / 1.8), R = (46 + calH(k, 11) * 50) * Math.min(1.4, Math.max(0.8, H / 420)), np = 40;
+      if (b < 0.3) { const g = ctx.createRadialGradient(bx, by, 0, bx, by, R * 1.4); g.addColorStop(0, 'rgba(' + col + ',' + (0.45 * (1 - b / 0.3)).toFixed(3) + ')'); g.addColorStop(1, 'rgba(' + col + ',0)'); ctx.fillStyle = g; ctx.fillRect(bx - R * 1.4, by - R * 1.4, R * 2.8, R * 2.8); }
+      ctx.fillStyle = 'rgba(' + col + ',' + Math.min(1, f * 1.2).toFixed(3) + ')'; const ga0 = ctx.globalAlpha;
+      for (let i = 0; i < np; i++) { const an = i / np * TAU + calH(k, i) * 0.2, sp = R * (1 - Math.exp(-b * 3)) * (0.75 + calH(i, k) * 0.3), x = bx + Math.cos(an) * sp, y = by + Math.sin(an) * sp + b * b * 16, s = 3.4 * f + 1; ctx.fillRect(x - s / 2, y - s / 2, s, s); const sp2 = sp * 0.82; ctx.globalAlpha = ga0 * 0.45; ctx.fillRect(bx + Math.cos(an) * sp2 - s / 4, by + Math.sin(an) * sp2 + b * b * 12 - s / 4, s / 2, s / 2); ctx.globalAlpha = ga0; }
+    }
+    ctx.globalCompositeOperation = 'source-over';
   }
   // ---------- v121: Spaetes Spiel: Wochenziele, Meisterstufen, Marken, Sammler-Laden, Stadtprojekte, Bestenliste ----------
   // Alles in G.lg, bleibt beim Prestige erhalten. Woche = echte Kalenderwoche (Montag neu).
@@ -9176,6 +9410,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     krGrp(b, 'Noch gesperrt (' + lock.length + ')'); lock.forEach(c => row(c, 'lock'));
   }
   function renderWelt(b) {
+    calWelt(b); // v155: echte Kalender-Events
     const k = KR(), s = season(), ns = SEASONS[(seasonI() + 1) % 4];
     const c = krCard(b, s.ic + ' ' + s.name + ' · Jahr ' + seasonYear(), 'Tag ' + seasonDay() + '/' + SEASON_DAYS, s.txt.join(' · ') + '<br>Danach: ' + ns.ic + ' ' + ns.name + ' in ' + (SEASON_DAYS - seasonDay() + 1) + ' Tag(en)'); krBar(c, seasonDay() / SEASON_DAYS);
     const pts = collPoints(), m = k.col[seasonYear() + '-' + seasonI()] || 0, got = pts.filter((_, i) => m & (1 << i)).length, C = COLL[seasonI()];
@@ -9625,8 +9860,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   // ---------- Effekte (kaufbar im Handy unter Style) ----------
   function buyCos(id) {
     const c = COS.find(x => x.id === id);
-    if (!c || G.cos.owned[id] || G.money < c.cost || G.rep < (c.rep || 0)) return false;
-    G.money -= c.cost; G.cos.owned[id] = true; if (c.kind === 'pet') { if (!activePets().includes(id)) togglePet(id); } else G.cos[c.kind] = id; sfx.buy(); save(); return true;
+    const pc = shopCost('c', c); if (!c || G.cos.owned[id] || G.money < pc || G.rep < (c.rep || 0)) return false;
+    G.money -= pc; G.cos.owned[id] = true; if (c.kind === 'pet') { if (!activePets().includes(id)) togglePet(id); } else G.cos[c.kind] = id; sfx.buy(); save(); return true;
   }
   // Maximal 2 Begleiter: ein dritter ersetzt den aeltesten
   function togglePet(id) {
@@ -10382,6 +10617,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       else if (H === 'sportcap') { Rc(-4.6, -10.6, 9.2, 3.6, '#F4F4F8'); Rc(-4.6, -8.2, 9.2, .8, base); if (side) Rc(1.6, -7.8, 4.4, 1.3, base); else if (front) Rc(-4.6, -7.8, 9.2, 1.3, base); else Rc(-1, -8, 2, 1, hc); }
       else if (H === 'pompom') { Rc(-4.6, -10.8, 9.2, 4.4, base); Rc(-4.6, -7.2, 9.2, 1.4, '#F4F4F8'); Rc(-1.8, -14, 3.6, 3.6, '#F4F4F8'); Rc(-1, -13.4, 1, 1, '#DDE1EA'); }
       else if (H === 'santa') { Rc(-4.6, -10.8, 9.2, 3.2, '#D83A3A'); Rc(-3.4, -12.6, 6.4, 2, '#D83A3A'); Rc(side ? -5.6 : 1.6, -13.8, 3.6, 2, '#D83A3A'); Rc(side ? -7.4 : 4.4, -14.4, 2.6, 2.6, '#F4F4F8'); Rc(-4.8, -8.2, 9.6, 1.6, '#F4F4F8'); }
+      else if (H === 'pumpkin') { Rc(-5.6, -13.2, 11.2, 6, '#E8761E'); Rc(-4.6, -14.2, 9.2, 1.2, '#E8761E'); Rc(-5.6, -7.6, 11.2, .9, '#B9561A'); Rc(-2.2, -13.2, .8, 6, 'rgba(120,50,10,.35)'); Rc(1.4, -13.2, .8, 6, 'rgba(120,50,10,.35)'); Rc(-.8, -16, 1.6, 2, '#4A6A2A'); Rc(.6, -15.8, 1.8, .8, '#5E8A34'); if (front) { Rc(-3.6, -11.6, 2, 1.4, '#3A1A08'); Rc(1.6, -11.6, 2, 1.4, '#3A1A08'); Rc(-3, -9.4, 6, 1, '#3A1A08'); Rc(-1, -9.4, 1, .6, '#E8761E'); } else if (side) Rc(1.8, -11.6, 2, 1.4, '#3A1A08'); } // v155
       else if (H === 'headband') Rc(-4.6, -8.4, 9.2, 1.5, '#D94F4F');
       else if (H === 'cowboy') { Rc(-6.6, -9.4, 13.2, 1.4, '#8A5A34'); Rc(-3.6, -12.8, 7.2, 3.6, '#A06A3C'); Rc(-3.6, -10.4, 7.2, .8, '#3A2A1C'); }
       else if (H === 'partyhat') { Rc(-1, -15.2, 2, 1.6, '#F6E27A'); Rc(-1.8, -13.6, 3.6, 1.6, '#E05A9A'); Rc(-2.8, -12, 5.6, 1.6, '#4B8DFF'); Rc(-3.8, -10.4, 7.6, 1.6, '#E05A9A'); Rc(-4.4, -8.8, 8.8, .8, '#F6E27A'); }
@@ -13527,6 +13763,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       const h = HOUSES[hi]; if (h.x > viewX1 + 20 || h.x + h.w < viewX0 - 20 || h.y > viewY1 + 40 || h.y + h.h < viewY0 - 40) continue;
       if (h.gang) drawGangHouse(h, hi); else drawHouse(h, hi);
     }
+    calDrawWorld(); // v155: Kürbisse, Lichterketten, Baum, Laternen, Ostereier
     drawGangSign(); drawGhqSign(); // v121
     drawRaid(); // v100
     drawKeller();
@@ -13951,6 +14188,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const L = lightK(); if (L <= 0.02) return; const oK = 1 - 0.4 * indoorK; // v56: sanfter, drinnen noch zurueckhaltender
     ctx.globalCompositeOperation = 'lighter';
     for (const l of LAMPS) if (inView(l.x, l.y, 140)) glow(l.x, l.y - 30, 100, '255,206,130', 0.26 * L * oK);
+    calLights(L, oK); // v155
     gvLights(L, oK); // v79
     if (inView(GV2_P.barrel.x, GV2_P.barrel.y, 200)) glow(GV2_P.barrel.x, GV2_P.barrel.y - 4, 90 + 8 * Math.sin(gt * 9), '255,140,60', (0.42 + 0.08 * Math.sin(gt * 13)) * L * oK); // v109: Westhof
     if (inView(3910, 2490, 460)) for (let k = 0; k < 8; k++) { const t = (k + .5) / 8; glow(GV2.x + 10 + t * (GV2.w - 20), 2486 + 7 * 4 * t * (1 - t) * .5, 24, ['255,92,122', '255,210,74', '120,200,255', '180,120,255'][k % 4], .3 * L * oK); }
@@ -14120,6 +14358,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       }
     }
     { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } drawRain(); ctx.restore(); } // v59: kein Regen in Raeumen
+    if (state === 'play' || state === 'menu') calDrawSky(); // v155: Feuerwerk, Herzen, Konfetti
     if (state === 'play') drawVignette(); // v94
     if (state === 'play') drawCopLights(); // v127: Polizeilicht statt Balken
     if (busRide) drawBusFade(); // v104
@@ -14652,7 +14891,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 154; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 155; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -14979,6 +15218,11 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 155, date: 'Oktober 2026', title: 'Echte Events', items: [
+      ['neu', '🎃', 'Halloween (24.10.–1.11.): Kürbisse vor den Häusern, an jeder Kürbis-Tür A drücken für Süßes oder Saures. Nach 8 Häusern gibt es den Kürbiskopf'],
+      ['neu', '🎄', 'Advent mit Türchen-Kalender, Lichterketten und Weihnachtsbaum, 🎆 Silvester-Feuerwerk, 💘 Valentinstag, 🐣 Ostereier-Suche, 🏷️ Black Friday, 🎪 Sommerfest und 🎂 Kellergrün-Geburtstag'],
+      ['neu', '🏮', 'Jeden Abend ab 22 Uhr Nachtmarkt mit Rabatten, freitags ab 18 Uhr Wochenend-Bonus. Alles nach deiner echten Uhr, unter Karriere → Events'],
+      ['chg', '🐞', 'Das Erntefest und die Ostereier im Spiel-Frühling sind raus (jetzt echte Events). Im Frühling sammelst du Marienkäfer'] ] },
     { v: 154, date: 'Oktober 2026', title: 'Schnee & Tempo', items: [
       ['neu', '❄️', 'Im Winter liegt die ganze Stadt unter Schnee: weiße Wiesen, verschneite Dächer mit Eiszapfen, Hecken und Gehwege, der Teich ist zugefroren'],
       ['neu', '🍂', 'Herbst mit welkem Gras und Laub auf den Wiesen, Frühling mit frischem Grün und Blüten, Sommer warm und sonnig'],
@@ -14986,8 +15230,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ['chg', '⚡', 'Spürbar flüssiger: Räume unter geschlossenem Dach werden nicht mehr unsichtbar mitgezeichnet, weniger Ruckler beim Laufen, hinter dem Handy-Menü läuft das Spiel sparsamer'] ] },
     { v: 153, date: 'Oktober 2026', title: 'Spiel im Spiel', items: [
       ['neu', '🎮', 'Auf dem linken Bildschirm des Gaming-Tischs läuft echtes Kellergrün: deine eigene Figur läuft durch den Stadtpark, mit Geld, Uhrzeit, Minikarte, Joystick und A-Knopf wie im Spiel'] ] },
-    { v: 151, date: 'Oktober 2026', title: 'Gaming-Stuhl', items: [
-      ['neu', '🪑', 'Neue Deko: Gaming-Stuhl in Schwarz und Neon-Grün mit Kopfkissen und Rollen. Er dreht sich leicht hin und her und passt vor den Gaming-Tisch (Kategorie Freizeit, 360 €)'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
@@ -15174,7 +15416,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   } catch (e) {}
   loadWorldLocal(); setTimeout(worldStart, 1500); // v59: gemeinsame Karte
   if (r3Want) setTimeout(r3Start, 50); // v90: 3D-Ansicht vom letzten Mal
-  if (window.__KG_DEBUG) window.__KG_DEBUG({ CACHE, CB, drawGroundTiles, seasonPx, get bcOff() { return bcOff; }, drawTraffic, get DET() { return DET; }, detInit, catUpdate, blockedPt, drawSlotMachine, drawBJTable, shotStart, shotOn, shotEnd, get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, set sus(v) { sus = v; }, bustNow() { copBust = gt; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, mpBinAcks, binRestore, wzReset() { wzDel0 = -1; wzT = 0; }, rkZone, rkPoint, rkMerge, rkLoad, rkBoard, rkOwners, rkMul, rkClaim, goCur, goDeliver, goNeed, get rkList() { return rkList; }, set rkList(v) { rkList = v; }, get rkPend() { return rkPend; }, renderPgRev, wzFlush, TIPS, tipTick, tipShow, tipClose, get tipCur() { return tipCur; }, lfBar, lfNewCount, get lfMode() { return lfMode; }, set lfMode(v) { lfMode = v; }, get LOFX() { return LOFX; }, setLofx, perfTick, setAutoOn, lagMove, renderPgLager, get BC() { return CACHE; }, get CB() { return CB; }, cacheFail, set bcOff(v) { bcOff = v; }, setBc, bcTick, get bcAuto() { return bcAuto; }, get bcT() { return bcT; }, setFps, fpsTick, get fpsM() { return fpsM; }, ghqRot, ghqResetSt, stSet, stSave, ghqApplyLay, GHQ_ST, GBEET, petView, petViewClose, startGhqEdit, ed, editHit, renderGhqPanel, ghqDelSel, gdUse, gpUse, gSell, gdOf, gbYield, gSellP, GHQ_DRY, GHQ_PACK, GD_TIME, drawPet, drawPet130, drawDec130, get autoLow() { return autoLow; }, get perf() { return perf; }, get DPR() { return DPR; }, fk, drawCopLights, uiDef, cleanUi, canPay, payCost, bankUp, bankLv, bankHere, busWait, pgBuyDeco, pgMoveDeco, pgRemoveDeco, hqItems, lagPut, lagTake, lagArr, donList, hqTaxi, pgAppSync, hqPick, hqDrop, get hqCarry() { return hqCarry; }, pgSet, gbUse, wzClaim, wzCur, GBEET, renderAdmErr, errLocal, pgMakeBoss, pgReqN, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
+  if (window.__KG_DEBUG) window.__KG_DEBUG({ CACHE, CB, drawGroundTiles, seasonPx, setCalOv(v) { calOv = v; calC.t = -1; }, CAL, calList, calTarget, calAct, advOpen, eggPoints, CS, get bcOff() { return bcOff; }, drawTraffic, get DET() { return DET; }, detInit, catUpdate, blockedPt, drawSlotMachine, drawBJTable, shotStart, shotOn, shotEnd, get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, set sus(v) { sus = v; }, bustNow() { copBust = gt; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, mpBinAcks, binRestore, wzReset() { wzDel0 = -1; wzT = 0; }, rkZone, rkPoint, rkMerge, rkLoad, rkBoard, rkOwners, rkMul, rkClaim, goCur, goDeliver, goNeed, get rkList() { return rkList; }, set rkList(v) { rkList = v; }, get rkPend() { return rkPend; }, renderPgRev, wzFlush, TIPS, tipTick, tipShow, tipClose, get tipCur() { return tipCur; }, lfBar, lfNewCount, get lfMode() { return lfMode; }, set lfMode(v) { lfMode = v; }, get LOFX() { return LOFX; }, setLofx, perfTick, setAutoOn, lagMove, renderPgLager, get BC() { return CACHE; }, get CB() { return CB; }, cacheFail, set bcOff(v) { bcOff = v; }, setBc, bcTick, get bcAuto() { return bcAuto; }, get bcT() { return bcT; }, setFps, fpsTick, get fpsM() { return fpsM; }, ghqRot, ghqResetSt, stSet, stSave, ghqApplyLay, GHQ_ST, GBEET, petView, petViewClose, startGhqEdit, ed, editHit, renderGhqPanel, ghqDelSel, gdUse, gpUse, gSell, gdOf, gbYield, gSellP, GHQ_DRY, GHQ_PACK, GD_TIME, drawPet, drawPet130, drawDec130, get autoLow() { return autoLow; }, get perf() { return perf; }, get DPR() { return DPR; }, fk, drawCopLights, uiDef, cleanUi, canPay, payCost, bankUp, bankLv, bankHere, busWait, pgBuyDeco, pgMoveDeco, pgRemoveDeco, hqItems, lagPut, lagTake, lagArr, donList, hqTaxi, pgAppSync, hqPick, hqDrop, get hqCarry() { return hqCarry; }, pgSet, gbUse, wzClaim, wzCur, GBEET, renderAdmErr, errLocal, pgMakeBoss, pgReqN, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
   requestAnimationFrame(frame);
 })();
 </script>

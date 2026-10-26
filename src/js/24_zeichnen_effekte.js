@@ -62,8 +62,8 @@
   // ---------- Effekte (kaufbar im Handy unter Style) ----------
   function buyCos(id) {
     const c = COS.find(x => x.id === id);
-    if (!c || G.cos.owned[id] || G.money < c.cost || G.rep < (c.rep || 0)) return false;
-    G.money -= c.cost; G.cos.owned[id] = true; if (c.kind === 'pet') { if (!activePets().includes(id)) togglePet(id); } else G.cos[c.kind] = id; sfx.buy(); save(); return true;
+    const pc = shopCost('c', c); if (!c || G.cos.owned[id] || G.money < pc || G.rep < (c.rep || 0)) return false;
+    G.money -= pc; G.cos.owned[id] = true; if (c.kind === 'pet') { if (!activePets().includes(id)) togglePet(id); } else G.cos[c.kind] = id; sfx.buy(); save(); return true;
   }
   // Maximal 2 Begleiter: ein dritter ersetzt den aeltesten
   function togglePet(id) {
@@ -819,6 +819,7 @@
       else if (H === 'sportcap') { Rc(-4.6, -10.6, 9.2, 3.6, '#F4F4F8'); Rc(-4.6, -8.2, 9.2, .8, base); if (side) Rc(1.6, -7.8, 4.4, 1.3, base); else if (front) Rc(-4.6, -7.8, 9.2, 1.3, base); else Rc(-1, -8, 2, 1, hc); }
       else if (H === 'pompom') { Rc(-4.6, -10.8, 9.2, 4.4, base); Rc(-4.6, -7.2, 9.2, 1.4, '#F4F4F8'); Rc(-1.8, -14, 3.6, 3.6, '#F4F4F8'); Rc(-1, -13.4, 1, 1, '#DDE1EA'); }
       else if (H === 'santa') { Rc(-4.6, -10.8, 9.2, 3.2, '#D83A3A'); Rc(-3.4, -12.6, 6.4, 2, '#D83A3A'); Rc(side ? -5.6 : 1.6, -13.8, 3.6, 2, '#D83A3A'); Rc(side ? -7.4 : 4.4, -14.4, 2.6, 2.6, '#F4F4F8'); Rc(-4.8, -8.2, 9.6, 1.6, '#F4F4F8'); }
+      else if (H === 'pumpkin') { Rc(-5.6, -13.2, 11.2, 6, '#E8761E'); Rc(-4.6, -14.2, 9.2, 1.2, '#E8761E'); Rc(-5.6, -7.6, 11.2, .9, '#B9561A'); Rc(-2.2, -13.2, .8, 6, 'rgba(120,50,10,.35)'); Rc(1.4, -13.2, .8, 6, 'rgba(120,50,10,.35)'); Rc(-.8, -16, 1.6, 2, '#4A6A2A'); Rc(.6, -15.8, 1.8, .8, '#5E8A34'); if (front) { Rc(-3.6, -11.6, 2, 1.4, '#3A1A08'); Rc(1.6, -11.6, 2, 1.4, '#3A1A08'); Rc(-3, -9.4, 6, 1, '#3A1A08'); Rc(-1, -9.4, 1, .6, '#E8761E'); } else if (side) Rc(1.8, -11.6, 2, 1.4, '#3A1A08'); } // v155
       else if (H === 'headband') Rc(-4.6, -8.4, 9.2, 1.5, '#D94F4F');
       else if (H === 'cowboy') { Rc(-6.6, -9.4, 13.2, 1.4, '#8A5A34'); Rc(-3.6, -12.8, 7.2, 3.6, '#A06A3C'); Rc(-3.6, -10.4, 7.2, .8, '#3A2A1C'); }
       else if (H === 'partyhat') { Rc(-1, -15.2, 2, 1.6, '#F6E27A'); Rc(-1.8, -13.6, 3.6, 1.6, '#E05A9A'); Rc(-2.8, -12, 5.6, 1.6, '#4B8DFF'); Rc(-3.8, -10.4, 7.6, 1.6, '#E05A9A'); Rc(-4.4, -8.8, 8.8, .8, '#F6E27A'); }

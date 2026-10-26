@@ -30,7 +30,7 @@
     { id: 'adm', name: 'Admin', sub: 'Nur für dich', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"><path d="M16 3.5l10 4v8c0 6.5-4.3 11-10 13-5.7-2-10-6.5-10-13v-8z"/><path d="M11.5 16l3.2 3.2 6-6.4" stroke-linecap="round"/></svg>', c: '#FF6B6B', c2: '#B32D3A', tabs: [['admin', 'Spieler'], ['admtool', 'Werkzeuge'], ['admtroll', 'Troll'], ['admerr', 'Fehler']] },
     { id: 'orders', name: 'Aufträge', sub: 'Kunden', ic: IC.orders, c: '#FFB547', c2: '#E8861F', tabs: [['orders', 'Offen']] },
     { id: 'biz', name: 'Geschäft', sub: 'Ausbau & Team', ic: IC.shop, c: '#63C174', c2: '#2F8F4A', tabs: [['shop', 'Ausbau'], ['team', 'Anheuern'], ['crew', 'Mitarbeiter']] },
-    { id: 'karr', name: 'Karriere', sub: 'Ruf & Quests', ic: IC.karr, c: '#FFD24A', c2: '#C4851A', tabs: [['ruf', 'Ruf'], ['woche', 'Woche'], ['quests', 'Quests'], ['liste', 'Bestenliste'], ['goals', 'Ziele'], ['welt', 'Jahreszeit']] },
+    { id: 'karr', name: 'Karriere', sub: 'Ruf & Quests', ic: IC.karr, c: '#FFD24A', c2: '#C4851A', tabs: [['ruf', 'Ruf'], ['woche', 'Woche'], ['quests', 'Quests'], ['liste', 'Bestenliste'], ['goals', 'Ziele'], ['welt', 'Events']] },
     { id: 'cosm', name: 'Style', sub: 'Look & Begleiter', ic: IC.cosm, c: '#FF8FD0', c2: '#C44F96', tabs: [['kopf', 'Kopf'], ['figur', 'Figur'], ['kleid', 'Kleidung'], ['shoes', 'Schuhe'], ['ruecken', 'Rücken'], ['kost', 'Kostüme'], ['pets', 'Begleiter'], ['aura', 'Effekte']] },
     { id: 'gear', name: 'Ausrüstung', sub: 'Rucksack, Rad, Waffen', ic: IC.fzg, c: '#6EE0A0', c2: '#2F9A6A', tabs: [['gearup', 'Für dich'], ['veh', 'Fahrzeuge'], ['wpn', 'Waffen']] },
     { id: 'wohn', name: 'Wohnen', sub: 'Deko & Häuser', ic: IC.deko, c: '#D9A066', c2: '#9A6A3C', tabs: [['deko', 'Einrichten'], ['dshop', 'Deko-Laden'], ['hmine', 'Meine Häuser'], ['hnbr', 'Nachbarn']] },
@@ -320,8 +320,8 @@
     G.look[k] = G.look[k] === id && off ? WEAR_DEF[k] : id; save(); return true;
   }
   function buyWear(id, viaKiosk) {
-    const w = WEAR_BY[id]; if (!w || w.ach || w.qx || (w.kiosk && !viaKiosk) || w.cost === 0 || G.wear.owned[id] || G.money < w.cost || G.rep < w.rep) return false;
-    G.money -= w.cost; G.wear.owned[id] = true; G.look[WEAR_KEY[w.slot]] = id; sfx.buy(); save(); return true;
+    const w = WEAR_BY[id], pc = shopCost('w', w); if (!w || w.ach || w.qx || (w.kiosk && !viaKiosk) || w.cost === 0 || G.wear.owned[id] || G.money < pc || G.rep < w.rep) return false;
+    G.money -= pc; G.wear.owned[id] = true; G.look[WEAR_KEY[w.slot]] = id; sfx.buy(); save(); return true;
   }
   // v128: Kurze Tipps genau dann, wenn etwas Neues freigeschaltet wird (statt langer Einführung). Jeder Tipp kommt nur einmal.
   const way = (at, nm) => () => { wayPt = { x: at.x, y: at.y }; msg('📍 Wegpunkt: ' + nm); };
@@ -390,12 +390,12 @@
         const owned = wearOwned(w.id), on = G.look[WEAR_KEY[slot]] === w.id, locked = !owned && G.rep < w.rep, sp = !!(w.ach || w.qx || w.kiosk), nw = lfIsNew('w:' + w.id, owned, locked, sp);
         if (!lfPass(owned || w.cost === 0, w.cost, locked, nw, !sp)) return;
         const c = document.createElement('div'); c.className = 'card cos';
-        c.innerHTML = '<canvas class="pv" data-wear="' + w.id + '" width="264" height="128"></canvas><div class="nm">' + w.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (w.cost === 0 ? 'gratis' : owned ? (w.qx ? 'exklusiv' : 'gekauft') : w.ach || w.qx ? 'Belohnung' : fmt(w.cost)) + '</div><div class="ds">' + w.desc + (w.rep && w.rep < 999 && !owned && G.rep < w.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + w.rep + '</b>' : '') + '</div>';
+        c.innerHTML = '<canvas class="pv" data-wear="' + w.id + '" width="264" height="128"></canvas><div class="nm">' + w.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (w.cost === 0 ? 'gratis' : owned ? (w.qx ? 'exklusiv' : 'gekauft') : w.ach || w.qx ? 'Belohnung' : shopPriceHtml('w', w)) + '</div><div class="ds">' + w.desc + (w.rep && w.rep < 999 && !owned && G.rep < w.rep ? '<br><b style="color:var(--amber);font-weight:700">Ab Ruf ' + w.rep + '</b>' : '') + '</div>';
         const btn = document.createElement('button'); btn.className = 'buy';
         if (!owned && w.ach) { btn.textContent = 'Ziel: ' + ((ACH.find(a => a.id === w.ach) || {}).name || '?'); btn.disabled = true; }
         else if (!owned && w.qx) { btn.textContent = w.qx; btn.disabled = true; c.classList.add('excl'); }
         else if (!owned && w.kiosk) { btn.textContent = 'Nur am Kiosk (Stadtpark)'; btn.disabled = true; }
-        else if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + w.rep : 'Kaufen'; btn.disabled = locked || G.money < w.cost; btn.addEventListener('click', () => { if (buyWear(w.id)) renderPhone(); }); }
+        else if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + w.rep : 'Kaufen'; btn.disabled = locked || G.money < shopCost('w', w); btn.addEventListener('click', () => { if (buyWear(w.id)) renderPhone(); }); }
         else { const canOff = slot === 'hat' || slot === 'cos' || slot === 'aura' || slot === 'band' || slot === 'back'; btn.textContent = on ? (canOff ? 'Ablegen' : 'Angelegt') : 'Anlegen'; if (on) btn.classList.add('alt'); if (on && !canOff) btn.disabled = true; btn.addEventListener('click', () => { equipWear(w.id); renderPhone(); }); }
         c.appendChild(btn); b.appendChild(c);
       });
@@ -532,12 +532,12 @@
     const ov = uiEl('div', 'petview'); ov.id = 'petView'; const card = uiEl('div', 'pv-card'); ov.appendChild(card);
     const cvs = document.createElement('canvas'); cvs.className = 'pv-big'; const dp = Math.min(2, window.devicePixelRatio || 1); cvs.width = Math.round(300 * dp); cvs.height = Math.round(220 * dp); card.appendChild(cvs);
     const owned = !!G.cos.owned[id], on = activePets().includes(id), locked = !owned && G.rep < (cs.rep || 0), pk = PERKS[id];
-    card.appendChild(uiEl('div', 'pv-nm', cs.name)); card.appendChild(uiEl('div', 'pv-pr', owned ? (on ? 'angelegt' : 'gekauft') : locked ? 'ab Ruf ' + cs.rep : fmt(cs.cost)));
+    card.appendChild(uiEl('div', 'pv-nm', cs.name)); card.appendChild(uiEl('div', 'pv-pr', owned ? (on ? 'angelegt' : 'gekauft') : locked ? 'ab Ruf ' + cs.rep : fmt(shopCost('c', cs))));
     if (pk) { const p = uiEl('div', 'pv-perk'); p.appendChild(uiEl('b', '', '⭐ Vorteil')); p.appendChild(uiEl('div', '', pk.text)); card.appendChild(p); }
     card.appendChild(uiEl('div', 'pv-ds', cs.desc + '.'));
     card.appendChild(uiEl('div', 'pv-ds pv-mut', 'Bis zu 2 Begleiter gleichzeitig. Ihre Vorteile zählen zusammen.'));
     const row = uiEl('div', 'pv-row'), bt = uiEl('button', 'buy');
-    if (!owned) { bt.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen für ' + fmt(cs.cost); bt.disabled = locked || G.money < cs.cost; bt.addEventListener('click', () => { if (buyCos(id)) { petViewClose(); renderPhone(); petView(id); } }); }
+    if (!owned) { bt.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen für ' + fmt(shopCost('c', cs)); bt.disabled = locked || G.money < shopCost('c', cs); bt.addEventListener('click', () => { if (buyCos(id)) { petViewClose(); renderPhone(); petView(id); } }); }
     else { bt.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) bt.classList.add('alt'); bt.addEventListener('click', () => { equipCos(id); petViewClose(); renderPhone(); petView(id); }); }
     const cl = uiEl('button', 'buy alt', 'Schließen'); cl.addEventListener('click', petViewClose); row.appendChild(bt); row.appendChild(cl); card.appendChild(row);
     ov.addEventListener('click', e => { if (e.target === ov) petViewClose(); });
@@ -613,9 +613,9 @@
         const owned = !!G.cos.owned[cs.id], on = kind === 'pet' ? activePets().includes(cs.id) : kind === 'orbit' ? orbitList().includes(cs.id) : G.cos[kind] === cs.id, locked = !owned && G.rep < (cs.rep || 0), nw = lfIsNew('c:' + cs.id, owned, locked, false);
         if (!lfPass(owned, cs.cost, locked, nw)) return;
         const c = document.createElement('div'); c.className = 'card cos';
-        c.innerHTML = '<canvas class="pv" data-cos="' + cs.id + '" width="264" height="128"></canvas><div class="nm">' + cs.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (owned ? 'gekauft' : fmt(cs.cost)) + '</div><div class="ds">' + cs.desc + (PERKS[cs.id] ? '<br><b style="color:var(--amber);font-weight:700">Vorteil: ' + PERKS[cs.id].text + '</b>' : '') + '</div>';
+        c.innerHTML = '<canvas class="pv" data-cos="' + cs.id + '" width="264" height="128"></canvas><div class="nm">' + cs.name + lfBadge(nw) + (on ? ' <span style="color:var(--green);font-weight:700">angelegt</span>' : '') + '</div><div class="pr">' + (owned ? 'gekauft' : shopPriceHtml('c', cs)) + '</div><div class="ds">' + cs.desc + (PERKS[cs.id] ? '<br><b style="color:var(--amber);font-weight:700">Vorteil: ' + PERKS[cs.id].text + '</b>' : '') + '</div>';
         const btn = document.createElement('button'); btn.className = 'buy';
-        if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen'; btn.disabled = locked || G.money < cs.cost; btn.addEventListener('click', () => { if (buyCos(cs.id)) renderPhone(); }); }
+        if (!owned) { btn.textContent = locked ? 'Ab Ruf ' + cs.rep : 'Kaufen'; btn.disabled = locked || G.money < shopCost('c', cs); btn.addEventListener('click', () => { if (buyCos(cs.id)) renderPhone(); }); }
         else { btn.textContent = on ? 'Ablegen' : 'Anlegen'; if (on) btn.classList.add('alt'); btn.addEventListener('click', () => { equipCos(cs.id); renderPhone(); }); }
         c.appendChild(btn); b.appendChild(c);
         if (kind === 'pet') { c.classList.add('tapme'); c.addEventListener('click', e => { if (e.target.closest('button')) return; petView(cs.id); }); } // v132: antippen = große Ansicht
@@ -690,7 +690,7 @@
   const SEASON_DAYS = 7; // v92: 7 statt 5 Tage je Jahreszeit; G.sOff haelt alte Spielstaende in ihrer Jahreszeit
   const seaD = () => G.day - 1 + (G.sOff || 0);
   const SEASONS = [
-    { id: 'fr', name: 'Frühling', ic: '🌸', col: '#FF9CC8', fx: { grow: 1.1, seed: 0.9 }, txt: ['Pflanzen wachsen 10 % schneller', 'Samen 10 % billiger', 'Gärtnerin Flora ist in ihrem Blumengarten', 'Sammle Ostereier'] },
+    { id: 'fr', name: 'Frühling', ic: '🌸', col: '#FF9CC8', fx: { grow: 1.1, seed: 0.9 }, txt: ['Pflanzen wachsen 10 % schneller', 'Samen 10 % billiger', 'Gärtnerin Flora ist in ihrem Blumengarten', 'Sammle Marienkäfer'] },
     { id: 'so', name: 'Sommer', ic: '☀️', col: '#FFD24A', fx: { orders: 1.2, water: 1.3, p_brau: 1.15 }, txt: ['20 % mehr Bestellungen', 'Kristallboxen 15 % teurer', 'Töpfe trocknen 30 % schneller aus', 'DJ Jonas legt am Teich auf', 'Sammle Muscheln'] },
     { id: 'he', name: 'Herbst', ic: '🍂', col: '#E8833A', fx: { p_tabak: 1.15, p_keller: 1.05 }, txt: ['Tabak 15 % teurer', 'Kellerware 5 % teurer', 'Bauer Heinz sucht Erntehelfer', 'Sammle Kastanien'] },
     { id: 'wi', name: 'Winter', ic: '❄️', col: '#9FD4FF', fx: { grow: 0.92, upkeep: 1.3, p_vip: 1.2, orders: 0.92 }, txt: ['Heizkosten: Unterhalt +30 %', 'Pflanzen wachsen etwas langsamer', 'Spezialkunden zahlen 20 % mehr', 'Klaus steht am Weihnachtsstand', 'Sammle Schneekugeln'] }

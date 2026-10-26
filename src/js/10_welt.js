@@ -661,6 +661,7 @@
     { id: 'confetti', slot: 'aura', name: 'Konfetti', cost: 3400, rep: 19, desc: 'Bunte Schnipsel fliegen und fallen' },
     { id: 'disco', slot: 'aura', name: 'Disco-Lichter', cost: 9500, rep: 40, desc: 'Bunte Lichtkegel drehen sich um dich' },
     // v112: exklusiv, nur als Belohnung (Kategorie, Questkette oder Prestige)
+    { id: 'pumpkin', slot: 'hat', name: 'Kürbiskopf', cost: 1, rep: 999, qx: 'Halloween: 8 Häuser Süßes oder Saures', desc: 'Ein geschnitzter Kürbis als Hut, mit Gruselgesicht' }, // v155
     { id: 'capegold', slot: 'back', name: 'Unternehmer-Umhang', cost: 1, rep: 999, qx: 'Kategorie Unternehmer (Ruf 50)', desc: 'Goldener Umhang mit €-Abzeichen' },
     { id: 'legend', slot: 'aura', name: 'Legenden-Aura', cost: 1, rep: 999, qx: 'Kategorie Branchenlegende (Ruf 100)', desc: 'Goldene Ringe und Sterne, nur für Legenden' },
     { id: 'capecheck', slot: 'back', name: 'Zielflaggen-Umhang', cost: 1, rep: 999, qx: 'Questkette Toni', desc: 'Schwarz-weiß kariert, wie die Zielflagge' },

@@ -490,6 +490,7 @@
       G.lager = cleanLager(s.lager); G.pr = cleanPr(s.pr); G.cas = { wd: s.cas && typeof s.cas.wd === 'string' ? s.cas.wd.slice(0, 12) : '', sp: clamp(Math.floor(+(s.cas && s.cas.sp)) || 0, 0, 1e6) }; G.veh.tune = cleanTune(s.veh && s.veh.tune); // v89: Mietraum und Casino
       retireFloorStaff(s); // v104: Helfer der Etagen ziehen ins Erdgeschoss
       G.kr = cleanKr(s.kr); // v25 (Version 81): Karriere
+      G.cal = cleanCal(s.cal); // v155: Kalender-Events
       G.tut = s.tut === 'done' || s.tut === 'skip' ? s.tut : ''; // v26 (Version 84): fehlt der Status, wird die Einführung einmal gezeigt
       G.gv = s.gv && typeof s.gv === 'object' && Number.isFinite(+s.gv.k) ? { k: clamp(+s.gv.k, 0.45, 1.2), p: clamp(+s.gv.k, 0.45, 1.2), n: 0 } : undefined; G.gvOk = s.gvOk === 1 ? 1 : 0; // v80
       G.wear = { owned: {} }; if (s.wear && typeof s.wear === 'object' && s.wear.owned && typeof s.wear.owned === 'object') for (const w of WEAR) if (w.cost > 0 && s.wear.owned[w.id] === true) G.wear.owned[w.id] = true;

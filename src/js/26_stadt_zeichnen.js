@@ -973,6 +973,7 @@
       const h = HOUSES[hi]; if (h.x > viewX1 + 20 || h.x + h.w < viewX0 - 20 || h.y > viewY1 + 40 || h.y + h.h < viewY0 - 40) continue;
       if (h.gang) drawGangHouse(h, hi); else drawHouse(h, hi);
     }
+    calDrawWorld(); // v155: Kürbisse, Lichterketten, Baum, Laternen, Ostereier
     drawGangSign(); drawGhqSign(); // v121
     drawRaid(); // v100
     drawKeller();

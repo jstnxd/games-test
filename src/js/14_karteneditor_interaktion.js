@@ -293,6 +293,7 @@
     if (!best && atGhq()) best = { type: 'ghq', idx: 0, ar: AREAS.keller }; // v121
     if (!best && atGV()) best = { type: 'gv', idx: 0, ar: AREAS.keller }; // v79
     if (!best) { const bi = busNear(); if (bi >= 0) best = { type: 'bus', idx: bi, ar: AREAS.keller }; } // v104: Haltestelle
+    if (!best && !inBuilding(px, py)) best = calTarget(px, py); // v155: Halloween-Türen (vor den Mülltonnen)
     if (!best && !player.fl && !inBuilding(px, py)) { const bi = binNear(px, py); if (bi >= 0) best = { type: 'bin', idx: bi, ar: AREAS.keller }; } // v61
     if (!best) for (const ar of openAreas()) for (const nm of ['rack', 'table']) { const f = ar.fields[nm]; if (Math.hypot(px - (f.x0 + f.x1) / 2, py - (f.y0 + f.y1) / 2) < 95) best = { type: 'field', idx: 0, ar, what: nm }; }
     return best;
@@ -304,6 +305,7 @@
     if (tg.type === 'kiosk') return 'A  Kiosk: Gang-Look und Spezialwaffen';
     if (tg.type === 'treff') return !mp.on ? 'Kellertreff: erst online gehen (App Freunde)' : mp.slots.some(Boolean) ? 'A  Kellertreff: Freunde besuchen' : 'A  Kellertreff: noch kein Keller zum Besuchen';
     if (tg.type === 'bin') return binHint(tg.idx);
+    if (tg.type === 'cal') return calHint(tg); // v155
     if (tg.type === 'areabuy') return G.rep < ar.needRep ? ar.name + ': zu kaufen ab Ruf ' + ar.needRep : 'A  ' + ar.name + ' kaufen (' + fmt(ar.cost) + ')';
     if (tg.type === 'lager') return !G.lager.own ? 'A  Mietraum mieten (' + fmt(LAGER_COST) + ')' : 'A  Mietraum betreten';
     if (tg.type === 'prpad') return 'A  Mieträume von Freunden besuchen';
@@ -407,6 +409,7 @@
       if (ar.key === 'pr' ? buyPrPotAt(tg.idx) : buyPotAt(ar, tg.idx)) msg(ar.key === 'pr' ? 'Neue Hydro-Station aufgestellt' : 'Neuer Topf aufgestellt'); else { sfx.bad(); msg('Zu wenig Geld für den Topf', true); }
     } else if (tg.type === 'sidedoor' && aEdge) {
       if (buySide(ar)) msg('Seitentür eingebaut'); else { sfx.bad(); msg('Zu wenig Geld für die Seitentür', true); }
+    } else if (tg.type === 'cal' && aEdge) { calAct(tg); // v155
     } else if (tg.type === 'areabuy' && aEdge) { openPhone(); G.area = ar.key; tmSel = ''; tab = 'shop'; renderPhone(); sfx.ping(); // v147: Kaufen-Karte, danach direkt der Laden fuer das Gebaeude
     } else if (tg.type === 'lager' && aEdge) {
       if (G.lager.own) roomEnter(); else openLager(); // v89: Mietraum

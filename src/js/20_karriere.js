@@ -55,7 +55,7 @@
   const krPerk = p => KR_NEUTRAL || !G ? 0 : (KR().perk[p] || 0);
   function addPerk(p, v) { const k = KR(), c = PERK_CAP[p]; if (c === undefined) return; k.perk[p] = c < 0 ? Math.max(c, (k.perk[p] || 0) + v) : Math.min(c, (k.perk[p] || 0) + v); }
   // ---------- Modifikatoren (Jahreszeit, Ereignis, Boni) ----------
-  const evMod = key => { if (KR_NEUTRAL || !G || !G.kr || !G.kr.ev) return 1; const e = EVENTS[G.kr.ev.id]; const m = e && e.mod && e.mod(G.kr.ev); return m && m[key] !== undefined ? m[key] : 1; };
+  const evMod = key => { if (KR_NEUTRAL || !G) return 1; const cm = calMod(key); if (!G.kr || !G.kr.ev) return cm; const e = EVENTS[G.kr.ev.id]; const m = e && e.mod && e.mod(G.kr.ev); return cm * (m && m[key] !== undefined ? m[key] : 1); }; // v155: echte Kalender-Events wirken mit
   const seaMod = key => KR_NEUTRAL || !G ? 1 : (season().fx[key] || 1);
   const krGrow = () => seaMod('grow') * evMod('grow') * (1 + krPerk('grow')) * (KR_NEUTRAL ? 1 : presGrow());
   const krWater = () => seaMod('water') * evMod('water');
@@ -482,7 +482,7 @@
     const bio = document.createElement('div'); bio.className = 'ds'; bio.style.margin = '4px 2px'; bio.textContent = c.bio; b.appendChild(bio);
   }
   // ---------- Sammelobjekte je Jahreszeit ----------
-  const COLL = [{ n: 'Ostereier', one: 'Osterei', col: ['#FF9CC8', '#FFD24A', '#7FD0C8', '#B36BFF'] }, { n: 'Muscheln', one: 'Muschel', col: ['#FFE9C8', '#F2C1A0'] }, { n: 'Kastanien', one: 'Kastanie', col: ['#7A4A28', '#9A5A30'] }, { n: 'Schneekugeln', one: 'Schneekugel', col: ['#CFEFFF', '#FFFFFF'] }];
+  const COLL = [{ n: 'Marienkäfer', one: 'Marienkäfer', col: ['#E8403A', '#F2562E', '#D93A3A', '#F06A2A'] }, { n: 'Muscheln', one: 'Muschel', col: ['#FFE9C8', '#F2C1A0'] }, { n: 'Kastanien', one: 'Kastanie', col: ['#7A4A28', '#9A5A30'] }, { n: 'Schneekugeln', one: 'Schneekugel', col: ['#CFEFFF', '#FFFFFF'] }];
   const COLL_N = 6;
   let collPts = { key: '', pts: [] };
   function collPoints() {
@@ -513,7 +513,6 @@
     personal: { cat: 'neg', name: 'Personalengpass', ic: '🤒', w: 2, cond: () => workers.length > 0, wf: () => Math.max(0.3, 1 - 0.25 * specSum('orga')), dur: 8 * HR, desc: 'Ein Helfer ist krank und fällt aus. Mit Überstunden der anderen läuft alles weiter.', start: e => { const ws = workers.filter(w => w.cid > 0); const w = ws[Math.floor(Math.random() * ws.length)]; e.cid = w ? w.cid : -1; const m = w && crewOf(w); if (m) { m.off = e.end; msg(m.n + ' (' + ROLES[m.r].name + ') ist krank'); } }, choice: [{ id: 'ueber', l: e => 'Überstunden zahlen (' + fmt(krOvertime(e)) + ')', cost: e => krOvertime(e), fx: e => { const m = KR().crew.find(x => x.id === e.cid); if (m) m.off = 0; return 'Die anderen übernehmen.'; } }, { id: 'warten', l: () => 'Ohne ihn auskommen', fx: () => 'Ihr kommt so klar.' }] },
     markt: { cat: 'pos', sea: 0, name: 'Frühlingsmarkt', ic: '🌷', w: 3, dur: 12 * HR, desc: 'Auf dem Frühlingsmarkt zahlen alle 10 % mehr.', mod: () => ({ price: 1.1 }) },
     hitze: { cat: 'neg', sea: 1, name: 'Hitzewelle', ic: '🔥', w: 3, dur: 16 * HR, desc: 'Die Töpfe trocknen schnell aus, aber alle wollen was Kühles: mehr Bestellungen.', mod: () => ({ water: 1.6, orders: 1.2 }) },
-    erntefest: { cat: 'pos', sea: 2, name: 'Erntefest', ic: '🎃', w: 3, dur: 16 * HR, desc: 'Erntefest in der Stadt: Tabak und Kellerware gehen besonders gut.', mod: () => ({ price: 1.12 }) },
     frost: { cat: 'neg', sea: 3, name: 'Frost', ic: '🥶', w: 3, dur: 20 * HR, desc: 'Glatte Straßen: Samen kommen teurer, Pflanzen frieren etwas. Dafür zahlen Spezialkunden noch mehr.', mod: () => ({ seed: 1.25, grow: 0.92, price: 1.04 }) }
   };
   const krRepairCost = () => Math.round((300 + krLv() * 150) * (1 - Math.min(0.5, 0.15 * specSum('prod'))));
@@ -531,7 +530,7 @@
     k.ev = { id, st: now, end: now + d.dur, ch: '', n: 0, b: 0, oid: -1, cid: -1, done: 0 }; k.evN++; k.cnt.ev++;
     k.evLog = k.evLog.concat(id).slice(-6);
     if (d.start) d.start(k.ev);
-    msg(d.ic + ' Ereignis: ' + d.name + (d.choice ? ' – entscheide im Handy (Karriere → Welt)' : ''), d.cat === 'neg'); sfx.ping(); save(); return true;
+    msg(d.ic + ' Ereignis: ' + d.name + (d.choice ? ' – entscheide im Handy (Karriere → Events)' : ''), d.cat === 'neg'); sfx.ping(); save(); return true;
   }
   function krEndEvent() {
     const k = KR(), e = k.ev; if (!e) return; const d = EVENTS[e.id];
@@ -589,7 +588,7 @@
     krT -= dt; if (krT > 0) return; krT = 0.5;
     const k = KR();
     if (k.sk !== seasonYear() * 4 + seasonI()) { const first = k.sk < 0; k.sk = seasonYear() * 4 + seasonI(); if (!first) { const s = season(); msg(s.ic + ' ' + s.name + ' beginnt: ' + s.txt.slice(0, 2).join(', ')); sfx.ping(); } }
-    krEvTick(); krTierTick(); collTick();
+    krEvTick(); krTierTick(); collTick(); calTick(); // v155
   }
   // ---------- Welt: Charaktere, Sammelobjekte, Jahreszeit ----------
   function krNear() { if (KR_NEUTRAL || !G || player.fl || player.x < 0) return null; let best = null, bd = 40; for (const c of CHARS) { if (!charHere(c)) continue; const d = Math.hypot(player.x - c.x, player.y - c.y); if (d < bd) { bd = d; best = c; } } return best; }
@@ -611,7 +610,7 @@
     // Sammelobjekte
     const pts = collPoints(), m = KR().col[seasonYear() + '-' + seasonI()] || 0, C = COLL[seasonI()];
     pts.forEach((p, i) => { if (m & (1 << i) || !inView(p.x, p.y, 20)) return; const bo = Math.sin(gt * 3 + i) * 1.5; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 5, 5, 2, 0, 0, TAU); ctx.fill(); ctx.save(); ctx.translate(p.x, p.y - 3 + bo);
-      const si = seasonI(); if (si === 0) { ctx.fillStyle = C.col[i % 4]; ctx.beginPath(); ctx.ellipse(0, 0, 3.6, 4.6, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillRect(-3.4, -0.6, 6.8, 1.2); }
+      const si = seasonI(); if (si === 0) { ctx.fillStyle = '#1D1F24'; ctx.beginPath(); ctx.arc(0, -3.4, 2, 0, TAU); ctx.fill(); ctx.fillStyle = C.col[i % 4]; ctx.beginPath(); ctx.ellipse(0, 0.4, 3.8, 4.2, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#1D1F24'; ctx.fillRect(-0.4, -3.6, 0.8, 8); for (const [dx, dy] of [[-2, -0.8], [2, -0.8], [-1.8, 2], [1.8, 2]]) { ctx.beginPath(); ctx.arc(dx, dy, 0.9, 0, TAU); ctx.fill(); } ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(-2.6, -2.2, 1, 1); } // v155: Marienkäfer
       else if (si === 1) { ctx.fillStyle = C.col[i % 2]; ctx.beginPath(); ctx.moveTo(0, 4); ctx.lineTo(-5, -1); ctx.quadraticCurveTo(0, -6, 5, -1); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(160,100,70,.6)'; ctx.lineWidth = 0.6; ctx.beginPath(); for (let k = -2; k <= 2; k++) { ctx.moveTo(0, 4); ctx.lineTo(k * 1.8, -3); } ctx.stroke(); }
       else if (si === 2) { ctx.fillStyle = C.col[i % 2]; ctx.beginPath(); ctx.arc(0, 0, 4, 0, TAU); ctx.fill(); ctx.fillStyle = '#E8D2B0'; ctx.beginPath(); ctx.ellipse(0, -2.6, 2.4, 1.2, 0, 0, TAU); ctx.fill(); }
       else { ctx.fillStyle = 'rgba(207,239,255,.9)'; ctx.beginPath(); ctx.arc(0, -1, 4.2, 0, TAU); ctx.fill(); ctx.fillStyle = '#7A5A3E'; ctx.fillRect(-3.4, 2.4, 6.8, 2.2); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-1, -3, 1, 1); ctx.fillRect(1.2, -1, 1, 1); }
@@ -649,7 +648,7 @@
     setText('tierName', KR_NEUTRAL ? '' : (presLv() ? '✦' + presLv() + ' · ' : '') + T.name + (nx ? '' : ' ★'));
     try { const f = $('tierFill'); if (f && f.style) f.style.width = Math.round(p * 100) + '%'; } catch (e) {}
     const s = season(), e = k.ev && EVENTS[k.ev.id];
-    setText('seaPill', KR_NEUTRAL ? '' : s.ic + ' ' + s.name + ' · Tag ' + seasonDay() + '/' + SEASON_DAYS + (e ? '  ' + e.ic + ' ' + e.name + (e.choice && !k.ev.ch ? ' ❗' : '') : ''));
+    setText('seaPill', KR_NEUTRAL ? '' : s.ic + calIcons() + ' ' + s.name + ' · Tag ' + seasonDay() + '/' + SEASON_DAYS + (e ? '  ' + e.ic + ' ' + e.name + (e.choice && !k.ev.ch ? ' ❗' : '') : ''));
   }
   // ---------- Handy: Karriere-App ----------
   function krCard(b, nm, pr, ds) { const c = document.createElement('div'); c.className = 'card'; c.innerHTML = '<div class="nm"></div><div class="pr"></div><div class="ds"></div>'; c.querySelector('.nm').innerHTML = nm; c.querySelector('.pr').textContent = pr || ''; if (!pr) c.querySelector('.pr').remove(); c.querySelector('.ds').innerHTML = ds || ''; b.appendChild(c); return c; }
