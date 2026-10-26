@@ -50,6 +50,7 @@
   }
   function drawKeller() {
     if (player.fl && !GH_ON) { if (player.fl === 4) drawGangHQ(); else if (player.fl === 3) drawBizRoom(); else if (player.fl === 2) drawPremiumRoom(); else drawKellerFloor(player.fl); return; } // v54: Etage statt Erdgeschoss
+    if (!GH_ON && areaHidden(AREAS.keller, 'keller')) return; // v154: Innenraum nicht zeichnen, wenn er ausserhalb des Bildes liegt oder das Dach ihn ganz verdeckt
     // Keller
     drawFloor(AREAS.keller);
     ctx.fillStyle = '#0D1117';
@@ -323,13 +324,19 @@
     // Teich mit Seerosen und Schilf
     if (gsPass !== 1 && inView(POND.x + POND.w / 2, POND.y + POND.h / 2, 180)) {
       const p = POND, cx = p.x + p.w / 2, cy = p.y + p.h / 2;
-      ctx.fillStyle = '#3B4A3A'; ell(cx, cy, p.w / 2 + 6, p.h / 2 + 6); ctx.fill();
+      ctx.fillStyle = seaSnow() ? '#7D8E9C' : '#3B4A3A'; ell(cx, cy, p.w / 2 + 6, p.h / 2 + 6); ctx.fill();
+      if (seaSnow()) { // v154: Teich im Winter zugefroren
+        const ig = ctx.createRadialGradient(cx - 30, cy - 14, 10, cx, cy, p.w / 2); ig.addColorStop(0, '#D8EEF8'); ig.addColorStop(1, '#8DB6CF'); ctx.fillStyle = ig; ell(cx, cy, p.w / 2, p.h / 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.2; ctx.beginPath(); for (const [a1, a2, l] of [[-0.4, 0.3, 60], [2.2, 1.7, 48], [3.6, 4.1, 40], [5.2, 4.8, 52]]) { const sx = cx + Math.cos(a1) * 18, sy = cy + Math.sin(a1) * 10; ctx.moveTo(sx, sy); ctx.lineTo(sx + Math.cos(a1) * l * 0.5, sy + Math.sin(a1) * l * 0.3); ctx.lineTo(sx + Math.cos(a2) * l, sy + Math.sin(a2) * l * 0.55); } ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.35)'; ell(cx - 40, cy - 12, 34, 7); ctx.fill(); ell(cx + 36, cy + 16, 26, 5); ctx.fill();
+        ctx.fillStyle = '#20262E'; rr(cx - 26, p.y - 18, 52, 14, 4); ctx.fill(); ctx.fillStyle = '#BFE6FF'; ctx.font = '800 8px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('TEICH', cx, p.y - 10.5); ctx.textBaseline = 'alphabetic';
+      } else {
       const pg = ctx.createRadialGradient(cx - 20, cy - 10, 10, cx, cy, p.w / 2); pg.addColorStop(0, '#3E8FC8'); pg.addColorStop(1, '#245E8A'); ctx.fillStyle = pg; ell(cx, cy, p.w / 2, p.h / 2); ctx.fill();
       ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 1.5; for (let k = 0; k < 4; k++) { const ox = cx - 70 + k * 45, oy = cy - 20 + (k % 2) * 30 + Math.sin(gt + k) * 2; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.quadraticCurveTo(ox + 8, oy - 4, ox + 16, oy); ctx.stroke(); }
       for (const [dx, dy] of [[-80, 20], [-30, -30], [40, 26], [70, -16]]) { ctx.fillStyle = '#3F8A4A'; ctx.beginPath(); ctx.arc(cx + dx, cy + dy, 7, 0.3, TAU - 0.3); ctx.lineTo(cx + dx, cy + dy); ctx.fill(); ctx.fillStyle = '#F28BB0'; ctx.beginPath(); ctx.arc(cx + dx + 2, cy + dy - 1, 2.2, 0, TAU); ctx.fill(); }
       ctx.strokeStyle = '#5E7A3A'; ctx.lineWidth = 2; for (let k = 0; k < 9; k++) { const a = 2.4 + k * 0.12, x = cx + Math.cos(a) * (p.w / 2 - 2), y = cy + Math.sin(a) * (p.h / 2 - 2); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 2 + Math.sin(gt + k) * 1.5, y - 14); ctx.stroke(); }
       ctx.fillStyle = '#20262E'; rr(cx - 26, p.y - 18, 52, 14, 4); ctx.fill(); ctx.fillStyle = '#7FC8F0'; ctx.font = '800 8px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('TEICH', cx, p.y - 10.5); ctx.textBaseline = 'alphabetic';
-    }
+    } }
     // Blumenbeete am Park
     const bed = (x, y) => { ctx.fillStyle = '#2B1F18'; ell(x, y, 22, 8); ctx.fill(); for (let k = 0; k < 7; k++) { ctx.fillStyle = ['#F28BB0', '#F6E27A', '#F4F4F8', '#B9A0FF'][k % 4]; ctx.beginPath(); ctx.arc(x - 16 + k * 5.4, y - 2 + Math.sin(k * 2.1) * 3, 2, 0, TAU); ctx.fill(); } };
     if (gsPass !== 2) { [[1186, 760], [1346, 760], [1186, 1268], [1346, 1268], [826, 980], [826, 1050], [1706, 980], [1706, 1050]].forEach(([x, y]) => { if (inView(x, y, 40)) bed(x, y); });
@@ -374,16 +381,64 @@
     finally { gsPass = 0; [viewX0, viewX1, viewY0, viewY1] = v; }
   }
   function gtlClear() { cacheClear('g|'); }
+  // v154: Jahreszeiten deutlich auf der Karte: jede fertige Bodenkachel wird einmal umgefärbt (Winter: Schnee, Herbst: Laub, Frühling: frisch, Sommer: sattgelb).
+  // Läuft nur beim Erzeugen einer Kachel, danach kostet es nichts mehr. Geht etwas schief, bleibt die Kachel einfach wie sie ist.
+  const seaSnow = () => !KR_NEUTRAL && !!G && seasonI() === 3 && state !== 'edit';
+  function seasonPx(c, si) {
+    if (typeof si !== 'number') return; let x, d; try { x = c.getContext('2d'); d = x.getImageData(0, 0, c.width, c.height); } catch (e) { return; }
+    const p = d.data, W = c.width, n = p.length, Q = Math.max(1, Math.round(W / 268)); // Q: Bildpunkte je Welt-Einheit (Muster bleibt bei jeder Auflösung gleich groß)
+    const hsh = (u, v) => ((u * 73856093) ^ (v * 19349663)) >>> 0;
+    for (let i = 0, px = 0, py = 0; i < n; i += 4, ++px === W && (px = 0, py++)) { const r = p[i], g = p[i + 1], b = p[i + 2], gr = g - (r > b ? r : b), L = r * 0.3 + g * 0.59 + b * 0.11;
+      if (si === 3) { // Winter: Schneelandschaft
+        if (gr > 3) { const h = hsh(px, py), t = L < 12 ? 0.12 : L > 50 ? 1 : 0.12 + (L - 12) / 38 * 0.88, j = (h & 7) - 3;
+          if ((h & 2047) < 3) { p[i] = 246; p[i + 1] = 250; p[i + 2] = 255; } else { p[i] = 132 + t * 80 + j; p[i + 1] = 148 + t * 74 + j; p[i + 2] = 176 + t * 58 + j; } }
+        else if (b > r + 25 && b > g) { p[i] = r + (176 - r) * 0.3; p[i + 1] = g + (208 - g) * 0.3; p[i + 2] = b + (230 - b) * 0.3; }
+        else if (r > b + 6 && r >= g && r - b < 70 && L < 120) { p[i] = r + (182 - r) * 0.55; p[i + 1] = g + (190 - g) * 0.55; p[i + 2] = b + (204 - b) * 0.55; }
+        else if (Math.abs(r - g) < 22 && Math.abs(g - b) < 26) { const k = L > 70 ? 0.6 : L > 44 ? 0.45 : 0.1; p[i] = r + (206 - r) * k; p[i + 1] = g + (216 - g) * k; p[i + 2] = b + (230 - b) * k; }
+        continue; }
+      if (gr <= 3) continue;
+      if (si === 2) { // Herbst: welkes Gras mit Laubflecken
+        const S = 11 * Q, bx = px / S | 0, by = py / S | 0, h = hsh(bx, by);
+        if ((h & 255) < 46) { const cx = bx * S + 2 * Q + (h >> 8) % (7 * Q), cy = by * S + 2 * Q + (h >> 12) % (7 * Q), dx = px - cx, dy = (py - cy) * 1.6, rr2 = 2.3 * Q;
+          if (dx * dx + dy * dy < rr2 * rr2) { const lc = [[206, 108, 40], [178, 66, 34], [222, 164, 50], [150, 86, 40]][h % 4], f = 0.62 + L / 150; p[i] = lc[0] * f; p[i + 1] = lc[1] * f; p[i + 2] = lc[2] * f; continue; } }
+        p[i] = r + gr * 0.8; p[i + 1] = g - gr * 0.08; p[i + 2] = b - gr * 0.3; }
+      else if (si === 0) { // Frühling: frisches Grün mit Blütenpunkten
+        const S = 9 * Q, bx = px / S | 0, by = py / S | 0, h = hsh(bx, by);
+        if ((h & 255) < 22) { const cx = bx * S + 2 * Q + (h >> 8) % (5 * Q), cy = by * S + 2 * Q + (h >> 12) % (5 * Q), dx = px - cx, dy = py - cy;
+          if (dx * dx + dy * dy < 1.4 * Q * 1.4 * Q) { const lc = [[250, 250, 252], [255, 176, 206], [255, 226, 110]][h % 3]; p[i] = lc[0]; p[i + 1] = lc[1]; p[i + 2] = lc[2]; continue; } }
+        p[i] = r - gr * 0.2; p[i + 1] = g + gr * 0.7; p[i + 2] = b + gr * 0.1; }
+      else { p[i] = r + gr * 0.35; p[i + 1] = g + gr * 0.15; p[i + 2] = b - gr * 0.15; } // Sommer: warm und sonnig
+    }
+    try { x.putImageData(d, 0, 0); } catch (e) {}
+  }
+  function snowCap(x, y, w, h, up, sd) { // v154: Schneedecke auf einem Dach, Eiszapfen an der Traufe zur Straße
+    if (!seaSnow() || w < 8 || h < 8) return; const e = up ? y : y + h, s = sd || 1;
+    const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#F4F8FC'); g.addColorStop(0.5, '#E6EEF6'); g.addColorStop(0.52, '#D2DEEA'); g.addColorStop(1, '#C6D4E4'); ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(x - 1, up ? y + h : y); ctx.lineTo(x + w + 1, up ? y + h : y);
+    for (let q = x + w + 1; q >= x - 1; q -= 7) { const o = 2 + ((q * 13 + s * 7) % 5) * 0.8; ctx.lineTo(q, up ? y - o + 4 : e + o - 4); }
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(150,170,195,.35)'; ctx.fillRect(x, y + h / 2 - 1, w, 2);
+    ctx.fillStyle = 'rgba(255,255,255,.7)'; for (let k = 0; k < Math.max(2, w / 40); k++) { ctx.beginPath(); ctx.ellipse(x + 10 + ((k * 47 + s * 13) % Math.max(1, w - 20)), y + h * (0.22 + ((k * 3 + s) % 3) * 0.08), 8, 2, 0, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = 'rgba(205,235,255,.9)'; for (let q = x + 5 + (s % 4); q < x + w - 4; q += 9 + ((q + s) % 4)) { const l = 3 + ((q * 7 + s) % 5); ctx.beginPath(); if (up) { ctx.moveTo(q - 1.6, e); ctx.lineTo(q + 1.6, e); ctx.lineTo(q, e - l); } else { ctx.moveTo(q - 1.6, e); ctx.lineTo(q + 1.6, e); ctx.lineTo(q, e + l); } ctx.fill(); }
+  }
   function drawGroundTiles() { // gibt false zurück, wenn diesmal live gezeichnet werden soll
-    if (bcOff || state === 'admin' || viewX0 < 0 || !document.createElement) return false; const R = curR(2); if (!R) return false; if (R !== gtlR) { cacheClear('g|'); gtlR = R; }
+    if (bcOff || state === 'admin' || !document.createElement) return false; const R = curR(2); if (!R) return false; if (R !== gtlR) { cacheClear('g|'); gtlR = R; } // v154: auch am linken Kartenrand (Keller), die Grundstücke der Freunde kommen danach live darüber
     const sk = gtlKey(), ix0 = Math.floor(viewX0 / GTS), ix1 = Math.floor(viewX1 / GTS), iy0 = Math.floor(viewY0 / GTS), iy1 = Math.floor(viewY1 / GTS), list = [], need = [];
     for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = 'g|' + ix + ',' + iy + ',' + sk; if (!cacheGet(k)) need.push([ix, iy, k]); } // sichtbare zuerst als benutzt markieren
-    let built = 0; for (const [ix, iy, k] of need) { if (built >= 3) break; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; if (!cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S))) return false; built++; }
+    let built = 0; const lim = sk.length > 1 || sk === 'n' ? 3 : 1; for (const [ix, iy, k] of need) { if (built >= lim) break; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; const c = cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S)); if (!c) return false; if (sk.length === 1 && sk !== 'n') seasonPx(c, +sk); built++; }
     if (need.length > built) return false; // noch nicht alle Kacheln fertig: dieses Bild noch live zeichnen
     for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const c = cacheGet('g|' + ix + ',' + iy + ',' + sk); if (!c || !c.width) return false; list.push([c, ix, iy]); }
     const sp = GTP * R, sw = GTS * R;
-    for (const [c, ix, iy] of list) if (!cacheBlit(c, [sp, sp, sw, sw, ix * GTS, iy * GTS, GTS, GTS])) return false;
+    for (const [c, ix, iy] of list) if (!cacheBlit(c, [sp, sp, sw + R, sw + R, ix * GTS, iy * GTS, GTS + 1, GTS + 1])) return false; // v154: 1 Einheit Überlappung, damit keine Fugen entstehen
+    if (!built) gtlPrefetch(ix0, ix1, iy0, iy1, sk, R); // v154: in ruhigen Bildern schon die Kacheln am Rand vorbereiten, damit beim Laufen nichts ruckelt
     return true;
+  }
+  function gtlPrefetch(ix0, ix1, iy0, iy1, sk, R) {
+    if (CB.px > CB.max * 0.8) return; // Speicher fast voll: lieber nichts vorbereiten
+    let dx = 0, dy = 0; if (player && Number.isFinite(player.ang)) { const v = Math.cos(player.ang), w = Math.sin(player.ang); dx = v > 0.4 ? 1 : v < -0.4 ? -1 : 0; dy = w > 0.4 ? 1 : w < -0.4 ? -1 : 0; } // Blickrichtung zuerst
+    const cand = []; for (let iy = iy0 - 1; iy <= iy1 + 1; iy++) for (let ix = ix0 - 1; ix <= ix1 + 1; ix++) { if (ix >= ix0 && ix <= ix1 && iy >= iy0 && iy <= iy1) continue; const pr = (dx && Math.sign(ix - (ix0 + ix1) / 2) === dx ? -2 : 0) + (dy && Math.sign(iy - (iy0 + iy1) / 2) === dy ? -2 : 0); cand.push([pr, ix, iy]); }
+    cand.sort((a, b) => a[0] - b[0]);
+    for (const [, ix, iy] of cand) { const k = 'g|' + ix + ',' + iy + ',' + sk; if (CACHE.has(k)) continue; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; const c = cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S)); if (c && sk.length === 1 && sk !== 'n') seasonPx(c, +sk); return; }
   }
   function drawGroundLive() { // was sich auf dem Boden bewegt: Wellen im Fluss und Wasser in den Bächen
     const r = RIVER; if (!(viewY1 < r.y0 - 60 || viewY0 > r.y1 + 60)) { const x0 = Math.max(0, viewX0), x1 = Math.min(WW, viewX1); ctx.strokeStyle = 'rgba(255,255,255,.26)'; ctx.lineWidth = 2;
@@ -437,8 +492,8 @@
     // Vorgarten: Plattenweg zur Tuer und Hecken
     const gy = up ? y - 18 : y + hh;
     ctx.fillStyle = '#6A6E75'; ctx.fillRect(h.dx - 9, gy, 18, 18); ctx.fillStyle = 'rgba(0,0,0,.18)'; for (let k = 0; k < 3; k++) ctx.fillRect(h.dx - 9, gy + 5 + k * 6, 18, 1);
-    ctx.fillStyle = '#1E3F28'; rr(x + 4, gy + 4, h.dx - 14 - x - 4, 10, 4); ctx.fill(); rr(h.dx + 14, gy + 4, x + w - 4 - h.dx - 14, 10, 4); ctx.fill();
-    ctx.fillStyle = '#2C5A3A'; for (let k = x + 8; k < x + w - 8; k += 11) { if (Math.abs(k - h.dx) < 16) continue; ctx.beginPath(); ctx.arc(k, gy + 8, 3, 0, TAU); ctx.fill(); }
+    const snw = seaSnow(); ctx.fillStyle = snw ? '#9FB0BE' : '#1E3F28'; rr(x + 4, gy + 4, h.dx - 14 - x - 4, 10, 4); ctx.fill(); rr(h.dx + 14, gy + 4, x + w - 4 - h.dx - 14, 10, 4); ctx.fill();
+    ctx.fillStyle = snw ? '#DCE5EE' : '#2C5A3A'; for (let k = x + 8; k < x + w - 8; k += 11) { if (Math.abs(k - h.dx) < 16) continue; ctx.beginPath(); ctx.arc(k, gy + 8, 3, 0, TAU); ctx.fill(); }
     // Schatten und Fassade
     ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.fillRect(x + 7, y + 9, w, hh);
     ctx.fillStyle = h.c; ctx.fillRect(x, fy0, w, fh);
@@ -474,6 +529,7 @@
       ctx.fillStyle = h.c; ctx.fillRect(x + w * 0.22, ry0 + (up ? rh * 0.08 : rh * 0.56), 22, rh * 0.36); ctx.fillStyle = dk && winLit(hi, 2) ? '#FFE08A' : '#7FA9C4'; ctx.fillRect(x + w * 0.22 + 4, ry0 + (up ? rh * 0.13 : rh * 0.61), 14, rh * 0.22); // Gaube
     }
     roofExtras(h, hi, x, ry0, w, rh, up, dk); // v147: Dachdetails
+    snowCap(x, ry0, w, rh, up, hi + 1); // v154
     ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x, y, w, 3);
     // Fenster mit Rahmen und Fensterbank, Tuer mit Stufe und Lampe
     houseWins(h).forEach(([wx, wy], j) => {
@@ -514,12 +570,13 @@
   }
   function drawPlotGround() { // v86: Grundstuecke der Freunde links neben dem Keller, die Hauptstrasse laeuft durch
     const nK = mp.slots.length, nF = (mp.farms || []).length, x0 = XMIN, x1 = 0; if (x0 >= 0) return;
-    ctx.fillStyle = '#1A2C22'; ctx.fillRect(x0, 0, x1 - x0, WH);
-    ctx.fillStyle = '#2C333C'; ctx.fillRect(x0, 520, x1 - x0, 208); ctx.fillStyle = '#4E5762'; ctx.fillRect(x0, 547, x1 - x0, 154); ctx.fillStyle = '#23272E'; ctx.fillRect(x0, 550, x1 - x0, 148);
+    const sn = seaSnow(), gc = sn ? '#B9C6D4' : '#1A2C22'; // v154: im Winter verschneit
+    ctx.fillStyle = gc; ctx.fillRect(x0, 0, x1 - x0, WH);
+    ctx.fillStyle = sn ? '#8E9AA8' : '#2C333C'; ctx.fillRect(x0, 520, x1 - x0, 208); ctx.fillStyle = sn ? '#C9D3DE' : '#4E5762'; ctx.fillRect(x0, 547, x1 - x0, 154); ctx.fillStyle = sn ? '#2E333B' : '#23272E'; ctx.fillRect(x0, 550, x1 - x0, 148);
     ctx.fillStyle = 'rgba(255,255,255,.35)'; for (let x = Math.ceil(x0 / 70) * 70; x < x1 - 20; x += 70) ctx.fillRect(x, 622, 36, 4);
-    ctx.fillStyle = '#16301F'; const hedge = x => { ctx.fillRect(x - 5, 0, 10, 520); ctx.fillRect(x - 5, 728, 10, WH - 728); };
+    ctx.fillStyle = sn ? '#9AAAB8' : '#16301F'; const hedge = x => { ctx.fillRect(x - 5, 0, 10, 520); ctx.fillRect(x - 5, 728, 10, WH - 728); };
     for (let j = 0; j <= nK; j++) hedge(-KW * j); ctx.fillRect(x0, 0, 10, WH);
-    ctx.fillStyle = '#1A2C22'; ctx.fillRect(x0, LEFT_GAP[1], x1 - x0, WH - LEFT_GAP[1]); // v122: unterhalb der Strasse kein Gelaende mehr
+    ctx.fillStyle = gc; ctx.fillRect(x0, LEFT_GAP[1], x1 - x0, WH - LEFT_GAP[1]); // v122: unterhalb der Strasse kein Gelaende mehr
     leftFence();
     for (let i = 0; i < nF; i++) { const ox = fOx(i); if (ox > viewX1 || ox + FW < viewX0) continue; hedge(ox); }
     if (nF) { const bx = -KW * nK; ctx.fillStyle = 'rgba(32,38,46,.9)'; rr(bx - 150, 735, 140, 24, 6); ctx.fill(); ctx.fillStyle = '#E8C84A'; ctx.font = '800 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('← FARMEN DER FREUNDE', bx - 80, 747.5); ctx.textBaseline = 'alphabetic'; }
@@ -553,7 +610,7 @@
 
   // ---------- v94: neue Gebaeude zeichnen (Dach von oben, Fassade zur Eingangsseite wie bei den Haeusern) ----------
   function bldBase(B, face, fh, wall, roof, roofSt) { const up = face === -1, fy0 = up ? B.y : B.y + B.h - fh, ry0 = up ? B.y + fh : B.y, rh = B.h - fh;
-    bcDraw('b' + B.x + ',' + B.y + ',' + B.w + ',' + B.h + ',' + face + ',' + fh + ',' + wall + ',' + roof + ',' + roofSt, B.x - 2, B.y - 2, B.w + 14, B.h + 16, () => bldBase0(B, face, fh, wall, roof, roofSt)); return { fy0, ry0, rh, up }; }
+    bcDraw('b' + B.x + ',' + B.y + ',' + B.w + ',' + B.h + ',' + face + ',' + fh + ',' + wall + ',' + roof + ',' + roofSt + (seaSnow() ? 'w' : ''), B.x - 2, B.y - 2, B.w + 14, B.h + 16, () => bldBase0(B, face, fh, wall, roof, roofSt)); return { fy0, ry0, rh, up }; }
   function bldBase0(B, face, fh, wall, roof, roofSt) {
     const up = face === -1, fy0 = up ? B.y : B.y + B.h - fh, ry0 = up ? B.y + fh : B.y, rh = B.h - fh;
     ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.fillRect(B.x + 8, B.y + 10, B.w, B.h);
@@ -563,6 +620,7 @@
       ctx.fillStyle = 'rgba(255,255,255,.05)'; for (let k = 0; k < 60; k++) ctx.fillRect(B.x + 8 + ((k * 37) % (B.w - 16)), ry0 + 8 + ((k * 23) % Math.max(1, rh - 16)), 2, 2); }
     else { ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(B.x, ry0, B.w, rh / 2); ctx.fillStyle = 'rgba(0,0,0,.13)'; for (let k = ry0 + 5; k < ry0 + rh; k += 7) ctx.fillRect(B.x, k, B.w, 1.2);
       ctx.fillStyle = 'rgba(0,0,0,.07)'; for (let r = 0, k = ry0; k < ry0 + rh; k += 7, r++) for (let q = B.x + (r % 2) * 6; q < B.x + B.w; q += 12) ctx.fillRect(q, k, 1, 7); ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(B.x, ry0 + rh / 2 - 1.5, B.w, 3); }
+    snowCap(B.x, ry0, B.w, rh, up, (B.x + B.y) % 17); // v154
     ctx.fillStyle = wall; ctx.fillRect(B.x, fy0, B.w, fh); ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(B.x, up ? fy0 + fh - 3 : fy0, B.w, 3);
     return { fy0, ry0, rh, up };
   }
@@ -895,8 +953,8 @@
   }
   function drawWorld() {
     // Boden
-    ctx.fillStyle = '#17261F'; ctx.fillRect(viewX0 - 20, viewY0 - 20, viewX1 - viewX0 + 40, viewY1 - viewY0 + 40);
     const tiles = drawGroundTiles(); // v136: Boden aus fertigen Kacheln, Bewegtes darüber
+    if (!tiles) { ctx.fillStyle = '#17261F'; ctx.fillRect(viewX0 - 20, viewY0 - 20, viewX1 - viewX0 + 40, viewY1 - viewY0 + 40); } // v154: die Kacheln decken alles ab, die Grundfarbe braucht es nur beim Live-Zeichnen
     if (tiles) { drawGroundLive(); gsPass = 2; if (state !== 'edit') drawAmbientGround(); gsPass = 0; } else {
     if (viewX1 > 0) drawCityGround(); // v72: neue Stadt
     if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); // v110: Waldrand ausserhalb der Karte

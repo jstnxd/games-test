@@ -424,9 +424,10 @@
   function render() {
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     skyC = skyNow();
-    ctx.fillStyle = '#10151C'; ctx.fillRect(0, 0, W, H);
-    if (!G) return;
+    const clr = () => { ctx.fillStyle = '#10151C'; ctx.fillRect(0, 0, W, H); }; // v154: im Spiel deckt die Welt den ganzen Bildschirm ab, dort entfällt das Löschen
+    if (!G) { clr(); return; }
     if (state === 'admin') { // v59: Karten-Editor
+      clr();
       const pt = isPort(), left = pt ? W : Math.max(200, W - EDW), top = pt ? Math.round(H * 0.6) : H, fit = Math.min(left / WW, top / WH);
       if (!adm.sc) adm.sc = top / 420; adm.sc = clamp(adm.sc, fit, top / 110);
       const hw = left / 2 / adm.sc, hh = top / 2 / adm.sc;
@@ -438,7 +439,7 @@
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       return;
     }
-    if (state === 'edit') {
+    if (state === 'edit') { clr();
       const I = edAr().IN, pt = isPort(), left = pt ? W : Math.max(200, W - EDW), top = pt ? Math.round(H * 0.6) : H, es = Math.min(left / (I.x1 - I.x0 + 28), (top - 8) / (I.y1 - I.y0 + 28)) * ed.zoom; // v59: Zoom
       viewX0 = I.x0 - 300; viewX1 = I.x1 + 300; viewY0 = I.y0 - 300; viewY1 = I.y1 + 300; // v72
       ev.sc = es; ev.cx = (I.x0 + I.x1) / 2 + ed.px; ev.cy = (I.y0 + I.y1) / 2 + ed.py; ev.ox = left / 2; ev.oy = top / 2;
@@ -455,7 +456,7 @@
     { const cx = clamp(tx, XMIN + vw / 2, WW - vw / 2); if (Math.abs(cx - cam.x) > 900) cam.x = cx; else cam.x += (cx - cam.x) * fk(0.15); } // v72: Freundes-Keller getrennt von der Stadt
     { const pad = state === 'play' ? vh * (port ? 0.3 : 0.2) : 0; cam.y += (clamp(ty, YMIN + vh / 2 - pad, WH - vh / 2 + pad) - cam.y) * fk(0.15); } // v110: am Kartenrand etwas weiter schauen, damit die Figur nicht unter der Anzeige verschwindet
     if (troll.shake > gt && !LOFX) { cam.x += (Math.random() - 0.5) * 14; cam.y += (Math.random() - 0.5) * 14; }
-    if (r3On()) { r3Frame(); return; } // v90: 3D-Ansicht
+    if (r3On()) { clr(); r3Frame(); return; } // v90: 3D-Ansicht
     ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc));
     drawWorld();
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);

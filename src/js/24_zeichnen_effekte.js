@@ -393,6 +393,10 @@
   // ---------- v117: Keller, Scheune und Labor sehen von aussen wie Gebaeude aus (wie das Casino) ----------
   const roofA = { keller: 1, tabak: 1, brau: 1 };
   const roofIn = ar => { const I = ar.IN; if (player.fl && ar.key === 'keller') return true; /* v119: Mietraum und Hinterzimmer liegen an derselben Stelle wie der Keller */ return !GH_ON && !player.fl && player.x > I.x0 - T - 4 && player.x < I.x1 + T + 4 && player.y > I.y0 - T - 4 && player.y < I.y1 + T + 4; };
+  function areaHidden(ar, k) { // v154: true, wenn der Innenraum gerade nicht zu sehen ist
+    const I = ar.IN, m = 140; if (I.x1 + m < viewX0 || I.x0 - m > viewX1 || I.y1 + m < viewY0 || I.y0 - m > viewY1) return true;
+    return !player.fl && (state === 'play' || state === 'menu') && roofA[k] >= 0.995;
+  }
   function drawAreaRoofs() {
     for (const k of ['keller', 'tabak', 'brau']) {
       const ar = AREAS[k], I = ar.IN, inside = state === 'play' && roofIn(ar); if (inside && player.fl) roofA[k] = 0;
@@ -442,6 +446,7 @@
   }
   function roofSale(x, y) { ctx.save(); ctx.translate(x, y); ctx.rotate(-0.08); ctx.fillStyle = '#F4F4F8'; rr(-50, -14, 100, 28, 4); ctx.fill(); ctx.strokeStyle = '#E05555'; ctx.lineWidth = 2; rr(-50, -14, 100, 28, 4); ctx.stroke(); ctx.fillStyle = '#E05555'; ctx.font = '900 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('ZU VERKAUFEN', 0, -3); ctx.fillStyle = '#5A6068'; ctx.font = '700 7px sans-serif'; ctx.fillText('Handy → Laden', 0, 7); ctx.restore(); ctx.textBaseline = 'alphabetic'; }
   function drawFactory(ar) {
+    if (!GH_ON && areaHidden(ar, ar.key)) return; // v154
     const I = ar.IN, tt = S(ar), brew = ar.key === 'brau', g = ar.gate, dyK = brew ? 688 : 0;
     drawFloor(ar);
     ctx.fillStyle = ar.wallCol; for (const c of ar.walls) ctx.fillRect(c.x, c.y, c.w, c.h);

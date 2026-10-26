@@ -455,7 +455,7 @@
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 153; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 154; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -576,7 +576,13 @@
     g2.appendChild(t); g2.appendChild(gb); b.appendChild(g2);
   }
 
+  // v154: Akku sparen: hinter Handy, Chat und grosser Karte nur 30 Bilder pro Sekunde, auf Wunsch generell hoechstens 60
+  let lastDraw = 0, capOn = false, snowCls = false; try { capOn = localStorage.getItem('kellergruen.cap') === '1'; } catch (e) {}
+  function setCap(on) { capOn = !!on; try { localStorage.setItem('kellergruen.cap', capOn ? '1' : '0'); } catch (e) {} }
   function frame(ts) { // v123: ein Fehler in einem Bild haelt das Spiel nicht mehr an
+    const over = state === 'play' && (phoneOpen || chatOpen || bigOpen), gap = over ? 1000 / 30 : capOn ? 1000 / 60 : 0;
+    if (gap && ts - lastDraw < gap - 1.5) { requestAnimationFrame(frame); return; } lastDraw = ts;
+    { const sn = seaSnow() && state === 'play'; if (sn !== snowCls) { snowCls = sn; try { document.body.classList.toggle('snowy', sn); } catch (e) {} } } // v154
     try { frameBody(ts); } catch (e) { if (typeof window.__kgErr !== 'function') throw e; try { window.__kgErr(e && e.message, 'frame', e && e.stack); } catch (x) {} }
     requestAnimationFrame(frame);
   }

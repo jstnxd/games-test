@@ -582,6 +582,11 @@
       const paintB = () => cB.querySelectorAll('[data-bc]').forEach(e => e.classList.toggle('on', e.dataset.bc === bcMode));
       cB.querySelectorAll('[data-bc]').forEach(e => e.addEventListener('click', () => { setBc(e.dataset.bc); paintB(); }));
       paintB(); b.appendChild(cB);
+      const cC = document.createElement('div'); cC.className = 'card look'; // v154: Bildrate begrenzen
+      cC.innerHTML = '<div class="nm">Akku sparen</div><div class="ds" style="margin:2px 0 8px">Begrenzt das Spiel auf 60 Bilder pro Sekunde. Auf Handys mit 120 Hz hält der Akku damit deutlich länger, das Bild bleibt flüssig. Hinter dem Handy-Menü läuft das Spiel immer sparsamer.</div><div class="chips"><button class="chip" data-cp="1">An (60 fps)</button><button class="chip" data-cp="0">Aus</button></div>';
+      const paintC = () => cC.querySelectorAll('[data-cp]').forEach(e => e.classList.toggle('on', (e.dataset.cp === '1') === capOn));
+      cC.querySelectorAll('[data-cp]').forEach(e => e.addEventListener('click', () => { setCap(e.dataset.cp === '1'); paintC(); }));
+      paintC(); b.appendChild(cC);
       const cP = document.createElement('div'); cP.className = 'card look'; // v134
       cP.innerHTML = '<div class="nm">Bildrate anzeigen</div><div class="ds" style="margin:2px 0 8px">Zeigt oben in der Mitte, wie viele Bilder pro Sekunde dein Handy gerade schafft. Grün ab 100, gelb um 60, rot darunter. Die Bildrate gibt der Browser vor: auf 120-Hz-Handys bis zu 120, im Energiesparmodus oft nur 30 bis 60.</div><div class="chips"><button class="chip" data-fp="1">An</button><button class="chip" data-fp="0">Aus</button></div>';
       const paintP = () => cP.querySelectorAll('[data-fp]').forEach(e => e.classList.toggle('on', (e.dataset.fp === '1') === fpsOn));
