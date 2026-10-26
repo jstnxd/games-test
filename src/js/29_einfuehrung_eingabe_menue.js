@@ -175,6 +175,9 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 145, date: 'Oktober 2026', title: 'Waffen-Glow-up', items: [
+      ['chg', '🏏', 'Die Schläger haben jetzt echte Schlägerform mit Griffband: Holz mit Maserung, Alu mit blauen Streifen, Neon mit Lichtwelle, Gold mit wanderndem Glanz und Funkeln'],
+      ['chg', '🍳', 'Bratpfanne mit Rand, Nieten und Glanz, Teleskopstab mit Gummigriff und Chromteilen, Quietsch-Hammer mit Faltenkopf, Schlagschild mit Metallrand und Nieten'] ] },
     { v: 144, date: 'Oktober 2026', title: 'Casino-Glow-up', items: [
       ['neu', '🎰', 'Zwei Spielautomaten als Deko: Spielautomat (rot) und Neon-Automat (lila). Lauflichter, drehende Walzen, Hebel, und ab und zu ein Gewinn mit Münzregen. Zu finden in der Chill-Zone'],
       ['chg', '🃏', 'Im Casino sind die Automaten und die Blackjack-Tische neu: Ledertisch mit Filz, Chip-Ablage, Kartenschlitten, Einsatzfelder mit Chips und Karten, die der Dealer aufdeckt'],
@@ -185,10 +188,6 @@
       ['chg', '👻', 'Gespenst leuchtet, schwebt mit Nebelspur und funkelt. Die Schildkröte hat einen gewölbten Panzer mit Schildplatten und laufende Beine. Goldschuhe glänzen, LED-Sohlen pulsieren'],
       ['chg', '🛏️', 'Neu gezeichnet: Bett, Hochbett, Futon, Tischtennisplatte mit springendem Ball, Gaming-PC mit RGB-Lüftern und Getränkeautomat'],
       ['fix', '⭐', 'Sternenschwarm und Sternenstaub waren unsichtbar und sind wieder da. Rauchspur ist jetzt weicher Rauch, die Blitzspur leuchtet'] ] },
-    { v: 142, date: 'Oktober 2026', title: 'Umhänge und Auren', items: [
-      ['chg', '🦸', 'Umhänge sieht man jetzt auch von vorn: das Futter schaut links und rechts heraus, vorn sitzt eine Spange. Von hinten und von der Seite sind sie länger und wehen beim Laufen'],
-      ['chg', '🎒', 'Rucksack, Jetpack, Geldsack, Skateboard, Gitarre und Katana schauen von vorn hinter der Figur hervor, mit Riemen über der Brust'],
-      ['chg', '✨', 'Sieben Auren neu: Goldschimmer mit Lichtstrahlen, Blauer Schein mit Kometen, Rosa Nebel, Gewitter mit Wolke, Regen und Blitzen, Rauchschwaden, Wasserwirbel als Spirale und Leere mit Sog am Boden'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
