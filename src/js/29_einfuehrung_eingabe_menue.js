@@ -175,6 +175,9 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 140, date: 'Oktober 2026', title: 'Deko-Glow-up', items: [
+      ['chg', '✨', 'Zehn Deko-Klassiker sind neu gezeichnet: Stehlampe mit Lichtkegel, Lavalampe mit weichen Blasen in wechselnden Farben, tropfende Kerzen, Neonschild mit Leuchtröhren, Steinkamin mit Sims und Funkenflug, Fernseher mit Fußballspiel, Aquarium mit drei Fischen und Pflanzen, Lautsprecher mit LED-Ring und Schallwellen, Sofa mit Kissen und Decke, Tisch mit dampfenden Tassen'],
+      ['info', '🌙', 'Nachts leuchten Lampen, Kamin, Neonschild, Fernseher und Lautsprecher stärker'] ] },
     { v: 139, date: 'Oktober 2026', title: 'Discokugel', items: [
       ['chg', '🪩', 'Die Discokugel ist neu: echte Spiegelfacetten, die sich drehen, Glanzblitze, Kette an der Decke und bunte Lichtpunkte, die über den Boden wandern. Nachts mit farbigen Lichtstrahlen'] ] },
     { v: 138, date: 'Oktober 2026', title: 'Minikarte', items: [
