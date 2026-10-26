@@ -185,17 +185,16 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 147, date: 'Oktober 2026', title: 'Keller und Stadt', items: [
+      ['chg', '🪴', 'Keller: freie Topfplätze zeigen ein Plus (der nächste blinkt), die Stellflächen sind Gummimatten mit Symbol, das Gestell hat einen Metallrahmen und der Packtisch ist jetzt eine Holz-Werkbank'],
+      ['chg', '🏮', 'Straße: neue Laternen mit Glaskopf, Parkbänke mit Lehne, Mülltonnen mit Deckel und Rädern, Hydranten, gelbe Briefkästen und ein Fahrradständer mit richtigem Rad'],
+      ['chg', '🏠', 'Dächer: Firstziegel, Schattenkanten, Moos, Dachfenster, Satellitenschüsseln, Antennen und Klimageräte auf den Flachdächern'] ] },
     { v: 146, date: 'Oktober 2026', title: 'Joystick-Fix', items: [
       ['fix', '🕹️', 'Der Joystick bleibt nicht mehr hängen. Das Loslassen wird jetzt überall erkannt, auch wenn das Handy es verschluckt. Und falls doch mal etwas klemmt: einmal antippen reicht, kein Neustart mehr nötig'],
       ['chg', '⚡', 'Spezialwaffen neu gezeichnet: Elektroschocker mit Griff und Kontakten, Wasserpistole mit Wassertank, Zwille als Astgabel, Netzwerfer als Rohr, Blendgranate mit Sicherungsring'] ] },
     { v: 145, date: 'Oktober 2026', title: 'Waffen-Glow-up', items: [
       ['chg', '🏏', 'Die Schläger haben jetzt echte Schlägerform mit Griffband: Holz mit Maserung, Alu mit blauen Streifen, Neon mit Lichtwelle, Gold mit wanderndem Glanz und Funkeln'],
       ['chg', '🍳', 'Bratpfanne mit Rand, Nieten und Glanz, Teleskopstab mit Gummigriff und Chromteilen, Quietsch-Hammer mit Faltenkopf, Schlagschild mit Metallrand und Nieten'] ] },
-    { v: 144, date: 'Oktober 2026', title: 'Casino-Glow-up', items: [
-      ['neu', '🎰', 'Zwei Spielautomaten als Deko: Spielautomat (rot) und Neon-Automat (lila). Lauflichter, drehende Walzen, Hebel, und ab und zu ein Gewinn mit Münzregen. Zu finden in der Chill-Zone'],
-      ['chg', '🃏', 'Im Casino sind die Automaten und die Blackjack-Tische neu: Ledertisch mit Filz, Chip-Ablage, Kartenschlitten, Einsatzfelder mit Chips und Karten, die der Dealer aufdeckt'],
-      ['chg', '☕', 'Neu gezeichnet: Kaffeemaschine, Arcade-Automat, Hängematte, Bücherstapel, Pflanzenwand, Graffiti-Leinwand, Gartenzwerg, Pokal-Vitrine, Blumentopf, Bonsai und Klavier'],
-      ['chg', '👖', 'Standard-Hose, Jeans und Anzughose sehen jetzt unterschiedlich aus. Goldanzug, Neon-Anzug und Königsgewand schimmern und funkeln'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

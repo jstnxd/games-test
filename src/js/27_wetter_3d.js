@@ -154,12 +154,13 @@
     const ni = state === 'play' ? binTgI : -1;
     BINS.forEach((b, i) => {
       const x = b.x, y = b.y; if (!inView(x, y, 30)) return;
-      ctx.fillStyle = 'rgba(0,0,0,.32)'; ell(x + 2, y + 5, 8.5, 3); ctx.fill();
-      ctx.fillStyle = '#2F6A48'; rr(x - 6.5, y - 9, 13, 14, 2); ctx.fill();
-      ctx.fillStyle = '#3F8A5E'; ctx.fillRect(x - 6.5, y - 8, 3, 12);
-      ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(x - 4, y - 3, 8, 1.5);
-      ctx.fillStyle = '#56B07C'; rr(x - 8, y - 12.5, 16, 4.5, 1.5); ctx.fill();
-      ctx.fillStyle = '#1E3A2A'; ctx.fillRect(x - 2.5, y - 14.5, 5, 2.2);
+      ctx.fillStyle = 'rgba(0,0,0,.32)'; ell(x + 2, y + 5, 9, 3.2); ctx.fill(); // v147: Muelltonne mit Rillen, Deckel und Raedern
+      { const g = ctx.createLinearGradient(x - 7, 0, x + 7, 0); g.addColorStop(0, '#3E8A5E'); g.addColorStop(0.45, '#2F6A48'); g.addColorStop(1, '#1E4A32'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - 7, y - 9); ctx.lineTo(x + 7, y - 9); ctx.lineTo(x + 6, y + 4); ctx.lineTo(x - 6, y + 4); ctx.closePath(); ctx.fill(); }
+      ctx.fillStyle = 'rgba(0,0,0,.16)'; for (const rx of [-3.6, 0, 3.6]) ctx.fillRect(x + rx - 0.4, y - 7, 0.8, 9); ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fillRect(x - 6, y - 8, 1.2, 11);
+      ctx.fillStyle = '#F4F4F8'; ctx.beginPath(); for (let k = 0; k < 3; k++) { const a0 = -Math.PI / 2 + k * TAU / 3; ctx.moveTo(x + Math.cos(a0) * 2.4, y - 2 + Math.sin(a0) * 2.4); ctx.lineTo(x + Math.cos(a0 + 1.6) * 2.4, y - 2 + Math.sin(a0 + 1.6) * 2.4); } ctx.lineWidth = 0.9; ctx.strokeStyle = 'rgba(244,244,248,.8)'; ctx.stroke();
+      ctx.fillStyle = '#14161C'; ctx.beginPath(); ctx.arc(x - 4.5, y + 4.4, 1.5, 0, TAU); ctx.arc(x + 4.5, y + 4.4, 1.5, 0, TAU); ctx.fill();
+      { const g = ctx.createLinearGradient(0, y - 13, 0, y - 8); g.addColorStop(0, '#6FC08E'); g.addColorStop(1, '#3E8A5E'); ctx.fillStyle = g; rr(x - 8.4, y - 13, 16.8, 5, 1.8); ctx.fill(); } ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(x - 7, y - 12.6, 14, 0.8);
+      ctx.fillStyle = '#1E3A2A'; rr(x - 3, y - 15, 6, 2.4, 1); ctx.fill();
       if (G && G.stash && stashSum(G.stash[i]) > 0) { ctx.fillStyle = '#FFB547'; ctx.beginPath(); ctx.arc(x + 6, y - 13, 2.4, 0, TAU); ctx.fill(); } // eigenes Versteck
       if (i === ni) { ctx.strokeStyle = 'rgba(255,181,71,' + (0.45 + 0.25 * Math.sin(gt * 5)).toFixed(2) + ')'; ctx.lineWidth = 1.6; rr(x - 11, y - 18, 22, 27, 6); ctx.stroke(); }
     });
@@ -174,15 +175,27 @@
     if (gsPass !== 1) drawBins(); // v136: Tonnen live (Inhalt ändert sich), Hydranten und Fahrradständer in den Bodenkacheln
     if (gsPass !== 2) for (const [x, y, k] of HYDRANTS) {
       if (!inView(x, y, 30)) continue;
-      if (k === 'm') { ctx.fillStyle = '#2A2F38'; ctx.fillRect(x - 1.5, y - 3, 3, 6); ctx.fillStyle = '#F2C94C'; ctx.fillRect(x - 5, y - 13, 10, 11); ctx.fillStyle = '#B8921E'; ctx.fillRect(x - 5, y - 13, 10, 2); ctx.fillStyle = '#14161C'; ctx.fillRect(x - 3, y - 9, 6, 1.6); }
-      else { ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(x + 1, y + 3, 6, 2.5); ctx.fill(); ctx.fillStyle = '#C94B4B'; ctx.fillRect(x - 3, y - 7, 6, 9); ctx.fillRect(x - 5, y - 4, 10, 3); ctx.fillStyle = '#E8E8EE'; ctx.fillRect(x - 3, y - 9, 6, 2); }
+      if (k === 'm') { // v147: Briefkasten
+        ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(x + 1, y + 3.5, 6, 2.2); ctx.fill(); ctx.fillStyle = '#3A3F47'; ctx.fillRect(x - 1.2, y - 3, 2.4, 6.4);
+        { const g = ctx.createLinearGradient(x - 6, 0, x + 6, 0); g.addColorStop(0, '#FFE070'); g.addColorStop(0.5, '#F2C94C'); g.addColorStop(1, '#C49A20'); ctx.fillStyle = g; rr(x - 6, y - 15, 12, 13, 3); ctx.fill(); }
+        ctx.fillStyle = '#14161C'; rr(x - 3.6, y - 12.4, 7.2, 1.6, 0.6); ctx.fill(); ctx.strokeStyle = '#14161C'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.arc(x, y - 6.4, 2, Math.PI * 0.15, Math.PI * 1.1); ctx.stroke(); ctx.fillStyle = '#14161C'; ctx.beginPath(); ctx.arc(x + 1.4, y - 5.6, 0.7, 0, TAU); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x - 5, y - 14, 1, 10); ctx.fillStyle = '#B08A1A'; ctx.fillRect(x - 6, y - 4, 12, 1); }
+      else { // v147: Hydrant
+        ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(x + 1, y + 3, 6.4, 2.6); ctx.fill(); ctx.fillStyle = '#8E2A2A'; rr(x - 4.4, y + 0.6, 8.8, 2.4, 1); ctx.fill();
+        { const g = ctx.createLinearGradient(x - 3.4, 0, x + 3.4, 0); g.addColorStop(0, '#E86A6A'); g.addColorStop(0.5, '#C94B4B'); g.addColorStop(1, '#8E2A2A'); ctx.fillStyle = g; rr(x - 3.2, y - 8, 6.4, 9.4, 1.2); ctx.fill(); }
+        ctx.fillStyle = '#B03A3A'; rr(x - 5.6, y - 4.6, 11.2, 3, 1.2); ctx.fill(); ctx.fillStyle = '#C9D2DC'; ctx.beginPath(); ctx.arc(x - 5.6, y - 3.1, 1.2, 0, TAU); ctx.arc(x + 5.6, y - 3.1, 1.2, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#E8E8EE'; ctx.beginPath(); ctx.ellipse(x, y - 8.4, 3.6, 1.6, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#C9D2DC'; rr(x - 1.2, y - 10.6, 2.4, 2, 0.6); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x - 2.4, y - 7, 0.9, 7); }
     }
     // Fahrradstaender am Park und vor dem Kiosk
     if (gsPass !== 2) [[960, 760], [1560, 1268], [2360, 1520]].forEach(([x, y]) => {
       if (!inView(x, y, 50)) return;
-      ctx.strokeStyle = '#9AA6B3'; ctx.lineWidth = 1.6; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.arc(x - 18 + k * 12, y, 5, Math.PI, 0); ctx.stroke(); }
-      ctx.fillStyle = '#9AA6B3'; ctx.fillRect(x - 24, y - 0.5, 48, 1.6);
-      ctx.strokeStyle = '#E05555'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x - 12, y - 1, 4, 0, TAU); ctx.moveTo(x - 4, y - 1); ctx.arc(x, y - 1, 4, 0, TAU); ctx.moveTo(x - 12, y - 1); ctx.lineTo(x - 8, y - 6); ctx.lineTo(x, y - 1); ctx.moveTo(x - 8, y - 6); ctx.lineTo(x - 3, y - 6); ctx.stroke();
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - 25, y + 1, 50, 2.4); // v147: Fahrradstaender mit Rad
+      ctx.lineCap = 'round'; for (let k = 0; k < 4; k++) { ctx.strokeStyle = '#5A626E'; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.arc(x - 18 + k * 12, y, 5, Math.PI, 0); ctx.stroke(); ctx.strokeStyle = '#C9D2DC'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.arc(x - 18 + k * 12, y - 0.4, 5, Math.PI * 1.1, Math.PI * 1.6); ctx.stroke(); }
+      ctx.fillStyle = '#7A8494'; ctx.fillRect(x - 24, y - 0.4, 48, 1.8); ctx.lineCap = 'butt';
+      const bx = x - 7; ctx.strokeStyle = '#1D2129'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(bx - 5, y - 1, 4.2, 0, TAU); ctx.moveTo(bx + 9.2, y - 1); ctx.arc(bx + 5, y - 1, 4.2, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = 'rgba(200,210,220,.6)'; ctx.lineWidth = 0.4; for (const wx of [bx - 5, bx + 5]) for (let q = 0; q < 4; q++) { const a = q * Math.PI / 4; ctx.beginPath(); ctx.moveTo(wx + Math.cos(a) * 3.8, y - 1 + Math.sin(a) * 3.8); ctx.lineTo(wx - Math.cos(a) * 3.8, y - 1 - Math.sin(a) * 3.8); ctx.stroke(); }
+      ctx.strokeStyle = '#E05555'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(bx - 5, y - 1); ctx.lineTo(bx - 1, y - 6); ctx.lineTo(bx + 3.6, y - 6); ctx.lineTo(bx + 5, y - 1); ctx.moveTo(bx - 1, y - 6); ctx.lineTo(bx + 0.6, y - 1); ctx.lineTo(bx + 3.6, y - 6); ctx.moveTo(bx + 3.6, y - 6); ctx.lineTo(bx + 4.4, y - 8.4); ctx.stroke();
+      ctx.fillStyle = '#1D2129'; ctx.fillRect(bx - 2.6, y - 7.4, 3.2, 1.2); ctx.fillRect(bx + 3.4, y - 9, 2.8, 0.9);
     });
     if (gsPass !== 1 && amb.rain > 0.12) { // Pfuetzen bei Regen
       const pa = Math.min(1, amb.rain * 1.3);
@@ -208,8 +221,12 @@
     // Laternen
     for (const l of LAMPS) {
       if (!inView(l.x, l.y, 40)) continue;
-      ctx.fillStyle = '#20262E'; ctx.fillRect(l.x - 1.5, l.y - 30, 3, 32); ctx.fillRect(l.x - 5, l.y - 2, 10, 3);
-      ctx.fillStyle = L > 0.2 ? '#FFE9A8' : '#7C8591'; ctx.fillRect(l.x - 4, l.y - 36, 8, 7); ctx.fillStyle = '#20262E'; ctx.fillRect(l.x - 5, l.y - 38, 10, 3);
+      ctx.fillStyle = 'rgba(0,0,0,.28)'; ell(l.x + 2, l.y + 1.5, 6, 2.2); ctx.fill(); // v147: Laterne mit Sockel, Ring und Glaskopf
+      ctx.fillStyle = '#20262E'; ctx.fillRect(l.x - 1.5, l.y - 30, 3, 32); ctx.fillStyle = '#4A5260'; ctx.fillRect(l.x - 1.5, l.y - 30, 1, 32);
+      ctx.fillStyle = '#2A2F38'; ctx.fillRect(l.x - 4, l.y - 4, 8, 6); ctx.fillStyle = '#3A404A'; ctx.fillRect(l.x - 5, l.y - 1, 10, 3); ctx.fillStyle = '#4A5260'; ctx.fillRect(l.x - 4, l.y - 4, 8, 1); ctx.fillRect(l.x - 2.4, l.y - 20, 4.8, 1.6);
+      ctx.fillStyle = '#2A2F38'; ctx.beginPath(); ctx.moveTo(l.x - 3, l.y - 29); ctx.lineTo(l.x + 3, l.y - 29); ctx.lineTo(l.x + 4.6, l.y - 36); ctx.lineTo(l.x - 4.6, l.y - 36); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = L > 0.2 ? '#FFE9A8' : '#8A94A2'; ctx.beginPath(); ctx.moveTo(l.x - 2.2, l.y - 30); ctx.lineTo(l.x + 2.2, l.y - 30); ctx.lineTo(l.x + 3.4, l.y - 35); ctx.lineTo(l.x - 3.4, l.y - 35); ctx.closePath(); ctx.fill(); if (L <= 0.2) { ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fillRect(l.x - 2.6, l.y - 34.6, 0.9, 4); }
+      ctx.fillStyle = '#20262E'; ctx.beginPath(); ctx.moveTo(l.x - 5.6, l.y - 36); ctx.lineTo(l.x + 5.6, l.y - 36); ctx.lineTo(l.x + 2, l.y - 39.4); ctx.lineTo(l.x - 2, l.y - 39.4); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#4A5260'; ctx.beginPath(); ctx.arc(l.x, l.y - 40, 1.2, 0, TAU); ctx.fill();
     }
     for (const f of FLOODS) { // v73: Flutlichtmasten
       if (!inView(f.x, f.y, 80)) continue; const a = Math.atan2(f.cy - f.y, f.cx - f.x);

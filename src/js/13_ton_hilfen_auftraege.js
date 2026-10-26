@@ -363,8 +363,9 @@
     const hw = RACK_W / 2, hh = RACK_H / 2, brew = ar.key === 'brau', tab = ar.key === 'tabak', kel = !brew && !tab, dcol = kel ? '#8B6BC9' : ar.dry;
     rotBegin(x, y, rotAng(R0, R0.r));
     ctx.fillStyle = 'rgba(0,0,0,.3)'; rr(x - hw + 4, y - hh + 6, RACK_W, RACK_H, 6); ctx.fill();
-    ctx.fillStyle = brew ? '#2A3340' : tab ? '#30291F' : '#272D35'; rr(x - hw, y - hh, RACK_W, RACK_H, 6); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.05)'; rr(x - hw + 3, y - hh + 3, RACK_W - 6, RACK_H - 6, 4); ctx.fill();
+    { const g = ctx.createLinearGradient(0, y - hh, 0, y + hh); if (brew) { g.addColorStop(0, '#34404F'); g.addColorStop(1, '#222A34'); } else if (tab) { g.addColorStop(0, '#3E3426'); g.addColorStop(1, '#2A2218'); } else { g.addColorStop(0, '#323A45'); g.addColorStop(1, '#1E242C'); } ctx.fillStyle = g; rr(x - hw, y - hh, RACK_W, RACK_H, 6); ctx.fill(); } // v147
+    ctx.fillStyle = 'rgba(255,255,255,.05)'; rr(x - hw + 3, y - hh + 3, RACK_W - 6, RACK_H - 6, 4); ctx.fill(); ctx.strokeStyle = 'rgba(200,210,222,.22)'; ctx.lineWidth = 1; rr(x - hw + 0.5, y - hh + 0.5, RACK_W - 1, RACK_H - 1, 6); ctx.stroke();
+    ctx.fillStyle = '#C9D2DC'; for (const [px, py] of [[-hw + 5.5, -hh + 6], [hw - 5.5, -hh + 6], [-hw + 5.5, hh - 6], [hw - 5.5, hh - 6]]) { ctx.beginPath(); ctx.arc(x + px, y + py, 1, 0, TAU); ctx.fill(); }
     ctx.fillStyle = '#8C96A3'; ctx.fillRect(x - hw + 4, y - hh + 2, 3, RACK_H - 4); ctx.fillRect(x + hw - 7, y - hh + 2, 3, RACK_H - 4);
     ctx.fillStyle = '#B5BDC7'; ctx.fillRect(x - hw + 4, y - hh + 2, 3, 2); ctx.fillRect(x + hw - 7, y - hh + 2, 3, 2);
     // drei Leinen, daran haengt die Ernte: frisch in der Blattfarbe und leicht schwingend, getrocknet in der Trockenfarbe
@@ -422,9 +423,10 @@
     rotBegin(x, y, rotAng(T0, T0.r));
     ctx.fillStyle = 'rgba(0,0,0,.3)'; rr(x - hw + 4, y - hh + 6, TAB_W, TAB_H, 6); ctx.fill();
     ctx.fillStyle = '#2B2F36'; for (const [lx, ly] of [[-hw + 3, -hh + 3], [hw - 9, -hh + 3], [-hw + 3, hh - 9], [hw - 9, hh - 9]]) ctx.fillRect(x + lx, y + ly, 6, 6); // Beine
-    ctx.fillStyle = brew ? '#4A5562' : tab ? '#7A6448' : '#5E646E'; rr(x - hw, y - hh, TAB_W, TAB_H, 6); ctx.fill();
-    ctx.fillStyle = brew ? '#AEB8C4' : tab ? '#957A55' : '#7C838E'; rr(x - hw + 3, y - hh + 3, TAB_W - 6, TAB_H - 8, 4); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x - hw + 6, y - hh + 4, TAB_W - 12, 2);
+    ctx.fillStyle = brew ? '#4A5562' : tab ? '#7A6448' : '#5A3E28'; rr(x - hw, y - hh, TAB_W, TAB_H, 6); ctx.fill(); // v147: im Keller eine Holz-Werkbank
+    if (!brew && !tab) { const g = ctx.createLinearGradient(0, y - hh, 0, y + hh); g.addColorStop(0, '#A87A50'); g.addColorStop(1, '#8A6040'); ctx.fillStyle = g; rr(x - hw + 3, y - hh + 3, TAB_W - 6, TAB_H - 8, 4); ctx.fill(); ctx.save(); rr(x - hw + 3, y - hh + 3, TAB_W - 6, TAB_H - 8, 4); ctx.clip(); ctx.strokeStyle = 'rgba(90,56,30,.28)'; ctx.lineWidth = 0.7; for (let k = 0; k < 6; k++) { const yy = y - hh + 7 + k * ((TAB_H - 12) / 6); ctx.beginPath(); ctx.moveTo(x - hw, yy); ctx.bezierCurveTo(x - 20, yy + 1.5, x + 10, yy - 1.5, x + hw, yy + 0.5); ctx.stroke(); } ctx.fillStyle = 'rgba(60,36,20,.35)'; for (let q = 1; q < 4; q++) ctx.fillRect(x - hw + 3 + q * (TAB_W - 6) / 4, y - hh + 3, 0.8, TAB_H - 8); ctx.restore(); }
+    else { ctx.fillStyle = brew ? '#AEB8C4' : '#957A55'; rr(x - hw + 3, y - hh + 3, TAB_W - 6, TAB_H - 8, 4); ctx.fill(); }
+    ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fillRect(x - hw + 6, y - hh + 4, TAB_W - 12, 2);
     // Waage links: der Haufen zeigt, wie viel Getrocknetes bereitliegt, die Anzeige die Menge
     const sx = x - hw + 19, sy = y - 3, f = Math.min(1, st.tab.dry / 30);
     ctx.fillStyle = '#3A3F47'; rr(sx - 13, sy - 11, 26, 24, 4); ctx.fill();

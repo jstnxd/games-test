@@ -55,18 +55,21 @@
     ctx = sv.ctx; fx = sv.fx; hist = sv.hist; stepDist = sv.sd; fxAcc = sv.sa; player.x = sv.px; player.y = sv.py; player.ang = sv.pa; G.cos.orbit = sv.orb; G.cos.orbit2 = sv.orb2; G.cos.trail = sv.trl;
   }
   function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
-  function drawFields(ar) {
+  function drawFields(ar) { // v147: Stellflaechen als Gummimatte mit Symbol statt gestricheltem Kasten
     for (const nm of ['rack', 'table']) {
-      const f = ar.fields[nm], inside = !GH_ON && inField(f, player.x, player.y), pu = 0.5 + 0.5 * Math.sin(gt * 4), w = f.x1 - f.x0, h = f.y1 - f.y0;
-      ctx.fillStyle = inside ? 'rgba(255,181,71,' + (0.2 + 0.1 * pu).toFixed(2) + ')' : 'rgba(255,255,255,.06)';
-      rr(f.x0, f.y0, w, h, 7); ctx.fill();
-      ctx.setLineDash(inside ? [] : [6, 5]); ctx.strokeStyle = inside ? ar.dry : 'rgba(255,255,255,.32)'; ctx.lineWidth = inside ? 2.2 : 1.6;
-      rr(f.x0, f.y0, w, h, 7); ctx.stroke(); ctx.setLineDash([]);
-      // zwei Fußabdrücke
-      ctx.fillStyle = inside ? ar.dry : 'rgba(255,255,255,.28)';
-      ctx.beginPath(); ell((f.x0 + f.x1) / 2 - 6, f.y0 + h * 0.4, 3.2, 5); ctx.fill(); ctx.beginPath(); ell((f.x0 + f.x1) / 2 + 6, f.y0 + h * 0.4, 3.2, 5); ctx.fill();
-      ctx.fillStyle = inside ? ar.dry : 'rgba(255,255,255,.5)'; ctx.font = (w < 60 ? '700 6.5px' : '700 8.5px') + ' sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(f.label.toUpperCase(), (f.x0 + f.x1) / 2, f.y1 - 7);
+      const f = ar.fields[nm], inside = !GH_ON && inField(f, player.x, player.y), pu = 0.5 + 0.5 * Math.sin(gt * 4), w = f.x1 - f.x0, h = f.y1 - f.y0, cx = (f.x0 + f.x1) / 2, cy = f.y0 + h * 0.42;
+      ctx.fillStyle = 'rgba(0,0,0,.28)'; rr(f.x0 + 1.5, f.y0 + 2.5, w, h, 7); ctx.fill();
+      const g = ctx.createLinearGradient(0, f.y0, 0, f.y1); g.addColorStop(0, '#2A3038'); g.addColorStop(1, '#1E232A'); ctx.fillStyle = g; rr(f.x0, f.y0, w, h, 7); ctx.fill();
+      ctx.save(); rr(f.x0 + 4, f.y0 + 4, w - 8, h - 8, 5); ctx.clip(); ctx.fillStyle = 'rgba(255,255,255,.035)'; for (let x = f.x0 + 4; x < f.x1; x += 5) ctx.fillRect(x, f.y0, 2.2, h); ctx.restore();
+      ctx.strokeStyle = inside ? ar.dry : 'rgba(255,255,255,.14)'; ctx.lineWidth = inside ? 2 + pu : 1.2; rr(f.x0 + 0.5, f.y0 + 0.5, w - 1, h - 1, 7); ctx.stroke();
+      if (inside) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,181,71,' + (0.08 + 0.08 * pu).toFixed(3) + ')'; rr(f.x0, f.y0, w, h, 7); ctx.fill(); ctx.restore(); }
+      const ic = inside ? ar.dry : 'rgba(255,255,255,.42)', s2 = Math.min(1, h / 40);
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(s2, s2); ctx.fillStyle = ic; ctx.strokeStyle = ic; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+      if (nm === 'rack') { ctx.beginPath(); ctx.moveTo(-9, -5); ctx.quadraticCurveTo(0, -3, 9, -5); ctx.stroke(); for (const lx of [-5, 0, 5]) { ctx.beginPath(); ctx.moveTo(lx, -4.4); ctx.lineTo(lx, -2.4); ctx.stroke(); ell(lx, 1, 1.9, 3); ctx.fill(); } ctx.globalAlpha = 0.7; for (let k = 0; k < 2; k++) { const ph = (gt * 0.8 + k * 0.5) % 1; ctx.beginPath(); ctx.moveTo(10 - ph * 4, 2 + k * 3); ctx.quadraticCurveTo(7 - ph * 4, 1 + k * 3, 4 - ph * 4, 2 + k * 3); ctx.stroke(); } ctx.globalAlpha = 1; }
+      else { ctx.beginPath(); ctx.moveTo(-5, -3); ctx.lineTo(5, -3); ctx.lineTo(6, 6); ctx.lineTo(-6, 6); ctx.closePath(); ctx.fill(); ctx.fillStyle = inside ? '#10151C' : 'rgba(30,35,42,.9)'; ctx.fillRect(-5, -1.6, 10, 1.2); ctx.fillStyle = ic; ctx.beginPath(); ctx.arc(0, 2.4, 1.6, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.moveTo(-2.6, -3); ctx.quadraticCurveTo(0, -7.4, 2.6, -3); ctx.stroke(); }
+      ctx.restore();
+      ctx.fillStyle = inside ? ar.dry : 'rgba(255,255,255,.55)'; ctx.font = (w < 60 ? '800 6.5px' : '800 8px') + ' sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(f.label.toUpperCase(), cx, f.y1 - 7); ctx.textBaseline = 'alphabetic';
     }
   }
   // pass 0 = Teppiche (unter den Stationen), pass 1 = alles andere (nach Hoehe sortiert)
