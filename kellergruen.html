@@ -874,7 +874,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 150 · Neu: Spedition PFEILFRACHT, getunte Autos im Verkehr<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 151 · Neu: Gaming-Stuhl<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -2329,6 +2329,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { id: 'safe', name: 'Tresor', desc: 'Schwer, mit drehendem Zahlenschloss', cost: 380 },
     { id: 'pingpong', name: 'Tischtennisplatte', desc: 'Der Ball fliegt hin und her', cost: 420 },
     { id: 'gamingpc', name: 'Gaming-Tisch', desc: 'Zwei Bildschirme und ein PC in Regenbogenfarben', cost: 480, rep: 10 },
+    { id: 'gamingchair', name: 'Gaming-Stuhl', desc: 'Renn-Sitz in Schwarz und Neon-Grün mit Kopfkissen, dreht sich leicht hin und her. Passt vor den Gaming-Tisch', cost: 360, rep: 10 },
     { id: 'statue', name: 'Goldene Statue', desc: 'Glänzt und funkelt auf ihrem Sockel', cost: 650, rep: 20 },
     { id: 'hottub', name: 'Whirlpool', desc: 'Sprudelt warm, mit aufsteigendem Dampf', cost: 900, rep: 25 }
   ];
@@ -2438,7 +2439,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { id: 'slotmachine', name: 'Spielautomat', desc: 'Einarmiger Bandit: Lauflichter, drehende Walzen, und ab und zu ein Gewinn mit Münzregen', cost: 1900, rep: 24 },
     { id: 'slotneon', name: 'Neon-Automat', desc: 'Lila Automat mit leuchtender Jackpot-Schrift, drehenden Walzen und Münzregen bei Gewinn', cost: 2800, rep: 30 }
   );
-  Object.assign(DHALF, { slotmachine: [15, 24], slotneon: [15, 24] }); DEC_NEW.unshift('slotmachine', 'slotneon');
+  Object.assign(DHALF, { slotmachine: [15, 24], slotneon: [15, 24], gamingchair: [12, 15] }); DEC_NEW.unshift('gamingchair', 'slotmachine', 'slotneon');
   const GHQ_CHILL = ['slotmachine', 'slotneon', 'lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler'];
   Object.assign(DHALF, { lounge: [34, 22], firepit: [18, 14], console: [32, 20], djbooth: [26, 18], neonsign: [24, 14], pokertable: [30, 20], tagwall: [30, 16], sneakerwall: [26, 20], hoops: [14, 22], moneycount: [20, 12], speakerwall: [18, 22], cooler: [13, 12] });
   Object.assign(DHALF, { firefly: [8, 14], mobile: [14, 18], rocker: [16, 18], newton: [14, 10], cuckoo: [12, 20], plasma: [10, 14], fountain: [16, 16], robovac: [18, 16], bubbles: [10, 14], trainset: [28, 18], carousel: [18, 20], jellytank: [14, 22] });
@@ -7356,7 +7357,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (!ar.isFloor && !G.build.door[k]) { const e = document.createElement('div'); e.className = 'ds'; e.style.margin = '0 0 6px'; e.textContent = 'Seitentür: stell dich an die vernagelte Stelle in der ' + (k === 'keller' ? 'rechten' : 'linken') + ' Wand und drück A (' + fmt(ar.sideCost) + ').'; b.appendChild(e); }
     btnOf(card('Deko kaufen', '', 'Neue Möbel, Pflanzen, Teppiche und mehr gibt es in der App Deko-Laden. Hier stellst du sie auf (Umbau-Modus).'), 'Zum Deko-Laden', () => { tab = 'dshop'; renderPhone(); }, false);
   }
-  const DCAT = [['Pflanzen', ['cactus', 'plant', 'flowers', 'bonsai', 'palm', 'tree']], ['Möbel', ['beanbag', 'shelf', 'turntable', 'fridge', 'easel', 'couch', 'trophy', 'piano', 'hammock', 'mirror']], ['Teppiche', ['roundrug', 'rug', 'leafrug', 'starrug']], ['Licht und Stimmung', ['candles', 'lamp', 'lavalamp', 'neon', 'discoball', 'fireplace', 'chandelier']], ['Technik und Spaß', ['fan', 'globe', 'speaker', 'tv', 'tank', 'arcade', 'jukebox', 'telescope']], ['Spiele und Sport', ['dartboard', 'kicker', 'pooltable', 'punchbag']], ['Musik und Küche', ['guitar', 'drumset', 'coffee', 'popcorn']], ['Kleinkram', ['gnome', 'terrarium']], ['Anbau', ['watercan', 'hygro', 'leafposter', 'clipfan', 'seedrack', 'hemprug', 'drynet', 'jars', 'mother', 'carbonfilter', 'ledpanel', 'growtent']], ['Betten', ['futon', 'bed', 'bunkbed', 'dbed', 'catbed']], ['Wohnen', ['bookstack', 'fishbowl', 'fairy', 'plantwall', 'clock', 'robot', 'safe', 'statue']], ['Freizeit', ['bbq', 'graffcanvas', 'miniramp', 'vending', 'pingpong', 'gamingpc', 'hottub']], ['Labor', ['hopsack', 'maltsacks', 'crates', 'bartable', 'mugshelf', 'casks', 'prostsign', 'tap', 'kettle', 'fermenter']]];
+  const DCAT = [['Pflanzen', ['cactus', 'plant', 'flowers', 'bonsai', 'palm', 'tree']], ['Möbel', ['beanbag', 'shelf', 'turntable', 'fridge', 'easel', 'couch', 'trophy', 'piano', 'hammock', 'mirror']], ['Teppiche', ['roundrug', 'rug', 'leafrug', 'starrug']], ['Licht und Stimmung', ['candles', 'lamp', 'lavalamp', 'neon', 'discoball', 'fireplace', 'chandelier']], ['Technik und Spaß', ['fan', 'globe', 'speaker', 'tv', 'tank', 'arcade', 'jukebox', 'telescope']], ['Spiele und Sport', ['dartboard', 'kicker', 'pooltable', 'punchbag']], ['Musik und Küche', ['guitar', 'drumset', 'coffee', 'popcorn']], ['Kleinkram', ['gnome', 'terrarium']], ['Anbau', ['watercan', 'hygro', 'leafposter', 'clipfan', 'seedrack', 'hemprug', 'drynet', 'jars', 'mother', 'carbonfilter', 'ledpanel', 'growtent']], ['Betten', ['futon', 'bed', 'bunkbed', 'dbed', 'catbed']], ['Wohnen', ['bookstack', 'fishbowl', 'fairy', 'plantwall', 'clock', 'robot', 'safe', 'statue']], ['Freizeit', ['bbq', 'graffcanvas', 'miniramp', 'vending', 'pingpong', 'gamingpc', 'gamingchair', 'hottub']], ['Labor', ['hopsack', 'maltsacks', 'crates', 'bartable', 'mugshelf', 'casks', 'prostsign', 'tap', 'kettle', 'fermenter']]];
   { const add = (cat, ids) => DCAT.find(c => c[0] === cat)[1].push(...ids); add('Pflanzen', ['planter']); add('Möbel', ['armchair']); add('Teppiche', ['rugstripe']); add('Licht und Stimmung', ['lantern']); add('Technik und Spaß', ['radio']); add('Musik und Küche', ['vinyl']); add('Kleinkram', ['snowglobe', 'windchime', 'piggy']); add('Pflanzen', ['cactusrow', 'monstera']); add('Möbel', ['homebar', 'massage']); add('Licht und Stimmung', ['arclamp', 'neonleaf']); add('Technik und Spaß', ['aquarium', 'bigtv']); add('Kleinkram', ['gumball', 'hamster', 'goldbars']); add('Freizeit', ['koipond', 'skatewall']); } // v87: neue Deko in die passenden Kategorien
   { const add = (cat, ids) => DCAT.find(c => c[0] === cat)[1].push(...ids); add('Licht und Stimmung', ['firefly', 'plasma', 'jellytank']); add('Möbel', ['rocker']); add('Kleinkram', ['mobile', 'newton', 'cuckoo']); add('Technik und Spaß', ['robovac', 'trainset']); add('Freizeit', ['fountain', 'bubbles', 'carousel']); } // v130
   DCAT.push(['😎 Chill-Zone', ['slotmachine', 'slotneon', 'lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler']]); // v132
@@ -11296,6 +11297,18 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const add = fn => { ctx.save(); ctx.globalCompositeOperation = 'lighter'; fn(); ctx.restore(); };
     const leaf = (x, y, len, w, a, c) => { ctx.save(); ctx.translate(x, y); ctx.rotate(a); F(c); ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(w, -len * 0.45, 0, -len); ctx.quadraticCurveTo(-w, -len * 0.45, 0, 0); ctx.fill(); ctx.restore(); };
     switch (id) {
+      case 'gamingchair': { // v151: Gaming-Stuhl, schaut nach oben zum Tisch: man sieht Sitz und die Rueckseite der Lehne
+        sh(12, 15); const sw = Math.sin(t * 0.8) * 0.1;
+        ctx.save(); ctx.translate(0, 4); for (let k = 0; k < 5; k++) { const a = k * TAU / 5 + 0.3; F('#2A2F38'); ctx.save(); ctx.rotate(a); ctx.fillRect(-0.9, 0, 1.8, 9.5); F('#14161C'); C(0, 9.8, 1.7); ctx.restore(); } F('#5A626E'); C(0, 0, 2.4); ctx.restore();
+        ctx.save(); ctx.rotate(sw);
+        F('#14161C'); rr(-10.5, -16, 21, 13, 4); ctx.fill(); F(lg(-9, 0, 9, 0, [[0, '#20242C'], [0.5, '#3A404A'], [1, '#1A1D24']])); rr(-9.5, -15.4, 19, 11.6, 3.4); ctx.fill(); F('#5FE584'); ctx.fillRect(-9.5, -13, 2, 7); ctx.fillRect(7.5, -13, 2, 7); F('rgba(255,255,255,.1)'); ctx.fillRect(-6, -14.4, 12, 1.2);
+        F('#14161C'); rr(-12.6, -14, 3.4, 9, 1.4); ctx.fill(); rr(9.2, -14, 3.4, 9, 1.4); ctx.fill(); F('#3A404A'); ctx.fillRect(-12.2, -13.6, 2.6, 1.6); ctx.fillRect(9.6, -13.6, 2.6, 1.6);
+        F('#0E1014'); ctx.beginPath(); ctx.moveTo(-10, -5); ctx.lineTo(-11.2, 9); ctx.quadraticCurveTo(-10.6, 13, -6, 13.6); ctx.lineTo(6, 13.6); ctx.quadraticCurveTo(10.6, 13, 11.2, 9); ctx.lineTo(10, -5); ctx.closePath(); ctx.fill();
+        F(lg(-9, 0, 9, 0, [[0, '#181B20'], [0.5, '#2A2F38'], [1, '#14161C']])); ctx.beginPath(); ctx.moveTo(-8.8, -4.4); ctx.lineTo(-9.8, 8.6); ctx.quadraticCurveTo(-9.2, 12, -5.4, 12.4); ctx.lineTo(5.4, 12.4); ctx.quadraticCurveTo(9.2, 12, 9.8, 8.6); ctx.lineTo(8.8, -4.4); ctx.closePath(); ctx.fill();
+        F('#5FE584'); ctx.beginPath(); ctx.moveTo(-8.4, -4); ctx.lineTo(-9.4, 8.4); ctx.lineTo(-7.4, 8.6); ctx.lineTo(-6.4, -4); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(8.4, -4); ctx.lineTo(9.4, 8.4); ctx.lineTo(7.4, 8.6); ctx.lineTo(6.4, -4); ctx.closePath(); ctx.fill();
+        F('#5FE584'); ctx.beginPath(); ctx.moveTo(0, 0.6); ctx.lineTo(3.4, 3.8); ctx.lineTo(0, 7); ctx.lineTo(-3.4, 3.8); ctx.closePath(); ctx.fill(); F('#0E1014'); ctx.beginPath(); ctx.moveTo(0, 2.2); ctx.lineTo(1.8, 3.8); ctx.lineTo(0, 5.4); ctx.lineTo(-1.8, 3.8); ctx.closePath(); ctx.fill();
+        F('rgba(255,255,255,.12)'); ctx.fillRect(-7, -4.4, 14, 1); F('#20242C'); rr(-4.4, -6.6, 8.8, 3, 1.4); ctx.fill(); F('#5FE584'); ctx.fillRect(-2.4, -5.8, 4.8, 1);
+        ctx.restore(); return true; }
       case 'slotmachine': ctx.save(); ctx.translate(0, 2); drawSlotMachine(0, 0, { theme: 'red', auto: true, seed: 1, dark: nt }); ctx.restore(); return true;
       case 'slotneon': ctx.save(); ctx.translate(0, 2); drawSlotMachine(0, 0, { theme: 'neon', auto: true, seed: 2, dark: nt }); ctx.restore(); return true;
       case 'coffee': { sh(14, 18); F('#3A2A1E'); rr(-14, 9, 28, 9, 2); ctx.fill(); F(lg(0, 9, 0, 18, [[0, '#9A6E48'], [1, '#6E4A2E']])); rr(-13.4, 9.4, 26.8, 8, 1.6); ctx.fill();
@@ -14551,7 +14564,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 150; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 151; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -14872,6 +14885,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 151, date: 'Oktober 2026', title: 'Gaming-Stuhl', items: [
+      ['neu', '🪑', 'Neue Deko: Gaming-Stuhl in Schwarz und Neon-Grün mit Kopfkissen und Rollen. Er dreht sich leicht hin und her und passt vor den Gaming-Tisch (Kategorie Freizeit, 360 €)'] ] },
     { v: 150, date: 'Oktober 2026', title: 'PFEILFRACHT', items: [
       ['neu', '🚚', 'Die Lastwagen auf den Straßen gehören jetzt zur Spedition PFEILFRACHT: orange Kabine, weißer Koffer mit Pfeil-Logo und Schriftzug'],
       ['chg', '🏎️', 'Jedes Auto im Verkehr ist anders getunt: Rennstreifen, Felgen, Spoiler, Folierung, Lackeffekt, getönte Scheiben, Lichtfarbe, Dachaufbau und Unterbodenbeleuchtung'],
@@ -14880,9 +14895,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ['chg', '🚗', 'Im Verkehr fahren jetzt dieselben Autos wie deine eigenen: Kleinwagen, Geländewagen, Sprinter, Pickup, Musclecar, Sportwagen, Lowrider und Lastwagen, in allen Farben und mit Fahrer'],
       ['fix', '🐈', 'Katzen laufen nicht mehr über Dächer und durch Häuser. Dabei kam ein Fehler raus: Hindernisse wurden an einigen Stellen gar nicht geprüft, auch Sammelsachen konnten deshalb in Gebäuden liegen'],
       ['chg', '📦', 'Der leere Mietraum hat Umzugskartons, eine Palette, eine Baulampe mit Kabel und eine Leiter. Hinterzimmer und Mietraum haben Schatten an den Wänden'] ] },
-    { v: 148, date: 'Oktober 2026', title: 'Kaufen an der Tür', items: [
-      ['neu', '🚪', 'Tabakscheune und Chemielabor kannst du jetzt direkt vor der Tür kaufen: A drücken, kaufen, und gleich danach öffnet sich der Laden für das Gebäude'],
-      ['chg', '🧱', 'Räume wirken tiefer: Schatten an den Wänden, Kellerwände mit Mauerkrone, freie Plätze in Scheune, Labor und Mietraum mit Plus statt schwarzem Kasten'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

@@ -326,6 +326,18 @@
     const add = fn => { ctx.save(); ctx.globalCompositeOperation = 'lighter'; fn(); ctx.restore(); };
     const leaf = (x, y, len, w, a, c) => { ctx.save(); ctx.translate(x, y); ctx.rotate(a); F(c); ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(w, -len * 0.45, 0, -len); ctx.quadraticCurveTo(-w, -len * 0.45, 0, 0); ctx.fill(); ctx.restore(); };
     switch (id) {
+      case 'gamingchair': { // v151: Gaming-Stuhl, schaut nach oben zum Tisch: man sieht Sitz und die Rueckseite der Lehne
+        sh(12, 15); const sw = Math.sin(t * 0.8) * 0.1;
+        ctx.save(); ctx.translate(0, 4); for (let k = 0; k < 5; k++) { const a = k * TAU / 5 + 0.3; F('#2A2F38'); ctx.save(); ctx.rotate(a); ctx.fillRect(-0.9, 0, 1.8, 9.5); F('#14161C'); C(0, 9.8, 1.7); ctx.restore(); } F('#5A626E'); C(0, 0, 2.4); ctx.restore();
+        ctx.save(); ctx.rotate(sw);
+        F('#14161C'); rr(-10.5, -16, 21, 13, 4); ctx.fill(); F(lg(-9, 0, 9, 0, [[0, '#20242C'], [0.5, '#3A404A'], [1, '#1A1D24']])); rr(-9.5, -15.4, 19, 11.6, 3.4); ctx.fill(); F('#5FE584'); ctx.fillRect(-9.5, -13, 2, 7); ctx.fillRect(7.5, -13, 2, 7); F('rgba(255,255,255,.1)'); ctx.fillRect(-6, -14.4, 12, 1.2);
+        F('#14161C'); rr(-12.6, -14, 3.4, 9, 1.4); ctx.fill(); rr(9.2, -14, 3.4, 9, 1.4); ctx.fill(); F('#3A404A'); ctx.fillRect(-12.2, -13.6, 2.6, 1.6); ctx.fillRect(9.6, -13.6, 2.6, 1.6);
+        F('#0E1014'); ctx.beginPath(); ctx.moveTo(-10, -5); ctx.lineTo(-11.2, 9); ctx.quadraticCurveTo(-10.6, 13, -6, 13.6); ctx.lineTo(6, 13.6); ctx.quadraticCurveTo(10.6, 13, 11.2, 9); ctx.lineTo(10, -5); ctx.closePath(); ctx.fill();
+        F(lg(-9, 0, 9, 0, [[0, '#181B20'], [0.5, '#2A2F38'], [1, '#14161C']])); ctx.beginPath(); ctx.moveTo(-8.8, -4.4); ctx.lineTo(-9.8, 8.6); ctx.quadraticCurveTo(-9.2, 12, -5.4, 12.4); ctx.lineTo(5.4, 12.4); ctx.quadraticCurveTo(9.2, 12, 9.8, 8.6); ctx.lineTo(8.8, -4.4); ctx.closePath(); ctx.fill();
+        F('#5FE584'); ctx.beginPath(); ctx.moveTo(-8.4, -4); ctx.lineTo(-9.4, 8.4); ctx.lineTo(-7.4, 8.6); ctx.lineTo(-6.4, -4); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(8.4, -4); ctx.lineTo(9.4, 8.4); ctx.lineTo(7.4, 8.6); ctx.lineTo(6.4, -4); ctx.closePath(); ctx.fill();
+        F('#5FE584'); ctx.beginPath(); ctx.moveTo(0, 0.6); ctx.lineTo(3.4, 3.8); ctx.lineTo(0, 7); ctx.lineTo(-3.4, 3.8); ctx.closePath(); ctx.fill(); F('#0E1014'); ctx.beginPath(); ctx.moveTo(0, 2.2); ctx.lineTo(1.8, 3.8); ctx.lineTo(0, 5.4); ctx.lineTo(-1.8, 3.8); ctx.closePath(); ctx.fill();
+        F('rgba(255,255,255,.12)'); ctx.fillRect(-7, -4.4, 14, 1); F('#20242C'); rr(-4.4, -6.6, 8.8, 3, 1.4); ctx.fill(); F('#5FE584'); ctx.fillRect(-2.4, -5.8, 4.8, 1);
+        ctx.restore(); return true; }
       case 'slotmachine': ctx.save(); ctx.translate(0, 2); drawSlotMachine(0, 0, { theme: 'red', auto: true, seed: 1, dark: nt }); ctx.restore(); return true;
       case 'slotneon': ctx.save(); ctx.translate(0, 2); drawSlotMachine(0, 0, { theme: 'neon', auto: true, seed: 2, dark: nt }); ctx.restore(); return true;
       case 'coffee': { sh(14, 18); F('#3A2A1E'); rr(-14, 9, 28, 9, 2); ctx.fill(); F(lg(0, 9, 0, 18, [[0, '#9A6E48'], [1, '#6E4A2E']])); rr(-13.4, 9.4, 26.8, 8, 1.6); ctx.fill();

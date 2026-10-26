@@ -185,6 +185,8 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 151, date: 'Oktober 2026', title: 'Gaming-Stuhl', items: [
+      ['neu', '🪑', 'Neue Deko: Gaming-Stuhl in Schwarz und Neon-Grün mit Kopfkissen und Rollen. Er dreht sich leicht hin und her und passt vor den Gaming-Tisch (Kategorie Freizeit, 360 €)'] ] },
     { v: 150, date: 'Oktober 2026', title: 'PFEILFRACHT', items: [
       ['neu', '🚚', 'Die Lastwagen auf den Straßen gehören jetzt zur Spedition PFEILFRACHT: orange Kabine, weißer Koffer mit Pfeil-Logo und Schriftzug'],
       ['chg', '🏎️', 'Jedes Auto im Verkehr ist anders getunt: Rennstreifen, Felgen, Spoiler, Folierung, Lackeffekt, getönte Scheiben, Lichtfarbe, Dachaufbau und Unterbodenbeleuchtung'],
@@ -193,9 +195,6 @@
       ['chg', '🚗', 'Im Verkehr fahren jetzt dieselben Autos wie deine eigenen: Kleinwagen, Geländewagen, Sprinter, Pickup, Musclecar, Sportwagen, Lowrider und Lastwagen, in allen Farben und mit Fahrer'],
       ['fix', '🐈', 'Katzen laufen nicht mehr über Dächer und durch Häuser. Dabei kam ein Fehler raus: Hindernisse wurden an einigen Stellen gar nicht geprüft, auch Sammelsachen konnten deshalb in Gebäuden liegen'],
       ['chg', '📦', 'Der leere Mietraum hat Umzugskartons, eine Palette, eine Baulampe mit Kabel und eine Leiter. Hinterzimmer und Mietraum haben Schatten an den Wänden'] ] },
-    { v: 148, date: 'Oktober 2026', title: 'Kaufen an der Tür', items: [
-      ['neu', '🚪', 'Tabakscheune und Chemielabor kannst du jetzt direkt vor der Tür kaufen: A drücken, kaufen, und gleich danach öffnet sich der Laden für das Gebäude'],
-      ['chg', '🧱', 'Räume wirken tiefer: Schatten an den Wänden, Kellerwände mit Mauerkrone, freie Plätze in Scheune, Labor und Mietraum mit Plus statt schwarzem Kasten'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
