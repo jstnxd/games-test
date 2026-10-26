@@ -54,6 +54,7 @@
     drawFloor(AREAS.keller);
     ctx.fillStyle = '#0D1117';
     for (let i = 0; i < 5; i++) { const c = colliders[i]; ctx.fillRect(c.x, c.y, c.w, c.h); }
+    for (let i = 0; i < 5; i++) { const c = colliders[i]; ctx.fillStyle = '#1A2129'; ctx.fillRect(c.x + 2, c.y + 2, c.w - 4, c.h - 4); ctx.fillStyle = 'rgba(255,255,255,.035)'; const hor = c.w > c.h; if (hor) { for (let x = c.x + 4, r = 0; x < c.x + c.w - 4; x += 14, r++) ctx.fillRect(x, c.y + 2, 1, c.h - 4); ctx.fillRect(c.x + 2, c.y + c.h / 2, c.w - 4, 1); } else { for (let y = c.y + 4; y < c.y + c.h - 4; y += 14) ctx.fillRect(c.x + 2, y, c.w - 4, 1); ctx.fillRect(c.x + c.w / 2, c.y + 2, 1, c.h - 4); } ctx.fillStyle = 'rgba(120,140,160,.22)'; ctx.fillRect(c.x, c.y, c.w, 1.2); ctx.fillRect(c.x, c.y, 1.2, c.h); } // v147: Mauerkrone mit Fugen
     ctx.fillStyle = '#2A3139'; ctx.fillRect(370, 508, 80, T); // Türschwelle
     ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.font = '800 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('KELLER', 326, 24); // v79: wie Scheune und Brauerei
     if (!GH_ON && !(roofA.keller > 0.5)) { const pu = 0.85 + 0.15 * Math.sin(gt * 2.5); ctx.fillStyle = '#20262E'; rr(222, 509, 120, 18, 5); ctx.fill(); ctx.strokeStyle = '#5FE584'; ctx.lineWidth = 1.4; rr(222, 509, 120, 18, 5); ctx.stroke();

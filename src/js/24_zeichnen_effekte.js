@@ -460,7 +460,7 @@
     ctx.fillStyle = '#2A3139'; ctx.fillRect(g.thr[0], g.thr[1], g.thr[2], g.thr[3]);
     drawFields(ar); drawDecorFor(ar, 0);
     for (let i = 0; i < ar.POTS.length; i++) {
-      if (i >= potsOpen(ar)) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(ar.POTS[i].x - 17, ar.POTS[i].y - 17, 34, 34); continue; }
+      if (i >= potsOpen(ar)) { slotSq(ar.POTS[i].x, ar.POTS[i].y, i === potsOpen(ar), brew ? 'rgba(90,100,115,.35)' : 'rgba(80,58,38,.5)'); continue; } // v147
       if (brew) drawHopPlant(i); else drawTabPlant(i);
       if (!brew) drawGrowLamp(ar.POTS[i].x, ar.POTS[i].y, i + 20, tt.pots[i], rotAng(ar.POTS[i], ar.POTS[i].r)); drawDrop(ar.POTS[i].x, ar.POTS[i].y, tt.pots[i]);
     }
@@ -495,6 +495,18 @@
       ctx.fillStyle = 'rgba(255,255,255,.06)';
       for (let y = I.y0, r = 0; y < I.y1; y += 32, r++) for (let x = I.x0 + (r % 2 ? 32 : 0); x < I.x1; x += 64) ctx.fillRect(x, y, Math.min(32, I.x1 - x), Math.min(32, I.y1 - y));
     }
+    roomDepth(I.x0, I.y0, I.x1, I.y1); // v147: Schatten an den Waenden, Raum wirkt tiefer
+  }
+  function slotSq(x, y, next, fill, label) { // v147: freier Platz (eckig) mit Plus
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; rr(x - 17, y - 15, 34, 34, 6); ctx.fill(); ctx.fillStyle = fill; rr(x - 15, y - 15, 30, 30, 5); ctx.fill();
+    const a = next ? 0.45 + 0.2 * Math.sin(gt * 3) : 0.22; ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(255,255,255,' + a.toFixed(2) + ')'; ctx.lineWidth = 1.4; rr(x - 17, y - 17, 34, 34, 6); ctx.stroke(); ctx.setLineDash([]);
+    if (label) { ctx.fillStyle = 'rgba(255,255,255,' + (a + 0.2).toFixed(2) + ')'; ctx.font = '800 8px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, x, y); ctx.textBaseline = 'alphabetic'; return; }
+    ctx.strokeStyle = 'rgba(255,255,255,' + (a + 0.1).toFixed(2) + ')'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - 4, y); ctx.lineTo(x + 4, y); ctx.moveTo(x, y - 4); ctx.lineTo(x, y + 4); ctx.stroke(); ctx.lineCap = 'butt';
+  }
+  function roomDepth(x0, y0, x1, y1) {
+    const d = 22, sides = [[x0, y0, x1 - x0, d, 0, y0, 0, y0 + d], [x0, y1 - d * 0.6, x1 - x0, d * 0.6, 0, y1, 0, y1 - d * 0.6], [x0, y0, d, y1 - y0, x0, 0, x0 + d, 0], [x1 - d, y0, d, y1 - y0, x1, 0, x1 - d, 0]];
+    for (const [x, y, w, h, gx0, gy0, gx1, gy1] of sides) { const g = ctx.createLinearGradient(gx0, gy0, gx1, gy1); g.addColorStop(0, 'rgba(0,0,0,.34)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h); }
+    ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(x0, y1 - 1.5, x1 - x0, 1.5);
   }
   function drawSideDoor(ar) {
     const s = ar.side; if (!isOpen(ar)) return;

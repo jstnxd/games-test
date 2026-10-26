@@ -874,7 +874,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 147 · Neu: Keller, Straßen und Dächer überarbeitet<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 148 · Neu: Scheune und Labor an der Tür kaufen<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -4070,6 +4070,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       if (inField(fr, px, py)) cons('rack', 0, Math.hypot(px - (fr.x0 + fr.x1) / 2, py - (fr.y0 + fr.y1) / 2), 999, ar);
       if (inField(ft, px, py)) cons('table', 0, Math.hypot(px - (ft.x0 + ft.x1) / 2, py - (ft.y0 + ft.y1) / 2), 999, ar);
     }
+    for (const k of ['tabak', 'brau']) { const ar = AREAS[k], g = ar.gate; if (!g || isOpen(ar)) continue; const d = Math.hypot(px - (g.x + g.w / 2), py - (g.y + g.h / 2)); cons('areabuy', 0, d, 52, ar); } // v147: Scheune und Labor direkt an der Tuer kaufen
     // Kunden: wen du beliefern kannst, hat Vorrang (egal wer am naechsten steht). Der Kompass ist nur ein Hinweis und legt nichts fest.
     {
       let db = null, dd = 1e9, df = null, dfd = 1e9;
@@ -4106,6 +4107,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (tg.type === 'kiosk') return 'A  Kiosk: Gang-Look und Spezialwaffen';
     if (tg.type === 'treff') return !mp.on ? 'Kellertreff: erst online gehen (App Freunde)' : mp.slots.some(Boolean) ? 'A  Kellertreff: Freunde besuchen' : 'A  Kellertreff: noch kein Keller zum Besuchen';
     if (tg.type === 'bin') return binHint(tg.idx);
+    if (tg.type === 'areabuy') return G.rep < ar.needRep ? ar.name + ': zu kaufen ab Ruf ' + ar.needRep : 'A  ' + ar.name + ' kaufen (' + fmt(ar.cost) + ')';
     if (tg.type === 'lager') return !G.lager.own ? 'A  Mietraum mieten (' + fmt(LAGER_COST) + ')' : 'A  Mietraum betreten';
     if (tg.type === 'prpad') return 'A  Mieträume von Freunden besuchen';
     if (tg.type === 'apo' && !prReady()) return 'Apotheke: wegen Umbau geschlossen. Dr. Weber sitzt im Stadtpark';
@@ -4208,6 +4210,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       if (ar.key === 'pr' ? buyPrPotAt(tg.idx) : buyPotAt(ar, tg.idx)) msg(ar.key === 'pr' ? 'Neue Hydro-Station aufgestellt' : 'Neuer Topf aufgestellt'); else { sfx.bad(); msg('Zu wenig Geld für den Topf', true); }
     } else if (tg.type === 'sidedoor' && aEdge) {
       if (buySide(ar)) msg('Seitentür eingebaut'); else { sfx.bad(); msg('Zu wenig Geld für die Seitentür', true); }
+    } else if (tg.type === 'areabuy' && aEdge) { openPhone(); G.area = ar.key; tmSel = ''; tab = 'shop'; renderPhone(); sfx.ping(); // v147: Kaufen-Karte, danach direkt der Laden fuer das Gebaeude
     } else if (tg.type === 'lager' && aEdge) {
       if (G.lager.own) roomEnter(); else openLager(); // v89: Mietraum
     } else if (tg.type === 'prpad' && aEdge) { tab = 'prvisit'; openPhone(); sfx.ping();
@@ -6098,7 +6101,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       const n = Math.min(PR_MAX, P.n);
       for (let i = 0; i < PR_MAX; i++) {
         const q = PR_POTS[i], p = P.pots[i];
-        if (i >= n) { ctx.fillStyle = 'rgba(0,0,0,.35)'; rr(q.x - 18, q.y - 18, 36, 36, 6); ctx.fill(); if (!visit && i === n) { ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.font = '700 8px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(fmt(prPotCost(n)), q.x, q.y + 3); } continue; }
+        if (i >= n) { slotSq(q.x, q.y, !visit && i === n, 'rgba(60,70,84,.5)', !visit && i === n ? fmt(prPotCost(n)) : ''); continue; } // v147
         ctx.fillStyle = '#F2F4F7'; rr(q.x - 20, q.y - 20, 40, 40, 7); ctx.fill(); ctx.fillStyle = '#5BA8D8'; rr(q.x - 16, q.y - 16, 32, 32, 5); ctx.fill();
         ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(q.x - 6 + Math.sin(gt + i) * 2, q.y + 8, 4, 0, Math.PI); ctx.stroke();
         if (p.s) drawPlantAt(q.x, q.y, p, 0);
@@ -9999,7 +10002,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     ctx.fillStyle = '#2A3139'; ctx.fillRect(g.thr[0], g.thr[1], g.thr[2], g.thr[3]);
     drawFields(ar); drawDecorFor(ar, 0);
     for (let i = 0; i < ar.POTS.length; i++) {
-      if (i >= potsOpen(ar)) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(ar.POTS[i].x - 17, ar.POTS[i].y - 17, 34, 34); continue; }
+      if (i >= potsOpen(ar)) { slotSq(ar.POTS[i].x, ar.POTS[i].y, i === potsOpen(ar), brew ? 'rgba(90,100,115,.35)' : 'rgba(80,58,38,.5)'); continue; } // v147
       if (brew) drawHopPlant(i); else drawTabPlant(i);
       if (!brew) drawGrowLamp(ar.POTS[i].x, ar.POTS[i].y, i + 20, tt.pots[i], rotAng(ar.POTS[i], ar.POTS[i].r)); drawDrop(ar.POTS[i].x, ar.POTS[i].y, tt.pots[i]);
     }
@@ -10034,6 +10037,18 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ctx.fillStyle = 'rgba(255,255,255,.06)';
       for (let y = I.y0, r = 0; y < I.y1; y += 32, r++) for (let x = I.x0 + (r % 2 ? 32 : 0); x < I.x1; x += 64) ctx.fillRect(x, y, Math.min(32, I.x1 - x), Math.min(32, I.y1 - y));
     }
+    roomDepth(I.x0, I.y0, I.x1, I.y1); // v147: Schatten an den Waenden, Raum wirkt tiefer
+  }
+  function slotSq(x, y, next, fill, label) { // v147: freier Platz (eckig) mit Plus
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; rr(x - 17, y - 15, 34, 34, 6); ctx.fill(); ctx.fillStyle = fill; rr(x - 15, y - 15, 30, 30, 5); ctx.fill();
+    const a = next ? 0.45 + 0.2 * Math.sin(gt * 3) : 0.22; ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(255,255,255,' + a.toFixed(2) + ')'; ctx.lineWidth = 1.4; rr(x - 17, y - 17, 34, 34, 6); ctx.stroke(); ctx.setLineDash([]);
+    if (label) { ctx.fillStyle = 'rgba(255,255,255,' + (a + 0.2).toFixed(2) + ')'; ctx.font = '800 8px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, x, y); ctx.textBaseline = 'alphabetic'; return; }
+    ctx.strokeStyle = 'rgba(255,255,255,' + (a + 0.1).toFixed(2) + ')'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - 4, y); ctx.lineTo(x + 4, y); ctx.moveTo(x, y - 4); ctx.lineTo(x, y + 4); ctx.stroke(); ctx.lineCap = 'butt';
+  }
+  function roomDepth(x0, y0, x1, y1) {
+    const d = 22, sides = [[x0, y0, x1 - x0, d, 0, y0, 0, y0 + d], [x0, y1 - d * 0.6, x1 - x0, d * 0.6, 0, y1, 0, y1 - d * 0.6], [x0, y0, d, y1 - y0, x0, 0, x0 + d, 0], [x1 - d, y0, d, y1 - y0, x1, 0, x1 - d, 0]];
+    for (const [x, y, w, h, gx0, gy0, gx1, gy1] of sides) { const g = ctx.createLinearGradient(gx0, gy0, gx1, gy1); g.addColorStop(0, 'rgba(0,0,0,.34)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h); }
+    ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(x0, y1 - 1.5, x1 - x0, 1.5);
   }
   function drawSideDoor(ar) {
     const s = ar.side; if (!isOpen(ar)) return;
@@ -12531,6 +12546,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     drawFloor(AREAS.keller);
     ctx.fillStyle = '#0D1117';
     for (let i = 0; i < 5; i++) { const c = colliders[i]; ctx.fillRect(c.x, c.y, c.w, c.h); }
+    for (let i = 0; i < 5; i++) { const c = colliders[i]; ctx.fillStyle = '#1A2129'; ctx.fillRect(c.x + 2, c.y + 2, c.w - 4, c.h - 4); ctx.fillStyle = 'rgba(255,255,255,.035)'; const hor = c.w > c.h; if (hor) { for (let x = c.x + 4, r = 0; x < c.x + c.w - 4; x += 14, r++) ctx.fillRect(x, c.y + 2, 1, c.h - 4); ctx.fillRect(c.x + 2, c.y + c.h / 2, c.w - 4, 1); } else { for (let y = c.y + 4; y < c.y + c.h - 4; y += 14) ctx.fillRect(c.x + 2, y, c.w - 4, 1); ctx.fillRect(c.x + c.w / 2, c.y + 2, 1, c.h - 4); } ctx.fillStyle = 'rgba(120,140,160,.22)'; ctx.fillRect(c.x, c.y, c.w, 1.2); ctx.fillRect(c.x, c.y, 1.2, c.h); } // v147: Mauerkrone mit Fugen
     ctx.fillStyle = '#2A3139'; ctx.fillRect(370, 508, 80, T); // Türschwelle
     ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.font = '800 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('KELLER', 326, 24); // v79: wie Scheune und Brauerei
     if (!GH_ON && !(roofA.keller > 0.5)) { const pu = 0.85 + 0.15 * Math.sin(gt * 2.5); ctx.fillStyle = '#20262E'; rr(222, 509, 120, 18, 5); ctx.fill(); ctx.strokeStyle = '#5FE584'; ctx.lineWidth = 1.4; rr(222, 509, 120, 18, 5); ctx.stroke();
@@ -14502,7 +14518,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 147; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 148; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -14823,6 +14839,9 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 148, date: 'Oktober 2026', title: 'Kaufen an der Tür', items: [
+      ['neu', '🚪', 'Tabakscheune und Chemielabor kannst du jetzt direkt vor der Tür kaufen: A drücken, kaufen, und gleich danach öffnet sich der Laden für das Gebäude'],
+      ['chg', '🧱', 'Räume wirken tiefer: Schatten an den Wänden, Kellerwände mit Mauerkrone, freie Plätze in Scheune, Labor und Mietraum mit Plus statt schwarzem Kasten'] ] },
     { v: 147, date: 'Oktober 2026', title: 'Keller und Stadt', items: [
       ['chg', '🪴', 'Keller: freie Topfplätze zeigen ein Plus (der nächste blinkt), die Stellflächen sind Gummimatten mit Symbol, das Gestell hat einen Metallrahmen und der Packtisch ist jetzt eine Holz-Werkbank'],
       ['chg', '🏮', 'Straße: neue Laternen mit Glaskopf, Parkbänke mit Lehne, Mülltonnen mit Deckel und Rädern, Hydranten, gelbe Briefkästen und ein Fahrradständer mit richtigem Rad'],
@@ -14830,9 +14849,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { v: 146, date: 'Oktober 2026', title: 'Joystick-Fix', items: [
       ['fix', '🕹️', 'Der Joystick bleibt nicht mehr hängen. Das Loslassen wird jetzt überall erkannt, auch wenn das Handy es verschluckt. Und falls doch mal etwas klemmt: einmal antippen reicht, kein Neustart mehr nötig'],
       ['chg', '⚡', 'Spezialwaffen neu gezeichnet: Elektroschocker mit Griff und Kontakten, Wasserpistole mit Wassertank, Zwille als Astgabel, Netzwerfer als Rohr, Blendgranate mit Sicherungsring'] ] },
-    { v: 145, date: 'Oktober 2026', title: 'Waffen-Glow-up', items: [
-      ['chg', '🏏', 'Die Schläger haben jetzt echte Schlägerform mit Griffband: Holz mit Maserung, Alu mit blauen Streifen, Neon mit Lichtwelle, Gold mit wanderndem Glanz und Funkeln'],
-      ['chg', '🍳', 'Bratpfanne mit Rand, Nieten und Glanz, Teleskopstab mit Gummigriff und Chromteilen, Quietsch-Hammer mit Faltenkopf, Schlagschild mit Metallrand und Nieten'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

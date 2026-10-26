@@ -267,6 +267,7 @@
       if (inField(fr, px, py)) cons('rack', 0, Math.hypot(px - (fr.x0 + fr.x1) / 2, py - (fr.y0 + fr.y1) / 2), 999, ar);
       if (inField(ft, px, py)) cons('table', 0, Math.hypot(px - (ft.x0 + ft.x1) / 2, py - (ft.y0 + ft.y1) / 2), 999, ar);
     }
+    for (const k of ['tabak', 'brau']) { const ar = AREAS[k], g = ar.gate; if (!g || isOpen(ar)) continue; const d = Math.hypot(px - (g.x + g.w / 2), py - (g.y + g.h / 2)); cons('areabuy', 0, d, 52, ar); } // v147: Scheune und Labor direkt an der Tuer kaufen
     // Kunden: wen du beliefern kannst, hat Vorrang (egal wer am naechsten steht). Der Kompass ist nur ein Hinweis und legt nichts fest.
     {
       let db = null, dd = 1e9, df = null, dfd = 1e9;
@@ -303,6 +304,7 @@
     if (tg.type === 'kiosk') return 'A  Kiosk: Gang-Look und Spezialwaffen';
     if (tg.type === 'treff') return !mp.on ? 'Kellertreff: erst online gehen (App Freunde)' : mp.slots.some(Boolean) ? 'A  Kellertreff: Freunde besuchen' : 'A  Kellertreff: noch kein Keller zum Besuchen';
     if (tg.type === 'bin') return binHint(tg.idx);
+    if (tg.type === 'areabuy') return G.rep < ar.needRep ? ar.name + ': zu kaufen ab Ruf ' + ar.needRep : 'A  ' + ar.name + ' kaufen (' + fmt(ar.cost) + ')';
     if (tg.type === 'lager') return !G.lager.own ? 'A  Mietraum mieten (' + fmt(LAGER_COST) + ')' : 'A  Mietraum betreten';
     if (tg.type === 'prpad') return 'A  Mieträume von Freunden besuchen';
     if (tg.type === 'apo' && !prReady()) return 'Apotheke: wegen Umbau geschlossen. Dr. Weber sitzt im Stadtpark';
@@ -405,6 +407,7 @@
       if (ar.key === 'pr' ? buyPrPotAt(tg.idx) : buyPotAt(ar, tg.idx)) msg(ar.key === 'pr' ? 'Neue Hydro-Station aufgestellt' : 'Neuer Topf aufgestellt'); else { sfx.bad(); msg('Zu wenig Geld für den Topf', true); }
     } else if (tg.type === 'sidedoor' && aEdge) {
       if (buySide(ar)) msg('Seitentür eingebaut'); else { sfx.bad(); msg('Zu wenig Geld für die Seitentür', true); }
+    } else if (tg.type === 'areabuy' && aEdge) { openPhone(); G.area = ar.key; tmSel = ''; tab = 'shop'; renderPhone(); sfx.ping(); // v147: Kaufen-Karte, danach direkt der Laden fuer das Gebaeude
     } else if (tg.type === 'lager' && aEdge) {
       if (G.lager.own) roomEnter(); else openLager(); // v89: Mietraum
     } else if (tg.type === 'prpad' && aEdge) { tab = 'prvisit'; openPhone(); sfx.ping();

@@ -251,7 +251,7 @@
       const n = Math.min(PR_MAX, P.n);
       for (let i = 0; i < PR_MAX; i++) {
         const q = PR_POTS[i], p = P.pots[i];
-        if (i >= n) { ctx.fillStyle = 'rgba(0,0,0,.35)'; rr(q.x - 18, q.y - 18, 36, 36, 6); ctx.fill(); if (!visit && i === n) { ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.font = '700 8px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(fmt(prPotCost(n)), q.x, q.y + 3); } continue; }
+        if (i >= n) { slotSq(q.x, q.y, !visit && i === n, 'rgba(60,70,84,.5)', !visit && i === n ? fmt(prPotCost(n)) : ''); continue; } // v147
         ctx.fillStyle = '#F2F4F7'; rr(q.x - 20, q.y - 20, 40, 40, 7); ctx.fill(); ctx.fillStyle = '#5BA8D8'; rr(q.x - 16, q.y - 16, 32, 32, 5); ctx.fill();
         ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(q.x - 6 + Math.sin(gt + i) * 2, q.y + 8, 4, 0, Math.PI); ctx.stroke();
         if (p.s) drawPlantAt(q.x, q.y, p, 0);

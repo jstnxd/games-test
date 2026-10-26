@@ -185,6 +185,9 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 148, date: 'Oktober 2026', title: 'Kaufen an der Tür', items: [
+      ['neu', '🚪', 'Tabakscheune und Chemielabor kannst du jetzt direkt vor der Tür kaufen: A drücken, kaufen, und gleich danach öffnet sich der Laden für das Gebäude'],
+      ['chg', '🧱', 'Räume wirken tiefer: Schatten an den Wänden, Kellerwände mit Mauerkrone, freie Plätze in Scheune, Labor und Mietraum mit Plus statt schwarzem Kasten'] ] },
     { v: 147, date: 'Oktober 2026', title: 'Keller und Stadt', items: [
       ['chg', '🪴', 'Keller: freie Topfplätze zeigen ein Plus (der nächste blinkt), die Stellflächen sind Gummimatten mit Symbol, das Gestell hat einen Metallrahmen und der Packtisch ist jetzt eine Holz-Werkbank'],
       ['chg', '🏮', 'Straße: neue Laternen mit Glaskopf, Parkbänke mit Lehne, Mülltonnen mit Deckel und Rädern, Hydranten, gelbe Briefkästen und ein Fahrradständer mit richtigem Rad'],
@@ -192,9 +195,6 @@
     { v: 146, date: 'Oktober 2026', title: 'Joystick-Fix', items: [
       ['fix', '🕹️', 'Der Joystick bleibt nicht mehr hängen. Das Loslassen wird jetzt überall erkannt, auch wenn das Handy es verschluckt. Und falls doch mal etwas klemmt: einmal antippen reicht, kein Neustart mehr nötig'],
       ['chg', '⚡', 'Spezialwaffen neu gezeichnet: Elektroschocker mit Griff und Kontakten, Wasserpistole mit Wassertank, Zwille als Astgabel, Netzwerfer als Rohr, Blendgranate mit Sicherungsring'] ] },
-    { v: 145, date: 'Oktober 2026', title: 'Waffen-Glow-up', items: [
-      ['chg', '🏏', 'Die Schläger haben jetzt echte Schlägerform mit Griffband: Holz mit Maserung, Alu mit blauen Streifen, Neon mit Lichtwelle, Gold mit wanderndem Glanz und Funkeln'],
-      ['chg', '🍳', 'Bratpfanne mit Rand, Nieten und Glanz, Teleskopstab mit Gummigriff und Chromteilen, Quietsch-Hammer mit Faltenkopf, Schlagschild mit Metallrand und Nieten'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
