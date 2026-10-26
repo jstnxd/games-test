@@ -1064,6 +1064,14 @@
   const carRgb = h => { const m = /^#?([0-9a-f]{6})$/i.exec(h || ''); if (!m) return '255,240,180'; const n = parseInt(m[1], 16); return (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255); };
   const shadeHex = (h, k) => { const m = /^#?([0-9a-f]{6})$/i.exec(h || ''); if (!m) return '#1D2129'; const n = parseInt(m[1], 16), f = c => clamp(Math.round(k < 0 ? c * (1 + k) : c + (255 - c) * k), 0, 255); return 'rgb(' + f(n >> 16) + ',' + f((n >> 8) & 255) + ',' + f(n & 255) + ')'; };
   const CAR_ROOF = { van: [-7, 18], mini: [-2.2, 8], muscle: [-4.5, 8], sport: [-1, 7], super: [-1, 7], pickup: [1.5, 6.5], suv: [-4, 15], lowrider: null, truck: [21, 7] };
+  function fleetLogo(L, W) { // v150: erfundene Spedition PFEILFRACHT: orangefarbener Pfeil um ein Paket
+    const x0 = -L / 2, x1 = L / 2 - 19;
+    ctx.fillStyle = '#F7F8FA'; ctx.fillRect(x0, -W / 2, x1 - x0, W); ctx.fillStyle = 'rgba(0,0,0,.05)'; for (let x = x0 + 4; x < x1; x += 5) ctx.fillRect(x, -W / 2, 1, W);
+    ctx.fillStyle = '#FF7A1A'; ctx.beginPath(); ctx.moveTo(x1 - 13, W / 2); ctx.lineTo(x1 - 5, W / 2); ctx.lineTo(x1 + 3, -W / 2); ctx.lineTo(x1 - 5, -W / 2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#1E2A4A'; ctx.beginPath(); ctx.moveTo(x1 - 4, W / 2); ctx.lineTo(x1 - 1.6, W / 2); ctx.lineTo(x1 + 6, -W / 2); ctx.lineTo(x1 + 3.6, -W / 2); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#1E2A4A'; ctx.fillRect(x0, -W / 2, x1 - x0, 1.4); ctx.fillRect(x0, W / 2 - 1.4, x1 - x0, 1.4);
+    const lx = x0 + 6.5; ctx.fillStyle = '#FF7A1A'; ctx.beginPath(); ctx.arc(lx, 0, 5.4, 0, TAU); ctx.fill(); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(lx - 2, -1.8, 4, 4); ctx.fillStyle = '#1E2A4A'; ctx.fillRect(lx - 2, -1.8, 4, 0.9); ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(lx, 0.2, 3.9, Math.PI * 0.85, Math.PI * 2.05); ctx.stroke(); ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.moveTo(lx + 4.3, 1.5); ctx.lineTo(lx + 2.2, 0.3); ctx.lineTo(lx + 5.4, -0.4); ctx.closePath(); ctx.fill();
+    const tx = (x0 + 13 + x1 - 13) / 2 + 1.6; ctx.save(); ctx.fillStyle = '#1E2A4A'; ctx.font = '900 3.3px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('PFEILFRACHT', tx, -1.4); ctx.fillStyle = '#FF7A1A'; ctx.font = '800 1.9px sans-serif'; ctx.fillText('SCHNELL · SICHER', tx, 2.2); ctx.restore();
+  }
   function drawCar(px, py, ang, id, ci, look, nod, tn, o) {
     o = o || {};
     const v = VEH_BY[id], L = v.len, W = v.wid, col = CAR_COLS[ci] || CAR_COLS[0], lk = look || (G && G.look) || DEF_LOOK, dk = o.night !== undefined ? o.night : lightK() > 0.3, tu = tn || [-1, -1, 0, -1, -1];
@@ -1094,7 +1102,7 @@
     if (id === 'muscle') { ctx.fillStyle = dark; rr(-L / 2 - 0.7, -W / 2 - 0.2, L + 1.4, W + 0.4, 6); ctx.fill(); }
     if (id === 'truck') { ctx.fillStyle = '#23272E'; ctx.fillRect(L / 2 - 20, -W / 2 + 4, 6, W - 8); } // Fahrgestell zwischen Kabine und Koffer
     bodyPath(); ctx.fillStyle = col; ctx.fill();
-    if (id === 'truck') { ctx.save(); ctx.beginPath(); ctx.rect(-L / 2, -W / 2, L - 19, W); ctx.clip(); ctx.fillStyle = '#E8ECF2'; ctx.fillRect(-L / 2, -W / 2, L - 19, W); ctx.fillStyle = 'rgba(0,0,0,.07)'; for (let x = -L / 2 + 4; x < L / 2 - 20; x += 5) ctx.fillRect(x, -W / 2, 1, W); ctx.fillStyle = col; ctx.fillRect(-L / 2, -W / 2, L - 19, 2.2); ctx.fillRect(-L / 2, W / 2 - 2.2, L - 19, 2.2); cannaLeaf(-6, 0, 9, '#3FAE6A', -Math.PI / 2); ctx.restore(); } // Koffer: hell, Seitenstreifen in Wagenfarbe, Logo auf dem Dach
+    if (id === 'truck') { ctx.save(); ctx.beginPath(); ctx.rect(-L / 2, -W / 2, L - 19, W); ctx.clip(); ctx.fillStyle = '#E8ECF2'; ctx.fillRect(-L / 2, -W / 2, L - 19, W); ctx.fillStyle = 'rgba(0,0,0,.07)'; for (let x = -L / 2 + 4; x < L / 2 - 20; x += 5) ctx.fillRect(x, -W / 2, 1, W); ctx.fillStyle = col; ctx.fillRect(-L / 2, -W / 2, L - 19, 2.2); ctx.fillRect(-L / 2, W / 2 - 2.2, L - 19, 2.2); if (o.fleet) fleetLogo(L, W); else cannaLeaf(-6, 0, 9, '#3FAE6A', -Math.PI / 2); ctx.restore(); } // Koffer: hell, Seitenstreifen in Wagenfarbe, Logo auf dem Dach
     // Lackeffekt und Folierung (auf die Karosserie beschnitten)
     const fin = T(6), wrap = T(5);
     if (fin >= 0 || wrap >= 0) {
@@ -1201,7 +1209,7 @@
     { const mx0 = { van: L / 2 - 13, mini: 1, muscle: -2, sport: -7, super: -10, pickup: 5, suv: 5.5, lowrider: 1.5, truck: L / 2 - 5.5 }[id] ?? 0, bm = id === 'truck' || id === 'van'; ctx.fillStyle = bm ? '#1D2129' : col; ctx.fillRect(mx0, -W / 2 - (bm ? 2.6 : 1.8), bm ? 1.8 : 2.6, bm ? 2.8 : 2); ctx.fillRect(mx0, W / 2 - 0.2, bm ? 1.8 : 2.6, bm ? 2.8 : 2); if (!bm) { ctx.fillStyle = dark; ctx.fillRect(mx0, -W / 2 - 1.8, 0.8, 2); ctx.fillRect(mx0, W / 2 - 0.2, 0.8, 2); } } // Seitenspiegel
     if (id === 'muscle') { ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(1, -W / 2 + 4); ctx.lineTo(3, -W / 2 + 7); ctx.stroke(); } // Spiegelung in der Scheibe
     // Fahrer
-    if (!nod) { const hx = { van: L / 2 - 10, mini: 1, muscle: -2, sport: -1, super: -1, pickup: 2, suv: 4, lowrider: -1, truck: L / 2 - 8 }[id] ?? -1, hy = -W * 0.18; if (lowr) { ctx.fillStyle = 'rgb(' + (lk.r | 0) + ',' + (lk.g | 0) + ',' + (lk.b | 0) + ')'; ctx.beginPath(); ctx.ellipse(hx - 1, hy, 2.4, 3.4, 0, 0, TAU); ctx.fill(); } ctx.fillStyle = SKIN_COLS[lk.skin | 0] || SKIN_COLS[1]; ctx.beginPath(); ctx.arc(hx, hy, 2.6, 0, TAU); ctx.fill(); ctx.fillStyle = HAIR_COLS[lk.hair | 0] || HAIR_COLS[1]; ctx.beginPath(); ctx.arc(hx - 0.8, hy, 2.6, Math.PI * 0.6, Math.PI * 1.4); ctx.fill(); }
+    // v150: keine Koepfe mehr im Auto (eigenes Auto und Verkehr)
     // Lichter
     ctx.fillStyle = hlCol;
     if (id === 'mini' || id === 'suv' || id === 'lowrider') { for (const sy of [-1, 1]) { ctx.beginPath(); ctx.arc(L / 2 - 1.6, sy * (W / 2 - 3.4), 1.6, 0, TAU); ctx.fill(); } }

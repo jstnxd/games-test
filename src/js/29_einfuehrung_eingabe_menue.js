@@ -185,6 +185,10 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 150, date: 'Oktober 2026', title: 'PFEILFRACHT', items: [
+      ['neu', '🚚', 'Die Lastwagen auf den Straßen gehören jetzt zur Spedition PFEILFRACHT: orange Kabine, weißer Koffer mit Pfeil-Logo und Schriftzug'],
+      ['chg', '🏎️', 'Jedes Auto im Verkehr ist anders getunt: Rennstreifen, Felgen, Spoiler, Folierung, Lackeffekt, getönte Scheiben, Lichtfarbe, Dachaufbau und Unterbodenbeleuchtung'],
+      ['chg', '🚗', 'In den Autos sind keine Köpfe mehr zu sehen, weder bei dir noch im Verkehr'] ] },
     { v: 149, date: 'Oktober 2026', title: 'Verkehr und Katzen', items: [
       ['chg', '🚗', 'Im Verkehr fahren jetzt dieselben Autos wie deine eigenen: Kleinwagen, Geländewagen, Sprinter, Pickup, Musclecar, Sportwagen, Lowrider und Lastwagen, in allen Farben und mit Fahrer'],
       ['fix', '🐈', 'Katzen laufen nicht mehr über Dächer und durch Häuser. Dabei kam ein Fehler raus: Hindernisse wurden an einigen Stellen gar nicht geprüft, auch Sammelsachen konnten deshalb in Gebäuden liegen'],
@@ -192,10 +196,6 @@
     { v: 148, date: 'Oktober 2026', title: 'Kaufen an der Tür', items: [
       ['neu', '🚪', 'Tabakscheune und Chemielabor kannst du jetzt direkt vor der Tür kaufen: A drücken, kaufen, und gleich danach öffnet sich der Laden für das Gebäude'],
       ['chg', '🧱', 'Räume wirken tiefer: Schatten an den Wänden, Kellerwände mit Mauerkrone, freie Plätze in Scheune, Labor und Mietraum mit Plus statt schwarzem Kasten'] ] },
-    { v: 147, date: 'Oktober 2026', title: 'Keller und Stadt', items: [
-      ['chg', '🪴', 'Keller: freie Topfplätze zeigen ein Plus (der nächste blinkt), die Stellflächen sind Gummimatten mit Symbol, das Gestell hat einen Metallrahmen und der Packtisch ist jetzt eine Holz-Werkbank'],
-      ['chg', '🏮', 'Straße: neue Laternen mit Glaskopf, Parkbänke mit Lehne, Mülltonnen mit Deckel und Rädern, Hydranten, gelbe Briefkästen und ein Fahrradständer mit richtigem Rad'],
-      ['chg', '🏠', 'Dächer: Firstziegel, Schattenkanten, Moos, Dachfenster, Satellitenschüsseln, Antennen und Klimageräte auf den Flachdächern'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

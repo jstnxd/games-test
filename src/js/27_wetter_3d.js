@@ -77,12 +77,27 @@
     }
   }
   const TMODELS = ['mini', 'mini', 'suv', 'van', 'pickup', 'muscle', 'suv', 'mini', 'sport', 'lowrider'];
+  function trafficTune(m, r, ci) { // v150: jedes Verkehrsauto bekommt eigenes Tuning (ohne Hanf-Motive)
+    let sd = Math.floor(r * 2147483646) + 1; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647, pick = n => Math.floor(rnd() * n), sporty = m === 'sport' || m === 'muscle' || m === 'lowrider';
+    const t = [-1, -1, 0, -1, -1, -1, -1, -1, -1, -1, -1]; if (m === 'truck') { if (rnd() < 0.4) t[4] = pick(TUNE.rims.cols.length); return t; }
+    if (rnd() < 0.12) t[0] = pick(TUNE.neon.cols.length);
+    if (rnd() < (sporty ? 0.45 : 0.08)) t[2] = 1 + pick(2);
+    if (rnd() < (sporty ? 0.45 : 0.18)) { let k = pick(CAR_COLS.length); if (k === ci) k = (k + 4) % CAR_COLS.length; t[3] = k; }
+    if (rnd() < 0.35) t[4] = pick(TUNE.rims.cols.length);
+    if (rnd() < 0.1) { const w = [0, 1, 2, 3, 5, 6]; t[5] = w[pick(w.length)]; }
+    if (rnd() < 0.3) t[6] = pick(3); else if (rnd() < 0.03) t[6] = 3;
+    if (rnd() < 0.3) t[7] = pick(TUNE.tint.cols.length);
+    if (rnd() < 0.12) t[8] = pick(TUNE.lights.cols.length);
+    if (sporty && rnd() < 0.3) t[9] = pick(TUNE.exhaust.cols.length);
+    if (rnd() < 0.14) { const rf = [0, 1, 2, 3]; t[10] = rf[pick(rf.length)]; }
+    return t;
+  }
   function drawTraffic() { // v148: Verkehr nutzt dieselben Automodelle wie die Spielerautos
     for (const c of traffic) {
       if (!inView(c.x, c.y, 70)) continue;
-      if (!c.m) { const r = (Math.abs(Math.sin((c.p || 0) * 12.9898 + c.vt * 78.233)) * 43758.5453) % 1; c.m = c.truck ? 'truck' : TMODELS[Math.floor(r * TMODELS.length)]; c.ci = Math.floor(((r * 7.31) % 1) * CAR_COLS.length); c.lk = Object.assign({}, DEF_LOOK, { skin: Math.floor(r * 97) % SKIN_COLS.length, hair: Math.floor(r * 53) % HAIR_COLS.length, r: 60 + Math.floor(r * 150), g: 60 + Math.floor(r * 911) % 150, b: 60 + Math.floor(r * 353) % 150 }); }
+      if (!c.m) { const r = (Math.abs(Math.sin((c.p || 0) * 12.9898 + c.vt * 78.233)) * 43758.5453) % 1; c.m = c.truck ? 'truck' : TMODELS[Math.floor(r * TMODELS.length)]; c.ci = Math.floor(((r * 7.31) % 1) * CAR_COLS.length); c.lk = Object.assign({}, DEF_LOOK, { skin: Math.floor(r * 97) % SKIN_COLS.length, hair: Math.floor(r * 53) % HAIR_COLS.length, r: 60 + Math.floor(r * 150), g: 60 + Math.floor(r * 911) % 150, b: 60 + Math.floor(r * 353) % 150 }); c.tn = trafficTune(c.m, r, c.ci); }
       const ang = c.h ? (c.dir > 0 ? 0 : Math.PI) : (c.dir > 0 ? Math.PI / 2 : -Math.PI / 2);
-      if (!VEH_BY[c.m]) { c.m = 'mini'; } drawCar(c.x, c.y - 2, ang, c.m, c.ci, c.lk, false, null, null);
+      if (!VEH_BY[c.m]) { c.m = 'mini'; } if (c.m === 'truck') c.ci = 7; drawCar(c.x, c.y - 2, ang, c.m, c.ci, c.lk, false, c.tn || null, c.m === 'truck' ? { fleet: true } : null);
       if (c.v < 8) { const L = VEH_BY[c.m].len, bx = c.x - Math.cos(ang) * (L / 2 + 1), by = c.y - Math.sin(ang) * (L / 2 + 1); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(bx, by, 0, bx, by, 10); g.addColorStop(0, 'rgba(255,60,60,.45)'); g.addColorStop(1, 'rgba(255,60,60,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bx, by, 10, 0, TAU); ctx.fill(); ctx.restore(); }
     }
   }

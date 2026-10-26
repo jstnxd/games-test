@@ -874,7 +874,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 149 · Neu: echte Autos im Verkehr, Katzen bleiben auf dem Boden<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 150 · Neu: Spedition PFEILFRACHT, getunte Autos im Verkehr<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -10618,6 +10618,14 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const carRgb = h => { const m = /^#?([0-9a-f]{6})$/i.exec(h || ''); if (!m) return '255,240,180'; const n = parseInt(m[1], 16); return (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255); };
   const shadeHex = (h, k) => { const m = /^#?([0-9a-f]{6})$/i.exec(h || ''); if (!m) return '#1D2129'; const n = parseInt(m[1], 16), f = c => clamp(Math.round(k < 0 ? c * (1 + k) : c + (255 - c) * k), 0, 255); return 'rgb(' + f(n >> 16) + ',' + f((n >> 8) & 255) + ',' + f(n & 255) + ')'; };
   const CAR_ROOF = { van: [-7, 18], mini: [-2.2, 8], muscle: [-4.5, 8], sport: [-1, 7], super: [-1, 7], pickup: [1.5, 6.5], suv: [-4, 15], lowrider: null, truck: [21, 7] };
+  function fleetLogo(L, W) { // v150: erfundene Spedition PFEILFRACHT: orangefarbener Pfeil um ein Paket
+    const x0 = -L / 2, x1 = L / 2 - 19;
+    ctx.fillStyle = '#F7F8FA'; ctx.fillRect(x0, -W / 2, x1 - x0, W); ctx.fillStyle = 'rgba(0,0,0,.05)'; for (let x = x0 + 4; x < x1; x += 5) ctx.fillRect(x, -W / 2, 1, W);
+    ctx.fillStyle = '#FF7A1A'; ctx.beginPath(); ctx.moveTo(x1 - 13, W / 2); ctx.lineTo(x1 - 5, W / 2); ctx.lineTo(x1 + 3, -W / 2); ctx.lineTo(x1 - 5, -W / 2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#1E2A4A'; ctx.beginPath(); ctx.moveTo(x1 - 4, W / 2); ctx.lineTo(x1 - 1.6, W / 2); ctx.lineTo(x1 + 6, -W / 2); ctx.lineTo(x1 + 3.6, -W / 2); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#1E2A4A'; ctx.fillRect(x0, -W / 2, x1 - x0, 1.4); ctx.fillRect(x0, W / 2 - 1.4, x1 - x0, 1.4);
+    const lx = x0 + 6.5; ctx.fillStyle = '#FF7A1A'; ctx.beginPath(); ctx.arc(lx, 0, 5.4, 0, TAU); ctx.fill(); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(lx - 2, -1.8, 4, 4); ctx.fillStyle = '#1E2A4A'; ctx.fillRect(lx - 2, -1.8, 4, 0.9); ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(lx, 0.2, 3.9, Math.PI * 0.85, Math.PI * 2.05); ctx.stroke(); ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.moveTo(lx + 4.3, 1.5); ctx.lineTo(lx + 2.2, 0.3); ctx.lineTo(lx + 5.4, -0.4); ctx.closePath(); ctx.fill();
+    const tx = (x0 + 13 + x1 - 13) / 2 + 1.6; ctx.save(); ctx.fillStyle = '#1E2A4A'; ctx.font = '900 3.3px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('PFEILFRACHT', tx, -1.4); ctx.fillStyle = '#FF7A1A'; ctx.font = '800 1.9px sans-serif'; ctx.fillText('SCHNELL · SICHER', tx, 2.2); ctx.restore();
+  }
   function drawCar(px, py, ang, id, ci, look, nod, tn, o) {
     o = o || {};
     const v = VEH_BY[id], L = v.len, W = v.wid, col = CAR_COLS[ci] || CAR_COLS[0], lk = look || (G && G.look) || DEF_LOOK, dk = o.night !== undefined ? o.night : lightK() > 0.3, tu = tn || [-1, -1, 0, -1, -1];
@@ -10648,7 +10656,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (id === 'muscle') { ctx.fillStyle = dark; rr(-L / 2 - 0.7, -W / 2 - 0.2, L + 1.4, W + 0.4, 6); ctx.fill(); }
     if (id === 'truck') { ctx.fillStyle = '#23272E'; ctx.fillRect(L / 2 - 20, -W / 2 + 4, 6, W - 8); } // Fahrgestell zwischen Kabine und Koffer
     bodyPath(); ctx.fillStyle = col; ctx.fill();
-    if (id === 'truck') { ctx.save(); ctx.beginPath(); ctx.rect(-L / 2, -W / 2, L - 19, W); ctx.clip(); ctx.fillStyle = '#E8ECF2'; ctx.fillRect(-L / 2, -W / 2, L - 19, W); ctx.fillStyle = 'rgba(0,0,0,.07)'; for (let x = -L / 2 + 4; x < L / 2 - 20; x += 5) ctx.fillRect(x, -W / 2, 1, W); ctx.fillStyle = col; ctx.fillRect(-L / 2, -W / 2, L - 19, 2.2); ctx.fillRect(-L / 2, W / 2 - 2.2, L - 19, 2.2); cannaLeaf(-6, 0, 9, '#3FAE6A', -Math.PI / 2); ctx.restore(); } // Koffer: hell, Seitenstreifen in Wagenfarbe, Logo auf dem Dach
+    if (id === 'truck') { ctx.save(); ctx.beginPath(); ctx.rect(-L / 2, -W / 2, L - 19, W); ctx.clip(); ctx.fillStyle = '#E8ECF2'; ctx.fillRect(-L / 2, -W / 2, L - 19, W); ctx.fillStyle = 'rgba(0,0,0,.07)'; for (let x = -L / 2 + 4; x < L / 2 - 20; x += 5) ctx.fillRect(x, -W / 2, 1, W); ctx.fillStyle = col; ctx.fillRect(-L / 2, -W / 2, L - 19, 2.2); ctx.fillRect(-L / 2, W / 2 - 2.2, L - 19, 2.2); if (o.fleet) fleetLogo(L, W); else cannaLeaf(-6, 0, 9, '#3FAE6A', -Math.PI / 2); ctx.restore(); } // Koffer: hell, Seitenstreifen in Wagenfarbe, Logo auf dem Dach
     // Lackeffekt und Folierung (auf die Karosserie beschnitten)
     const fin = T(6), wrap = T(5);
     if (fin >= 0 || wrap >= 0) {
@@ -10755,7 +10763,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { const mx0 = { van: L / 2 - 13, mini: 1, muscle: -2, sport: -7, super: -10, pickup: 5, suv: 5.5, lowrider: 1.5, truck: L / 2 - 5.5 }[id] ?? 0, bm = id === 'truck' || id === 'van'; ctx.fillStyle = bm ? '#1D2129' : col; ctx.fillRect(mx0, -W / 2 - (bm ? 2.6 : 1.8), bm ? 1.8 : 2.6, bm ? 2.8 : 2); ctx.fillRect(mx0, W / 2 - 0.2, bm ? 1.8 : 2.6, bm ? 2.8 : 2); if (!bm) { ctx.fillStyle = dark; ctx.fillRect(mx0, -W / 2 - 1.8, 0.8, 2); ctx.fillRect(mx0, W / 2 - 0.2, 0.8, 2); } } // Seitenspiegel
     if (id === 'muscle') { ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(1, -W / 2 + 4); ctx.lineTo(3, -W / 2 + 7); ctx.stroke(); } // Spiegelung in der Scheibe
     // Fahrer
-    if (!nod) { const hx = { van: L / 2 - 10, mini: 1, muscle: -2, sport: -1, super: -1, pickup: 2, suv: 4, lowrider: -1, truck: L / 2 - 8 }[id] ?? -1, hy = -W * 0.18; if (lowr) { ctx.fillStyle = 'rgb(' + (lk.r | 0) + ',' + (lk.g | 0) + ',' + (lk.b | 0) + ')'; ctx.beginPath(); ctx.ellipse(hx - 1, hy, 2.4, 3.4, 0, 0, TAU); ctx.fill(); } ctx.fillStyle = SKIN_COLS[lk.skin | 0] || SKIN_COLS[1]; ctx.beginPath(); ctx.arc(hx, hy, 2.6, 0, TAU); ctx.fill(); ctx.fillStyle = HAIR_COLS[lk.hair | 0] || HAIR_COLS[1]; ctx.beginPath(); ctx.arc(hx - 0.8, hy, 2.6, Math.PI * 0.6, Math.PI * 1.4); ctx.fill(); }
+    // v150: keine Koepfe mehr im Auto (eigenes Auto und Verkehr)
     // Lichter
     ctx.fillStyle = hlCol;
     if (id === 'mini' || id === 'suv' || id === 'lowrider') { for (const sy of [-1, 1]) { ctx.beginPath(); ctx.arc(L / 2 - 1.6, sy * (W / 2 - 3.4), 1.6, 0, TAU); ctx.fill(); } }
@@ -13602,12 +13610,27 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     }
   }
   const TMODELS = ['mini', 'mini', 'suv', 'van', 'pickup', 'muscle', 'suv', 'mini', 'sport', 'lowrider'];
+  function trafficTune(m, r, ci) { // v150: jedes Verkehrsauto bekommt eigenes Tuning (ohne Hanf-Motive)
+    let sd = Math.floor(r * 2147483646) + 1; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647, pick = n => Math.floor(rnd() * n), sporty = m === 'sport' || m === 'muscle' || m === 'lowrider';
+    const t = [-1, -1, 0, -1, -1, -1, -1, -1, -1, -1, -1]; if (m === 'truck') { if (rnd() < 0.4) t[4] = pick(TUNE.rims.cols.length); return t; }
+    if (rnd() < 0.12) t[0] = pick(TUNE.neon.cols.length);
+    if (rnd() < (sporty ? 0.45 : 0.08)) t[2] = 1 + pick(2);
+    if (rnd() < (sporty ? 0.45 : 0.18)) { let k = pick(CAR_COLS.length); if (k === ci) k = (k + 4) % CAR_COLS.length; t[3] = k; }
+    if (rnd() < 0.35) t[4] = pick(TUNE.rims.cols.length);
+    if (rnd() < 0.1) { const w = [0, 1, 2, 3, 5, 6]; t[5] = w[pick(w.length)]; }
+    if (rnd() < 0.3) t[6] = pick(3); else if (rnd() < 0.03) t[6] = 3;
+    if (rnd() < 0.3) t[7] = pick(TUNE.tint.cols.length);
+    if (rnd() < 0.12) t[8] = pick(TUNE.lights.cols.length);
+    if (sporty && rnd() < 0.3) t[9] = pick(TUNE.exhaust.cols.length);
+    if (rnd() < 0.14) { const rf = [0, 1, 2, 3]; t[10] = rf[pick(rf.length)]; }
+    return t;
+  }
   function drawTraffic() { // v148: Verkehr nutzt dieselben Automodelle wie die Spielerautos
     for (const c of traffic) {
       if (!inView(c.x, c.y, 70)) continue;
-      if (!c.m) { const r = (Math.abs(Math.sin((c.p || 0) * 12.9898 + c.vt * 78.233)) * 43758.5453) % 1; c.m = c.truck ? 'truck' : TMODELS[Math.floor(r * TMODELS.length)]; c.ci = Math.floor(((r * 7.31) % 1) * CAR_COLS.length); c.lk = Object.assign({}, DEF_LOOK, { skin: Math.floor(r * 97) % SKIN_COLS.length, hair: Math.floor(r * 53) % HAIR_COLS.length, r: 60 + Math.floor(r * 150), g: 60 + Math.floor(r * 911) % 150, b: 60 + Math.floor(r * 353) % 150 }); }
+      if (!c.m) { const r = (Math.abs(Math.sin((c.p || 0) * 12.9898 + c.vt * 78.233)) * 43758.5453) % 1; c.m = c.truck ? 'truck' : TMODELS[Math.floor(r * TMODELS.length)]; c.ci = Math.floor(((r * 7.31) % 1) * CAR_COLS.length); c.lk = Object.assign({}, DEF_LOOK, { skin: Math.floor(r * 97) % SKIN_COLS.length, hair: Math.floor(r * 53) % HAIR_COLS.length, r: 60 + Math.floor(r * 150), g: 60 + Math.floor(r * 911) % 150, b: 60 + Math.floor(r * 353) % 150 }); c.tn = trafficTune(c.m, r, c.ci); }
       const ang = c.h ? (c.dir > 0 ? 0 : Math.PI) : (c.dir > 0 ? Math.PI / 2 : -Math.PI / 2);
-      if (!VEH_BY[c.m]) { c.m = 'mini'; } drawCar(c.x, c.y - 2, ang, c.m, c.ci, c.lk, false, null, null);
+      if (!VEH_BY[c.m]) { c.m = 'mini'; } if (c.m === 'truck') c.ci = 7; drawCar(c.x, c.y - 2, ang, c.m, c.ci, c.lk, false, c.tn || null, c.m === 'truck' ? { fleet: true } : null);
       if (c.v < 8) { const L = VEH_BY[c.m].len, bx = c.x - Math.cos(ang) * (L / 2 + 1), by = c.y - Math.sin(ang) * (L / 2 + 1); ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(bx, by, 0, bx, by, 10); g.addColorStop(0, 'rgba(255,60,60,.45)'); g.addColorStop(1, 'rgba(255,60,60,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bx, by, 10, 0, TAU); ctx.fill(); ctx.restore(); }
     }
   }
@@ -14528,7 +14551,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 149; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 150; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -14849,6 +14872,10 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 150, date: 'Oktober 2026', title: 'PFEILFRACHT', items: [
+      ['neu', '🚚', 'Die Lastwagen auf den Straßen gehören jetzt zur Spedition PFEILFRACHT: orange Kabine, weißer Koffer mit Pfeil-Logo und Schriftzug'],
+      ['chg', '🏎️', 'Jedes Auto im Verkehr ist anders getunt: Rennstreifen, Felgen, Spoiler, Folierung, Lackeffekt, getönte Scheiben, Lichtfarbe, Dachaufbau und Unterbodenbeleuchtung'],
+      ['chg', '🚗', 'In den Autos sind keine Köpfe mehr zu sehen, weder bei dir noch im Verkehr'] ] },
     { v: 149, date: 'Oktober 2026', title: 'Verkehr und Katzen', items: [
       ['chg', '🚗', 'Im Verkehr fahren jetzt dieselben Autos wie deine eigenen: Kleinwagen, Geländewagen, Sprinter, Pickup, Musclecar, Sportwagen, Lowrider und Lastwagen, in allen Farben und mit Fahrer'],
       ['fix', '🐈', 'Katzen laufen nicht mehr über Dächer und durch Häuser. Dabei kam ein Fehler raus: Hindernisse wurden an einigen Stellen gar nicht geprüft, auch Sammelsachen konnten deshalb in Gebäuden liegen'],
@@ -14856,10 +14883,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { v: 148, date: 'Oktober 2026', title: 'Kaufen an der Tür', items: [
       ['neu', '🚪', 'Tabakscheune und Chemielabor kannst du jetzt direkt vor der Tür kaufen: A drücken, kaufen, und gleich danach öffnet sich der Laden für das Gebäude'],
       ['chg', '🧱', 'Räume wirken tiefer: Schatten an den Wänden, Kellerwände mit Mauerkrone, freie Plätze in Scheune, Labor und Mietraum mit Plus statt schwarzem Kasten'] ] },
-    { v: 147, date: 'Oktober 2026', title: 'Keller und Stadt', items: [
-      ['chg', '🪴', 'Keller: freie Topfplätze zeigen ein Plus (der nächste blinkt), die Stellflächen sind Gummimatten mit Symbol, das Gestell hat einen Metallrahmen und der Packtisch ist jetzt eine Holz-Werkbank'],
-      ['chg', '🏮', 'Straße: neue Laternen mit Glaskopf, Parkbänke mit Lehne, Mülltonnen mit Deckel und Rädern, Hydranten, gelbe Briefkästen und ein Fahrradständer mit richtigem Rad'],
-      ['chg', '🏠', 'Dächer: Firstziegel, Schattenkanten, Moos, Dachfenster, Satellitenschüsseln, Antennen und Klimageräte auf den Flachdächern'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
