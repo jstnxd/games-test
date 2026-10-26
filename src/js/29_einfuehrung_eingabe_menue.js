@@ -175,13 +175,15 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 142, date: 'Oktober 2026', title: 'Umhänge und Auren', items: [
+      ['chg', '🦸', 'Umhänge sieht man jetzt auch von vorn: das Futter schaut links und rechts heraus, vorn sitzt eine Spange. Von hinten und von der Seite sind sie länger und wehen beim Laufen'],
+      ['chg', '🎒', 'Rucksack, Jetpack, Geldsack, Skateboard, Gitarre und Katana schauen von vorn hinter der Figur hervor, mit Riemen über der Brust'],
+      ['chg', '✨', 'Sieben Auren neu: Goldschimmer mit Lichtstrahlen, Blauer Schein mit Kometen, Rosa Nebel, Gewitter mit Wolke, Regen und Blitzen, Rauchschwaden, Wasserwirbel als Spirale und Leere mit Sog am Boden'] ] },
     { v: 141, date: 'Oktober 2026', title: 'Deko-Glow-up Teil 2', items: [
       ['chg', '🪴', 'Noch 13 Deko-Artikel sind neu gezeichnet: Kaktus mit Blüte, Zimmerpflanze, Palme, alle vier Teppiche mit Mustern und Fransen, Sitzsack, Regal mit Büchern und Pflanze, Kühlschrank mit Magneten, Ventilator, der hin und her schwenkt, Globus und Staffelei mit Landschaftsbild'] ] },
     { v: 140, date: 'Oktober 2026', title: 'Deko-Glow-up', items: [
       ['chg', '✨', 'Zehn Deko-Klassiker sind neu gezeichnet: Stehlampe mit Lichtkegel, Lavalampe mit weichen Blasen in wechselnden Farben, tropfende Kerzen, Neonschild mit Leuchtröhren, Steinkamin mit Sims und Funkenflug, Fernseher mit Fußballspiel, Aquarium mit drei Fischen und Pflanzen, Lautsprecher mit LED-Ring und Schallwellen, Sofa mit Kissen und Decke, Tisch mit dampfenden Tassen'],
       ['info', '🌙', 'Nachts leuchten Lampen, Kamin, Neonschild, Fernseher und Lautsprecher stärker'] ] },
-    { v: 139, date: 'Oktober 2026', title: 'Discokugel', items: [
-      ['chg', '🪩', 'Die Discokugel ist neu: echte Spiegelfacetten, die sich drehen, Glanzblitze, Kette an der Decke und bunte Lichtpunkte, die über den Boden wandern. Nachts mit farbigen Lichtstrahlen'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
