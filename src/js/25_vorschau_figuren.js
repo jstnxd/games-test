@@ -319,6 +319,14 @@
     }
     return false;
   }
+  // v153: Stadtausschnitt fuer den Gaming-Bildschirm, wird einmal ausserhalb des Bildaufbaus gezeichnet
+  let MON = null;
+  function monShot() {
+    if (MON) return MON.c || null; MON = { c: null };
+    setTimeout(() => { const c = document.createElement('canvas'); c.width = 600; c.height = 300; const x = c.getContext('2d'); const sv = [viewX0, viewX1, viewY0, viewY1], s0 = ctx;
+      try { ctx = x; x.scale(0.5, 0.5); x.translate(-900, -640); viewX0 = 900; viewX1 = 2100; viewY0 = 640; viewY1 = 1240; drawWorld(); MON.c = c; } catch (e) { MON.c = null; } finally { ctx = s0; viewX0 = sv[0]; viewX1 = sv[1]; viewY0 = sv[2]; viewY1 = sv[3]; } }, 60);
+    return null;
+  }
   // ---------- v144: Glow-up Kleinkram, Klavier, Arcade, Kaffee und neue Spielautomaten ----------
   function drawDec144(id, t) {
     const F = c => { ctx.fillStyle = c; }, C = (x, y, r) => { ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }, sh = (w, y) => { F('rgba(0,0,0,.24)'); ell(0, y, w, 3.6); ctx.fill(); }, nt = typeof lightK === 'function' ? lightK() : 0;
@@ -451,16 +459,15 @@
         pad(-28 - (dir < 0 && u > 0.8 ? 2 : 0), 7, '#D33F3F', 0.5); pad(28 + (dir > 0 && u > 0.8 ? 2 : 0), -7, '#20262E', -2.6); return true; }
       case 'gamingpc': { sh(27, 17); F('#3A2A1E'); rr(-27, -6, 54, 21, 2); ctx.fill(); F(lg(0, -6, 0, 14, [[0, '#2A2F38'], [1, '#1A1D24']])); rr(-26.4, -5.6, 52.8, 20, 1.6); ctx.fill();
         const scr = (x, w, k) => { F('#0E1014'); rr(x, -19, w, 13, 1.2); ctx.fill(); ctx.save(); ctx.beginPath(); ctx.rect(x + 1, -18, w - 2, 11); ctx.clip();
-          if (k === 0) { // v152: auf dem linken Bildschirm laeuft Kellergruen im Kleinen
-            const ox = (t * 4) % 24, oy = (t * 1.5) % 16, sx = x + 1, sy = -18, sw = w - 2, shh = 11;
-            F('#1B3123'); ctx.fillRect(sx, sy, sw, shh);
-            F('#2C333C'); for (let gx = -24; gx < sw + 24; gx += 12) ctx.fillRect(sx + gx - ox % 12, sy, 2.4, shh); for (let gy = -16; gy < shh + 16; gy += 8) ctx.fillRect(sx, sy + gy - oy % 8, sw, 1.8);
-            const HC = ['#C9A07A', '#B57A8A', '#8AA0C0', '#A0B57A'];
-            for (let gx = -24; gx < sw + 24; gx += 12) for (let gy = -16; gy < shh + 16; gy += 8) { const hx = sx + gx - ox % 12 + 3.4, hy = sy + gy - oy % 8 + 2.6, idx = Math.abs(Math.floor((gx + ox - ox % 12) / 12) * 3 + Math.floor((gy + oy - oy % 8) / 8)) % 4; F(HC[idx]); ctx.fillRect(hx, hy, 6, 3.6); F('#7A3B36'); ctx.fillRect(hx, hy, 6, 1.4); if (idx === 2) { F('#3E8A4E'); ctx.beginPath(); ctx.arc(hx + 7.4, hy + 4.6, 1, 0, TAU); ctx.fill(); } }
-            const px = sx + sw / 2, py = sy + shh / 2 + 0.6, st = Math.sin(t * 12) > 0;
-            ctx.save(); ctx.translate(px, py); ctx.scale(0.7, 0.7); F('rgba(0,0,0,.35)'); ctx.fillRect(-0.9, 1.6, 1.8, 0.5); F('#35405F'); ctx.fillRect(-0.7 + (st ? 0.3 : 0), 0.6, 0.5, 1.1); ctx.fillRect(0.2 - (st ? 0.3 : 0), 0.6, 0.5, 1.1); F('#3FAE6A'); ctx.fillRect(-0.8, -0.8, 1.6, 1.5); F('#F2C9A8'); ctx.fillRect(-0.6, -2, 1.2, 1.2); F('#5A3A24'); ctx.fillRect(-0.6, -2.2, 1.2, 0.5); ctx.restore();
-            F('rgba(10,14,20,.7)'); ctx.fillRect(sx, sy, sw, 2.2); ctx.save(); ctx.translate(sx, sy + 1.15); ctx.scale(0.5, 0.5); F('#5FE584'); ctx.font = '900 2.3px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText('KELLERGRÜN', 1.2, 0); F('#FFD24A'); ctx.textAlign = 'right'; ctx.fillText('€ ' + (1000 + Math.floor(t * 7) % 9000), sw * 2 - 1.2, 0); ctx.restore(); ctx.textBaseline = 'alphabetic';
-            F('rgba(20,26,34,.7)'); ctx.fillRect(sx + sw - 3.6, sy + 2.6, 3, 2); F('#5FE584'); ctx.fillRect(sx + sw - 2.4, sy + 3.4, 0.6, 0.6); }
+          if (k === 0) { // v153: echtes Kellergruen auf dem Bildschirm: einmal fertig gezeichneter Stadtausschnitt, der vorbeizieht, darauf deine eigene Figur
+            const sx = x + 1, sy = -18, sw = w - 2, shh = 11, img = monShot();
+            F('#17261F'); ctx.fillRect(sx, sy, sw, shh);
+            if (img) { const u = (t * 0.035) % 2, pp = u < 1 ? u : 2 - u, dir = u < 1 ? 1 : -1, iw = 118, ih = iw * shh / sw, ix = 10 + pp * (img.width - iw - 20), iy = 40 + (Math.sin(t * 0.21) * 0.5 + 0.5) * (img.height - ih - 80); ctx.drawImage(img, ix, iy, iw, ih, sx, sy, sw, shh);
+              const fs = sw / (iw * 2); ctx.save(); ctx.translate(sx + sw / 2, sy + shh / 2 + 1); ctx.scale(fs, fs); try { drawFigure(0, 0, dir > 0 ? 0 : Math.PI, t * 9, Object.assign({}, G && G.look ? G.look : DEF_LOOK, { aura: 'none' })); } catch (e) {} ctx.restore(); }
+            ctx.save(); ctx.translate(sx, sy); ctx.scale(0.25, 0.25); ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; F('rgba(255,255,255,.75)'); ctx.font = '800 2.6px sans-serif'; ctx.fillText('GELD', 1.6, 2.4); F('#FFB547'); ctx.font = '900 5px sans-serif'; ctx.fillText('€ ' + ((G && G.money) ? Math.floor(G.money).toLocaleString('de-DE') : '60'), 1.6, 6.4);
+            ctx.textAlign = 'center'; F('#FFFFFF'); ctx.font = '900 3.6px sans-serif'; ctx.fillText('Tag ' + ((G && G.day) || 1) + ' · ' + String(Math.floor(((G && G.time) || 540) / 60) % 24).padStart(2, '0') + ':' + String(Math.floor((G && G.time) || 540) % 60).padStart(2, '0'), sw * 2, 2.6);
+            F('rgba(14,18,24,.85)'); rr(sw * 4 - 15, 1.4, 13.6, 9, 1.6); ctx.fill(); F('#2A3A30'); ctx.fillRect(sw * 4 - 14, 2.2, 11.8, 7.4); F('#5FE584'); for (let q = 0; q < 6; q++) { ctx.beginPath(); ctx.arc(sw * 4 - 12.4 + (q * 3.7) % 10, 3.4 + (q * 2.3) % 5.4, 0.55, 0, TAU); ctx.fill(); } F('#FFB547'); ctx.beginPath(); ctx.arc(sw * 4 - 8, 5.8, 0.8, 0, TAU); ctx.fill();
+            F('rgba(255,181,71,.85)'); ctx.beginPath(); ctx.arc(sw * 4 - 8, shh * 4 - 7, 4.4, 0, TAU); ctx.fill(); F('#3A2408'); ctx.font = '900 3.4px sans-serif'; ctx.fillText('A', sw * 4 - 8, shh * 4 - 6.8); F('rgba(255,255,255,.18)'); ctx.beginPath(); ctx.arc(8, shh * 4 - 8, 5, 0, TAU); ctx.fill(); ctx.restore(); ctx.textBaseline = 'alphabetic'; }
           else { F('#1A1F2A'); ctx.fillRect(x + 1, -18, w - 2, 11); for (let i = 0; i < 5; i++) { const y = -16.6 + i * 2 - ((t * 1.2) % 2); F(['#5FE584', '#4BC8FF', '#FF8FD0', '#FFD24A', '#C9D2DC'][(i + Math.floor(t * 1.2)) % 5]); ctx.fillRect(x + 2, y, 1.4, 1); F('rgba(220,230,240,.7)'); ctx.fillRect(x + 4, y, 3 + ((i * 5 + Math.floor(t * 1.2)) % 7), 1); } }
           ctx.restore(); F('#0E1014'); ctx.fillRect(x + w / 2 - 1, -6.4, 2, 1.4); };
         scr(-21, 19, 0); scr(1, 17, 1); if (nt > 0.05) add(() => { const g = ctx.createRadialGradient(-4, -6, 2, -4, -6, 26); g.addColorStop(0, 'rgba(120,180,255,' + (0.16 * nt).toFixed(3) + ')'); g.addColorStop(1, 'rgba(120,180,255,0)'); F(g); C(-4, -6, 26); });
