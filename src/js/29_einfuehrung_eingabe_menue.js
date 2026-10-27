@@ -185,14 +185,12 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 160, date: 'Oktober 2026', title: 'Eigene Räume', items: [
+      ['fix', '🚪', 'Im Hinterzimmer, im Gang-HQ und im Mietraum ist draußen nichts mehr zu sehen: keine Straße, keine Blüten, keine Laternen. Es wirkt nicht mehr, als wärst du im Keller'] ] },
     { v: 159, date: 'Oktober 2026', title: 'Iron Gym', items: [
       ['fix', '🏋️', 'Ins Hinterzimmer des Iron Gym kommst du jetzt auch vom Iron Gym Express im Stadtpark. Bist du zu weit weg, sagt dir das Spiel, wo der Eingang ist'] ] },
     { v: 158, date: 'Oktober 2026', title: 'Startmenü', items: [
       ['fix', '🖤', 'Das Startmenü flackert nicht mehr kurz schwarz'] ] },
-    { v: 157, date: 'Oktober 2026', title: 'Turbo', items: [
-      ['chg', '⚡', 'Viel weniger Rechenarbeit pro Bild: Gebäude, Autos, Laternen, Brücken, Haltestellen, Keller-Boden und Deko werden einmal gezeichnet und danach als fertiges Bild gezeigt. In der Stadt etwa 60 % weniger Zeichenbefehle, im Casino über 80 %'],
-      ['chg', '🌙', 'Nachts schneller: Lichter ohne ständig neu berechnete Farbverläufe, ein unsichtbarer Lichtschein wird nicht mehr gezeichnet'],
-      ['chg', '🔋', 'Aussehen bleibt gleich, nur die Arbeit dahinter ist weniger'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

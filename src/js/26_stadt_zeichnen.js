@@ -969,6 +969,7 @@
         ctx.fillStyle = 'rgba(120,190,110,.14)'; ctx.beginPath(); ctx.arc(x - r * .3, y - r * .3, r * .45, 0, TAU); ctx.fill(); }
     }
   }
+  const inOwnRoom = () => !GH_ON && state === 'play' && player.fl >= 2; // v160: Raeume, die woanders liegen als der Keller
   function drawWorld() {
     // Boden
     const tiles = drawGroundTiles(); // v136: Boden aus fertigen Kacheln, Bewegtes darüber
@@ -991,7 +992,7 @@
       const h = HOUSES[hi]; if (h.x > viewX1 + 20 || h.x + h.w < viewX0 - 20 || h.y > viewY1 + 40 || h.y + h.h < viewY0 - 40) continue;
       if (h.gang) drawGangHouse(h, hi); else drawHouse(h, hi);
     }
-    calDrawWorld(); // v155: Kürbisse, Lichterketten, Baum, Laternen, Ostereier
+    if (!inOwnRoom()) calDrawWorld(); // v155: Kürbisse, Lichterketten, Baum, Laternen, Ostereier
     drawGangSign(); drawGhqSign(); // v121
     drawRaid(); // v100
     drawKeller();
@@ -1028,9 +1029,11 @@
       ctx.strokeStyle = 'rgba(16,21,28,.45)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 16, -Math.PI / 2, -Math.PI / 2 + TAU * (o.t / o.tmax)); ctx.stroke();
       ctx.restore();
     }
+    if (!inOwnRoom()) { // v160: in Hinterzimmer, HQ und Mietraum keine Strasse drumherum
     if (state !== 'edit') drawAmbientObjects();
     if (state !== 'edit') drawDetailsObjects(); // v94
     drawTraffic(); drawBridgeTraffic(); drawCars(); drawBusVeh(); // v104
+    }
     drawZoneLocks();
     drawWorkers();
     // Streifen
@@ -1079,6 +1082,7 @@
     mpDraw();
     drawCloudShadows(); // v94
     drawSeasonFx(); // v81
+    if (inOwnRoom()) { const I = AREAS.keller.IN, m = T + 2; ctx.fillStyle = '#07090D'; ctx.beginPath(); ctx.rect(viewX0 - 60, viewY0 - 60, viewX1 - viewX0 + 120, viewY1 - viewY0 + 120); ctx.rect(I.x0 - m, I.y0 - m, I.x1 - I.x0 + 2 * m, I.y1 - I.y0 + 2 * m); ctx.fill('evenodd'); } // v160: Hinterzimmer, Gang-HQ und Mietraum: draussen ist nichts zu sehen
     if (myEm.id) drawEmoteBubble(player.x, player.y - 8, myEm.id, myEm.t);
     if (myEm.tx) drawSayBubble(player.x, player.y - 8, myEm.tx, myEm.t);
     // Schwebetexte

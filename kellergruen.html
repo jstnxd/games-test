@@ -877,7 +877,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 159 · Neu: deutlich flüssiger, echte Kalender-Events<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 160 · Neu: deutlich flüssiger, echte Kalender-Events<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -13842,6 +13842,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         ctx.fillStyle = 'rgba(120,190,110,.14)'; ctx.beginPath(); ctx.arc(x - r * .3, y - r * .3, r * .45, 0, TAU); ctx.fill(); }
     }
   }
+  const inOwnRoom = () => !GH_ON && state === 'play' && player.fl >= 2; // v160: Raeume, die woanders liegen als der Keller
   function drawWorld() {
     // Boden
     const tiles = drawGroundTiles(); // v136: Boden aus fertigen Kacheln, Bewegtes darüber
@@ -13864,7 +13865,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       const h = HOUSES[hi]; if (h.x > viewX1 + 20 || h.x + h.w < viewX0 - 20 || h.y > viewY1 + 40 || h.y + h.h < viewY0 - 40) continue;
       if (h.gang) drawGangHouse(h, hi); else drawHouse(h, hi);
     }
-    calDrawWorld(); // v155: Kürbisse, Lichterketten, Baum, Laternen, Ostereier
+    if (!inOwnRoom()) calDrawWorld(); // v155: Kürbisse, Lichterketten, Baum, Laternen, Ostereier
     drawGangSign(); drawGhqSign(); // v121
     drawRaid(); // v100
     drawKeller();
@@ -13901,9 +13902,11 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ctx.strokeStyle = 'rgba(16,21,28,.45)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 16, -Math.PI / 2, -Math.PI / 2 + TAU * (o.t / o.tmax)); ctx.stroke();
       ctx.restore();
     }
+    if (!inOwnRoom()) { // v160: in Hinterzimmer, HQ und Mietraum keine Strasse drumherum
     if (state !== 'edit') drawAmbientObjects();
     if (state !== 'edit') drawDetailsObjects(); // v94
     drawTraffic(); drawBridgeTraffic(); drawCars(); drawBusVeh(); // v104
+    }
     drawZoneLocks();
     drawWorkers();
     // Streifen
@@ -13952,6 +13955,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     mpDraw();
     drawCloudShadows(); // v94
     drawSeasonFx(); // v81
+    if (inOwnRoom()) { const I = AREAS.keller.IN, m = T + 2; ctx.fillStyle = '#07090D'; ctx.beginPath(); ctx.rect(viewX0 - 60, viewY0 - 60, viewX1 - viewX0 + 120, viewY1 - viewY0 + 120); ctx.rect(I.x0 - m, I.y0 - m, I.x1 - I.x0 + 2 * m, I.y1 - I.y0 + 2 * m); ctx.fill('evenodd'); } // v160: Hinterzimmer, Gang-HQ und Mietraum: draussen ist nichts zu sehen
     if (myEm.id) drawEmoteBubble(player.x, player.y - 8, myEm.id, myEm.t);
     if (myEm.tx) drawSayBubble(player.x, player.y - 8, myEm.tx, myEm.t);
     // Schwebetexte
@@ -14469,7 +14473,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     }
     if (lightK() > 0.02) {
       ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); }
-      ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc)); drawLights(); ctx.restore(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc)); if (!inOwnRoom()) drawLights(); ctx.restore(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); // v160: keine Strassenlichter um Hinterzimmer und HQ
       if (room) { // warme Deckenlampen im Raum
         ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc)); ctx.globalCompositeOperation = 'lighter';
         const I = lastRoom, w = I.x1 - I.x0, h = I.y1 - I.y0, a = 0.1 * lightK() * indoorK;
@@ -14477,7 +14481,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         ctx.globalCompositeOperation = 'source-over'; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       }
     }
-    { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } drawRain(); ctx.restore(); } // v59: kein Regen in Raeumen
+    { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } if (!inOwnRoom()) drawRain(); ctx.restore(); } // v59: kein Regen in Raeumen
     if (state === 'play' || state === 'menu') calDrawSky(); // v155: Feuerwerk, Herzen, Konfetti
     if (state === 'play') drawVignette(); // v94
     if (state === 'play') drawCopLights(); // v127: Polizeilicht statt Balken
@@ -15011,7 +15015,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 159; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 160; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -15338,14 +15342,12 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 160, date: 'Oktober 2026', title: 'Eigene Räume', items: [
+      ['fix', '🚪', 'Im Hinterzimmer, im Gang-HQ und im Mietraum ist draußen nichts mehr zu sehen: keine Straße, keine Blüten, keine Laternen. Es wirkt nicht mehr, als wärst du im Keller'] ] },
     { v: 159, date: 'Oktober 2026', title: 'Iron Gym', items: [
       ['fix', '🏋️', 'Ins Hinterzimmer des Iron Gym kommst du jetzt auch vom Iron Gym Express im Stadtpark. Bist du zu weit weg, sagt dir das Spiel, wo der Eingang ist'] ] },
     { v: 158, date: 'Oktober 2026', title: 'Startmenü', items: [
       ['fix', '🖤', 'Das Startmenü flackert nicht mehr kurz schwarz'] ] },
-    { v: 157, date: 'Oktober 2026', title: 'Turbo', items: [
-      ['chg', '⚡', 'Viel weniger Rechenarbeit pro Bild: Gebäude, Autos, Laternen, Brücken, Haltestellen, Keller-Boden und Deko werden einmal gezeichnet und danach als fertiges Bild gezeigt. In der Stadt etwa 60 % weniger Zeichenbefehle, im Casino über 80 %'],
-      ['chg', '🌙', 'Nachts schneller: Lichter ohne ständig neu berechnete Farbverläufe, ein unsichtbarer Lichtschein wird nicht mehr gezeichnet'],
-      ['chg', '🔋', 'Aussehen bleibt gleich, nur die Arbeit dahinter ist weniger'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

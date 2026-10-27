@@ -498,7 +498,7 @@
     }
     if (lightK() > 0.02) {
       ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); }
-      ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc)); drawLights(); ctx.restore(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc)); if (!inOwnRoom()) drawLights(); ctx.restore(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); // v160: keine Strassenlichter um Hinterzimmer und HQ
       if (room) { // warme Deckenlampen im Raum
         ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc)); ctx.globalCompositeOperation = 'lighter';
         const I = lastRoom, w = I.x1 - I.x0, h = I.y1 - I.y0, a = 0.1 * lightK() * indoorK;
@@ -506,7 +506,7 @@
         ctx.globalCompositeOperation = 'source-over'; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       }
     }
-    { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } drawRain(); ctx.restore(); } // v59: kein Regen in Raeumen
+    { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } if (!inOwnRoom()) drawRain(); ctx.restore(); } // v59: kein Regen in Raeumen
     if (state === 'play' || state === 'menu') calDrawSky(); // v155: Feuerwerk, Herzen, Konfetti
     if (state === 'play') drawVignette(); // v94
     if (state === 'play') drawCopLights(); // v127: Polizeilicht statt Balken
