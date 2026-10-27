@@ -877,7 +877,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 157 · Neu: deutlich flüssiger, echte Kalender-Events<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 158 · Neu: deutlich flüssiger, echte Kalender-Events<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -14446,6 +14446,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     { const pad = state === 'play' ? vh * (port ? 0.3 : 0.2) : 0; cam.y += (clamp(ty, YMIN + vh / 2 - pad, WH - vh / 2 + pad) - cam.y) * fk(0.15); } // v110: am Kartenrand etwas weiter schauen, damit die Figur nicht unter der Anzeige verschwindet
     if (troll.shake > gt && !LOFX) { cam.x += (Math.random() - 0.5) * 14; cam.y += (Math.random() - 0.5) * 14; }
     if (r3On()) { clr(); r3Frame(); return; } // v90: 3D-Ansicht
+    if (state !== 'play') clr(); // v158: im Startmenü wie früher vorher löschen
     ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc));
     drawWorld();
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -15010,7 +15011,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 157; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 158; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -15135,7 +15136,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   let lastDraw = 0, capOn = false, snowCls = false, frameNo = 0; try { capOn = localStorage.getItem('kellergruen.cap') === '1'; } catch (e) {}
   function setCap(on) { capOn = !!on; try { localStorage.setItem('kellergruen.cap', capOn ? '1' : '0'); } catch (e) {} }
   function frame(ts) { // v123: ein Fehler in einem Bild haelt das Spiel nicht mehr an
-    const over = (state === 'play' && (phoneOpen || chatOpen || bigOpen)) || state === 'menu', gap = over ? 1000 / 30 : capOn ? 1000 / 60 : 0; // v157: auch das Startmenü mit 30 Bildern
+    const over = state === 'play' && (phoneOpen || chatOpen || bigOpen), gap = over ? 1000 / 30 : capOn ? 1000 / 60 : 0; // v158: Startmenü wieder ohne Drosselung (flackerte auf dem iPhone)
     if (gap && ts - lastDraw < gap - 1.5) { requestAnimationFrame(frame); return; } lastDraw = ts; frameNo++;
     { const sn = seaSnow() && state === 'play'; if (sn !== snowCls) { snowCls = sn; try { document.body.classList.toggle('snowy', sn); } catch (e) {} } } // v154
     try { frameBody(ts); } catch (e) { if (typeof window.__kgErr !== 'function') throw e; try { window.__kgErr(e && e.message, 'frame', e && e.stack); } catch (x) {} }
@@ -15337,17 +15338,14 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 158, date: 'Oktober 2026', title: 'Startmenü', items: [
+      ['fix', '🖤', 'Das Startmenü flackert nicht mehr kurz schwarz'] ] },
     { v: 157, date: 'Oktober 2026', title: 'Turbo', items: [
       ['chg', '⚡', 'Viel weniger Rechenarbeit pro Bild: Gebäude, Autos, Laternen, Brücken, Haltestellen, Keller-Boden und Deko werden einmal gezeichnet und danach als fertiges Bild gezeigt. In der Stadt etwa 60 % weniger Zeichenbefehle, im Casino über 80 %'],
       ['chg', '🌙', 'Nachts schneller: Lichter ohne ständig neu berechnete Farbverläufe, ein unsichtbarer Lichtschein wird nicht mehr gezeichnet'],
-      ['chg', '🔋', 'Startmenü läuft mit 30 Bildern pro Sekunde und schont den Akku. Aussehen bleibt gleich'] ] },
+      ['chg', '🔋', 'Aussehen bleibt gleich, nur die Arbeit dahinter ist weniger'] ] },
     { v: 156, date: 'Oktober 2026', title: 'Geburtstag', items: [
       ['chg', '🎂', 'Kellergrün hat am 11. Oktober Geburtstag, an dem Tag gibt es Konfetti und ein Geschenk'] ] },
-    { v: 155, date: 'Oktober 2026', title: 'Echte Events', items: [
-      ['neu', '🎃', 'Halloween (24.10.–1.11.): Kürbisse vor den Häusern, an jeder Kürbis-Tür A drücken für Süßes oder Saures. Nach 8 Häusern gibt es den Kürbiskopf'],
-      ['neu', '🎄', 'Advent mit Türchen-Kalender, Lichterketten und Weihnachtsbaum, 🎆 Silvester-Feuerwerk, 💘 Valentinstag, 🐣 Ostereier-Suche, 🏷️ Black Friday, 🎪 Sommerfest und 🎂 Kellergrün-Geburtstag'],
-      ['neu', '🏮', 'Jeden Abend ab 22 Uhr Nachtmarkt mit Rabatten, freitags ab 18 Uhr Wochenend-Bonus. Alles nach deiner echten Uhr, unter Karriere → Events'],
-      ['chg', '🐞', 'Das Erntefest und die Ostereier im Spiel-Frühling sind raus (jetzt echte Events). Im Frühling sammelst du Marienkäfer'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

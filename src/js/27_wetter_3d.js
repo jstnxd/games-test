@@ -475,6 +475,7 @@
     { const pad = state === 'play' ? vh * (port ? 0.3 : 0.2) : 0; cam.y += (clamp(ty, YMIN + vh / 2 - pad, WH - vh / 2 + pad) - cam.y) * fk(0.15); } // v110: am Kartenrand etwas weiter schauen, damit die Figur nicht unter der Anzeige verschwindet
     if (troll.shake > gt && !LOFX) { cam.x += (Math.random() - 0.5) * 14; cam.y += (Math.random() - 0.5) * 14; }
     if (r3On()) { clr(); r3Frame(); return; } // v90: 3D-Ansicht
+    if (state !== 'play') clr(); // v158: im Startmenü wie früher vorher löschen
     ctx.setTransform(DPR * sc, 0, 0, DPR * sc, DPR * (W / 2 - cam.x * sc), DPR * (H / 2 - cam.y * sc));
     drawWorld();
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);

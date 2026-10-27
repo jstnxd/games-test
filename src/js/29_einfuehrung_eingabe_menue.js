@@ -185,17 +185,14 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 158, date: 'Oktober 2026', title: 'Startmenü', items: [
+      ['fix', '🖤', 'Das Startmenü flackert nicht mehr kurz schwarz'] ] },
     { v: 157, date: 'Oktober 2026', title: 'Turbo', items: [
       ['chg', '⚡', 'Viel weniger Rechenarbeit pro Bild: Gebäude, Autos, Laternen, Brücken, Haltestellen, Keller-Boden und Deko werden einmal gezeichnet und danach als fertiges Bild gezeigt. In der Stadt etwa 60 % weniger Zeichenbefehle, im Casino über 80 %'],
       ['chg', '🌙', 'Nachts schneller: Lichter ohne ständig neu berechnete Farbverläufe, ein unsichtbarer Lichtschein wird nicht mehr gezeichnet'],
-      ['chg', '🔋', 'Startmenü läuft mit 30 Bildern pro Sekunde und schont den Akku. Aussehen bleibt gleich'] ] },
+      ['chg', '🔋', 'Aussehen bleibt gleich, nur die Arbeit dahinter ist weniger'] ] },
     { v: 156, date: 'Oktober 2026', title: 'Geburtstag', items: [
       ['chg', '🎂', 'Kellergrün hat am 11. Oktober Geburtstag, an dem Tag gibt es Konfetti und ein Geschenk'] ] },
-    { v: 155, date: 'Oktober 2026', title: 'Echte Events', items: [
-      ['neu', '🎃', 'Halloween (24.10.–1.11.): Kürbisse vor den Häusern, an jeder Kürbis-Tür A drücken für Süßes oder Saures. Nach 8 Häusern gibt es den Kürbiskopf'],
-      ['neu', '🎄', 'Advent mit Türchen-Kalender, Lichterketten und Weihnachtsbaum, 🎆 Silvester-Feuerwerk, 💘 Valentinstag, 🐣 Ostereier-Suche, 🏷️ Black Friday, 🎪 Sommerfest und 🎂 Kellergrün-Geburtstag'],
-      ['neu', '🏮', 'Jeden Abend ab 22 Uhr Nachtmarkt mit Rabatten, freitags ab 18 Uhr Wochenend-Bonus. Alles nach deiner echten Uhr, unter Karriere → Events'],
-      ['chg', '🐞', 'Das Erntefest und die Ostereier im Spiel-Frühling sind raus (jetzt echte Events). Im Frühling sammelst du Marienkäfer'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
