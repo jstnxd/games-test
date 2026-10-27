@@ -303,10 +303,10 @@
   };
   const bizOwn = k => !!(G && G.biz && G.biz[k] && G.biz[k].own);
   const atMakler = () => atB(MAKLER_AT);
-  let bizIn = null;
+  let bizIn = null, bizDoor = null;
   function bizBuy(k) { const d = BIZ[k]; if (!d || bizOwn(k) || !atMakler() || G.rep < d.rep || !canPay(d.cost)) return false; payCost(d.cost); G.biz[k] = { own: true, dirty: 0, done: 0, acc: 0, inv: [0, 0, 0, 0, 0, 0, 0, 0, 0] }; sfx.buy(); save(); msg(d.ic + ' ' + d.name + ' gehört jetzt dir! Im Hinterzimmer kannst du Geld waschen.'); return true; }
-  function bizEnter(k) { if (!bizOwn(k)) return false; const q = BIZ[k].at(); if (Math.hypot(player.x - q.x, player.y - q.y) > 60) return false; if (riding()) toggleRide(false); bizIn = k; player.fl = 3; player.x = BIZ_EXIT.x; player.y = BIZ_EXIT.y - 40; cam.x = player.x; cam.y = player.y; petSnap(); sfx.put(); closePhone(); msg(BIZ[k].ic + ' Hinterzimmer · Am Tresor wäschst du Bargeld'); return true; }
-  function bizLeave() { const k = bizIn || 'pizza', q = BIZ[k].at(); player.fl = 0; bizIn = null; player.x = q.x; player.y = q.y; cam.x = player.x; cam.y = player.y; petSnap(); sfx.put(); return true; }
+  function bizEnter(k) { if (!bizOwn(k)) return false; const qs = [BIZ[k].at()].concat(k === 'gym' ? [GYM2_AT] : []), q = qs.find(e => Math.hypot(player.x - e.x, player.y - e.y) <= 60); if (!q) { msg(BIZ[k].ic + ' Das Hinterzimmer erreichst du direkt am Eingang von ' + BIZ[k].name + (k === 'gym' ? ' oder vom Iron Gym Express' : ''), true); return false; } if (riding()) toggleRide(false); bizIn = k; bizDoor = { x: q.x, y: q.y }; player.fl = 3; player.x = BIZ_EXIT.x; player.y = BIZ_EXIT.y - 40; cam.x = player.x; cam.y = player.y; petSnap(); sfx.put(); closePhone(); msg(BIZ[k].ic + ' Hinterzimmer · Am Tresor wäschst du Bargeld'); return true; } // v159: auch vom Iron Gym Express, sonst Hinweis statt nichts
+  function bizLeave() { const k = bizIn || 'pizza', q = bizDoor || BIZ[k].at(); bizDoor = null; player.fl = 0; bizIn = null; player.x = q.x; player.y = q.y; cam.x = player.x; cam.y = player.y; petSnap(); sfx.put(); return true; } // v159: dort raus, wo du rein bist
   function bizDeposit(k, v) { const d = BIZ[k], b = G.biz[k]; if (!d || !b || player.fl !== 3 || bizIn !== k) return false; v = Math.floor(Math.min(v, G.money, d.cap - b.dirty)); if (v <= 0) return false; G.money -= v; b.dirty += v; sfx.cash(); save(); return true; }
   function bizTick(dt) { // wäscht pro Spielstunde einen festen Betrag, abzüglich Gebühr, direkt aufs Konto
     if (!G || !G.biz) return; const gm = dt * timeRate(G.time);
