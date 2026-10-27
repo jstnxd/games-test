@@ -102,7 +102,8 @@
     if (c.tn[hk] === 8) giveWear('pumpkin', 'Halloween-Belohnung');
     save();
   }
-  function drawPumpkin(x, y, s, lit, seed) {
+  function drawPumpkin(x, y, s, lit, seed) { ctx.save(); ctx.translate(x, y); sprDraw('pk' + s + (lit ? 1 : 0), -9 * s, -8 * s, 18 * s, 16 * s, () => drawPumpkin0(0, 0, s, lit)); ctx.restore(); } // v157: als fertiges Bild
+  function drawPumpkin0(x, y, s, lit) {
     ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x + 1, y + 4 * s, 7 * s, 2.4 * s, 0, 0, TAU); ctx.fill();
     for (const [dx, w, c] of [[-3.6, 3.8, '#D9661C'], [3.6, 3.8, '#D9661C'], [0, 4.4, '#F07F24']]) { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x + dx * s, y, w * s, 4.6 * s, 0, 0, TAU); ctx.fill(); }
     ctx.fillStyle = 'rgba(255,220,150,.35)'; ctx.beginPath(); ctx.ellipse(x - 1.4 * s, y - 2.4 * s, 1.6 * s, 1 * s, -0.4, 0, TAU); ctx.fill();
@@ -188,10 +189,11 @@
     ctx.fillStyle = '#FFD24A'; ctx.save(); ctx.translate(x, y - 46); ctx.beginPath(); for (let i = 0; i < 10; i++) { const r = i % 2 ? 2.6 : 6, a = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath(); ctx.fill(); ctx.restore();
   }
   const LAN_R = 196, LAN_N = 22;
-  function drawLanterns(nm, dk) { // Laternenkette rund um den Brunnenplatz
+  function drawLanterns(nm, dk) { const f = FOUNTAIN, m = LAN_R + 14; bcDraw('lan' + (nm ? 1 : 0) + (dk ? 1 : 0), f.x - m, f.y - m, 2 * m, 2 * m, () => drawLanterns0(nm, dk)); } // v157: als fertiges Bild
+  function drawLanterns0(nm, dk) { // Laternenkette rund um den Brunnenplatz
     const f = FOUNTAIN; ctx.strokeStyle = 'rgba(40,32,28,.75)'; ctx.lineWidth = 1; ctx.beginPath();
     for (let i = 0; i <= LAN_N * 3; i++) { const a = i / (LAN_N * 3) * TAU, sag = Math.abs(Math.sin(i / 3 * Math.PI)) * 7; ctx.lineTo(f.x + Math.cos(a) * (LAN_R - sag), f.y + Math.sin(a) * (LAN_R - sag) * 0.96); } ctx.stroke();
-    for (let i = 0; i < LAN_N; i++) { const a = (i + 0.5) / LAN_N * TAU, x = f.x + Math.cos(a) * (LAN_R - 7), y = f.y + Math.sin(a) * (LAN_R - 7) * 0.96 + Math.sin(gt * 1.6 + i) * 0.6;
+    for (let i = 0; i < LAN_N; i++) { const a = (i + 0.5) / LAN_N * TAU, x = f.x + Math.cos(a) * (LAN_R - 7), y = f.y + Math.sin(a) * (LAN_R - 7) * 0.96;
       if (nm) { ctx.fillStyle = ['#E8402E', '#FF8A2A', '#E8402E', '#FFC23A'][i % 4]; ctx.beginPath(); ctx.ellipse(x, y, 3.6, 4.6, 0, 0, TAU); ctx.fill(); ctx.fillStyle = dk ? 'rgba(255,230,160,.85)' : 'rgba(255,255,255,.3)'; ctx.fillRect(x - 1.2, y - 3, 2.4, 6); ctx.fillStyle = '#3A2A1E'; ctx.fillRect(x - 2.2, y - 5.6, 4.4, 1.4); ctx.fillRect(x - 2.2, y + 4.2, 4.4, 1.4); }
       else { ctx.fillStyle = ['#FF5C5C', '#FFD24A', '#5CB8FF', '#63FF9A', '#FF9CC8'][i % 5]; ctx.beginPath(); ctx.arc(x, y + 2, 2.2, 0, TAU); ctx.fill(); } }
   }

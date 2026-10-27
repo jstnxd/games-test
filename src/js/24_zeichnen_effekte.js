@@ -410,33 +410,40 @@
   function roofWin(x, y, w, h, lit, frame) { ctx.fillStyle = lit ? '#FFE3A0' : '#7FA9C4'; ctx.fillRect(x, y, w, h); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fillRect(x, y, w, 3); ctx.strokeStyle = frame || '#E8E2D0'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h); ctx.beginPath(); ctx.moveTo(x + w / 2, y); ctx.lineTo(x + w / 2, y + h); ctx.stroke(); }
   function roofKeller(B, ar) { // Mietshaus, darunter dein Keller: Eingang mit Treppe nach unten
     const dk = lightK() > 0.25, g = bldBase(B, 1, 74, '#D8CDB8', '#8E4B3A', 'tile');
-    ctx.fillStyle = 'rgba(0,0,0,.12)'; for (let x = B.x + 40; x < B.x + B.w; x += 110) { ctx.fillStyle = '#5A3A30'; ctx.fillRect(x, g.ry0 + 40, 22, 30); ctx.fillStyle = '#3E2A22'; ctx.fillRect(x - 2, g.ry0 + 38, 26, 5); } // Schornsteine
-    ctx.fillStyle = '#C9CED6'; ctx.beginPath(); ctx.arc(B.x + B.w - 70, g.ry0 + 70, 13, 0, TAU); ctx.fill(); ctx.fillStyle = '#9AA3AD'; ctx.fillRect(B.x + B.w - 71, g.ry0 + 70, 2, 20); // Satellitenschuessel
-    for (let k = 0; k < 4; k++) { const wx = B.x + 26 + k * ((B.w - 52) / 4); if (Math.abs(wx + 22 - DOOR.x) < 70) continue; roofWin(wx, g.fy0 + 16, 44, 34, dk && (k * 7 + 3) % 3 !== 0); ctx.fillStyle = '#5A8A4A'; ctx.fillRect(wx - 2, g.fy0 + 50, 48, 5); for (let q = 0; q < 5; q++) { ctx.fillStyle = ['#FF7A9A', '#FFD24A', '#B58CFF'][q % 3]; ctx.fillRect(wx + 3 + q * 9, g.fy0 + 47, 4, 4); } }
-    const dx = DOOR.x, by = B.y + B.h; ctx.fillStyle = '#2A2420'; ctx.fillRect(dx - 34, g.fy0 + 8, 68, by - g.fy0 - 8); // Kellerabgang
-    for (let k = 0; k < 6; k++) { ctx.fillStyle = k % 2 ? '#6B6258' : '#7E746A'; ctx.fillRect(dx - 30, g.fy0 + 12 + k * 10, 60, 6); }
-    ctx.fillStyle = '#3E3832'; ctx.fillRect(dx - 36, g.fy0 + 8, 4, by - g.fy0 - 8); ctx.fillRect(dx + 32, g.fy0 + 8, 4, by - g.fy0 - 8); // Gelaender
+    bcDraw('rk' + (dk ? 1 : 0) + (seaSnow() ? 'w' : ''), B.x - 4, B.y - 4, B.w + 8, B.h + 8, () => { // v157: fester Teil als Bild
+      ctx.fillStyle = 'rgba(0,0,0,.12)'; for (let x = B.x + 40; x < B.x + B.w; x += 110) { ctx.fillStyle = '#5A3A30'; ctx.fillRect(x, g.ry0 + 40, 22, 30); ctx.fillStyle = '#3E2A22'; ctx.fillRect(x - 2, g.ry0 + 38, 26, 5); } // Schornsteine
+      ctx.fillStyle = '#C9CED6'; ctx.beginPath(); ctx.arc(B.x + B.w - 70, g.ry0 + 70, 13, 0, TAU); ctx.fill(); ctx.fillStyle = '#9AA3AD'; ctx.fillRect(B.x + B.w - 71, g.ry0 + 70, 2, 20); // Satellitenschuessel
+      for (let k = 0; k < 4; k++) { const wx = B.x + 26 + k * ((B.w - 52) / 4); if (Math.abs(wx + 22 - DOOR.x) < 70) continue; roofWin(wx, g.fy0 + 16, 44, 34, dk && (k * 7 + 3) % 3 !== 0); ctx.fillStyle = '#5A8A4A'; ctx.fillRect(wx - 2, g.fy0 + 50, 48, 5); for (let q = 0; q < 5; q++) { ctx.fillStyle = ['#FF7A9A', '#FFD24A', '#B58CFF'][q % 3]; ctx.fillRect(wx + 3 + q * 9, g.fy0 + 47, 4, 4); } }
+      const dx = DOOR.x, by = B.y + B.h; ctx.fillStyle = '#2A2420'; ctx.fillRect(dx - 34, g.fy0 + 8, 68, by - g.fy0 - 8); // Kellerabgang
+      for (let k = 0; k < 6; k++) { ctx.fillStyle = k % 2 ? '#6B6258' : '#7E746A'; ctx.fillRect(dx - 30, g.fy0 + 12 + k * 10, 60, 6); }
+      ctx.fillStyle = '#3E3832'; ctx.fillRect(dx - 36, g.fy0 + 8, 4, by - g.fy0 - 8); ctx.fillRect(dx + 32, g.fy0 + 8, 4, by - g.fy0 - 8); // Gelaender
+    });
+    const dx = DOOR.x, by = B.y + B.h;
     const pu = 0.85 + 0.15 * Math.sin(gt * 2.5); ctx.fillStyle = '#20262E'; rr(dx - 52, g.fy0 - 18, 104, 22, 6); ctx.fill(); ctx.strokeStyle = 'rgba(95,229,132,' + pu.toFixed(2) + ')'; ctx.lineWidth = 2; rr(dx - 52, g.fy0 - 18, 104, 22, 6); ctx.stroke();
     signTxt('▼ DEIN KELLER', dx, g.fy0 - 7, '900 11px sans-serif', 'rgba(95,229,132,' + pu.toFixed(2) + ')');
     if (dk) glow(dx, by - 6, 40, '255,220,150', 0.18);
   }
   function roofBarn(B, ar) { // rote Holzscheune mit grossem Tor
     const open = isOpen(ar), dk = lightK() > 0.25, g = bldBase(B, 1, 80, '#A63A2E', '#5E4A3A', 'tile');
-    ctx.fillStyle = 'rgba(0,0,0,.14)'; for (let x = B.x + 8; x < B.x + B.w; x += 16) ctx.fillRect(x, g.fy0, 2, 80); // Bretter
-    ctx.fillStyle = '#8A7A68'; ctx.fillRect(B.x + B.w / 2 - 3, g.ry0, 6, g.rh); // First
-    ctx.fillStyle = 'rgba(0,0,0,.16)'; for (let y = g.ry0 + 14; y < g.ry0 + g.rh; y += 28) ctx.fillRect(B.x, y, B.w, 2); // Dachbahnen
-    for (const [fx, fy] of [[0.2, 0.18], [0.8, 0.18], [0.2, 0.62], [0.8, 0.62]]) { const x = B.x + B.w * fx, y = g.ry0 + g.rh * fy; ctx.fillStyle = '#3E3228'; ctx.fillRect(x - 18, y - 12, 36, 24); ctx.fillStyle = lightK() > 0.25 && open ? '#FFE3A0' : '#7FA9C4'; ctx.fillRect(x - 15, y - 9, 30, 18); ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(x - 15, y - 9, 30, 3); } // Dachfenster
+    bcDraw('rb' + (open ? 1 : 0) + (dk ? 1 : 0), B.x - 4, B.y - 4, B.w + 8, B.h + 8, () => { // v157: alles außer dem Wetterhahn als Bild
+      ctx.fillStyle = 'rgba(0,0,0,.14)'; for (let x = B.x + 8; x < B.x + B.w; x += 16) ctx.fillRect(x, g.fy0, 2, 80); // Bretter
+      ctx.fillStyle = '#8A7A68'; ctx.fillRect(B.x + B.w / 2 - 3, g.ry0, 6, g.rh); // First
+      ctx.fillStyle = 'rgba(0,0,0,.16)'; for (let y = g.ry0 + 14; y < g.ry0 + g.rh; y += 28) ctx.fillRect(B.x, y, B.w, 2); // Dachbahnen
+      for (const [fx, fy] of [[0.2, 0.18], [0.8, 0.18], [0.2, 0.62], [0.8, 0.62]]) { const x = B.x + B.w * fx, y = g.ry0 + g.rh * fy; ctx.fillStyle = '#3E3228'; ctx.fillRect(x - 18, y - 12, 36, 24); ctx.fillStyle = lightK() > 0.25 && open ? '#FFE3A0' : '#7FA9C4'; ctx.fillRect(x - 15, y - 9, 30, 18); ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(x - 15, y - 9, 30, 3); } // Dachfenster
+      for (const vx of [B.x + B.w * 0.25, B.x + B.w * 0.75]) { ctx.fillStyle = '#4A3A2E'; ctx.fillRect(vx - 14, g.ry0 + g.rh * 0.35, 28, 22); ctx.fillStyle = '#2A2018'; for (let q = 0; q < 3; q++) ctx.fillRect(vx - 11, g.ry0 + g.rh * 0.35 + 4 + q * 6, 22, 2); } // Lueftung
+      const dx = DOOR2.x, by = B.y + B.h; ctx.fillStyle = open ? '#3A2A1E' : '#6E4A32'; ctx.fillRect(dx - 44, g.fy0 + 10, 88, by - g.fy0 - 10);
+      ctx.strokeStyle = '#E8E2D0'; ctx.lineWidth = 3; ctx.strokeRect(dx - 44, g.fy0 + 10, 88, by - g.fy0 - 10); if (!open) { ctx.beginPath(); ctx.moveTo(dx - 44, g.fy0 + 10); ctx.lineTo(dx + 44, by); ctx.moveTo(dx + 44, g.fy0 + 10); ctx.lineTo(dx - 44, by); ctx.stroke(); }
+      for (const wx of [B.x + 40, B.x + B.w - 90]) roofWin(wx, g.fy0 + 20, 50, 30, open && dk, '#E8E2D0');
+      ctx.fillStyle = '#F2E2C4'; rr(dx - 56, g.ry0 + g.rh - 40, 112, 24, 5); ctx.fill(); signTxt('TABAKSCHEUNE', dx, g.ry0 + g.rh - 28, '900 11px sans-serif', '#5E3A22');
+      if (!open) roofSale(dx, g.fy0 + 40);
+    });
     { const vx = B.x + B.w / 2, vy = g.ry0 + 24; ctx.fillStyle = '#3E3228'; ctx.fillRect(vx - 1, vy - 16, 2, 16); ctx.save(); ctx.translate(vx, vy - 16); ctx.rotate(Math.sin(gt * 0.6) * 0.5); ctx.fillStyle = '#C9A13A'; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(8, -3); ctx.lineTo(8, 3); ctx.closePath(); ctx.fill(); ctx.restore(); } // Wetterhahn
-    for (const vx of [B.x + B.w * 0.25, B.x + B.w * 0.75]) { ctx.fillStyle = '#4A3A2E'; ctx.fillRect(vx - 14, g.ry0 + g.rh * 0.35, 28, 22); ctx.fillStyle = '#2A2018'; for (let q = 0; q < 3; q++) ctx.fillRect(vx - 11, g.ry0 + g.rh * 0.35 + 4 + q * 6, 22, 2); } // Lueftung
-    const dx = DOOR2.x, by = B.y + B.h; ctx.fillStyle = open ? '#3A2A1E' : '#6E4A32'; ctx.fillRect(dx - 44, g.fy0 + 10, 88, by - g.fy0 - 10);
-    ctx.strokeStyle = '#E8E2D0'; ctx.lineWidth = 3; ctx.strokeRect(dx - 44, g.fy0 + 10, 88, by - g.fy0 - 10); if (!open) { ctx.beginPath(); ctx.moveTo(dx - 44, g.fy0 + 10); ctx.lineTo(dx + 44, by); ctx.moveTo(dx + 44, g.fy0 + 10); ctx.lineTo(dx - 44, by); ctx.stroke(); }
-    for (const wx of [B.x + 40, B.x + B.w - 90]) roofWin(wx, g.fy0 + 20, 50, 30, open && dk, '#E8E2D0');
-    ctx.fillStyle = '#F2E2C4'; rr(dx - 56, g.ry0 + g.rh - 40, 112, 24, 5); ctx.fill(); signTxt('TABAKSCHEUNE', dx, g.ry0 + g.rh - 28, '900 11px sans-serif', '#5E3A22');
-    if (!open) roofSale(dx, g.fy0 + 40);
   }
   function roofLab(B, ar) { // graues Laborgebaeude mit Flachdach, Lueftern und Warnstreifen (rein fiktiv)
     const open = isOpen(ar), dk = lightK() > 0.25, g = bldBase(B, -1, 74, '#B9C2CC', '#6E7884', 'flat');
-    for (let r = 0; r < 3; r++) for (let q = 0; q < 4; q++) { const x = B.x + 30 + q * 62, y = g.ry0 + 70 + r * 70; ctx.fillStyle = '#2A3A5A'; ctx.fillRect(x, y, 54, 50); ctx.strokeStyle = '#8C96A3'; ctx.lineWidth = 1.5; ctx.strokeRect(x, y, 54, 50); ctx.fillStyle = 'rgba(140,190,255,.25)'; for (let k = 1; k < 3; k++) { ctx.fillRect(x + k * 18, y, 1, 50); ctx.fillRect(x, y + k * 16.6, 54, 1); } ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x + 2, y + 2, 20, 8); } // Solarmodule
+    bcDraw('labsol' + B.x + ',' + g.ry0, B.x + 20, g.ry0 + 60, 270, 240, () => { // v157: Solarmodule als fertiges Bild
+      for (let r = 0; r < 3; r++) for (let q = 0; q < 4; q++) { const x = B.x + 30 + q * 62, y = g.ry0 + 70 + r * 70; ctx.fillStyle = '#2A3A5A'; ctx.fillRect(x, y, 54, 50); ctx.strokeStyle = '#8C96A3'; ctx.lineWidth = 1.5; ctx.strokeRect(x, y, 54, 50); ctx.fillStyle = 'rgba(140,190,255,.25)'; for (let k = 1; k < 3; k++) { ctx.fillRect(x + k * 18, y, 1, 50); ctx.fillRect(x, y + k * 16.6, 54, 1); } ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x + 2, y + 2, 20, 8); } // Solarmodule
+    });
     for (let k = 0; k < 3; k++) acUnit(B.x + 40 + k * 60, g.ry0 + g.rh - 40); for (let k = 0; k < 2; k++) { const vx = B.x + B.w - 120 + k * 56, vy = g.ry0 + 50; ctx.fillStyle = '#4A525C'; ctx.beginPath(); ctx.arc(vx, vy, 18, 0, TAU); ctx.fill(); ctx.strokeStyle = '#8C96A3'; ctx.lineWidth = 2; ctx.save(); ctx.translate(vx, vy); ctx.rotate(gt * (open ? 4 : 0.2)); for (let q = 0; q < 4; q++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(14, 0); ctx.stroke(); } ctx.restore(); }
     for (let x = B.x; x < B.x + B.w; x += 16) { ctx.fillStyle = (x / 16) % 2 ? '#F2C14E' : '#20232C'; ctx.fillRect(x, g.fy0 + 70, 16, 4); }
     const dx = DOOR3.x; ctx.fillStyle = open ? '#5A6874' : '#3A4048'; ctx.fillRect(dx - 26, B.y, 52, 50); ctx.fillStyle = open ? '#9FD2E8' : '#5A6068'; ctx.fillRect(dx - 22, B.y + 4, 20, 44); ctx.fillRect(dx + 2, B.y + 4, 20, 44);
@@ -482,7 +489,8 @@
     else { ctx.fillStyle = '#5B4330'; ctx.fillRect(1960, 420, 110, 46); ctx.fillStyle = '#7A5A40'; ctx.fillRect(1964, 424, 48, 38); ctx.fillRect(2018, 424, 48, 38); }
     drawDecorFor(ar, 1);
   }
-  function drawFloor(ar) {
+  function drawFloor(ar) { const I = ar.IN, fl = G.build.floor[ar.key]; bcDraw('floor' + ar.key + '|' + fl.c + '|' + fl.p + '|' + I.x0 + ',' + I.y0 + ',' + I.x1 + ',' + I.y1, I.x0 - 2, I.y0 - 2, I.x1 - I.x0 + 4, I.y1 - I.y0 + 4, () => drawFloor0(ar)); } // v157: Boden als fertiges Bild
+  function drawFloor0(ar) {
     const I = ar.IN, fl = G.build.floor[ar.key], w = I.x1 - I.x0, h = I.y1 - I.y0;
     ctx.fillStyle = fl.c ? FLOOR_COLORS[fl.c] : ar.floor; ctx.fillRect(I.x0, I.y0, w, h);
     ctx.lineWidth = 1;
@@ -1010,15 +1018,48 @@
     }
     ctx.restore();
   }
-  function drawFigure(px, py, pang, pstep, look) {
+  // v157: Figuren-Zwischenspeicher. Eine Figur, die mehrere Bilder lang gleich dasteht (gleiches Aussehen, Richtung, Schrittstellung),
+  // wird zweimal mit Abstand gezeichnet und verglichen. Sind beide Bilder gleich, wird sie ab dann als fertiges Bild gezeigt.
+  // Laufende, blinkende oder wehende Figuren (LED-Schuhe, Umhang ...) bleiben live, so sieht alles aus wie vorher.
+  const FIG = new Map(), FIGSIG = new WeakMap(); let figFrame = 0, figOff = false, figSeenF = -1, figSeenP = new Set(), figSeenC = new Set();
+  function figSig(L) { let e = FIGSIG.get(L); if (!e || e.f !== figFrame) { let sgn; try { sgn = JSON.stringify(L); } catch (x) { sgn = null; } e = { f: figFrame, s: sgn }; FIGSIG.set(L, e); } return e.s; }
+  function figHash(c) { try { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let h = 2166136261; for (let i = 0; i < d.length; i += 3) h = Math.imul(h ^ d[i], 16777619); return h >>> 0; } catch (e) { return -1; } }
+  const FIG_T = [0.21, 0.57, 0.93, 1.33, 1.87, 2.41, 3.09, 3.77]; // Probe-Zeitpunkte (Sekunden Versatz)
+  let figPC = null; // eine wiederverwendete Testfläche für den Vergleich (nicht im Bildspeicher)
+  function figProbe(R, body) { // zeichnet die Figur an 9 Zeitpunkten und prüft, ob alle gleich aussehen
+    const w = Math.ceil(FIGW * R), h = Math.ceil(FIGH * R);
+    try { if (!figPC) figPC = document.createElement('canvas'); if (figPC.width !== w || figPC.height !== h) { figPC.width = w; figPC.height = h; } } catch (e) { figOff = true; return false; }
+    const x = figPC.getContext && figPC.getContext('2d', { willReadFrequently: true }); if (!x || !x.getImageData) { figOff = true; return false; }
+    const g0 = gt, s0 = ctx; let h0 = -2, same = true;
+    try { for (const dt of [0].concat(FIG_T)) { gt = g0 + dt; x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, h); x.setTransform(R, 0, 0, R, -FIGX0 * R, -FIGY0 * R); ctx = x; body(); ctx = s0; const hh = figHash(figPC); if (hh === -1) { figOff = true; same = false; break; } if (h0 === -2) h0 = hh; else if (hh !== h0) { same = false; break; } } }
+    catch (e) { same = false; } finally { gt = g0; ctx = s0; }
+    return same;
+  }
+  function figDraw(L, dir, ph, body) {
+    if (figOff || bcOff || typeof document === 'undefined' || !document.createElement) { body(); return; }
+    const R = curR(3), sg = figSig(L); if (!R || !sg) { body(); return; }
+    const key = 'f|' + sg + '|' + dir + '|' + Math.round(ph * 1000) + '|' + R; let e = FIG.get(key);
+    if (figSeenF !== figFrame) { figSeenP = figSeenC; figSeenC = new Set(); figSeenF = figFrame; } figSeenC.add(key);
+    if (!e && !figSeenP.has(key)) { body(); return; } // erst merken, wenn die Figur auch im letzten Bild genau so dastand
+    if (!e) { if (FIG.size > 1500) { for (const k of FIG.keys()) cacheDrop(k); FIG.clear(); } e = { n: 0, last: -9, st: 0 }; FIG.set(key, e); }
+    if (e.st === 2) { body(); return; }
+    if (e.st === 1) { let c = cacheGet(key); if (!c && CB.px < CB.max * 0.85) c = cacheMake(key, FIGW, FIGH, R, FIGX0, FIGY0, body); if (c && cacheBlit(c, [FIGX0, FIGY0, FIGW, FIGH])) return; body(); return; } // schon geprüft: höchstens neu zeichnen, nicht neu testen
+    e.n = e.last === figFrame - 1 ? e.n + 1 : 1; e.last = figFrame;
+    if (e.n === 3 && CB.px < CB.max * 0.85) { e.st = figProbe(R, body) ? 1 : 2; if (e.st === 1) { const c = cacheMake(key, FIGW, FIGH, R, FIGX0, FIGY0, body); if (c && cacheBlit(c, [FIGX0, FIGY0, FIGW, FIGH])) return; } }
+    body();
+  }
+  const FIGX0 = -26, FIGY0 = -38, FIGW = 52, FIGH = 58;
+  function drawFigure(px, py, pang, pstep, look) { figFrame = frameNo;
     const L = look || G.look, bob = Math.abs(Math.sin(pstep)) * 0.9, s1 = 1.3 * L.size;
     const cx = Math.cos(pang), sy = Math.sin(pang), dir = Math.abs(sy) > Math.abs(cx) * 1.05 ? (sy < 0 ? 'u' : 'd') : (cx < 0 ? 'l' : 'r');
     if (L.aura && L.aura !== 'none' && (!LOFX || L === G.look)) drawAura(px, py, L.aura, gt); // v128: bei Weniger Effekte nur die eigene Aura
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(px, py + 8.5 * s1, 7.5 * s1, 3 * s1); ctx.fill();
     ctx.save(); ctx.translate(px, py - bob - 1); ctx.scale(s1, s1);
-    if (L.outline) for (const o of [[-0.9, 0], [0.9, 0], [0, -0.9], [0, 0.9]]) { ctx.save(); ctx.translate(o[0], o[1]); sprite(L, dir, pstep, '#10151C'); ctx.restore(); }
-    const shim = COS_SHIM[L.cos]; if (shim && (!LOFX || L === G.look)) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(0, -1, 1, 0, -1, 12); g.addColorStop(0, 'rgba(' + shim[0] + ',' + (0.22 + 0.1 * Math.sin(gt * 3)).toFixed(3) + ')'); g.addColorStop(1, 'rgba(' + shim[0] + ',0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, -1, 12, 0, TAU); ctx.fill(); ctx.restore(); } // v144: Leucht-Kostueme
-    drawBack(L, dir, pstep, 0); sprite(L, dir, pstep, null); drawBack(L, dir, pstep, 1); // v76: Ruecken-Kosmetik
+    if (L.outline && COS_SHIM[L.cos] && (!LOFX || L === G.look)) for (const o of [[-0.9, 0], [0.9, 0], [0, -0.9], [0, 0.9]]) { ctx.save(); ctx.translate(o[0], o[1]); sprite(L, dir, pstep, '#10151C'); ctx.restore(); }
+    const shim = COS_SHIM[L.cos], shOn = shim && (!LOFX || L === G.look); if (shim && (!LOFX || L === G.look)) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(0, -1, 1, 0, -1, 12); g.addColorStop(0, 'rgba(' + shim[0] + ',' + (0.22 + 0.1 * Math.sin(gt * 3)).toFixed(3) + ')'); g.addColorStop(1, 'rgba(' + shim[0] + ',0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, -1, 12, 0, TAU); ctx.fill(); ctx.restore(); } // v144: Leucht-Kostueme
+    const body = () => { if (L.outline) for (const o of [[-0.9, 0], [0.9, 0], [0, -0.9], [0, 0.9]]) { ctx.save(); ctx.translate(o[0], o[1]); sprite(L, dir, pstep, '#10151C'); ctx.restore(); } drawBack(L, dir, pstep, 0); sprite(L, dir, pstep, null); drawBack(L, dir, pstep, 1); }; // v76: Ruecken-Kosmetik
+    if (shOn) { drawBack(L, dir, pstep, 0); sprite(L, dir, pstep, null); drawBack(L, dir, pstep, 1); }
+    else figDraw(L, dir, pstep, body); // v157: stehende, unveränderte Figuren als fertiges Bild
     if (shim && (!LOFX || L === G.look)) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let k = 0; k < 4; k++) { const p = (gt * 0.9 + k * 0.27 + (L.r || 0) * 0.01) % 1; if (p > 0.3) continue; const hv = Math.sin(k * 91.3 + Math.floor(gt * 0.9 + k * 0.27) * 17.1) * 43758.5; const fx2 = (hv - Math.floor(hv)) * 8 - 4, fy = ((hv * 7) - Math.floor(hv * 7)) * 14 - 9, s2 = Math.sin(p / 0.3 * Math.PI) * 1.6; ctx.fillStyle = shim[1]; ctx.fillRect(fx2 - .2, fy - s2, .4, s2 * 2); ctx.fillRect(fx2 - s2, fy - .2, s2 * 2, .4); } ctx.restore(); }
     ctx.restore();
   }
@@ -1086,143 +1127,148 @@
     const hlCol = T(8) >= 0 ? (TUNE.lights.cols[T(8)] || '#FFE9A0') : (dk ? '#FFF3B0' : '#FFE9A0');
     ctx.save(); ctx.translate(px, py + 2); ctx.rotate(ang);
     if (T(0) >= 0) { const nc = TUNE.neon.cols[T(0)] || '#39FF88', pu = 0.8 + 0.2 * Math.sin(gt * 4); ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = (dk ? 0.75 : 0.45) * pu; const g = ctx.createRadialGradient(0, 2, 2, 0, 2, L * 0.75); g.addColorStop(0, nc); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 2, L * 0.72, W * 0.95, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = (dk ? 0.85 : 0.55) * pu; ctx.strokeStyle = nc; ctx.lineWidth = 1.6; rr(-L / 2 - 1.5, -W / 2 - 1, L + 3, W + 2, 7); ctx.stroke(); ctx.restore(); } // Unterbodenbeleuchtung mit Lichtsaum
-    ctx.fillStyle = 'rgba(0,0,0,.34)'; rr(-L / 2 + 2, -W / 2 + 3, L, W, 6); ctx.fill();
-    // Reifen mit Profil, Felgen immer sichtbar (getunt farbig), Lenkeinschlag vorne
-    const big = id === 'suv' || id === 'truck', tw = big ? 10 : 9, th = big ? 4.4 : 3.6, lowr = id === 'lowrider';
-    const stA = clamp((nod || !o.own ? 0 : (player.steer || 0)) * 0.12, -0.35, 0.35), rimC = T(4) >= 0 ? (TUNE.rims.cols[T(4)] || '#C9CED6') : lowr ? '#E8B84A' : '#8C949E';
-    const axles = id === 'truck' ? [L / 2 - 8, -L / 2 + 15, -L / 2 + 8] : [L * 0.3, -L * 0.3];
-    for (const wx of axles) for (const sy of [-1, 1]) {
-      ctx.save(); ctx.translate(wx, sy * (W / 2 + 0.4)); if (wx === axles[0]) ctx.rotate(stA);
-      ctx.fillStyle = '#121418'; rr(-tw / 2, -th / 2, tw, th, 1.4); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.1)'; for (let k = -tw / 2 + 1.5; k <= tw / 2 - 1; k += 2) ctx.fillRect(k, -th / 2, 0.7, th);
-      if (lowr) { ctx.fillStyle = '#F4F6FA'; ctx.fillRect(-3, -th / 2 + 0.6, 6, th - 1.2); } // Weisswandreifen
-      ctx.fillStyle = rimC; ctx.fillRect(-1.8, -1.2, 3.6, 2.4); ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fillRect(-1.2, -1.2, 1.2, 0.8); ctx.restore();
-    }
-    // Karosserieform je Modell
-    const bodyPath = () => {
-      ctx.beginPath();
-      if (id === 'sport') { ctx.moveTo(-L / 2 + 2, -W / 2 + 1); ctx.lineTo(L / 2 - 6, -W / 2 + 2); ctx.quadraticCurveTo(L / 2 + 1, 0, L / 2 - 6, W / 2 - 2); ctx.lineTo(-L / 2 + 2, W / 2 - 1); ctx.quadraticCurveTo(-L / 2 - 1, 0, -L / 2 + 2, -W / 2 + 1); ctx.closePath(); }
-      else if (id === 'super') { ctx.moveTo(-L / 2 + 3, -W / 2); ctx.lineTo(L / 2 - 9, -W / 2 + 1); ctx.quadraticCurveTo(L / 2 + 2, -W / 4, L / 2, 0); ctx.quadraticCurveTo(L / 2 + 2, W / 4, L / 2 - 9, W / 2 - 1); ctx.lineTo(-L / 2 + 3, W / 2); ctx.closePath(); }
-      else if (id === 'truck') { const r = (x, y, w, h, q) => { ctx.moveTo(x + q, y); ctx.arcTo(x + w, y, x + w, y + h, q); ctx.arcTo(x + w, y + h, x, y + h, q); ctx.arcTo(x, y + h, x, y, q); ctx.arcTo(x, y, x + w, y, q); ctx.closePath(); }; r(L / 2 - 16, -W / 2 + 1, 16, W - 2, 3); r(-L / 2, -W / 2, L - 19, W, 1.5); }
-      else { const [y0, hh, q] = id === 'mini' ? [-W / 2 + 0.5, W - 1, 7] : id === 'muscle' ? [-W / 2 + 0.5, W - 1, 4] : id === 'lowrider' ? [-W / 2 + 1, W - 2, 5] : id === 'suv' ? [-W / 2, W, 4] : id === 'pickup' ? [-W / 2, W, 3.5] : [-W / 2, W, 3]; const x = -L / 2, w = L; ctx.moveTo(x + q, y0); ctx.arcTo(x + w, y0, x + w, y0 + hh, q); ctx.arcTo(x + w, y0 + hh, x, y0 + hh, q); ctx.arcTo(x, y0 + hh, x, y0, q); ctx.arcTo(x, y0, x + w, y0, q); ctx.closePath(); }
+    const rf = T(10), RF = CAR_ROOF[id], finO = T(6), wrapO = T(5); // v157: Karosserie als fertiges Bild, wenn sich daran nichts bewegt
+    const body = () => {
+      ctx.fillStyle = 'rgba(0,0,0,.34)'; rr(-L / 2 + 2, -W / 2 + 3, L, W, 6); ctx.fill();
+      // Reifen mit Profil, Felgen immer sichtbar (getunt farbig), Lenkeinschlag vorne
+      const big = id === 'suv' || id === 'truck', tw = big ? 10 : 9, th = big ? 4.4 : 3.6, lowr = id === 'lowrider';
+      const stA = clamp((nod || !o.own ? 0 : (player.steer || 0)) * 0.12, -0.35, 0.35), rimC = T(4) >= 0 ? (TUNE.rims.cols[T(4)] || '#C9CED6') : lowr ? '#E8B84A' : '#8C949E';
+      const axles = id === 'truck' ? [L / 2 - 8, -L / 2 + 15, -L / 2 + 8] : [L * 0.3, -L * 0.3];
+      for (const wx of axles) for (const sy of [-1, 1]) {
+        ctx.save(); ctx.translate(wx, sy * (W / 2 + 0.4)); if (wx === axles[0]) ctx.rotate(stA);
+        ctx.fillStyle = '#121418'; rr(-tw / 2, -th / 2, tw, th, 1.4); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.1)'; for (let k = -tw / 2 + 1.5; k <= tw / 2 - 1; k += 2) ctx.fillRect(k, -th / 2, 0.7, th);
+        if (lowr) { ctx.fillStyle = '#F4F6FA'; ctx.fillRect(-3, -th / 2 + 0.6, 6, th - 1.2); } // Weisswandreifen
+        ctx.fillStyle = rimC; ctx.fillRect(-1.8, -1.2, 3.6, 2.4); ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fillRect(-1.2, -1.2, 1.2, 0.8); ctx.restore();
+      }
+      // Karosserieform je Modell
+      const bodyPath = () => {
+        ctx.beginPath();
+        if (id === 'sport') { ctx.moveTo(-L / 2 + 2, -W / 2 + 1); ctx.lineTo(L / 2 - 6, -W / 2 + 2); ctx.quadraticCurveTo(L / 2 + 1, 0, L / 2 - 6, W / 2 - 2); ctx.lineTo(-L / 2 + 2, W / 2 - 1); ctx.quadraticCurveTo(-L / 2 - 1, 0, -L / 2 + 2, -W / 2 + 1); ctx.closePath(); }
+        else if (id === 'super') { ctx.moveTo(-L / 2 + 3, -W / 2); ctx.lineTo(L / 2 - 9, -W / 2 + 1); ctx.quadraticCurveTo(L / 2 + 2, -W / 4, L / 2, 0); ctx.quadraticCurveTo(L / 2 + 2, W / 4, L / 2 - 9, W / 2 - 1); ctx.lineTo(-L / 2 + 3, W / 2); ctx.closePath(); }
+        else if (id === 'truck') { const r = (x, y, w, h, q) => { ctx.moveTo(x + q, y); ctx.arcTo(x + w, y, x + w, y + h, q); ctx.arcTo(x + w, y + h, x, y + h, q); ctx.arcTo(x, y + h, x, y, q); ctx.arcTo(x, y, x + w, y, q); ctx.closePath(); }; r(L / 2 - 16, -W / 2 + 1, 16, W - 2, 3); r(-L / 2, -W / 2, L - 19, W, 1.5); }
+        else { const [y0, hh, q] = id === 'mini' ? [-W / 2 + 0.5, W - 1, 7] : id === 'muscle' ? [-W / 2 + 0.5, W - 1, 4] : id === 'lowrider' ? [-W / 2 + 1, W - 2, 5] : id === 'suv' ? [-W / 2, W, 4] : id === 'pickup' ? [-W / 2, W, 3.5] : [-W / 2, W, 3]; const x = -L / 2, w = L; ctx.moveTo(x + q, y0); ctx.arcTo(x + w, y0, x + w, y0 + hh, q); ctx.arcTo(x + w, y0 + hh, x, y0 + hh, q); ctx.arcTo(x, y0 + hh, x, y0, q); ctx.arcTo(x, y0, x + w, y0, q); ctx.closePath(); }
+      };
+      if (id === 'muscle') { ctx.fillStyle = dark; rr(-L / 2 - 0.7, -W / 2 - 0.2, L + 1.4, W + 0.4, 6); ctx.fill(); }
+      if (id === 'truck') { ctx.fillStyle = '#23272E'; ctx.fillRect(L / 2 - 20, -W / 2 + 4, 6, W - 8); } // Fahrgestell zwischen Kabine und Koffer
+      bodyPath(); ctx.fillStyle = col; ctx.fill();
+      if (id === 'truck') { ctx.save(); ctx.beginPath(); ctx.rect(-L / 2, -W / 2, L - 19, W); ctx.clip(); ctx.fillStyle = '#E8ECF2'; ctx.fillRect(-L / 2, -W / 2, L - 19, W); ctx.fillStyle = 'rgba(0,0,0,.07)'; for (let x = -L / 2 + 4; x < L / 2 - 20; x += 5) ctx.fillRect(x, -W / 2, 1, W); ctx.fillStyle = col; ctx.fillRect(-L / 2, -W / 2, L - 19, 2.2); ctx.fillRect(-L / 2, W / 2 - 2.2, L - 19, 2.2); if (o.fleet) fleetLogo(L, W); else cannaLeaf(-6, 0, 9, '#3FAE6A', -Math.PI / 2); ctx.restore(); } // Koffer: hell, Seitenstreifen in Wagenfarbe, Logo auf dem Dach
+      // Lackeffekt und Folierung (auf die Karosserie beschnitten)
+      const fin = T(6), wrap = T(5);
+      if (fin >= 0 || wrap >= 0) {
+        ctx.save(); bodyPath(); ctx.clip();
+        if (fin === 0) { const g = ctx.createLinearGradient(-L / 2, -W / 2, L / 2, W / 2); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.45, 'rgba(255,255,255,.28)'); g.addColorStop(0.55, 'rgba(255,255,255,.05)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.fillRect(-L / 2, -W / 2, L, W); ctx.fillStyle = 'rgba(255,255,255,.55)'; for (let k = 0; k < 9; k++) if (Math.sin(gt * 3 + k * 2.1) > 0.6) ctx.fillRect(-L / 2 + ((k * 13.7) % L), -W / 2 + ((k * 7.3) % W), 0.8, 0.8); } // Metallic mit Glitzer
+        else if (fin === 1) { ctx.fillStyle = 'rgba(20,22,26,.22)'; ctx.fillRect(-L / 2, -W / 2, L, W); } // Matt
+        else if (fin === 2) { ctx.globalCompositeOperation = 'lighter'; const h0 = (gt * 40) % 360, g = ctx.createLinearGradient(-L / 2, 0, L / 2, 0); g.addColorStop(0, 'hsla(' + h0 + ',90%,60%,.22)'); g.addColorStop(0.5, 'hsla(' + ((h0 + 90) % 360) + ',90%,60%,.22)'); g.addColorStop(1, 'hsla(' + ((h0 + 180) % 360) + ',90%,60%,.22)'); ctx.fillStyle = g; ctx.fillRect(-L / 2, -W / 2, L, W); ctx.globalCompositeOperation = 'source-over'; } // Perlmutt
+        else if (fin === 3) { const sh = ((gt * 0.4) % 1) * L * 1.6 - L * 0.8, g = ctx.createLinearGradient(-L / 2, -W / 2, L / 2, W / 2); g.addColorStop(0, 'rgba(235,240,246,.78)'); g.addColorStop(0.3, 'rgba(140,148,160,.7)'); g.addColorStop(0.55, 'rgba(250,252,255,.8)'); g.addColorStop(1, 'rgba(120,128,140,.7)'); ctx.fillStyle = g; ctx.fillRect(-L / 2, -W / 2, L, W); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.moveTo(sh - 2, -W / 2); ctx.lineTo(sh + 2, -W / 2); ctx.lineTo(sh - 4, W / 2); ctx.lineTo(sh - 8, W / 2); ctx.closePath(); ctx.fill(); } // Chrom
+        if (wrap === 0) { for (const sy of [-1, 1]) { const g = ctx.createLinearGradient(L / 2, 0, -L * 0.1, 0); g.addColorStop(0, '#FFE14A'); g.addColorStop(0.5, '#FF8A1E'); g.addColorStop(1, '#D8261E'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(L / 2, sy * (W / 2)); for (let k = 0; k <= 6; k++) { const x = L / 2 - k * L * 0.09, a = k % 2 ? 0.15 : 0.42; ctx.lineTo(x, sy * (W / 2 - W * a)); } ctx.lineTo(L / 2 - 6 * L * 0.09 - 2, sy * (W / 2)); ctx.closePath(); ctx.fill(); } } // Flammen von vorn
+        else if (wrap === 1) { ctx.fillStyle = 'rgba(16,18,22,.55)'; const s = 3; for (let x = -L / 2; x < L / 2; x += s) for (let y = -W / 2; y < W / 2; y += s) if (((x + L) / s + (y + W) / s | 0) % 2) ctx.fillRect(x, y, s, s); } // Karo
+        else if (wrap === 2) { const cs = ['rgba(60,90,50,.75)', 'rgba(110,95,60,.7)', 'rgba(35,50,32,.75)']; for (let k = 0; k < 16; k++) { ctx.fillStyle = cs[k % 3]; ctx.beginPath(); ctx.ellipse(-L / 2 + ((k * 11.3) % L), -W / 2 + ((k * 6.7) % W), 3 + (k % 3), 2 + (k % 2), k, 0, TAU); ctx.fill(); } } // Tarnmuster
+        else if (wrap === 3) { ctx.fillStyle = '#FFD84B'; for (const sy of [-1, 1]) { ctx.beginPath(); ctx.moveTo(L * 0.42, sy * (W / 2 - 1)); ctx.lineTo(L * 0.1, sy * (W / 2 - 3.5)); ctx.lineTo(L * 0.06, sy * (W / 2 - 1.8)); ctx.lineTo(-L * 0.3, sy * (W / 2 - 4)); ctx.lineTo(-L * 0.02, sy * (W / 2 - 1)); ctx.lineTo(L * 0.02, sy * (W / 2 - 2.6)); ctx.closePath(); ctx.fill(); } } // Blitz an beiden Seiten
+        else if (wrap === 4) { cannaLeaf(L * 0.22, W * 0.12, Math.min(W * 0.55, 10), 'rgba(63,174,106,.95)', -Math.PI / 2); cannaLeaf(-L * 0.32, -W * 0.28, 5, 'rgba(99,255,154,.8)', Math.PI / 2); cannaLeaf(-L * 0.32, W * 0.28, 5, 'rgba(99,255,154,.8)', Math.PI / 2); } // Hanfblatt
+        else if (wrap === 5) { ctx.fillStyle = 'rgba(16,18,22,.85)'; for (const sy of [-1, 1]) { ctx.beginPath(); ctx.moveTo(L * 0.4, sy * (W / 2 - 1)); ctx.quadraticCurveTo(L * 0.1, sy * (W / 2 - 6), -L * 0.15, sy * (W / 2 - 2)); ctx.quadraticCurveTo(-L * 0.25, sy * (W / 2 - 5), -L * 0.42, sy * (W / 2 - 1.5)); ctx.quadraticCurveTo(-L * 0.2, sy * (W / 2 - 3), L * 0.0, sy * (W / 2 - 0.5)); ctx.closePath(); ctx.fill(); } } // Tribal
+        else if (wrap === 6) { for (let k = 0; k < 12; k++) { const x = -L / 2 + 2 + ((k * 9.7) % (L - 4)), y = -W / 2 + 2 + ((k * 5.3) % (W - 4)), r = 0.8 + (k % 3) * 0.5, tw2 = 0.6 + 0.4 * Math.sin(gt * 4 + k); ctx.fillStyle = k % 3 ? 'rgba(255,255,255,' + tw2.toFixed(2) + ')' : 'rgba(255,216,75,' + tw2.toFixed(2) + ')'; ctx.beginPath(); for (let q = 0; q < 8; q++) { const a = q * Math.PI / 4, rq = q % 2 ? r * 0.4 : r * 1.4; ctx.lineTo(x + Math.cos(a) * rq, y + Math.sin(a) * rq); } ctx.closePath(); ctx.fill(); } } // Sterne
+        ctx.restore();
+      }
+      const stripes = () => { if (T(3) >= 0) { ctx.fillStyle = CAR_COLS[T(3)] || '#FFFFFF'; ctx.globalAlpha = 0.92; const x0 = id === 'truck' ? L / 2 - 16 : -L / 2 + 1, ln = id === 'truck' ? 15 : L - 2; ctx.fillRect(x0, -3.2, ln, 2); ctx.fillRect(x0, 1.2, ln, 2); ctx.globalAlpha = 1; } }; // Rennstreifen unter den Scheiben
+      const edge = () => { bodyPath(); ctx.strokeStyle = dark; ctx.lineWidth = 1.1; ctx.stroke(); };
+      const gl = (x, y, w, h, q) => { ctx.fillStyle = glass; rr(x, y, w, h, q); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.fillRect(x + w * 0.2, y + 0.6, Math.max(0.6, w * 0.25), h - 1.2); }; // Scheibe mit Lichtkante
+      if (id === 'van') { // Transporter: kurze Haube, hohes Dach mit Sicken, Schiebetuer, geteilte Hecktueren
+        edge(); stripes();
+        ctx.fillStyle = 'rgba(0,0,0,.08)'; ctx.fillRect(L / 2 - 8, -W / 2 + 1, 7, W - 2); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(L / 2 - 7.5, -1, 6, 2);
+        gl(L / 2 - 13, -W / 2 + 1.8, 5.5, W - 3.6, 1.5);
+        ctx.fillStyle = lite; rr(-L / 2 + 2, -W / 2 + 2.2, L - 16, W - 4.4, 2); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.1)'; for (let x = -L / 2 + 5; x < L / 2 - 15; x += 5) ctx.fillRect(x, -W / 2 + 2.5, 1, W - 5);
+        ctx.fillStyle = '#2A2E35'; rr(-8, -2.5, 5, 5, 1); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.fillRect(-7.5, -2, 4, 1);
+        ctx.fillStyle = dark; ctx.fillRect(-4, -W / 2 + 0.4, 14, 0.7); ctx.fillRect(-4, W / 2 - 1.1, 14, 0.7); ctx.fillRect(-L / 2 + 0.6, -0.35, 2.2, 0.7);
+        ctx.fillStyle = '#1D2129'; ctx.fillRect(L / 2 - 1.2, -W / 2 + 1.5, 1.6, W - 3); ctx.fillRect(-L / 2 - 0.6, -W / 2 + 1.5, 1.4, W - 3);
+      } else if (id === 'mini') { // Kleinwagen: rund, kontrastreiches Dach, runde Scheinwerfer, Chromgrill
+        edge(); stripes();
+        ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.beginPath(); ctx.ellipse(10, 0, 3.4, W / 2 - 3, 0, 0, TAU); ctx.fill(); // Motorhaube gewoelbt
+        gl(2, -W / 2 + 2.5, 5, W - 5, 2); gl(-L / 2 + 2.6, -W / 2 + 3, 3.4, W - 6, 1.5);
+        ctx.fillStyle = col === '#EEF2F7' ? '#1D2129' : 'rgba(255,255,255,.88)'; rr(-6.5, -W / 2 + 2.3, 8.5, W - 4.6, 3); ctx.fill(); // Dach
+        ctx.fillStyle = glass; ctx.fillRect(-6, -W / 2 + 1.1, 7.5, 1); ctx.fillRect(-6, W / 2 - 2.1, 7.5, 1); // Seitenfenster
+        ctx.fillStyle = '#C9D2DC'; ctx.fillRect(L / 2 - 1, -W / 2 + 4.5, 0.9, W - 9);
+      } else if (id === 'muscle') {
+        if (T(3) >= 0) stripes(); else { ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillRect(-L / 2, -3, L, 2); ctx.fillRect(-L / 2, 1, L, 2); } // Rennstreifen (ab Werk weiss)
+        ctx.fillStyle = glass; rr(-1, -W / 2 + 2.5, 6, W - 5, 2); ctx.fill(); rr(-L / 2 + 7, -W / 2 + 3, 4, W - 6, 2); ctx.fill();
+        ctx.fillStyle = '#1D2129'; rr(9, -2.5, 6, 5, 1.5); ctx.fill(); // Lufthutze
+      } else if (id === 'sport') { // Sportwagen: Keilform, zweifarbiges Dach, Haubenschlitze, seitliche Lufteinlaesse, Diffusor
+        edge(); stripes();
+        ctx.fillStyle = 'rgba(0,0,0,.35)'; for (const sy of [-1, 1]) { ctx.beginPath(); ctx.moveTo(-L * 0.1, sy * (W / 2 - 0.8)); ctx.lineTo(-L * 0.28, sy * (W / 2 - 3.2)); ctx.lineTo(-L * 0.3, sy * (W / 2 - 0.8)); ctx.closePath(); ctx.fill(); }
+        ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(9, -3.5, 4, 0.9); ctx.fillRect(9, 2.6, 4, 0.9);
+        ctx.fillStyle = glass; ctx.beginPath(); ctx.moveTo(-6, -W / 2 + 3.5); ctx.lineTo(4, -W / 2 + 4); ctx.quadraticCurveTo(8, 0, 4, W / 2 - 4); ctx.lineTo(-6, W / 2 - 3.5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#1D2129'; rr(-6, -W / 2 + 3.8, 6.5, W - 7.6, 2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(1.6, -W / 2 + 5, 0.9, W - 10);
+        ctx.fillStyle = '#1D2129'; ctx.fillRect(-L / 2 + 1, -W / 2 + 2, 2.5, W - 4); for (let k = -2; k <= 2; k++) ctx.fillRect(-L / 2 - 0.6, k * 2.4 - 0.3, 1.6, 0.6);
+      } else if (id === 'super') { // Supersportwagen: Kanzel, Motorlamellen, Seitenkiemen, Frontsplitter, LED-Streifen
+        edge(); stripes();
+        ctx.fillStyle = '#1D2129'; ctx.beginPath(); ctx.moveTo(L / 2 + 0.5, -W / 4); ctx.quadraticCurveTo(L / 2 + 2.2, 0, L / 2 + 0.5, W / 4); ctx.lineTo(L / 2 - 0.8, 0); ctx.closePath(); ctx.fill(); // Splitter
+        ctx.fillStyle = glass; ctx.beginPath(); ctx.ellipse(-1, 0, 8, W / 2 - 4.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.ellipse(1.5, -W / 4 + 1.5, 3.5, 1.2, -0.25, 0, TAU); ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,.45)'; for (let k = 0; k < 5; k++) ctx.fillRect(-L / 2 + 6 + k * 2.2, -W / 2 + 5, 1, W - 10); // Motorlamellen
+        ctx.fillStyle = '#1D2129'; ctx.fillRect(-L / 2 - 1, -W / 2 + 1, 4, W - 2); for (const sy of [-1, 1]) { ctx.beginPath(); ctx.moveTo(-L * 0.05, sy * (W / 2 - 0.5)); ctx.quadraticCurveTo(-L * 0.18, sy * (W / 2 - 4), -L * 0.3, sy * (W / 2 - 0.5)); ctx.closePath(); ctx.fill(); }
+      } else if (id === 'pickup') { // Pickup: Kabine vorn, offene Pritsche mit Ladung
+        edge();
+        ctx.fillStyle = '#2B2F36'; rr(-L / 2 + 1.5, -W / 2 + 2, L / 2 - 4, W - 4, 1.5); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.06)'; for (let y = -W / 2 + 3.5; y < W / 2 - 2; y += 2.6) ctx.fillRect(-L / 2 + 2, y, L / 2 - 5, 0.8);
+        ctx.fillStyle = '#3A3F47'; ctx.fillRect(-L * 0.3 - 3, -W / 2 + 2, 6, 2.2); ctx.fillRect(-L * 0.3 - 3, W / 2 - 4.2, 6, 2.2); // Radkaesten
+        if (o.own && G) { const n = Math.min(8, totalBags()); for (let k = 0; k < n; k++) { const bx = -L / 2 + 4 + (k % 4) * 4.2, by = -3.5 + Math.floor(k / 4) * 5; ctx.fillStyle = k % 3 ? '#B98A52' : '#EEF2F7'; ctx.fillRect(bx, by, 3.4, 3.6); ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(bx, by + 1.6, 3.4, 0.6); } } // Ladung
+        ctx.save(); ctx.beginPath(); ctx.rect(-3, -W / 2, L / 2 + 3, W); ctx.clip(); stripes(); ctx.restore();
+        ctx.fillStyle = lite; rr(-2.5, -W / 2 + 2.2, 8, W - 4.4, 2); ctx.fill(); gl(5.5, -W / 2 + 2.2, 4.5, W - 4.4, 1.5); gl(-3.4, -W / 2 + 3, 1.3, W - 6, 0.5);
+        ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(12, -W / 2 + 4, 8, 0.8); ctx.fillRect(12, W / 2 - 4.8, 8, 0.8);
+        ctx.fillStyle = '#1D2129'; ctx.fillRect(L / 2 - 1.2, -W / 2 + 1.5, 1.6, W - 3); ctx.fillStyle = dark; ctx.fillRect(-L / 2, -W / 2 + 1, 1.4, W - 2);
+      } else if (id === 'suv') { // Gelaendewagen: kantig, Dachreling, Reserverad, Rammschutz, Kotfluegelverbreiterungen
+        ctx.fillStyle = '#23272E'; for (const wx of [L * 0.3, -L * 0.3]) { ctx.fillRect(wx - 6, -W / 2 - 1.2, 12, 1.8); ctx.fillRect(wx - 6, W / 2 - 0.6, 12, 1.8); }
+        edge(); stripes();
+        ctx.fillStyle = 'rgba(0,0,0,.1)'; ctx.fillRect(11, -W / 2 + 3, 0.8, W - 6); ctx.fillRect(15, -W / 2 + 3, 0.8, W - 6);
+        gl(6, -W / 2 + 2, 4.5, W - 4, 1.5);
+        ctx.fillStyle = lite; rr(-L / 2 + 4, -W / 2 + 2, L / 2 + 6 - 4, W - 4, 2); ctx.fill(); gl(-L / 2 + 1.6, -W / 2 + 3, 2.2, W - 6, 0.8);
+        ctx.fillStyle = '#2A2E35'; ctx.fillRect(-L / 2 + 5, -W / 2 + 3, L / 2 + 0, 0.9); ctx.fillRect(-L / 2 + 5, W / 2 - 3.9, L / 2 + 0, 0.9); // Dachreling
+        ctx.fillStyle = '#1D2129'; ctx.beginPath(); ctx.arc(-L / 2 - 1.2, 0, 3.6, 0, TAU); ctx.fill(); ctx.fillStyle = rimC; ctx.beginPath(); ctx.arc(-L / 2 - 1.2, 0, 1.6, 0, TAU); ctx.fill(); // Reserverad
+        ctx.fillStyle = '#2A2E35'; ctx.fillRect(L / 2 + 0.3, -W / 2 + 2.5, 1.6, W - 5); for (let k = -1; k <= 1; k++) ctx.fillRect(L / 2 - 0.5, k * 4 - 0.4, 2.6, 0.8); // Rammschutz
+      } else if (id === 'lowrider') { // Lowrider: lang, offen, Chromleisten, Ledersitze, Weisswandreifen
+        edge(); stripes();
+        ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(6, -0.6, L / 2 - 8, 1.2);
+        ctx.fillStyle = '#5A3324'; rr(-11, -W / 2 + 2.2, 13, W - 4.4, 2); ctx.fill(); // offener Innenraum
+        ctx.fillStyle = '#8A4A30'; rr(-10, -W / 2 + 2.8, 4, W - 5.6, 1.2); ctx.fill(); rr(-3.5, -W / 2 + 2.8, 4, W - 5.6, 1.2); ctx.fill();
+        ctx.fillStyle = glass; ctx.fillRect(2.5, -W / 2 + 2.5, 1.4, W - 5); ctx.fillStyle = '#D6DCE6'; ctx.fillRect(2.2, -W / 2 + 2.2, 0.6, W - 4.4);
+        ctx.fillStyle = '#D6DCE6'; ctx.fillRect(-L / 2 + 1, -W / 2 + 1, L - 2, 0.7); ctx.fillRect(-L / 2 + 1, W / 2 - 1.7, L - 2, 0.7); ctx.fillRect(L / 2 - 1.3, -W / 2 + 2, 1.3, W - 4); ctx.fillRect(-L / 2, -W / 2 + 2, 1.1, W - 4); // Chrom
+        ctx.fillStyle = '#E8B84A'; ctx.beginPath(); ctx.arc(L / 2 - 3, 0, 0.9, 0, TAU); ctx.fill(); // Kuehlerfigur
+      } else if (id === 'truck') { // Lastwagen: Kabine mit Dachspoiler und Positionslampen, Koffer hinten
+        ctx.save(); bodyPath(); ctx.strokeStyle = '#9AA6B3'; ctx.lineWidth = 0.9; ctx.stroke(); ctx.restore(); stripes();
+        gl(L / 2 - 5.5, -W / 2 + 2.5, 3.6, W - 5, 1.2);
+        ctx.fillStyle = lite; rr(L / 2 - 15, -W / 2 + 2.5, 9, W - 5, 2); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(L / 2 - 15, -W / 2 + 2.5, 3, W - 5); // Dachspoiler
+        ctx.fillStyle = '#FFB547'; for (let k = -2; k <= 2; k++) ctx.fillRect(L / 2 - 6.8, k * 2.6 - 0.5, 0.9, 1);
+        ctx.fillStyle = '#C9D2DC'; ctx.fillRect(L / 2 - 18.5, -W / 2 + 1, 1.6, 2.2); ctx.fillRect(L / 2 - 18.5, W / 2 - 3.2, 1.6, 2.2); // Auspuffrohre
+        ctx.fillStyle = '#1D2129'; ctx.fillRect(L / 2 - 1, -W / 2 + 2, 1.6, W - 4); ctx.fillRect(-L / 2 - 0.8, -W / 2 + 1, 1.2, W - 2);
+      }
+      if (id !== 'truck' && id !== 'lowrider') { ctx.fillStyle = (fin === 1) ? 'rgba(255,255,255,.06)' : hi; ctx.fillRect(-L / 2 + 4, -W / 2 + 1.2, L * 0.45, 1.5); }
+      // Dachaufbau
+      const rf = T(10), RF = CAR_ROOF[id];
+      if (rf >= 0 && RF) {
+        const [rx, rl] = RF, rw = W * 0.5;
+        if (rf === 0) { ctx.fillStyle = '#1D2129'; rr(rx - rl * 0.45, -rw / 2, rl * 0.9, rw, rw / 2.2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.fillRect(rx - rl * 0.35, -rw / 2 + 0.8, rl * 0.7, 0.9); } // Dachbox
+        else if (rf === 1) { ctx.fillStyle = '#1D2129'; ctx.fillRect(rx + rl * 0.35, -W / 2 + 2, 1.8, W - 4); ctx.fillStyle = dk ? '#FFFFFF' : '#E8ECF2'; for (let k = 0; k < 4; k++) ctx.fillRect(rx + rl * 0.35 + 0.4, -W / 2 + 3 + k * (W - 6) / 4, 1, (W - 6) / 4 - 0.8); } // Lichtleiste
+        else if (rf === 2) { ctx.fillStyle = '#2A2E35'; ctx.fillRect(rx - rl / 2, -rw / 2 - 1, rl, 0.9); ctx.fillRect(rx - rl / 2, rw / 2, rl, 0.9); for (let k = 0; k < 3; k++) ctx.fillRect(rx - rl / 2 + k * rl / 2 - 0.4, -rw / 2 - 1, 0.9, rw + 2); ctx.fillStyle = '#8A5A3A'; rr(rx - rl * 0.25, -rw / 2 + 0.5, rl * 0.5, rw - 1, 1); ctx.fill(); ctx.fillStyle = '#5A3A22'; ctx.fillRect(rx - 0.4, -rw / 2 + 0.5, 0.8, rw - 1); } // Gepaecktraeger mit Koffer
+        else if (rf === 3) { ctx.fillStyle = '#F2C81E'; rr(rx - 2, -3.6, 4, 7.2, 1); ctx.fill(); ctx.fillStyle = '#1D2129'; ctx.font = '800 2.4px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.save(); ctx.translate(rx, 0); ctx.rotate(Math.PI / 2); ctx.fillText('TAXI', 0, 0.2); ctx.restore(); ctx.textBaseline = 'alphabetic'; } // Taxischild
+        else if (rf === 4) { const wv = Math.sin(gt * 6 + px * 0.01); ctx.fillStyle = '#C9D2DC'; ctx.beginPath(); ctx.arc(rx - rl * 0.3, 0, 0.9, 0, TAU); ctx.fill(); ctx.fillStyle = '#2E9A4E'; ctx.beginPath(); ctx.moveTo(rx - rl * 0.3, -0.6); ctx.quadraticCurveTo(rx - rl * 0.3 - 4, -0.6 + wv * 1.5, rx - rl * 0.3 - 9, -1 + wv); ctx.lineTo(rx - rl * 0.3 - 9, 4 + wv); ctx.quadraticCurveTo(rx - rl * 0.3 - 4, 4.4 + wv * 1.5, rx - rl * 0.3, 4.4); ctx.closePath(); ctx.fill(); cannaLeaf(rx - rl * 0.3 - 4.6, 1.8 + wv * 0.8, 3.4, '#9AF2B4', -Math.PI / 2); } // Hanf-Fahne
+      }
+      if (T(2) > 0 && id !== 'truck') { // Heckspoiler: Stuetzen, schwarzer Fluegel, Endplatten in Wagenfarbe
+        const bg = T(2) > 1, x0 = -L / 2 - (bg ? 4.5 : 2.8), wd = bg ? 4.2 : 3, hw = W / 2 + (bg ? 2 : 0.5);
+        ctx.fillStyle = '#2A2E35'; ctx.fillRect(x0 + wd - 0.5, -W / 4 - 0.8, 4, 1.6); ctx.fillRect(x0 + wd - 0.5, W / 4 - 0.8, 4, 1.6);
+        ctx.fillStyle = '#1D2129'; rr(x0, -hw, wd, hw * 2, 1.2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(x0 + 0.4, -hw + 1, 0.9, hw * 2 - 2);
+        ctx.fillStyle = col; ctx.fillRect(x0 - 0.4, -hw - 0.6, wd + 0.8, 1.8); ctx.fillRect(x0 - 0.4, hw - 1.2, wd + 0.8, 1.8);
+      }
+      { const mx0 = { van: L / 2 - 13, mini: 1, muscle: -2, sport: -7, super: -10, pickup: 5, suv: 5.5, lowrider: 1.5, truck: L / 2 - 5.5 }[id] ?? 0, bm = id === 'truck' || id === 'van'; ctx.fillStyle = bm ? '#1D2129' : col; ctx.fillRect(mx0, -W / 2 - (bm ? 2.6 : 1.8), bm ? 1.8 : 2.6, bm ? 2.8 : 2); ctx.fillRect(mx0, W / 2 - 0.2, bm ? 1.8 : 2.6, bm ? 2.8 : 2); if (!bm) { ctx.fillStyle = dark; ctx.fillRect(mx0, -W / 2 - 1.8, 0.8, 2); ctx.fillRect(mx0, W / 2 - 0.2, 0.8, 2); } } // Seitenspiegel
+      if (id === 'muscle') { ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(1, -W / 2 + 4); ctx.lineTo(3, -W / 2 + 7); ctx.stroke(); } // Spiegelung in der Scheibe
+      // Fahrer
+      // v150: keine Koepfe mehr im Auto (eigenes Auto und Verkehr)
+      // Lichter
+      ctx.fillStyle = hlCol;
+      if (id === 'mini' || id === 'suv' || id === 'lowrider') { for (const sy of [-1, 1]) { ctx.beginPath(); ctx.arc(L / 2 - 1.6, sy * (W / 2 - 3.4), 1.6, 0, TAU); ctx.fill(); } }
+      else if (id === 'sport' || id === 'super') { for (const sy of [-1, 1]) { ctx.save(); ctx.translate(L / 2 - (id === 'super' ? 5 : 4), sy * (W / 2 - 3)); ctx.rotate(sy * 0.5); ctx.fillRect(-2.2, -0.6, 4.4, 1.2); ctx.restore(); } }
+      else { ctx.fillRect(L / 2 - 2.5, -W / 2 + 2.5, 2.5, 3.5); ctx.fillRect(L / 2 - 2.5, W / 2 - 6, 2.5, 3.5); }
+      ctx.fillStyle = '#E04848'; if (id === 'super' || id === 'sport') { ctx.fillRect(-L / 2 + (id === 'super' ? 3 : 2), -W / 2 + 2, 0.9, W - 4); } else { ctx.fillRect(-L / 2, -W / 2 + 2.5, 2, 3); ctx.fillRect(-L / 2, W / 2 - 5.5, 2, 3); }
+      if (o.plate) { ctx.fillStyle = '#F4F6FA'; ctx.fillRect(-L / 2 - (id === 'suv' ? 4.9 : 0.9), -3.2, 0.9, 6.4); ctx.fillStyle = '#2F6FD6'; ctx.fillRect(-L / 2 - (id === 'suv' ? 4.9 : 0.9), -3.2, 0.9, 1); } // Kennzeichen
     };
-    if (id === 'muscle') { ctx.fillStyle = dark; rr(-L / 2 - 0.7, -W / 2 - 0.2, L + 1.4, W + 0.4, 6); ctx.fill(); }
-    if (id === 'truck') { ctx.fillStyle = '#23272E'; ctx.fillRect(L / 2 - 20, -W / 2 + 4, 6, W - 8); } // Fahrgestell zwischen Kabine und Koffer
-    bodyPath(); ctx.fillStyle = col; ctx.fill();
-    if (id === 'truck') { ctx.save(); ctx.beginPath(); ctx.rect(-L / 2, -W / 2, L - 19, W); ctx.clip(); ctx.fillStyle = '#E8ECF2'; ctx.fillRect(-L / 2, -W / 2, L - 19, W); ctx.fillStyle = 'rgba(0,0,0,.07)'; for (let x = -L / 2 + 4; x < L / 2 - 20; x += 5) ctx.fillRect(x, -W / 2, 1, W); ctx.fillStyle = col; ctx.fillRect(-L / 2, -W / 2, L - 19, 2.2); ctx.fillRect(-L / 2, W / 2 - 2.2, L - 19, 2.2); if (o.fleet) fleetLogo(L, W); else cannaLeaf(-6, 0, 9, '#3FAE6A', -Math.PI / 2); ctx.restore(); } // Koffer: hell, Seitenstreifen in Wagenfarbe, Logo auf dem Dach
-    // Lackeffekt und Folierung (auf die Karosserie beschnitten)
-    const fin = T(6), wrap = T(5);
-    if (fin >= 0 || wrap >= 0) {
-      ctx.save(); bodyPath(); ctx.clip();
-      if (fin === 0) { const g = ctx.createLinearGradient(-L / 2, -W / 2, L / 2, W / 2); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.45, 'rgba(255,255,255,.28)'); g.addColorStop(0.55, 'rgba(255,255,255,.05)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.fillRect(-L / 2, -W / 2, L, W); ctx.fillStyle = 'rgba(255,255,255,.55)'; for (let k = 0; k < 9; k++) if (Math.sin(gt * 3 + k * 2.1) > 0.6) ctx.fillRect(-L / 2 + ((k * 13.7) % L), -W / 2 + ((k * 7.3) % W), 0.8, 0.8); } // Metallic mit Glitzer
-      else if (fin === 1) { ctx.fillStyle = 'rgba(20,22,26,.22)'; ctx.fillRect(-L / 2, -W / 2, L, W); } // Matt
-      else if (fin === 2) { ctx.globalCompositeOperation = 'lighter'; const h0 = (gt * 40) % 360, g = ctx.createLinearGradient(-L / 2, 0, L / 2, 0); g.addColorStop(0, 'hsla(' + h0 + ',90%,60%,.22)'); g.addColorStop(0.5, 'hsla(' + ((h0 + 90) % 360) + ',90%,60%,.22)'); g.addColorStop(1, 'hsla(' + ((h0 + 180) % 360) + ',90%,60%,.22)'); ctx.fillStyle = g; ctx.fillRect(-L / 2, -W / 2, L, W); ctx.globalCompositeOperation = 'source-over'; } // Perlmutt
-      else if (fin === 3) { const sh = ((gt * 0.4) % 1) * L * 1.6 - L * 0.8, g = ctx.createLinearGradient(-L / 2, -W / 2, L / 2, W / 2); g.addColorStop(0, 'rgba(235,240,246,.78)'); g.addColorStop(0.3, 'rgba(140,148,160,.7)'); g.addColorStop(0.55, 'rgba(250,252,255,.8)'); g.addColorStop(1, 'rgba(120,128,140,.7)'); ctx.fillStyle = g; ctx.fillRect(-L / 2, -W / 2, L, W); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.moveTo(sh - 2, -W / 2); ctx.lineTo(sh + 2, -W / 2); ctx.lineTo(sh - 4, W / 2); ctx.lineTo(sh - 8, W / 2); ctx.closePath(); ctx.fill(); } // Chrom
-      if (wrap === 0) { for (const sy of [-1, 1]) { const g = ctx.createLinearGradient(L / 2, 0, -L * 0.1, 0); g.addColorStop(0, '#FFE14A'); g.addColorStop(0.5, '#FF8A1E'); g.addColorStop(1, '#D8261E'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(L / 2, sy * (W / 2)); for (let k = 0; k <= 6; k++) { const x = L / 2 - k * L * 0.09, a = k % 2 ? 0.15 : 0.42; ctx.lineTo(x, sy * (W / 2 - W * a)); } ctx.lineTo(L / 2 - 6 * L * 0.09 - 2, sy * (W / 2)); ctx.closePath(); ctx.fill(); } } // Flammen von vorn
-      else if (wrap === 1) { ctx.fillStyle = 'rgba(16,18,22,.55)'; const s = 3; for (let x = -L / 2; x < L / 2; x += s) for (let y = -W / 2; y < W / 2; y += s) if (((x + L) / s + (y + W) / s | 0) % 2) ctx.fillRect(x, y, s, s); } // Karo
-      else if (wrap === 2) { const cs = ['rgba(60,90,50,.75)', 'rgba(110,95,60,.7)', 'rgba(35,50,32,.75)']; for (let k = 0; k < 16; k++) { ctx.fillStyle = cs[k % 3]; ctx.beginPath(); ctx.ellipse(-L / 2 + ((k * 11.3) % L), -W / 2 + ((k * 6.7) % W), 3 + (k % 3), 2 + (k % 2), k, 0, TAU); ctx.fill(); } } // Tarnmuster
-      else if (wrap === 3) { ctx.fillStyle = '#FFD84B'; for (const sy of [-1, 1]) { ctx.beginPath(); ctx.moveTo(L * 0.42, sy * (W / 2 - 1)); ctx.lineTo(L * 0.1, sy * (W / 2 - 3.5)); ctx.lineTo(L * 0.06, sy * (W / 2 - 1.8)); ctx.lineTo(-L * 0.3, sy * (W / 2 - 4)); ctx.lineTo(-L * 0.02, sy * (W / 2 - 1)); ctx.lineTo(L * 0.02, sy * (W / 2 - 2.6)); ctx.closePath(); ctx.fill(); } } // Blitz an beiden Seiten
-      else if (wrap === 4) { cannaLeaf(L * 0.22, W * 0.12, Math.min(W * 0.55, 10), 'rgba(63,174,106,.95)', -Math.PI / 2); cannaLeaf(-L * 0.32, -W * 0.28, 5, 'rgba(99,255,154,.8)', Math.PI / 2); cannaLeaf(-L * 0.32, W * 0.28, 5, 'rgba(99,255,154,.8)', Math.PI / 2); } // Hanfblatt
-      else if (wrap === 5) { ctx.fillStyle = 'rgba(16,18,22,.85)'; for (const sy of [-1, 1]) { ctx.beginPath(); ctx.moveTo(L * 0.4, sy * (W / 2 - 1)); ctx.quadraticCurveTo(L * 0.1, sy * (W / 2 - 6), -L * 0.15, sy * (W / 2 - 2)); ctx.quadraticCurveTo(-L * 0.25, sy * (W / 2 - 5), -L * 0.42, sy * (W / 2 - 1.5)); ctx.quadraticCurveTo(-L * 0.2, sy * (W / 2 - 3), L * 0.0, sy * (W / 2 - 0.5)); ctx.closePath(); ctx.fill(); } } // Tribal
-      else if (wrap === 6) { for (let k = 0; k < 12; k++) { const x = -L / 2 + 2 + ((k * 9.7) % (L - 4)), y = -W / 2 + 2 + ((k * 5.3) % (W - 4)), r = 0.8 + (k % 3) * 0.5, tw2 = 0.6 + 0.4 * Math.sin(gt * 4 + k); ctx.fillStyle = k % 3 ? 'rgba(255,255,255,' + tw2.toFixed(2) + ')' : 'rgba(255,216,75,' + tw2.toFixed(2) + ')'; ctx.beginPath(); for (let q = 0; q < 8; q++) { const a = q * Math.PI / 4, rq = q % 2 ? r * 0.4 : r * 1.4; ctx.lineTo(x + Math.cos(a) * rq, y + Math.sin(a) * rq); } ctx.closePath(); ctx.fill(); } } // Sterne
-      ctx.restore();
-    }
-    const stripes = () => { if (T(3) >= 0) { ctx.fillStyle = CAR_COLS[T(3)] || '#FFFFFF'; ctx.globalAlpha = 0.92; const x0 = id === 'truck' ? L / 2 - 16 : -L / 2 + 1, ln = id === 'truck' ? 15 : L - 2; ctx.fillRect(x0, -3.2, ln, 2); ctx.fillRect(x0, 1.2, ln, 2); ctx.globalAlpha = 1; } }; // Rennstreifen unter den Scheiben
-    const edge = () => { bodyPath(); ctx.strokeStyle = dark; ctx.lineWidth = 1.1; ctx.stroke(); };
-    const gl = (x, y, w, h, q) => { ctx.fillStyle = glass; rr(x, y, w, h, q); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.fillRect(x + w * 0.2, y + 0.6, Math.max(0.6, w * 0.25), h - 1.2); }; // Scheibe mit Lichtkante
-    if (id === 'van') { // Transporter: kurze Haube, hohes Dach mit Sicken, Schiebetuer, geteilte Hecktueren
-      edge(); stripes();
-      ctx.fillStyle = 'rgba(0,0,0,.08)'; ctx.fillRect(L / 2 - 8, -W / 2 + 1, 7, W - 2); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(L / 2 - 7.5, -1, 6, 2);
-      gl(L / 2 - 13, -W / 2 + 1.8, 5.5, W - 3.6, 1.5);
-      ctx.fillStyle = lite; rr(-L / 2 + 2, -W / 2 + 2.2, L - 16, W - 4.4, 2); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.1)'; for (let x = -L / 2 + 5; x < L / 2 - 15; x += 5) ctx.fillRect(x, -W / 2 + 2.5, 1, W - 5);
-      ctx.fillStyle = '#2A2E35'; rr(-8, -2.5, 5, 5, 1); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.fillRect(-7.5, -2, 4, 1);
-      ctx.fillStyle = dark; ctx.fillRect(-4, -W / 2 + 0.4, 14, 0.7); ctx.fillRect(-4, W / 2 - 1.1, 14, 0.7); ctx.fillRect(-L / 2 + 0.6, -0.35, 2.2, 0.7);
-      ctx.fillStyle = '#1D2129'; ctx.fillRect(L / 2 - 1.2, -W / 2 + 1.5, 1.6, W - 3); ctx.fillRect(-L / 2 - 0.6, -W / 2 + 1.5, 1.4, W - 3);
-    } else if (id === 'mini') { // Kleinwagen: rund, kontrastreiches Dach, runde Scheinwerfer, Chromgrill
-      edge(); stripes();
-      ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.beginPath(); ctx.ellipse(10, 0, 3.4, W / 2 - 3, 0, 0, TAU); ctx.fill(); // Motorhaube gewoelbt
-      gl(2, -W / 2 + 2.5, 5, W - 5, 2); gl(-L / 2 + 2.6, -W / 2 + 3, 3.4, W - 6, 1.5);
-      ctx.fillStyle = col === '#EEF2F7' ? '#1D2129' : 'rgba(255,255,255,.88)'; rr(-6.5, -W / 2 + 2.3, 8.5, W - 4.6, 3); ctx.fill(); // Dach
-      ctx.fillStyle = glass; ctx.fillRect(-6, -W / 2 + 1.1, 7.5, 1); ctx.fillRect(-6, W / 2 - 2.1, 7.5, 1); // Seitenfenster
-      ctx.fillStyle = '#C9D2DC'; ctx.fillRect(L / 2 - 1, -W / 2 + 4.5, 0.9, W - 9);
-    } else if (id === 'muscle') {
-      if (T(3) >= 0) stripes(); else { ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillRect(-L / 2, -3, L, 2); ctx.fillRect(-L / 2, 1, L, 2); } // Rennstreifen (ab Werk weiss)
-      ctx.fillStyle = glass; rr(-1, -W / 2 + 2.5, 6, W - 5, 2); ctx.fill(); rr(-L / 2 + 7, -W / 2 + 3, 4, W - 6, 2); ctx.fill();
-      ctx.fillStyle = '#1D2129'; rr(9, -2.5, 6, 5, 1.5); ctx.fill(); // Lufthutze
-    } else if (id === 'sport') { // Sportwagen: Keilform, zweifarbiges Dach, Haubenschlitze, seitliche Lufteinlaesse, Diffusor
-      edge(); stripes();
-      ctx.fillStyle = 'rgba(0,0,0,.35)'; for (const sy of [-1, 1]) { ctx.beginPath(); ctx.moveTo(-L * 0.1, sy * (W / 2 - 0.8)); ctx.lineTo(-L * 0.28, sy * (W / 2 - 3.2)); ctx.lineTo(-L * 0.3, sy * (W / 2 - 0.8)); ctx.closePath(); ctx.fill(); }
-      ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(9, -3.5, 4, 0.9); ctx.fillRect(9, 2.6, 4, 0.9);
-      ctx.fillStyle = glass; ctx.beginPath(); ctx.moveTo(-6, -W / 2 + 3.5); ctx.lineTo(4, -W / 2 + 4); ctx.quadraticCurveTo(8, 0, 4, W / 2 - 4); ctx.lineTo(-6, W / 2 - 3.5); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#1D2129'; rr(-6, -W / 2 + 3.8, 6.5, W - 7.6, 2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(1.6, -W / 2 + 5, 0.9, W - 10);
-      ctx.fillStyle = '#1D2129'; ctx.fillRect(-L / 2 + 1, -W / 2 + 2, 2.5, W - 4); for (let k = -2; k <= 2; k++) ctx.fillRect(-L / 2 - 0.6, k * 2.4 - 0.3, 1.6, 0.6);
-    } else if (id === 'super') { // Supersportwagen: Kanzel, Motorlamellen, Seitenkiemen, Frontsplitter, LED-Streifen
-      edge(); stripes();
-      ctx.fillStyle = '#1D2129'; ctx.beginPath(); ctx.moveTo(L / 2 + 0.5, -W / 4); ctx.quadraticCurveTo(L / 2 + 2.2, 0, L / 2 + 0.5, W / 4); ctx.lineTo(L / 2 - 0.8, 0); ctx.closePath(); ctx.fill(); // Splitter
-      ctx.fillStyle = glass; ctx.beginPath(); ctx.ellipse(-1, 0, 8, W / 2 - 4.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.ellipse(1.5, -W / 4 + 1.5, 3.5, 1.2, -0.25, 0, TAU); ctx.fill();
-      ctx.fillStyle = 'rgba(0,0,0,.45)'; for (let k = 0; k < 5; k++) ctx.fillRect(-L / 2 + 6 + k * 2.2, -W / 2 + 5, 1, W - 10); // Motorlamellen
-      ctx.fillStyle = '#1D2129'; ctx.fillRect(-L / 2 - 1, -W / 2 + 1, 4, W - 2); for (const sy of [-1, 1]) { ctx.beginPath(); ctx.moveTo(-L * 0.05, sy * (W / 2 - 0.5)); ctx.quadraticCurveTo(-L * 0.18, sy * (W / 2 - 4), -L * 0.3, sy * (W / 2 - 0.5)); ctx.closePath(); ctx.fill(); }
-    } else if (id === 'pickup') { // Pickup: Kabine vorn, offene Pritsche mit Ladung
-      edge();
-      ctx.fillStyle = '#2B2F36'; rr(-L / 2 + 1.5, -W / 2 + 2, L / 2 - 4, W - 4, 1.5); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.06)'; for (let y = -W / 2 + 3.5; y < W / 2 - 2; y += 2.6) ctx.fillRect(-L / 2 + 2, y, L / 2 - 5, 0.8);
-      ctx.fillStyle = '#3A3F47'; ctx.fillRect(-L * 0.3 - 3, -W / 2 + 2, 6, 2.2); ctx.fillRect(-L * 0.3 - 3, W / 2 - 4.2, 6, 2.2); // Radkaesten
-      if (o.own && G) { const n = Math.min(8, totalBags()); for (let k = 0; k < n; k++) { const bx = -L / 2 + 4 + (k % 4) * 4.2, by = -3.5 + Math.floor(k / 4) * 5; ctx.fillStyle = k % 3 ? '#B98A52' : '#EEF2F7'; ctx.fillRect(bx, by, 3.4, 3.6); ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(bx, by + 1.6, 3.4, 0.6); } } // Ladung
-      ctx.save(); ctx.beginPath(); ctx.rect(-3, -W / 2, L / 2 + 3, W); ctx.clip(); stripes(); ctx.restore();
-      ctx.fillStyle = lite; rr(-2.5, -W / 2 + 2.2, 8, W - 4.4, 2); ctx.fill(); gl(5.5, -W / 2 + 2.2, 4.5, W - 4.4, 1.5); gl(-3.4, -W / 2 + 3, 1.3, W - 6, 0.5);
-      ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(12, -W / 2 + 4, 8, 0.8); ctx.fillRect(12, W / 2 - 4.8, 8, 0.8);
-      ctx.fillStyle = '#1D2129'; ctx.fillRect(L / 2 - 1.2, -W / 2 + 1.5, 1.6, W - 3); ctx.fillStyle = dark; ctx.fillRect(-L / 2, -W / 2 + 1, 1.4, W - 2);
-    } else if (id === 'suv') { // Gelaendewagen: kantig, Dachreling, Reserverad, Rammschutz, Kotfluegelverbreiterungen
-      ctx.fillStyle = '#23272E'; for (const wx of [L * 0.3, -L * 0.3]) { ctx.fillRect(wx - 6, -W / 2 - 1.2, 12, 1.8); ctx.fillRect(wx - 6, W / 2 - 0.6, 12, 1.8); }
-      edge(); stripes();
-      ctx.fillStyle = 'rgba(0,0,0,.1)'; ctx.fillRect(11, -W / 2 + 3, 0.8, W - 6); ctx.fillRect(15, -W / 2 + 3, 0.8, W - 6);
-      gl(6, -W / 2 + 2, 4.5, W - 4, 1.5);
-      ctx.fillStyle = lite; rr(-L / 2 + 4, -W / 2 + 2, L / 2 + 6 - 4, W - 4, 2); ctx.fill(); gl(-L / 2 + 1.6, -W / 2 + 3, 2.2, W - 6, 0.8);
-      ctx.fillStyle = '#2A2E35'; ctx.fillRect(-L / 2 + 5, -W / 2 + 3, L / 2 + 0, 0.9); ctx.fillRect(-L / 2 + 5, W / 2 - 3.9, L / 2 + 0, 0.9); // Dachreling
-      ctx.fillStyle = '#1D2129'; ctx.beginPath(); ctx.arc(-L / 2 - 1.2, 0, 3.6, 0, TAU); ctx.fill(); ctx.fillStyle = rimC; ctx.beginPath(); ctx.arc(-L / 2 - 1.2, 0, 1.6, 0, TAU); ctx.fill(); // Reserverad
-      ctx.fillStyle = '#2A2E35'; ctx.fillRect(L / 2 + 0.3, -W / 2 + 2.5, 1.6, W - 5); for (let k = -1; k <= 1; k++) ctx.fillRect(L / 2 - 0.5, k * 4 - 0.4, 2.6, 0.8); // Rammschutz
-    } else if (id === 'lowrider') { // Lowrider: lang, offen, Chromleisten, Ledersitze, Weisswandreifen
-      edge(); stripes();
-      ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(6, -0.6, L / 2 - 8, 1.2);
-      ctx.fillStyle = '#5A3324'; rr(-11, -W / 2 + 2.2, 13, W - 4.4, 2); ctx.fill(); // offener Innenraum
-      ctx.fillStyle = '#8A4A30'; rr(-10, -W / 2 + 2.8, 4, W - 5.6, 1.2); ctx.fill(); rr(-3.5, -W / 2 + 2.8, 4, W - 5.6, 1.2); ctx.fill();
-      ctx.fillStyle = glass; ctx.fillRect(2.5, -W / 2 + 2.5, 1.4, W - 5); ctx.fillStyle = '#D6DCE6'; ctx.fillRect(2.2, -W / 2 + 2.2, 0.6, W - 4.4);
-      ctx.fillStyle = '#D6DCE6'; ctx.fillRect(-L / 2 + 1, -W / 2 + 1, L - 2, 0.7); ctx.fillRect(-L / 2 + 1, W / 2 - 1.7, L - 2, 0.7); ctx.fillRect(L / 2 - 1.3, -W / 2 + 2, 1.3, W - 4); ctx.fillRect(-L / 2, -W / 2 + 2, 1.1, W - 4); // Chrom
-      ctx.fillStyle = '#E8B84A'; ctx.beginPath(); ctx.arc(L / 2 - 3, 0, 0.9, 0, TAU); ctx.fill(); // Kuehlerfigur
-    } else if (id === 'truck') { // Lastwagen: Kabine mit Dachspoiler und Positionslampen, Koffer hinten
-      ctx.save(); bodyPath(); ctx.strokeStyle = '#9AA6B3'; ctx.lineWidth = 0.9; ctx.stroke(); ctx.restore(); stripes();
-      gl(L / 2 - 5.5, -W / 2 + 2.5, 3.6, W - 5, 1.2);
-      ctx.fillStyle = lite; rr(L / 2 - 15, -W / 2 + 2.5, 9, W - 5, 2); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(L / 2 - 15, -W / 2 + 2.5, 3, W - 5); // Dachspoiler
-      ctx.fillStyle = '#FFB547'; for (let k = -2; k <= 2; k++) ctx.fillRect(L / 2 - 6.8, k * 2.6 - 0.5, 0.9, 1);
-      ctx.fillStyle = '#C9D2DC'; ctx.fillRect(L / 2 - 18.5, -W / 2 + 1, 1.6, 2.2); ctx.fillRect(L / 2 - 18.5, W / 2 - 3.2, 1.6, 2.2); // Auspuffrohre
-      ctx.fillStyle = '#1D2129'; ctx.fillRect(L / 2 - 1, -W / 2 + 2, 1.6, W - 4); ctx.fillRect(-L / 2 - 0.8, -W / 2 + 1, 1.2, W - 2);
-    }
-    if (id !== 'truck' && id !== 'lowrider') { ctx.fillStyle = (fin === 1) ? 'rgba(255,255,255,.06)' : hi; ctx.fillRect(-L / 2 + 4, -W / 2 + 1.2, L * 0.45, 1.5); }
-    // Dachaufbau
-    const rf = T(10), RF = CAR_ROOF[id];
-    if (rf >= 0 && RF) {
-      const [rx, rl] = RF, rw = W * 0.5;
-      if (rf === 0) { ctx.fillStyle = '#1D2129'; rr(rx - rl * 0.45, -rw / 2, rl * 0.9, rw, rw / 2.2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.fillRect(rx - rl * 0.35, -rw / 2 + 0.8, rl * 0.7, 0.9); } // Dachbox
-      else if (rf === 1) { ctx.fillStyle = '#1D2129'; ctx.fillRect(rx + rl * 0.35, -W / 2 + 2, 1.8, W - 4); ctx.fillStyle = dk ? '#FFFFFF' : '#E8ECF2'; for (let k = 0; k < 4; k++) ctx.fillRect(rx + rl * 0.35 + 0.4, -W / 2 + 3 + k * (W - 6) / 4, 1, (W - 6) / 4 - 0.8); } // Lichtleiste
-      else if (rf === 2) { ctx.fillStyle = '#2A2E35'; ctx.fillRect(rx - rl / 2, -rw / 2 - 1, rl, 0.9); ctx.fillRect(rx - rl / 2, rw / 2, rl, 0.9); for (let k = 0; k < 3; k++) ctx.fillRect(rx - rl / 2 + k * rl / 2 - 0.4, -rw / 2 - 1, 0.9, rw + 2); ctx.fillStyle = '#8A5A3A'; rr(rx - rl * 0.25, -rw / 2 + 0.5, rl * 0.5, rw - 1, 1); ctx.fill(); ctx.fillStyle = '#5A3A22'; ctx.fillRect(rx - 0.4, -rw / 2 + 0.5, 0.8, rw - 1); } // Gepaecktraeger mit Koffer
-      else if (rf === 3) { ctx.fillStyle = '#F2C81E'; rr(rx - 2, -3.6, 4, 7.2, 1); ctx.fill(); ctx.fillStyle = '#1D2129'; ctx.font = '800 2.4px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.save(); ctx.translate(rx, 0); ctx.rotate(Math.PI / 2); ctx.fillText('TAXI', 0, 0.2); ctx.restore(); ctx.textBaseline = 'alphabetic'; } // Taxischild
-      else if (rf === 4) { const wv = Math.sin(gt * 6 + px * 0.01); ctx.fillStyle = '#C9D2DC'; ctx.beginPath(); ctx.arc(rx - rl * 0.3, 0, 0.9, 0, TAU); ctx.fill(); ctx.fillStyle = '#2E9A4E'; ctx.beginPath(); ctx.moveTo(rx - rl * 0.3, -0.6); ctx.quadraticCurveTo(rx - rl * 0.3 - 4, -0.6 + wv * 1.5, rx - rl * 0.3 - 9, -1 + wv); ctx.lineTo(rx - rl * 0.3 - 9, 4 + wv); ctx.quadraticCurveTo(rx - rl * 0.3 - 4, 4.4 + wv * 1.5, rx - rl * 0.3, 4.4); ctx.closePath(); ctx.fill(); cannaLeaf(rx - rl * 0.3 - 4.6, 1.8 + wv * 0.8, 3.4, '#9AF2B4', -Math.PI / 2); } // Hanf-Fahne
-    }
-    if (T(2) > 0 && id !== 'truck') { // Heckspoiler: Stuetzen, schwarzer Fluegel, Endplatten in Wagenfarbe
-      const bg = T(2) > 1, x0 = -L / 2 - (bg ? 4.5 : 2.8), wd = bg ? 4.2 : 3, hw = W / 2 + (bg ? 2 : 0.5);
-      ctx.fillStyle = '#2A2E35'; ctx.fillRect(x0 + wd - 0.5, -W / 4 - 0.8, 4, 1.6); ctx.fillRect(x0 + wd - 0.5, W / 4 - 0.8, 4, 1.6);
-      ctx.fillStyle = '#1D2129'; rr(x0, -hw, wd, hw * 2, 1.2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(x0 + 0.4, -hw + 1, 0.9, hw * 2 - 2);
-      ctx.fillStyle = col; ctx.fillRect(x0 - 0.4, -hw - 0.6, wd + 0.8, 1.8); ctx.fillRect(x0 - 0.4, hw - 1.2, wd + 0.8, 1.8);
-    }
-    { const mx0 = { van: L / 2 - 13, mini: 1, muscle: -2, sport: -7, super: -10, pickup: 5, suv: 5.5, lowrider: 1.5, truck: L / 2 - 5.5 }[id] ?? 0, bm = id === 'truck' || id === 'van'; ctx.fillStyle = bm ? '#1D2129' : col; ctx.fillRect(mx0, -W / 2 - (bm ? 2.6 : 1.8), bm ? 1.8 : 2.6, bm ? 2.8 : 2); ctx.fillRect(mx0, W / 2 - 0.2, bm ? 1.8 : 2.6, bm ? 2.8 : 2); if (!bm) { ctx.fillStyle = dark; ctx.fillRect(mx0, -W / 2 - 1.8, 0.8, 2); ctx.fillRect(mx0, W / 2 - 0.2, 0.8, 2); } } // Seitenspiegel
-    if (id === 'muscle') { ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(1, -W / 2 + 4); ctx.lineTo(3, -W / 2 + 7); ctx.stroke(); } // Spiegelung in der Scheibe
-    // Fahrer
-    // v150: keine Koepfe mehr im Auto (eigenes Auto und Verkehr)
-    // Lichter
-    ctx.fillStyle = hlCol;
-    if (id === 'mini' || id === 'suv' || id === 'lowrider') { for (const sy of [-1, 1]) { ctx.beginPath(); ctx.arc(L / 2 - 1.6, sy * (W / 2 - 3.4), 1.6, 0, TAU); ctx.fill(); } }
-    else if (id === 'sport' || id === 'super') { for (const sy of [-1, 1]) { ctx.save(); ctx.translate(L / 2 - (id === 'super' ? 5 : 4), sy * (W / 2 - 3)); ctx.rotate(sy * 0.5); ctx.fillRect(-2.2, -0.6, 4.4, 1.2); ctx.restore(); } }
-    else { ctx.fillRect(L / 2 - 2.5, -W / 2 + 2.5, 2.5, 3.5); ctx.fillRect(L / 2 - 2.5, W / 2 - 6, 2.5, 3.5); }
-    ctx.fillStyle = '#E04848'; if (id === 'super' || id === 'sport') { ctx.fillRect(-L / 2 + (id === 'super' ? 3 : 2), -W / 2 + 2, 0.9, W - 4); } else { ctx.fillRect(-L / 2, -W / 2 + 2.5, 2, 3); ctx.fillRect(-L / 2, W / 2 - 5.5, 2, 3); }
-    if (o.plate) { ctx.fillStyle = '#F4F6FA'; ctx.fillRect(-L / 2 - (id === 'suv' ? 4.9 : 0.9), -3.2, 0.9, 6.4); ctx.fillStyle = '#2F6FD6'; ctx.fillRect(-L / 2 - (id === 'suv' ? 4.9 : 0.9), -3.2, 0.9, 1); } // Kennzeichen
+    if ((nod || !o.own ? 0 : (player.steer || 0)) !== 0 || finO === 2 || finO === 3 || wrapO === 6 || ctx.globalAlpha < 0.999 || o.live) body();
+    else { const P = 12; sprDraw('car|' + id + '|' + ci + '|' + tu.join(',') + '|' + (dk ? 1 : 0) + (o.fleet ? 'f' : ''), -L / 2 - P, -W / 2 - P, L + 2 * P, W + 2 * P, body); }
     // Auspuff-Flammen: beim Vollgas (eigenes Auto), sonst ab und zu
     const ex = T(9); if (ex >= 0 && !nod) { const on = o.own ? (aHeld && player.cs > v.spd * 0.5) || (o.pv && Math.sin(gt * 2.2) > 0.3) : Math.sin(gt * 2.6 + px * 0.05) > 0.75; if (on) { const ec = TUNE.exhaust.cols[ex] || '#FF8A3A', fl = 3 + Math.random() * 3; ctx.save(); ctx.globalCompositeOperation = 'lighter';
       const ports = id === 'truck' ? [[L / 2 - 17.7, -W / 2 + 2.1, -1.57], [L / 2 - 17.7, W / 2 - 2.1, 1.57]] : [[-L / 2 - 0.5, -W * 0.25, Math.PI], [-L / 2 - 0.5, W * 0.25, Math.PI]];

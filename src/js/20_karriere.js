@@ -620,11 +620,14 @@
   }
   const SEA_TREE = [['#1F4A32', '#2C6844', '#3C8A58'], ['#1E5530', '#2F7A44', '#4AA462'], ['#6A3418', '#B0581C', '#E09A2E'], ['#2E3A40', '#45535A', '#E8EEF4']];
   const treeCols = () => KR_NEUTRAL || !G ? SEA_TREE[0] : SEA_TREE[seasonI()];
-  function drawSeasonFx() {
+  const SEA_TINT = [[255, 170, 210, 0.04], [255, 220, 120, 0.05], [230, 140, 60, 0.06], [220, 235, 255, 0.10]]; let seaTint = null;
+  function drawSeasonFx() { seaTint = null;
     if (KR_NEUTRAL || !G || state === 'edit') return; const si = seasonI(), out = 1 - (indoorK || 0); if (out < 0.05) return;
     const vw = viewX1 - viewX0, vh = viewY1 - viewY0;
     ctx.save(); ctx.globalAlpha = out;
-    const tint = ['rgba(255,170,210,.04)', 'rgba(255,220,120,.05)', 'rgba(230,140,60,.06)', 'rgba(220,235,255,.10)'][si]; ctx.fillStyle = tint; ctx.fillRect(viewX0, viewY0, vw, vh);
+    const tint = ['rgba(255,170,210,.04)', 'rgba(255,220,120,.05)', 'rgba(230,140,60,.06)', 'rgba(220,235,255,.10)'][si];
+    seaTint = null; if (state !== 'menu' && (indoorK || 0) < 0.01 && skyNow().a > 0.004) seaTint = SEA_TINT[si]; // v157: draußen bei Dämmerung/Nacht mit der Abdunklung in einem Durchgang
+    else { ctx.fillStyle = tint; ctx.fillRect(viewX0, viewY0, vw, vh); }
     if (LOFX) { ctx.restore(); return; } // v128: nur die Farbstimmung, keine fallenden Blätter oder Flocken
     const n = si === 3 ? 70 : si === 1 ? 0 : 26;
     for (let i = 0; i < n; i++) {

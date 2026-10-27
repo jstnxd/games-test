@@ -42,7 +42,8 @@
       if (tOn) pill('TABAKSCHEUNE · ' + f.name.toUpperCase(), sx + 2190, 538, col); if (bOn) pill('CHEMIELABOR · ' + f.name.toUpperCase(), sx + 2132, 706, col);
     });
   }
-  function potSlot(x, y, next) { // v147: freier Platz fuer einen weiteren Topf
+  function potSlot(x, y, next) { if (next) { potSlot0(x, y, true); return; } ctx.save(); ctx.translate(x, y); sprDraw('pslot', -21, -19, 42, 40, () => potSlot0(0, 0, false)); ctx.restore(); } // v157: leerer Platz als fertiges Bild
+  function potSlot0(x, y, next) { // v147: freier Platz fuer einen weiteren Topf
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, y + 2, 17, 15, 0, 0, TAU); ctx.fill();
     ctx.fillStyle = 'rgba(70,52,38,.55)'; ctx.beginPath(); ctx.arc(x, y, 13, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.18)'; for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(x - 6 + (k * 5.3) % 12, y - 5 + (k * 3.7) % 10, 1.2, 0, TAU); ctx.fill(); }
     const a = next ? 0.45 + 0.2 * Math.sin(gt * 3) : 0.22; ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(255,255,255,' + a.toFixed(2) + ')'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(x, y, 16, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
@@ -52,11 +53,13 @@
     if (player.fl && !GH_ON) { if (player.fl === 4) drawGangHQ(); else if (player.fl === 3) drawBizRoom(); else if (player.fl === 2) drawPremiumRoom(); else drawKellerFloor(player.fl); return; } // v54: Etage statt Erdgeschoss
     if (!GH_ON && areaHidden(AREAS.keller, 'keller')) return; // v154: Innenraum nicht zeichnen, wenn er ausserhalb des Bildes liegt oder das Dach ihn ganz verdeckt
     // Keller
-    drawFloor(AREAS.keller);
-    ctx.fillStyle = '#0D1117';
-    for (let i = 0; i < 5; i++) { const c = colliders[i]; ctx.fillRect(c.x, c.y, c.w, c.h); }
-    for (let i = 0; i < 5; i++) { const c = colliders[i]; ctx.fillStyle = '#1A2129'; ctx.fillRect(c.x + 2, c.y + 2, c.w - 4, c.h - 4); ctx.fillStyle = 'rgba(255,255,255,.035)'; const hor = c.w > c.h; if (hor) { for (let x = c.x + 4, r = 0; x < c.x + c.w - 4; x += 14, r++) ctx.fillRect(x, c.y + 2, 1, c.h - 4); ctx.fillRect(c.x + 2, c.y + c.h / 2, c.w - 4, 1); } else { for (let y = c.y + 4; y < c.y + c.h - 4; y += 14) ctx.fillRect(c.x + 2, y, c.w - 4, 1); ctx.fillRect(c.x + c.w / 2, c.y + 2, 1, c.h - 4); } ctx.fillStyle = 'rgba(120,140,160,.22)'; ctx.fillRect(c.x, c.y, c.w, 1.2); ctx.fillRect(c.x, c.y, 1.2, c.h); } // v147: Mauerkrone mit Fugen
-    ctx.fillStyle = '#2A3139'; ctx.fillRect(370, 508, 80, T); // Türschwelle
+    { const I = AREAS.keller.IN, fl = G.build.floor.keller; bcDraw('kfw' + fl.c + '|' + fl.p + '|' + colliders.slice(0, 5).map(c => c.x + ',' + c.y + ',' + c.w + ',' + c.h).join(';'), I.x0 - 40, I.y0 - 40, I.x1 - I.x0 + 80, I.y1 - I.y0 + 80, () => { // v157: Boden und Wände zusammen als ein fertiges Bild
+      drawFloor0(AREAS.keller);
+      ctx.fillStyle = '#0D1117';
+      for (let i = 0; i < 5; i++) { const c = colliders[i]; ctx.fillRect(c.x, c.y, c.w, c.h); }
+      for (let i = 0; i < 5; i++) { const c = colliders[i]; ctx.fillStyle = '#1A2129'; ctx.fillRect(c.x + 2, c.y + 2, c.w - 4, c.h - 4); ctx.fillStyle = 'rgba(255,255,255,.035)'; const hor = c.w > c.h; if (hor) { for (let x = c.x + 4, r = 0; x < c.x + c.w - 4; x += 14, r++) ctx.fillRect(x, c.y + 2, 1, c.h - 4); ctx.fillRect(c.x + 2, c.y + c.h / 2, c.w - 4, 1); } else { for (let y = c.y + 4; y < c.y + c.h - 4; y += 14) ctx.fillRect(c.x + 2, y, c.w - 4, 1); ctx.fillRect(c.x + c.w / 2, c.y + 2, 1, c.h - 4); } ctx.fillStyle = 'rgba(120,140,160,.22)'; ctx.fillRect(c.x, c.y, c.w, 1.2); ctx.fillRect(c.x, c.y, 1.2, c.h); } // v147: Mauerkrone mit Fugen
+      ctx.fillStyle = '#2A3139'; ctx.fillRect(370, 508, 80, T); // Türschwelle
+    }); }
     ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.font = '800 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('KELLER', 326, 24); // v79: wie Scheune und Brauerei
     if (!GH_ON && !(roofA.keller > 0.5)) { const pu = 0.85 + 0.15 * Math.sin(gt * 2.5); ctx.fillStyle = '#20262E'; rr(222, 509, 120, 18, 5); ctx.fill(); ctx.strokeStyle = '#5FE584'; ctx.lineWidth = 1.4; rr(222, 509, 120, 18, 5); ctx.stroke();
       ctx.fillStyle = 'rgba(95,229,132,' + pu.toFixed(2) + ')'; ctx.font = '900 10px sans-serif'; ctx.fillText('DEIN KELLER', 282, 518.5); }
@@ -352,7 +355,7 @@
   // und bei jedem Fehler schaltet sich der Speicher ab und es wird wie früher live gezeichnet. So kann nie wieder ein Bild leer bleiben.
   const CACHE = new Map(), CB = { px: 0, max: 16e6, fail: false };
   let gsPass = 0; // v136: 0 = alles zeichnen, 1 = nur Unbewegliches (für die Bodenkacheln), 2 = nur Bewegtes (live über den Kacheln)
-  const curR = (mx) => { const tr = ctx.getTransform ? ctx.getTransform() : null; return tr && tr.a > 0 ? clamp(Math.ceil(Math.hypot(tr.a, tr.b) * 2) / 2, 1, mx) : 0; };
+  const curR = (mx) => { const tr = ctx.getTransform ? ctx.getTransform() : null; return tr && tr.a > 0 ? clamp(Math.round(Math.hypot(tr.a, tr.b) * 100) / 100, 1, mx) : 0; }; // v157: genau die Bildschirmauflösung, dann wird 1:1 gezeichnet (statt verkleinert)
   function cvFree(c) { try { c.width = 0; c.height = 0; } catch (e) {} }
   function cacheDrop(k) { const e = CACHE.get(k); if (!e) return; CACHE.delete(k); CB.px -= e.px; cvFree(e.c); }
   function cacheClear(pre) { for (const k of Array.from(CACHE.keys())) if (!pre || k.startsWith(pre)) cacheDrop(k); if (!pre) CB.px = 0; }
@@ -369,8 +372,8 @@
   function cacheBlit(c, a) { try { ctx.drawImage.apply(ctx, [c].concat(a)); return true; } catch (e) { cacheFail(); return false; } }
   let sprR = 0, bcR = 0;
   function sprDraw(key, x0, y0, w, h, fn) { // v136: kleine Einzelbilder (Baumkronen)
-    if (bcOff || !document.createElement) { fn(); return; } const R = curR(2.5); if (!R) { fn(); return; } if (R !== sprR) { cacheClear('s|'); sprR = R; }
-    const k = 's|' + key; let c = cacheGet(k) || cacheMake(k, w, h, R, x0, y0, fn); if (!c) { fn(); return; } if (!cacheBlit(c, [x0, y0, w, h])) fn();
+    if (bcOff || !document.createElement) { fn(); return; } const R = curR(2.5); if (!R) { fn(); return; } sprR = R;
+    const k = 's|' + key + '@' + R; let c = cacheGet(k) || cacheMake(k, w, h, R, x0, y0, fn); if (!c) { fn(); return; } if (!cacheBlit(c, [x0, y0, w, h])) fn(); // v157: jeder Maßstab hat eigene Bilder, nichts wird mehr verworfen
   }
   // v136: Bodenkacheln: Boden, Straßen, Wege, Büsche, Grasbüschel, Blumen, Beete, Bänke, Hydranten als fertige Bilder (256 x 256 Welt-Einheiten)
   const GTS = 256, GTP = 6; let gtlR = 0;
@@ -422,23 +425,23 @@
     ctx.fillStyle = 'rgba(205,235,255,.9)'; for (let q = x + 5 + (s % 4); q < x + w - 4; q += 9 + ((q + s) % 4)) { const l = 3 + ((q * 7 + s) % 5); ctx.beginPath(); if (up) { ctx.moveTo(q - 1.6, e); ctx.lineTo(q + 1.6, e); ctx.lineTo(q, e - l); } else { ctx.moveTo(q - 1.6, e); ctx.lineTo(q + 1.6, e); ctx.lineTo(q, e + l); } ctx.fill(); }
   }
   function drawGroundTiles() { // gibt false zurück, wenn diesmal live gezeichnet werden soll
-    if (bcOff || state === 'admin' || !document.createElement) return false; const R = curR(2); if (!R) return false; if (R !== gtlR) { cacheClear('g|'); gtlR = R; } // v154: auch am linken Kartenrand (Keller), die Grundstücke der Freunde kommen danach live darüber
-    const sk = gtlKey(), ix0 = Math.floor(viewX0 / GTS), ix1 = Math.floor(viewX1 / GTS), iy0 = Math.floor(viewY0 / GTS), iy1 = Math.floor(viewY1 / GTS), list = [], need = [];
+    if (bcOff || state === 'admin' || !document.createElement) return false; const R = curR(2); if (!R) return false; gtlR = R; // v154: auch am linken Kartenrand (Keller), die Grundstücke der Freunde kommen danach live darüber
+    const sb = gtlKey(), sk = sb + '@' + R, ix0 = Math.floor(viewX0 / GTS), ix1 = Math.floor(viewX1 / GTS), iy0 = Math.floor(viewY0 / GTS), iy1 = Math.floor(viewY1 / GTS), list = [], need = [];
     for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = 'g|' + ix + ',' + iy + ',' + sk; if (!cacheGet(k)) need.push([ix, iy, k]); } // sichtbare zuerst als benutzt markieren
-    let built = 0; const lim = sk.length > 1 || sk === 'n' ? 3 : 1; for (const [ix, iy, k] of need) { if (built >= lim) break; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; const c = cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S)); if (!c) return false; if (sk.length === 1 && sk !== 'n') seasonPx(c, +sk); built++; }
+    let built = 0; const lim = sb.length > 1 || sb === 'n' ? 3 : 1; for (const [ix, iy, k] of need) { if (built >= lim) break; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; const c = cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S)); if (!c) return false; if (sb.length === 1 && sb !== 'n') seasonPx(c, +sb); built++; }
     if (need.length > built) return false; // noch nicht alle Kacheln fertig: dieses Bild noch live zeichnen
     for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const c = cacheGet('g|' + ix + ',' + iy + ',' + sk); if (!c || !c.width) return false; list.push([c, ix, iy]); }
     const sp = GTP * R, sw = GTS * R;
     for (const [c, ix, iy] of list) if (!cacheBlit(c, [sp, sp, sw + R, sw + R, ix * GTS, iy * GTS, GTS + 1, GTS + 1])) return false; // v154: 1 Einheit Überlappung, damit keine Fugen entstehen
-    if (!built) gtlPrefetch(ix0, ix1, iy0, iy1, sk, R); // v154: in ruhigen Bildern schon die Kacheln am Rand vorbereiten, damit beim Laufen nichts ruckelt
+    if (!built) gtlPrefetch(ix0, ix1, iy0, iy1, sk, R, sb); // v154: in ruhigen Bildern schon die Kacheln am Rand vorbereiten, damit beim Laufen nichts ruckelt
     return true;
   }
-  function gtlPrefetch(ix0, ix1, iy0, iy1, sk, R) {
+  function gtlPrefetch(ix0, ix1, iy0, iy1, sk, R, sb) {
     if (CB.px > CB.max * 0.8) return; // Speicher fast voll: lieber nichts vorbereiten
     let dx = 0, dy = 0; if (player && Number.isFinite(player.ang)) { const v = Math.cos(player.ang), w = Math.sin(player.ang); dx = v > 0.4 ? 1 : v < -0.4 ? -1 : 0; dy = w > 0.4 ? 1 : w < -0.4 ? -1 : 0; } // Blickrichtung zuerst
     const cand = []; for (let iy = iy0 - 1; iy <= iy1 + 1; iy++) for (let ix = ix0 - 1; ix <= ix1 + 1; ix++) { if (ix >= ix0 && ix <= ix1 && iy >= iy0 && iy <= iy1) continue; const pr = (dx && Math.sign(ix - (ix0 + ix1) / 2) === dx ? -2 : 0) + (dy && Math.sign(iy - (iy0 + iy1) / 2) === dy ? -2 : 0); cand.push([pr, ix, iy]); }
     cand.sort((a, b) => a[0] - b[0]);
-    for (const [, ix, iy] of cand) { const k = 'g|' + ix + ',' + iy + ',' + sk; if (CACHE.has(k)) continue; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; const c = cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S)); if (c && sk.length === 1 && sk !== 'n') seasonPx(c, +sk); return; }
+    for (const [, ix, iy] of cand) { const k = 'g|' + ix + ',' + iy + ',' + sk; if (CACHE.has(k)) continue; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; const c = cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S)); if (c && sb.length === 1 && sb !== 'n') seasonPx(c, +sb); return; }
   }
   function drawGroundLive() { // was sich auf dem Boden bewegt: Wellen im Fluss und Wasser in den Bächen
     const r = RIVER; if (!(viewY1 < r.y0 - 60 || viewY0 > r.y1 + 60)) { const x0 = Math.max(0, viewX0), x1 = Math.min(WW, viewX1); ctx.strokeStyle = 'rgba(255,255,255,.26)'; ctx.lineWidth = 2;
@@ -467,8 +470,8 @@
   }
   function bcDraw(key, x0, y0, w, h, fn) {
     if (bcOff || typeof document === 'undefined' || !document.createElement) { fn(); return; }
-    const R = curR(2.5); if (!R) { fn(); return; } if (R !== bcR) { cacheClear('b|'); bcR = R; }
-    const k = 'b|' + key; let c = cacheGet(k) || cacheMake(k, w, h, R, x0, y0, fn); if (!c) { fn(); return; } if (!cacheBlit(c, [x0, y0, w, h])) fn();
+    const R = curR(2.5); if (!R) { fn(); return; } bcR = R;
+    const k = 'b|' + key + '@' + R; let c = cacheGet(k) || cacheMake(k, w, h, R, x0, y0, fn); if (!c) { fn(); return; } if (!cacheBlit(c, [x0, y0, w, h])) fn();
   }
   function roofExtras(h, hi, x, ry0, w, rh, up, dk) { // v147: Firstziegel, Schattenkante, Moos, Dachfenster, Satellitenschuessel, Antenne, Klimageraet
     const F = c => { ctx.fillStyle = c; }, mid = ry0 + rh / 2;
@@ -561,6 +564,7 @@
     // Satellitenschuessel oder Dachfenster auf manchen Daechern
     if (h.st !== 2 && hi % 4 === 1) { const sx = x + w * 0.3, sy = up ? ry0 + rh * 0.3 : ry0 + rh * 0.25; ctx.fillStyle = 'rgba(0,0,0,.25)'; ell(sx + 2, sy + 2, 6, 5); ctx.fill(); ctx.fillStyle = '#E8ECF2'; ell(sx, sy, 6, 5); ctx.fill(); ctx.fillStyle = '#B5BDC7'; ell(sx + 1, sy + 1, 3, 2.4); ctx.fill(); ctx.fillStyle = '#5E6670'; ctx.fillRect(sx + 3, sy - 1, 5, 1.5); }
     if (h.st === 1 && hi % 3 === 2) { const sx = x + w * 0.62, sy = ry0 + (up ? rh * 0.55 : rh * 0.2); ctx.fillStyle = '#3A3F47'; ctx.fillRect(sx, sy, 16, 12); ctx.fillStyle = dk && winLit(hi, 5) ? '#FFE08A' : '#7FA9C4'; ctx.fillRect(sx + 2, sy + 2, 12, 8); ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.fillRect(sx + 2, sy + 2, 12, 2); }
+    chimney(h); // v157
   }
   function leftFence() { // v122: Zaun an der linken Stadtkante, Luecke nur auf der Hauptstrasse
     for (const [y0, y1] of [[YMIN, LEFT_GAP[0]], [LEFT_GAP[1], WH]]) { if (y1 < viewY0 - 20 || y0 > viewY1 + 20) continue;
@@ -595,7 +599,8 @@
     for (let i = 0; i < 6; i++) { ctx.fillStyle = i % 2 ? '#F4F4F8' : '#D33F3F'; ctx.fillRect(k.x - 2 + i * sw, k.y + 8, sw + 0.5, 8); ctx.beginPath(); ctx.arc(k.x - 2 + i * sw + sw / 2, k.y + 16, sw / 2, 0, Math.PI); ctx.fill(); }
     ctx.fillStyle = '#20262E'; ctx.fillRect(k.x + 14, k.y + 1, 38, 8); ctx.fillStyle = '#F2C14E'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('KIOSK', k.x + 33, k.y + 7.6); ctx.textAlign = 'left';
   }
-  function drawStall() {
+  function drawStall() { const s0 = STALL; if (!inView(s0.x + 38, s0.y, 100)) return; bcDraw('stall' + (lightK() > 0.25 ? 1 : 0), s0.x - 8, s0.y - 14, s0.w + 16, s0.h + 22, drawStall0); } // v157: als fertiges Bild
+  function drawStall0() {
     const s0 = STALL, L = lightK(); if (!inView(s0.x + 38, s0.y, 100)) return;
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(s0.x + 4, s0.y + 5, s0.w, s0.h);
     ctx.fillStyle = '#8A6A45'; ctx.fillRect(s0.x, s0.y + 6, s0.w, s0.h - 6);
@@ -628,10 +633,12 @@
   function signTxt(t, x, y, font, col) { ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.textBaseline = 'alphabetic'; }
   function drawMarkt() { // v109: groesserer Marktplatz, offen zur Nordallee, mit Brunnen, sechs Staenden, Baeumen und Lichterketten
     const M = MARKT; if (!inView(M.x + M.w / 2, M.y + M.h / 2, 260)) return; const dk = lightK() > 0.25;
-    ctx.fillStyle = '#CFC6B4'; ctx.fillRect(M.x, M.y, M.w, M.h);
-    for (let y = M.y, r = 0; y < M.y + M.h; y += 9, r++) for (let x = M.x + (r % 2) * 9; x < M.x + M.w; x += 18) { ctx.fillStyle = (x * 7 + y * 3) % 5 === 0 ? '#BDB3A0' : '#C6BDAA'; ctx.fillRect(x + 1, y + 1, 16, 7); }
-    ctx.strokeStyle = '#A89F8E'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M.x + 1.5, M.y + 14); ctx.lineTo(M.x + 1.5, M.y + M.h - 1.5); ctx.lineTo(M.x + M.w - 1.5, M.y + M.h - 1.5); ctx.lineTo(M.x + M.w - 1.5, M.y + 14); ctx.stroke();
-    ctx.fillStyle = '#B9A98A'; ctx.fillRect(M.x + M.w / 2 - 16, M.y + M.h, 32, 309 - (M.y + M.h)); // Weg zum Hinterhofweg
+    bcDraw('markt', M.x - 4, M.y - 4, M.w + 40, 309 - M.y + 8, () => { // v157: Pflaster als fertiges Bild
+      ctx.fillStyle = '#CFC6B4'; ctx.fillRect(M.x, M.y, M.w, M.h);
+      for (let y = M.y, r = 0; y < M.y + M.h; y += 9, r++) for (let x = M.x + (r % 2) * 9; x < M.x + M.w; x += 18) { ctx.fillStyle = (x * 7 + y * 3) % 5 === 0 ? '#BDB3A0' : '#C6BDAA'; ctx.fillRect(x + 1, y + 1, 16, 7); }
+      ctx.strokeStyle = '#A89F8E'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(M.x + 1.5, M.y + 14); ctx.lineTo(M.x + 1.5, M.y + M.h - 1.5); ctx.lineTo(M.x + M.w - 1.5, M.y + M.h - 1.5); ctx.lineTo(M.x + M.w - 1.5, M.y + 14); ctx.stroke();
+      ctx.fillStyle = '#B9A98A'; ctx.fillRect(M.x + M.w / 2 - 16, M.y + M.h, 32, 309 - (M.y + M.h)); // Weg zum Hinterhofweg
+    });
     const cx = 2763, cy = 137; ctx.fillStyle = '#B4AA96'; ctx.beginPath(); ctx.arc(cx, cy, 34, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.08)'; for (let k = 0; k < 16; k++) { const a = k / 16 * TAU; ctx.fillRect(cx + Math.cos(a) * 26 - 1, cy + Math.sin(a) * 26 - 1, 2, 2); }
     ctx.fillStyle = '#8C96A3'; ctx.beginPath(); ctx.arc(cx, cy, 20, 0, TAU); ctx.fill(); const wg = ctx.createRadialGradient(cx - 4, cy - 4, 2, cx, cy, 18); wg.addColorStop(0, '#9FE3FF'); wg.addColorStop(1, '#3E9ACF'); ctx.fillStyle = wg; ctx.beginPath(); ctx.arc(cx, cy, 17, 0, TAU); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1; for (let k = 0; k < 2; k++) { const ph = (gt * .5 + k / 2) % 1; ctx.globalAlpha = 1 - ph; ctx.beginPath(); ctx.arc(cx, cy, 5 + ph * 11, 0, TAU); ctx.stroke(); } ctx.globalAlpha = 1;
@@ -695,22 +702,28 @@
 
   function drawPizza() {
     const B = PIZZA; if (!inView(B.x + B.w / 2, B.y + B.h / 2, 240)) return; const dk = lightK() > 0.25;
+    const g = { fy0: B.y, ry0: B.y + 50, rh: B.h - 50 }; // gleiche Werte wie bldBase(B, -1, 50, ...)
+    bcDraw('pizA' + (seaSnow() ? 'w' : ''), B.x - 8, B.y - 50, B.w + 24, B.h + 68, () => { // v157: fester Teil als Bild
     // Terrasse mit Tischen und Schirmen vor dem Eingang (Norden)
     ctx.fillStyle = '#A39E94'; ctx.fillRect(PIZZA_AT.x - 18, B.y - 48, 36, 19); ctx.fillStyle = 'rgba(0,0,0,.08)'; for (let k = B.y - 48; k < B.y - 30; k += 6) ctx.fillRect(PIZZA_AT.x - 18, k, 36, 1); // v99: Pflasterweg vom Gehweg zur Terrasse
     ctx.fillStyle = '#B98A62'; ctx.fillRect(B.x - 6, B.y - 30, B.w + 12, 30); ctx.fillStyle = 'rgba(0,0,0,.1)'; for (let x = B.x - 6; x < B.x + B.w + 6; x += 12) ctx.fillRect(x, B.y - 30, 1, 30);
-    const g = bldBase(B, -1, 50, '#B5523A', '#C9703F', 'gable');
+    bldBase(B, -1, 50, '#B5523A', '#C9703F', 'gable');
     ctx.fillStyle = 'rgba(0,0,0,.1)'; for (let r = 0; r < 6; r++) for (let q = B.x + (r % 2) * 7; q < B.x + B.w; q += 14) ctx.fillRect(q, g.fy0 + 4 + r * 7, 13, 1); // Klinker
+    });
     // Steinofen-Kamin mit Glut und Rauch
     const kx = B.x + B.w - 30, ky = g.ry0 + 18; ctx.fillStyle = '#6A4A3A'; ctx.beginPath(); ctx.arc(kx, ky, 10, 0, TAU); ctx.fill(); ctx.fillStyle = '#2A1A12'; ctx.beginPath(); ctx.arc(kx, ky, 6, 0, TAU); ctx.fill(); glow(kx, ky, 12, '255,140,60', 0.35 + 0.15 * Math.sin(gt * 5));
     for (let k = 0; k < 3; k++) { const ph = (gt * 0.3 + k / 3) % 1; ctx.fillStyle = 'rgba(210,210,215,' + (0.25 * (1 - ph)) + ')'; ctx.beginPath(); ctx.arc(kx + Math.sin(gt + k) * 5 * ph, ky - 6 - ph * 34, 3 + ph * 6, 0, TAU); ctx.fill(); }
+    bcDraw('pizB' + (dk ? 'd' : 'l'), B.x - 8, B.y - 50, B.w + 24, B.h + 68, () => {
     // Markise gruen-weiss-rot, Fenster, Tuer
     const cols = ['#2E9B4F', '#F4F4F8', '#D33F3F']; for (let k = 0; k < 9; k++) { ctx.fillStyle = cols[k % 3]; ctx.fillRect(B.x + 4 + k * ((B.w - 8) / 9), g.fy0 + g.rh * 0 + 50 - 50 + 2, (B.w - 8) / 9, 10); } ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(B.x + 4, B.y + 12, B.w - 8, 2);
     for (const wx of [B.x + 12, B.x + B.w - 44]) { ctx.fillStyle = dk ? '#FFD890' : '#F2E2C4'; ctx.fillRect(wx, B.y + 18, 32, 22); ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(wx, B.y + 18, 32, 3); ctx.strokeStyle = '#5A3A22'; ctx.lineWidth = 2; ctx.strokeRect(wx, B.y + 18, 32, 22); ctx.fillStyle = '#D33F3F'; ctx.fillRect(wx + 2, B.y + 34, 28, 4); }
     ctx.fillStyle = '#4A2E1E'; ctx.fillRect(PIZZA_AT.x - 13, B.y, 26, 30); ctx.fillStyle = dk ? '#FFD890' : '#C9A87A'; ctx.fillRect(PIZZA_AT.x - 9, B.y + 4, 18, 12);
     ctx.fillStyle = '#20262E'; rr(B.x + B.w / 2 - 46, B.y + 52, 92, 18, 9); ctx.fill(); signTxt('Bella Notte', B.x + B.w / 2, B.y + 61.5, 'italic 900 12px Georgia, serif', dk ? '#FFD24A' : '#F4E6C8');
     for (const [tx, ty, uc] of [[B.x + 12, B.y - 18, '#D33F3F'], [B.x + B.w - 16, B.y - 18, '#2E9B4F']]) { ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.arc(tx + 2, ty + 2, 11, 0, TAU); ctx.fill(); ctx.fillStyle = uc; ctx.beginPath(); ctx.arc(tx, ty, 11, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.35)'; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.moveTo(tx, ty); ctx.arc(tx, ty, 11, k * Math.PI / 2, k * Math.PI / 2 + Math.PI / 4); ctx.closePath(); ctx.fill(); } ctx.fillStyle = '#20262E'; ctx.beginPath(); ctx.arc(tx, ty, 1.6, 0, TAU); ctx.fill(); }
+    });
   }
-  function drawBoulevard() { // v97: Neon-Boulevard vor Casino und Club
+  function drawBoulevard() { const y0 = 1262, y1 = 1300, x0 = 4466, x1 = 5196; if (!inView((x0 + x1) / 2, y0, 500)) return; bcDraw('blvd' + (clubOpen() ? 1 : 0) + (lightK() > 0.25 ? 1 : 0), x0 - 6, y0 - 10, x1 - x0 + 12, y1 - y0 + 16, drawBoulevard0); } // v157
+  function drawBoulevard0() { // v97: Neon-Boulevard vor Casino und Club
     const y0 = 1262, y1 = 1300, x0 = 4466, x1 = 5196; if (!inView((x0 + x1) / 2, y0, 500)) return; const op = clubOpen();
     ctx.fillStyle = '#3A2E3E'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0); ctx.fillStyle = 'rgba(255,255,255,.05)'; for (let x = x0; x < x1; x += 24) ctx.fillRect(x, y0, 12, y1 - y0);
     ctx.fillStyle = 'rgba(255,92,168,.55)'; ctx.fillRect(x0, y0, x1 - x0, 2); ctx.fillStyle = 'rgba(91,232,255,.45)'; ctx.fillRect(x0, y1 - 2, x1 - x0, 2);
@@ -823,29 +836,34 @@
       wrap.appendChild(row); });
     b.appendChild(wrap);
   }
-  function drawBusStop(b) {
+  function drawBusStop(b) { // v157: Haltestelle als zwei fertige Bilder, Licht und Blinken live
     if (!inView(b.x, b.y, 80)) return; const sg = b.up ? 1 : -1, nt = lightK(), op = busOpen(b), Y = v => b.y + v * sg; // sg: Rueckseite liegt bei -16 (oben) bzw. +16 (unten)
     const rr = (x, y0, w, y1, r) => { const t = Math.min(y0, y1), hh = Math.abs(y1 - y0); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, t, w, hh, r); else ctx.rect(x, t, w, hh); };
-    ctx.fillStyle = 'rgba(0,0,0,.26)'; rr(b.x - 33, Y(-15), 72, Y(7), 4); ctx.fill(); // Schatten
-    ctx.fillStyle = '#A6AEB8'; rr(b.x - 38, Y(-17), 76, Y(10), 3); ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 1; for (let k = -30; k <= 30; k += 12) { ctx.beginPath(); ctx.moveTo(b.x + k, Y(-17)); ctx.lineTo(b.x + k, Y(10)); ctx.stroke(); } // Plattenbelag
-    ctx.fillStyle = '#E9ECEF'; ctx.fillRect(b.x - 38, Math.min(Y(8), Y(10)), 76, 2); // Bordstein-Kante
-    ctx.fillStyle = '#8A5A3A'; rr(b.x - 24, Y(-12), 48, Y(-6), 2); ctx.fill(); ctx.fillStyle = '#B07A4A'; for (let k = 0; k < 3; k++) ctx.fillRect(b.x - 23, Math.min(Y(-11.5 + k * 2), Y(-10.5 + k * 2)), 46, 1); // Bank
-    ctx.fillStyle = '#26313F'; rr(b.x - 34, Y(-17), 68, Y(-14), 1); ctx.fill(); // Rueckwand
-    const ad = ctx.createLinearGradient(b.x + 8, 0, b.x + 32, 0); ad.addColorStop(0, '#FF5CA8'); ad.addColorStop(1, '#FFB547'); ctx.fillStyle = ad; ctx.fillRect(b.x + 8, Math.min(Y(-17), Y(-14)), 24, 3); // Werbung
+    bcDraw('busA' + (b.x + ',' + b.y + (b.up ? 'u' : 'd')), b.x - 44, b.y - 36, 108, 72, () => {
+      ctx.fillStyle = 'rgba(0,0,0,.26)'; rr(b.x - 33, Y(-15), 72, Y(7), 4); ctx.fill(); // Schatten
+      ctx.fillStyle = '#A6AEB8'; rr(b.x - 38, Y(-17), 76, Y(10), 3); ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 1; for (let k = -30; k <= 30; k += 12) { ctx.beginPath(); ctx.moveTo(b.x + k, Y(-17)); ctx.lineTo(b.x + k, Y(10)); ctx.stroke(); } // Plattenbelag
+      ctx.fillStyle = '#E9ECEF'; ctx.fillRect(b.x - 38, Math.min(Y(8), Y(10)), 76, 2); // Bordstein-Kante
+      ctx.fillStyle = '#8A5A3A'; rr(b.x - 24, Y(-12), 48, Y(-6), 2); ctx.fill(); ctx.fillStyle = '#B07A4A'; for (let k = 0; k < 3; k++) ctx.fillRect(b.x - 23, Math.min(Y(-11.5 + k * 2), Y(-10.5 + k * 2)), 46, 1); // Bank
+      ctx.fillStyle = '#26313F'; rr(b.x - 34, Y(-17), 68, Y(-14), 1); ctx.fill(); // Rueckwand
+      const ad = ctx.createLinearGradient(b.x + 8, 0, b.x + 32, 0); ad.addColorStop(0, '#FF5CA8'); ad.addColorStop(1, '#FFB547'); ctx.fillStyle = ad; ctx.fillRect(b.x + 8, Math.min(Y(-17), Y(-14)), 24, 3); // Werbung
+    });
     if (nt > 0.25) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const gl = ctx.createRadialGradient(b.x, Y(-4), 4, b.x, Y(-4), 46); gl.addColorStop(0, 'rgba(255,220,150,' + (0.32 * nt).toFixed(3) + ')'); gl.addColorStop(1, 'rgba(255,220,150,0)'); ctx.fillStyle = gl; ctx.fillRect(b.x - 50, b.y - 50, 100, 100); ctx.restore(); }
-    ctx.fillStyle = 'rgba(175,220,245,.36)'; rr(b.x - 35, Y(-18), 70, Y(3), 4); ctx.fill(); // Glasdach
-    ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fillRect(b.x - 33, Math.min(Y(-16), Y(-15)), 66, 1.2); ctx.strokeStyle = 'rgba(255,255,255,.16)'; ctx.lineWidth = 1; for (let k = -22; k <= 22; k += 11) { ctx.beginPath(); ctx.moveTo(b.x + k, Y(-17)); ctx.lineTo(b.x + k, Y(2)); ctx.stroke(); }
-    ctx.strokeStyle = '#1E7A52'; ctx.lineWidth = 2; rr(b.x - 35, Y(-18), 70, Y(3), 4); ctx.stroke();
-    ctx.fillStyle = '#1E7A52'; for (const px of [b.x - 34, b.x + 31]) for (const py of [Y(-17), Y(0)]) ctx.fillRect(px, Math.min(py, py + 3 * sg), 3, 3); // Stuetzen
-    ctx.fillStyle = '#1E9E55'; rr(b.x - 35, Y(-1), 70, Y(4), 2); ctx.fill(); // Namensband vorne
-    ctx.fillStyle = '#F4F7F2'; ctx.font = '800 5.6px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.name.toUpperCase(), b.x, Y(1.5) + 0.3);
-    const hx = b.x + 46, hy = Y(4); // Haltestellenschild an der Bordsteinkante
-    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(hx + 1, hy + 1, 3, 4); ctx.fillStyle = '#6C7580'; ctx.fillRect(hx - 1, hy - 18, 2.4, 20);
-    ctx.fillStyle = '#F2F4F7'; ctx.fillRect(hx + 3, hy - 12, 8, 10); ctx.fillStyle = '#26313F'; for (let k = 0; k < 4; k++) ctx.fillRect(hx + 4, hy - 10.6 + k * 2.2, 6, 0.9); // Fahrplan
+    bcDraw('busB' + (b.x + ',' + b.y + (b.up ? 'u' : 'd')) + b.name, b.x - 44, b.y - 36, 108, 72, () => {
+      ctx.fillStyle = 'rgba(175,220,245,.36)'; rr(b.x - 35, Y(-18), 70, Y(3), 4); ctx.fill(); // Glasdach
+      ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fillRect(b.x - 33, Math.min(Y(-16), Y(-15)), 66, 1.2); ctx.strokeStyle = 'rgba(255,255,255,.16)'; ctx.lineWidth = 1; for (let k = -22; k <= 22; k += 11) { ctx.beginPath(); ctx.moveTo(b.x + k, Y(-17)); ctx.lineTo(b.x + k, Y(2)); ctx.stroke(); }
+      ctx.strokeStyle = '#1E7A52'; ctx.lineWidth = 2; rr(b.x - 35, Y(-18), 70, Y(3), 4); ctx.stroke();
+      ctx.fillStyle = '#1E7A52'; for (const px of [b.x - 34, b.x + 31]) for (const py of [Y(-17), Y(0)]) ctx.fillRect(px, Math.min(py, py + 3 * sg), 3, 3); // Stuetzen
+      ctx.fillStyle = '#1E9E55'; rr(b.x - 35, Y(-1), 70, Y(4), 2); ctx.fill(); // Namensband vorne
+      ctx.fillStyle = '#F4F7F2'; ctx.font = '800 5.6px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.name.toUpperCase(), b.x, Y(1.5) + 0.3);
+      const hx = b.x + 46, hy = Y(4); // Haltestellenschild an der Bordsteinkante
+      ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(hx + 1, hy + 1, 3, 4); ctx.fillStyle = '#6C7580'; ctx.fillRect(hx - 1, hy - 18, 2.4, 20);
+      ctx.fillStyle = '#F2F4F7'; ctx.fillRect(hx + 3, hy - 12, 8, 10); ctx.fillStyle = '#26313F'; for (let k = 0; k < 4; k++) ctx.fillRect(hx + 4, hy - 10.6 + k * 2.2, 6, 0.9); // Fahrplan
+    });
+    const hx = b.x + 46, hy = Y(4);
     const pulse = op ? 0.5 + 0.5 * Math.sin(gt * 3 + b.x) : 0;
     if (op && Math.hypot(player.x - b.x, player.y - b.y) < 140) { ctx.strokeStyle = 'rgba(242,193,78,' + (0.25 + 0.4 * pulse).toFixed(2) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(hx, hy - 22, 10 + pulse * 3, 0, TAU); ctx.stroke(); }
     ctx.fillStyle = '#1E9E55'; ctx.beginPath(); ctx.arc(hx, hy - 22, 8, 0, TAU); ctx.fill(); ctx.fillStyle = '#F2C14E'; ctx.beginPath(); ctx.arc(hx, hy - 22, 6.6, 0, TAU); ctx.fill();
-    ctx.fillStyle = '#1E9E55'; ctx.font = '900 9px sans-serif'; ctx.fillText('H', hx, hy - 21.5); ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#1E9E55'; ctx.font = '900 9px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('H', hx, hy - 21.5); ctx.textBaseline = 'alphabetic';
   }
   function drawBusBay(b) { // Haltestellenbucht auf der Fahrbahn: gelbe Zickzacklinie am Bordstein, Haltelinien und BUS
     if (!inView(b.x, b.lane, 100)) return; const cy = b.up ? b.rd.c0 : b.rd.c1, sg = b.up ? 1 : -1;

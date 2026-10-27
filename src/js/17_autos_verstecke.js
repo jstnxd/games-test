@@ -111,6 +111,7 @@
       ctx.strokeStyle = '#B3122E'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px, C.y + C.h + 10); ctx.quadraticCurveTo(px + 4, C.y + C.h + 25, px, C.y + C.h + 40); ctx.stroke(); }
     for (const [px, py] of [[C.x - 18, C.y + C.h - 30], [C.x + C.w + 18, C.y + C.h - 30], [C.x - 18, C.y + 60], [C.x + C.w + 18, C.y + 60]]) { if (px > 5196) continue; casPalm(px, py); }
     if (!inside) for (let k = 0; k < 2; k++) { const a = Math.sin(gt * 0.8 + k * 2.4) * 0.55 - Math.PI / 2, bx = C.x + (k ? C.w - 30 : 30), by = C.y + C.h + 6; ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createLinearGradient(bx, by, bx + Math.cos(a) * 260, by + Math.sin(a) * 260); g.addColorStop(0, 'rgba(255,240,200,.16)'); g.addColorStop(1, 'rgba(255,240,200,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + Math.cos(a - 0.12) * 260, by + Math.sin(a - 0.12) * 260); ctx.lineTo(bx + Math.cos(a + 0.12) * 260, by + Math.sin(a + 0.12) * 260); ctx.closePath(); ctx.fill(); ctx.restore(); }
+    if (inside) { // v157: von draußen deckt das Dach den Innenraum ganz ab, dann wird er nicht gezeichnet
     // Innenraum: roter Teppich mit goldenem Muster
     ctx.fillStyle = '#5A0E1E'; ctx.fillRect(I.x0, I.y0, I.x1 - I.x0, I.y1 - I.y0);
     ctx.fillStyle = 'rgba(255,200,80,.10)'; for (let x = I.x0 + 12; x < I.x1; x += 28) for (let y = I.y0 + 12; y < I.y1; y += 28) { ctx.beginPath(); ctx.moveTo(x, y - 5); ctx.lineTo(x + 5, y); ctx.lineTo(x, y + 5); ctx.lineTo(x - 5, y); ctx.closePath(); ctx.fill(); }
@@ -138,17 +139,22 @@
     CAS_BJ.forEach((t, i) => { drawFigure(t.x, t.y - 28, Math.PI / 2, 0, casLooks[i]); drawBJTable(t.x, t.y, i, t.min); }); // v144: neuer Tisch
     // Kronleuchter-Licht
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (const [lx, ly] of [[4960, 960], [5080, 960], [5020, 1180]]) { const g = ctx.createRadialGradient(lx, ly, 2, lx, ly, 70); g.addColorStop(0, 'rgba(255,220,150,.18)'); g.addColorStop(1, 'rgba(255,220,150,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(lx, ly, 70, 0, TAU); ctx.fill(); } ctx.restore();
+    }
     if (!inside) drawCasinoRoof();
   }
-  function drawCasinoRoof() {
+  function drawCasinoRoof() { // v157: Dach und Schild als fertiges Bild (zwei Zustände fürs Flackern), Lauflicht live
+    const C = CAS, fl = Math.sin(gt * 9) > -0.92;
+    bcDraw('casroof' + (fl ? 1 : 0), C.x - 4, C.y - 4, C.w + 14, C.h + 16, () => drawCasinoRoof0(fl));
+    // Lauflicht rundherum
+    const n = 46, per = 2 * (C.w + C.h); for (let k = 0; k < n; k++) { let d = k * per / n, x, y; if (d < C.w) { x = C.x + d; y = C.y + 4; } else if ((d -= C.w) < C.h) { x = C.x + C.w - 4; y = C.y + d; } else if ((d -= C.h) < C.w) { x = C.x + C.w - d; y = C.y + C.h - 4; } else { d -= C.w; x = C.x + 4; y = C.y + C.h - d; } const on = (Math.floor(gt * 8) + k) % 3 === 0; ctx.fillStyle = on ? '#FFF3B0' : '#8A6A2A'; ctx.beginPath(); ctx.arc(x, y, on ? 2.6 : 1.8, 0, TAU); ctx.fill(); }
+  }
+  function drawCasinoRoof0(fl) {
     const C = CAS;
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(C.x + 6, C.y + 8, C.w, C.h);
     const g = ctx.createLinearGradient(0, C.y, 0, C.y + C.h); g.addColorStop(0, '#2A1630'); g.addColorStop(1, '#170C1C'); ctx.fillStyle = g; ctx.fillRect(C.x, C.y, C.w, C.h);
     ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1; for (let x = C.x + 20; x < C.x + C.w; x += 40) { ctx.beginPath(); ctx.moveTo(x, C.y); ctx.lineTo(x, C.y + C.h); ctx.stroke(); }
-    // Lauflicht rundherum
-    const n = 46, per = 2 * (C.w + C.h); for (let k = 0; k < n; k++) { let d = k * per / n, x, y; if (d < C.w) { x = C.x + d; y = C.y + 4; } else if ((d -= C.w) < C.h) { x = C.x + C.w - 4; y = C.y + d; } else if ((d -= C.h) < C.w) { x = C.x + C.w - d; y = C.y + C.h - 4; } else { d -= C.w; x = C.x + 4; y = C.y + C.h - d; } const on = (Math.floor(gt * 8) + k) % 3 === 0; ctx.fillStyle = on ? '#FFF3B0' : '#8A6A2A'; ctx.beginPath(); ctx.arc(x, y, on ? 2.6 : 1.8, 0, TAU); ctx.fill(); }
     // grosses Leuchtschild
-    const cx = C.x + C.w / 2, cy = C.y + C.h / 2 - 20, fl = Math.sin(gt * 9) > -0.92;
+    const cx = C.x + C.w / 2, cy = C.y + C.h / 2 - 20;
     ctx.fillStyle = '#10151C'; rr(cx - 112, cy - 46, 224, 92, 14); ctx.fill(); ctx.strokeStyle = '#FFD24A'; ctx.lineWidth = 3; rr(cx - 112, cy - 46, 224, 92, 14); ctx.stroke();
     ctx.save(); if (fl) { ctx.shadowColor = '#FF3A8C'; ctx.shadowBlur = 16; } ctx.fillStyle = fl ? '#FF5CA8' : '#6A2448'; ctx.font = '900 40px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('CASINO', cx, cy - 6); ctx.restore();
     ctx.save(); ctx.shadowColor = '#FFD24A'; ctx.shadowBlur = 8; ctx.fillStyle = '#FFE27A'; ctx.font = '900 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('★ LUCKY KELLER ★', cx, cy + 26); ctx.restore();
@@ -177,7 +183,8 @@
     for (const px of [APO_AT.x - 36, APO_AT.x + 36]) { ctx.fillStyle = '#F4F4F8'; rr(px - 7, A.y - 12, 14, 12, 3); ctx.fill(); ctx.fillStyle = '#3F8A4A'; ctx.beginPath(); ctx.arc(px, A.y - 13, 9, 0, TAU); ctx.fill(); ctx.fillStyle = '#5FA855'; ctx.beginPath(); ctx.arc(px - 3, A.y - 16, 5, 0, TAU); ctx.fill(); }
     if (dk) glow(APO_AT.x, A.y - 4, 44, '200,255,220', 0.16);
   }
-  function drawApoBau(A) { // v115: geschlossene Apotheke mit Geruest, Brettern und Bauzaun
+  function drawApoBau(A) { bcDraw('apobau' + (seaSnow() ? 'w' : ''), A.x - 12, -4, A.w + 34, A.y + A.h + 24, () => drawApoBau0(A)); } // v157
+  function drawApoBau0(A) { // v115: geschlossene Apotheke mit Geruest, Brettern und Bauzaun
     ctx.fillStyle = '#C9C2B4'; ctx.fillRect(A.x - 8, 0, A.w + 16, A.y);
     const g = bldBase(A, -1, 64, '#D9D6CF', '#BDB8AE', 'flat');
     ctx.fillStyle = 'rgba(90,80,60,.25)'; for (let k = 0; k < 6; k++) { ctx.beginPath(); ctx.ellipse(A.x + 30 + k * 36, A.y + 50 - (k % 2) * 8, 16, 7, 0, 0, TAU); ctx.fill(); } // Wasserflecken
@@ -276,7 +283,9 @@
     } finally { prOver = null; }
     mpDraw(f => f.rg === (prVisit || mp.id) + ':r');
   }
-  function drawLager() { // v72: im Gewerbegebiet an der Hauptstrasse, Rolltor oben zur Strasse
+  function drawLager() { const L0 = LAGER; if (!inView(L0.x + L0.w / 2, L0.y + L0.h / 2, 220)) return; const own = G && G.lager && G.lager.own, n = own && G.lager ? Math.min(6, Math.ceil(stashSum(G.lager.inv) / 40)) : 0, x0 = Math.min(L0.x, LAGER_AT.x - 70) - 6, x1 = Math.max(L0.x + L0.w + 8, LAGER_AT.x + 70) + 6;
+    bcDraw('lager' + (own ? 1 : 0) + (own ? G.lager.lv : 0) + n + (lightK() > 0.25 ? 'd' : 'l'), x0, L0.y - 46, x1 - x0, L0.h + 60, drawLager0); } // v157
+  function drawLager0() { // v72: im Gewerbegebiet an der Hauptstrasse, Rolltor oben zur Strasse
     const L0 = LAGER; if (!inView(L0.x + L0.w / 2, L0.y + L0.h / 2, 220)) return;
     const own = G && G.lager && G.lager.own, lv = own ? G.lager.lv : 0, dk = lightK() > 0.25, top = L0.y - 40;
     ctx.fillStyle = '#2C3038'; ctx.fillRect(LAGER_AT.x - 70, top, 140, L0.y - top + 4); // Zufahrt (v97: von der Nordallee)
@@ -297,26 +306,31 @@
   function drawAutohof() {
     const A0 = AH_LOT, H0 = AUTOHOF, dk = lightK() > 0.25;
     if (inView(A0.x + A0.w / 2, A0.y + A0.h / 2, 420)) {
-      ctx.fillStyle = '#383E47'; ctx.fillRect(A0.x, A0.y, A0.w, A0.h);
-      ctx.fillStyle = 'rgba(255,255,255,.035)'; for (let x = A0.x; x < A0.x + A0.w; x += 40) for (let y = A0.y + ((x / 40) % 2) * 20; y < A0.y + A0.h; y += 40) ctx.fillRect(x, y, 20, 20);
-      ctx.fillStyle = '#5A636F'; ctx.fillRect(A0.x, A0.y, A0.w, 4); ctx.fillRect(A0.x, A0.y, 4, A0.h); ctx.fillRect(A0.x + A0.w - 4, A0.y, 4, A0.h);
+      bcDraw('ahfloor', A0.x - 2, A0.y - 2, A0.w + 4, A0.h + 4, () => { // v157: Boden als fertiges Bild
+        ctx.fillStyle = '#383E47'; ctx.fillRect(A0.x, A0.y, A0.w, A0.h);
+        ctx.fillStyle = 'rgba(255,255,255,.035)'; for (let x = A0.x; x < A0.x + A0.w; x += 40) for (let y = A0.y + ((x / 40) % 2) * 20; y < A0.y + A0.h; y += 40) ctx.fillRect(x, y, 20, 20);
+        ctx.fillStyle = '#5A636F'; ctx.fillRect(A0.x, A0.y, A0.w, 4); ctx.fillRect(A0.x, A0.y, 4, A0.h); ctx.fillRect(A0.x + A0.w - 4, A0.y, 4, A0.h);
+      });
       // Wimpelketten quer ueber den Platz
       for (const [y0, y1] of [[A0.y + 14, A0.y + 30], [A0.y + 150, A0.y + 136]]) {
         ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(H0.x + H0.w + 10, y0); ctx.quadraticCurveTo(A0.x + A0.w * 0.7, y1 + 10, A0.x + A0.w - 10, y0); ctx.stroke();
         for (let k = 0; k < 14; k++) { const t = k / 13, bx = (1 - t) * (1 - t) * (H0.x + H0.w + 10) + 2 * (1 - t) * t * (A0.x + A0.w * 0.7) + t * t * (A0.x + A0.w - 10), by = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * (y1 + 10) + t * t * y0, fl = Math.sin(gt * 4 + k) * 1.5; ctx.fillStyle = ['#D33F3F', '#F2C14E', '#2F6FD6', '#3FAE6A', '#F4F4F8'][k % 5]; ctx.beginPath(); ctx.moveTo(bx - 5, by); ctx.lineTo(bx + 5, by); ctx.lineTo(bx + fl, by + 9); ctx.fill(); }
       }
       // Showroom
-      ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.fillRect(H0.x + 7, H0.y + 9, H0.w, H0.h);
-      ctx.fillStyle = '#E4E8EE'; ctx.fillRect(H0.x, H0.y, H0.w, H0.h); ctx.fillStyle = '#C3CAD3'; ctx.fillRect(H0.x, H0.y, H0.w, 14); ctx.fillStyle = 'rgba(0,0,0,.06)'; for (let x = H0.x + 20; x < H0.x + H0.w; x += 40) ctx.fillRect(x, H0.y + 14, 1, H0.h - 60);
-      const gy = H0.y + H0.h - 46, gl = ctx.createLinearGradient(0, gy, 0, gy + 42); gl.addColorStop(0, dk ? '#FFE9B0' : '#9CC9E6'); gl.addColorStop(1, dk ? '#E0B870' : '#5E94BC');
-      ctx.fillStyle = gl; ctx.fillRect(H0.x + 6, gy, H0.w - 12, 42); // Glasfront
-      [['super', 7], ['sport', 1]].forEach(([id, c], k) => { ctx.save(); ctx.globalAlpha = 0.55; drawCar(H0.x + 70 + k * 150, gy + 22, 0, id, c, null, true); ctx.restore(); });
-      ctx.fillStyle = 'rgba(255,255,255,.35)'; for (let x = H0.x + 6; x < H0.x + H0.w - 6; x += 36) ctx.fillRect(x, gy, 2, 42); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.moveTo(H0.x + 30, gy); ctx.lineTo(H0.x + 60, gy); ctx.lineTo(H0.x + 30, gy + 42); ctx.lineTo(H0.x + 6, gy + 42); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#20262E'; ctx.fillRect(AH_AT.x - 16, gy + 2, 32, 40); ctx.fillStyle = dk ? 'rgba(255,233,168,.6)' : 'rgba(156,201,230,.6)'; ctx.fillRect(AH_AT.x - 14, gy + 4, 13, 36); ctx.fillRect(AH_AT.x + 1, gy + 4, 13, 36); // Eingang
-      ctx.fillStyle = '#20262E'; rr(H0.x + H0.w / 2 - 74, H0.y + 22, 148, 26, 6); ctx.fill(); const sg = ctx.createLinearGradient(H0.x, 0, H0.x + H0.w, 0); sg.addColorStop(0, '#FFB547'); sg.addColorStop(1, '#FF6A3D');
-      ctx.fillStyle = sg; ctx.font = '900 15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('AUTOHOF', H0.x + H0.w / 2, H0.y + 35.5);
-      ctx.fillStyle = '#9AA6B3'; ctx.font = '700 7px sans-serif'; ctx.fillText('NEU- UND SPORTWAGEN', H0.x + H0.w / 2, H0.y + 56); ctx.textBaseline = 'alphabetic';
-      for (const px of [AH_AT.x - 30, AH_AT.x + 30]) { ctx.fillStyle = '#5A3B26'; ctx.fillRect(px - 6, gy + 44, 12, 9); ctx.fillStyle = '#2C6844'; ctx.beginPath(); ctx.arc(px, gy + 42, 8, 0, TAU); ctx.fill(); } // Kuebelpflanzen
+      bcDraw('ahshow' + (dk ? 1 : 0), H0.x - 4, H0.y - 4, H0.w + 16, H0.h + 20, () => { // v157: Showroom als fertiges Bild
+        ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.fillRect(H0.x + 7, H0.y + 9, H0.w, H0.h);
+        ctx.fillStyle = '#E4E8EE'; ctx.fillRect(H0.x, H0.y, H0.w, H0.h); ctx.fillStyle = '#C3CAD3'; ctx.fillRect(H0.x, H0.y, H0.w, 14); ctx.fillStyle = 'rgba(0,0,0,.06)'; for (let x = H0.x + 20; x < H0.x + H0.w; x += 40) ctx.fillRect(x, H0.y + 14, 1, H0.h - 60);
+        const gy = H0.y + H0.h - 46, gl = ctx.createLinearGradient(0, gy, 0, gy + 42); gl.addColorStop(0, dk ? '#FFE9B0' : '#9CC9E6'); gl.addColorStop(1, dk ? '#E0B870' : '#5E94BC');
+        ctx.fillStyle = gl; ctx.fillRect(H0.x + 6, gy, H0.w - 12, 42); // Glasfront
+        [['super', 7], ['sport', 1]].forEach(([id, c], k) => { ctx.save(); ctx.globalAlpha = 0.55; drawCar(H0.x + 70 + k * 150, gy + 22, 0, id, c, null, true); ctx.restore(); });
+        ctx.fillStyle = 'rgba(255,255,255,.35)'; for (let x = H0.x + 6; x < H0.x + H0.w - 6; x += 36) ctx.fillRect(x, gy, 2, 42); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.moveTo(H0.x + 30, gy); ctx.lineTo(H0.x + 60, gy); ctx.lineTo(H0.x + 30, gy + 42); ctx.lineTo(H0.x + 6, gy + 42); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#20262E'; ctx.fillRect(AH_AT.x - 16, gy + 2, 32, 40); ctx.fillStyle = dk ? 'rgba(255,233,168,.6)' : 'rgba(156,201,230,.6)'; ctx.fillRect(AH_AT.x - 14, gy + 4, 13, 36); ctx.fillRect(AH_AT.x + 1, gy + 4, 13, 36); // Eingang
+        ctx.fillStyle = '#20262E'; rr(H0.x + H0.w / 2 - 74, H0.y + 22, 148, 26, 6); ctx.fill(); const sg = ctx.createLinearGradient(H0.x, 0, H0.x + H0.w, 0); sg.addColorStop(0, '#FFB547'); sg.addColorStop(1, '#FF6A3D');
+        ctx.fillStyle = sg; ctx.font = '900 15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('AUTOHOF', H0.x + H0.w / 2, H0.y + 35.5);
+        ctx.fillStyle = '#9AA6B3'; ctx.font = '700 7px sans-serif'; ctx.fillText('NEU- UND SPORTWAGEN', H0.x + H0.w / 2, H0.y + 56); ctx.textBaseline = 'alphabetic';
+        for (const px of [AH_AT.x - 30, AH_AT.x + 30]) { ctx.fillStyle = '#5A3B26'; ctx.fillRect(px - 6, gy + 44, 12, 9); ctx.fillStyle = '#2C6844'; ctx.beginPath(); ctx.arc(px, gy + 42, 8, 0, TAU); ctx.fill(); } // Kuebelpflanzen
+      });
+      const gy = H0.y + H0.h - 46;
       // Drehteller mit dem Supersportwagen
       const tx = A0.x + 470, ty = A0.y + 90; ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(tx + 3, ty + 4, 50, 34); ctx.fill(); ctx.fillStyle = '#C9CED6'; ell(tx, ty, 50, 34); ctx.fill(); ctx.fillStyle = '#E8ECF2'; ell(tx, ty, 44, 29); ctx.fill();
       ctx.strokeStyle = 'rgba(255,181,71,' + (0.5 + 0.3 * Math.sin(gt * 3)).toFixed(2) + ')'; ctx.lineWidth = 2; ell(tx, ty, 47, 31.5); ctx.stroke();
@@ -337,12 +351,16 @@
     }
     const P0 = PARK_LOT;
     if (inView(P0.x + P0.w / 2, P0.y + P0.h / 2, 300)) { // Parkplatz mit ein paar abgestellten Autos
-      ctx.fillStyle = '#2C3038'; ctx.fillRect(P0.x, P0.y, P0.w, P0.h); ctx.fillStyle = 'rgba(255,255,255,.4)'; for (let k = 0; k <= 5; k++) { ctx.fillRect(P0.x + 20 + k * 56, P0.y + 20, 2, 60); ctx.fillRect(P0.x + 20 + k * 56, P0.y + 180, 2, 60); }
-      ctx.fillStyle = '#20262E'; ctx.fillRect(P0.x + P0.w / 2 - 22, P0.y + 119, 44, 22); ctx.fillStyle = '#4B8DFF'; ctx.font = '900 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('P', P0.x + P0.w / 2, P0.y + 131); ctx.textBaseline = 'alphabetic';
-      [[0, 'mini', 0], [2, 'van', 5], [3, 'muscle', 4], [1, 'sport', 9], [4, 'mini', 3], [0, 'van', 2]].forEach(([k, id, c], i) => drawCar(P0.x + 48 + k * 56, P0.y + (i < 3 ? 50 : 210), Math.PI / 2, id, c, null, true));
+      bcDraw('ahpark' + (lightK() > 0.25 ? 1 : 0) + (lightK() > 0.3 ? 1 : 0), P0.x - 8, P0.y - 8, P0.w + 16, P0.h + 16, () => { // v157: Parkplatz als fertiges Bild
+        ctx.fillStyle = '#2C3038'; ctx.fillRect(P0.x, P0.y, P0.w, P0.h); ctx.fillStyle = 'rgba(255,255,255,.4)'; for (let k = 0; k <= 5; k++) { ctx.fillRect(P0.x + 20 + k * 56, P0.y + 20, 2, 60); ctx.fillRect(P0.x + 20 + k * 56, P0.y + 180, 2, 60); }
+        ctx.fillStyle = '#20262E'; ctx.fillRect(P0.x + P0.w / 2 - 22, P0.y + 119, 44, 22); ctx.fillStyle = '#4B8DFF'; ctx.font = '900 16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('P', P0.x + P0.w / 2, P0.y + 131); ctx.textBaseline = 'alphabetic';
+        [[0, 'mini', 0], [2, 'van', 5], [3, 'muscle', 4], [1, 'sport', 9], [4, 'mini', 3], [0, 'van', 2]].forEach(([k, id, c], i) => drawCar(P0.x + 48 + k * 56, P0.y + (i < 3 ? 50 : 210), Math.PI / 2, id, c, null, true));
+      });
     }
   }
-  function drawWerk() { // v69: Autowerkstatt im Sueden an der Suedstrasse
+  function drawWerk() { const L0 = WS_LOT, W0 = WERK; if (!inView(L0.x + L0.w / 2, L0.y + L0.h / 2, 260)) return; const x0 = Math.min(L0.x, W0.x) - 6, y0 = Math.min(L0.y, W0.y) - 6, x1 = Math.max(L0.x + L0.w, W0.x + W0.w + 8) + 6, y1 = Math.max(L0.y + L0.h, W0.y + W0.h + 10) + 6;
+    bcDraw('werk' + (lightK() > 0.25 ? 1 : 0), x0, y0, x1 - x0, y1 - y0, drawWerk0); } // v157
+  function drawWerk0() { // v69: Autowerkstatt im Sueden an der Suedstrasse
     const L0 = WS_LOT, W0 = WERK; if (!inView(L0.x + L0.w / 2, L0.y + L0.h / 2, 260)) return;
     const dk = lightK() > 0.25;
     ctx.fillStyle = '#2C3038'; ctx.fillRect(L0.x, L0.y, L0.w, L0.h); ctx.fillStyle = 'rgba(0,0,0,.25)'; for (let k = 0; k < 6; k++) { ell(L0.x + 30 + k * 70, L0.y + 40 + (k % 2) * 10, 10, 4); ctx.fill(); } // Oelflecken

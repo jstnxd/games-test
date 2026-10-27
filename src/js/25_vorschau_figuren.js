@@ -57,7 +57,13 @@
   function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
   function drawFields(ar) { // v147: Stellflaechen als Gummimatte mit Symbol statt gestricheltem Kasten
     for (const nm of ['rack', 'table']) {
-      const f = ar.fields[nm], inside = !GH_ON && inField(f, player.x, player.y), pu = 0.5 + 0.5 * Math.sin(gt * 4), w = f.x1 - f.x0, h = f.y1 - f.y0, cx = (f.x0 + f.x1) / 2, cy = f.y0 + h * 0.42;
+      const f = ar.fields[nm], inside = !GH_ON && inField(f, player.x, player.y);
+      if (!inside) bcDraw('fld' + ar.key + nm + '|' + f.x0 + ',' + f.y0 + ',' + f.x1 + ',' + f.y1, f.x0 - 3, f.y0 - 3, f.x1 - f.x0 + 8, f.y1 - f.y0 + 8, () => drawField1(ar, nm, false)); // v157: ohne Spieler darauf als fertiges Bild
+      else drawField1(ar, nm, true);
+    }
+  }
+  function drawField1(ar, nm, inside) {
+      const f = ar.fields[nm], pu = 0.5 + 0.5 * Math.sin(gt * 4), w = f.x1 - f.x0, h = f.y1 - f.y0, cx = (f.x0 + f.x1) / 2, cy = f.y0 + h * 0.42;
       ctx.fillStyle = 'rgba(0,0,0,.28)'; rr(f.x0 + 1.5, f.y0 + 2.5, w, h, 7); ctx.fill();
       const g = ctx.createLinearGradient(0, f.y0, 0, f.y1); g.addColorStop(0, '#2A3038'); g.addColorStop(1, '#1E232A'); ctx.fillStyle = g; rr(f.x0, f.y0, w, h, 7); ctx.fill();
       ctx.save(); rr(f.x0 + 4, f.y0 + 4, w - 8, h - 8, 5); ctx.clip(); ctx.fillStyle = 'rgba(255,255,255,.035)'; for (let x = f.x0 + 4; x < f.x1; x += 5) ctx.fillRect(x, f.y0, 2.2, h); ctx.restore();
@@ -70,7 +76,6 @@
       ctx.restore();
       ctx.fillStyle = inside ? ar.dry : 'rgba(255,255,255,.55)'; ctx.font = (w < 60 ? '800 6.5px' : '800 8px') + ' sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(f.label.toUpperCase(), cx, f.y1 - 7); ctx.textBaseline = 'alphabetic';
-    }
   }
   // pass 0 = Teppiche (unter den Stationen), pass 1 = alles andere (nach Hoehe sortiert)
   // v54: Anbau-Deko (Cartoon, keine Anleitung). Zeichnet in lokalen Koordinaten, gibt false zurueck, wenn die ID nicht dazugehoert.
@@ -971,7 +976,9 @@
     }
     return false;
   }
-  function drawDecorItem(id, x, y, sc) {
+  const DEC_STATIC = { rug: [-27, -21, 54, 42], couch: [-32, -19, 64, 42], leafrug: [-37, -31, 74, 62], roundrug: [-34, -34, 68, 68], beanbag: [-23, -19, 46, 40], dartboard: [-17, -19, 34, 43], guitar: [-13, -25, 26, 53], telescope: [-17, -25, 41, 55], leafposter: [-18, -22, 38, 48], seedrack: [-19, -21, 39, 44], hemprug: [-35, -27, 70, 54], jars: [-19, -11, 39, 31], carbonfilter: [-14, -25, 28, 51], hopsack: [-14, -17, 30, 38], maltsacks: [-21, -17, 42, 35], crates: [-17, -25, 36, 48], bartable: [-16, -23, 33, 44], mugshelf: [-21, -17, 42, 40], casks: [-24, -23, 50, 46], futon: [-26, -18, 55, 41], bed: [-20, -31, 40, 65], bunkbed: [-21, -31, 48, 66], dbed: [-38, -31, 76, 67], rugstripe: [-33, -25, 66, 50], armchair: [-22, -19, 44, 41], cactusrow: [-21, -16, 42, 32], gumball: [-11, -18, 22, 39], arclamp: [-24, -24, 45, 51], skatewall: [-25, -19, 50, 32], homebar: [-33, -26, 66, 48], masterpiece: [-23, -21, 46, 45], citykey: [-16, -17, 32, 37] }; // v157: Deko, die sich nie bewegt (gemessen), mit Rahmen [x, y, Breite, Höhe]
+  function drawDecorItem(id, x, y, sc) { const B = DEC_STATIC[id]; if (B && sc === 1 && !bcOff) { ctx.save(); ctx.translate(x, y); sprDraw('dec|' + id, B[0], B[1], B[2], B[3], () => drawDecorItem0(id, 0, 0, 1)); ctx.restore(); return; } drawDecorItem0(id, x, y, sc); }
+  function drawDecorItem0(id, x, y, sc) {
     ctx.save(); ctx.translate(x, y); ctx.scale(sc, sc);
     const t = gt;
     if (drawDec144(id, t) || drawDec143(id, t) || drawDec141(id, t) || drawDec140(id, t) || drawDec132(id, t) || drawDec130(id, t) || drawDec112(id, t) || drawDec107(id, t) || drawGrowDec(id, t) || drawBrewDec(id, t) || drawMoreDec(id, t) || drawNewDec(id, t) || drawDec106(id, t)) { ctx.restore(); return; }

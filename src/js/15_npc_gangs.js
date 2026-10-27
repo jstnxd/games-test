@@ -109,7 +109,14 @@
     ctx.fillStyle = 'rgba(245,247,250,.95)'; rr(x - w / 2, y - 9, w, 13, 5); ctx.fill(); ctx.beginPath(); ctx.moveTo(x - 3, y + 4); ctx.lineTo(x, y + 8); ctx.lineTo(x + 3, y + 4); ctx.fill();
     ctx.fillStyle = '#1D2129'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, y - 2.5); ctx.textBaseline = 'alphabetic';
   }
-  function drawGangHouse(h, hi) {
+  function drawGangHouse(h, hi) { // v157: Haus als fertiges Bild, nur die Fahne weht live
+    const x = h.x, y = h.y, w = h.w, hh = h.h, fh = hh * 0.36, ry0 = y + fh, rh = hh - fh, dk = lightK() > 0.25, gd = GANGS[hi % GANGS.length];
+    bcDraw('gh' + hi + (dk ? 'd' : 'l'), x - 12, y - 28, w + 32, hh + 58, () => drawGangHouse0(h, hi));
+    // Fahne auf dem Dach
+    const fx = x + w - 16, fy = ry0 + rh - 12, wv = Math.sin(gt * 4 + hi);
+    ctx.fillStyle = '#C9D2DC'; ctx.fillRect(fx, fy - 30, 1.6, 30); ctx.fillStyle = gd.band; ctx.beginPath(); ctx.moveTo(fx + 1.6, fy - 30); ctx.quadraticCurveTo(fx + 9, fy - 30 + wv * 2, fx + 18, fy - 27); ctx.lineTo(fx + 18, fy - 19); ctx.quadraticCurveTo(fx + 9, fy - 22 + wv * 2, fx + 1.6, fy - 21); ctx.closePath(); ctx.fill();
+  }
+  function drawGangHouse0(h, hi) {
     const x = h.x, y = h.y, w = h.w, hh = h.h, fh = hh * 0.36, ry0 = y + fh, rh = hh - fh, dk = lightK() > 0.25, gd = GANGS[hi % GANGS.length];
     ctx.fillStyle = '#55585E'; ctx.fillRect(h.dx - 9, y - 18, 18, 18); ctx.fillStyle = 'rgba(0,0,0,.2)'; for (let k = 0; k < 3; k++) ctx.fillRect(h.dx - 9, y - 13 + k * 6, 18, 1);
     ctx.fillStyle = '#1D2129'; for (const ox of [12, 24, w - 26]) { ctx.beginPath(); ctx.arc(x + ox, y - 8, 5, 0, TAU); ctx.fill(); } // Muellsaecke statt Hecke
@@ -135,26 +142,26 @@
     ctx.fillStyle = '#15181D'; ctx.beginPath(); ctx.moveTo(tx - 12, ty + 6); ctx.lineTo(tx - 12, ty - 6); ctx.lineTo(tx - 6, ty); ctx.lineTo(tx, ty - 9); ctx.lineTo(tx + 6, ty); ctx.lineTo(tx + 12, ty - 6); ctx.lineTo(tx + 12, ty + 6); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#8C96A3'; ctx.fillRect(x + w - 38, ry0 + 12, 24, 18); ctx.fillStyle = '#6B7480'; for (let k = 0; k < 4; k++) ctx.fillRect(x + w - 36, ry0 + 15 + k * 4, 20, 1.5);
     ctx.fillStyle = '#D6DCE6'; ctx.beginPath(); ctx.ellipse(x + 20, ry0 + rh - 22, 8, 6, -0.6, 0, TAU); ctx.fill(); ctx.fillStyle = '#9AA6B3'; ctx.fillRect(x + 19, ry0 + rh - 22, 2, 8);
-    // Fahne auf dem Dach
-    const fx = x + w - 16, fy = ry0 + rh - 12, wv = Math.sin(gt * 4 + hi);
-    ctx.fillStyle = '#C9D2DC'; ctx.fillRect(fx, fy - 30, 1.6, 30); ctx.fillStyle = gd.band; ctx.beginPath(); ctx.moveTo(fx + 1.6, fy - 30); ctx.quadraticCurveTo(fx + 9, fy - 30 + wv * 2, fx + 18, fy - 27); ctx.lineTo(fx + 18, fy - 19); ctx.quadraticCurveTo(fx + 9, fy - 22 + wv * 2, fx + 1.6, fy - 21); ctx.closePath(); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fillRect(x, y, w, 3);
+    chimney(h); // v157
   }
   function drawGangHof() {
     if (!inView(GV.x + GV.w / 2, GV.y + GV.h / 2, 460)) return; gvLooks();
     const x0 = GV.x, y0 = GV.y - 3, x1 = GV.x + GV.w, y1 = WH, L = lightK();
-    ctx.fillStyle = '#383C42'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0); ctx.fillRect(4630, 2429, 30, 80); // rissiger Beton, auch der Durchgang
-    ctx.fillStyle = 'rgba(0,0,0,.14)'; for (let x = x0; x < x1; x += 40) ctx.fillRect(x, y0, 1, y1 - y0); for (let y = y0 + 20; y < y1; y += 40) ctx.fillRect(x0, y, x1 - x0, 1);
-    ctx.strokeStyle = 'rgba(0,0,0,.3)'; ctx.lineWidth = 1; ctx.beginPath(); for (let k = 0; k < 14; k++) { const cx = x0 + 30 + ((k * 211) % (x1 - x0 - 60)), cy = y0 + 10 + ((k * 97) % (y1 - y0 - 20)); ctx.moveTo(cx, cy); ctx.lineTo(cx + 9, cy + 5); ctx.lineTo(cx + 14, cy + 2); ctx.lineTo(cx + 22, cy + 8); } ctx.stroke();
-    ctx.fillStyle = '#41464D'; ctx.fillRect(x0, 2490, x1 - x0, 20); ctx.fillRect(4635, 2429, 20, 62); // Weg
-    for (let k = 0; k < 9; k++) { const c = GANGS[k % GANGS.length].band; ctx.fillStyle = c; ctx.globalAlpha = 0.28; ctx.beginPath(); ctx.arc(x0 + 60 + k * 82, 2520 + ((k * 37) % 50), 5 + (k % 3) * 3, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; // Farbkleckse
-    // Basketball-Feld vor der Hauswand
-    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(GV_HOOP.x, GV_HOOP.y, 46, 0, Math.PI); ctx.stroke(); ctx.strokeRect(GV_HOOP.x - 14, GV_HOOP.y, 28, 30);
-    // Graffiti-Mauer am Kartenrand
-    ctx.fillStyle = '#5A4A48'; ctx.fillRect(x0, 2590, x1 - x0, 10); ctx.fillStyle = 'rgba(0,0,0,.2)'; for (let x = x0; x < x1; x += 12) ctx.fillRect(x, 2590, 1, 10);
-    ctx.font = '900 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 2.5; ctx.strokeStyle = '#15181D';
-    [['GANGVIERTEL', 4830, '#FF5C7A'], ['KRONE', 4560, '#B36BFF'], ['VIPERN', 5100, '#F2C81E'], ['FRONT', 4690, '#3FA9FF'], ['FAUST', 4975, '#E0243A']].forEach(([t, x, c]) => { ctx.strokeText(t, x, 2595.5); ctx.fillStyle = c; ctx.fillText(t, x, 2595.5); });
-    ctx.textBaseline = 'alphabetic';
+    bcDraw('gvhof', x0 - 4, 2425, x1 - x0 + 8, WH - 2425 + 6, () => { // v157: Boden, Mauer und Graffiti als fertiges Bild
+      ctx.fillStyle = '#383C42'; ctx.fillRect(x0, y0, x1 - x0, y1 - y0); ctx.fillRect(4630, 2429, 30, 80); // rissiger Beton, auch der Durchgang
+      ctx.fillStyle = 'rgba(0,0,0,.14)'; for (let x = x0; x < x1; x += 40) ctx.fillRect(x, y0, 1, y1 - y0); for (let y = y0 + 20; y < y1; y += 40) ctx.fillRect(x0, y, x1 - x0, 1);
+      ctx.strokeStyle = 'rgba(0,0,0,.3)'; ctx.lineWidth = 1; ctx.beginPath(); for (let k = 0; k < 14; k++) { const cx = x0 + 30 + ((k * 211) % (x1 - x0 - 60)), cy = y0 + 10 + ((k * 97) % (y1 - y0 - 20)); ctx.moveTo(cx, cy); ctx.lineTo(cx + 9, cy + 5); ctx.lineTo(cx + 14, cy + 2); ctx.lineTo(cx + 22, cy + 8); } ctx.stroke();
+      ctx.fillStyle = '#41464D'; ctx.fillRect(x0, 2490, x1 - x0, 20); ctx.fillRect(4635, 2429, 20, 62); // Weg
+      for (let k = 0; k < 9; k++) { const c = GANGS[k % GANGS.length].band; ctx.fillStyle = c; ctx.globalAlpha = 0.28; ctx.beginPath(); ctx.arc(x0 + 60 + k * 82, 2520 + ((k * 37) % 50), 5 + (k % 3) * 3, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; // Farbkleckse
+      // Basketball-Feld vor der Hauswand
+      ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(GV_HOOP.x, GV_HOOP.y, 46, 0, Math.PI); ctx.stroke(); ctx.strokeRect(GV_HOOP.x - 14, GV_HOOP.y, 28, 30);
+      // Graffiti-Mauer am Kartenrand
+      ctx.fillStyle = '#5A4A48'; ctx.fillRect(x0, 2590, x1 - x0, 10); ctx.fillStyle = 'rgba(0,0,0,.2)'; for (let x = x0; x < x1; x += 12) ctx.fillRect(x, 2590, 1, 10);
+      ctx.font = '900 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 2.5; ctx.strokeStyle = '#15181D';
+      [['GANGVIERTEL', 4830, '#FF5C7A'], ['KRONE', 4560, '#B36BFF'], ['VIPERN', 5100, '#F2C81E'], ['FRONT', 4690, '#3FA9FF'], ['FAUST', 4975, '#E0243A']].forEach(([t, x, c]) => { ctx.strokeText(t, x, 2595.5); ctx.fillStyle = c; ctx.fillText(t, x, 2595.5); });
+      ctx.textBaseline = 'alphabetic';
+    });
     // Lowrider (huepft leicht auf der Hydraulik)
     { const c = GV_CAR, bo = Math.max(0, Math.sin(gt * 2.4)) * 1.6;
       ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(c.x + 3, c.y + 5, c.w, c.h); ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x + 40, c.y + 34, 14, 4, 0, 0, TAU); ctx.fill();
