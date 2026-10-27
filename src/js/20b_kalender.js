@@ -82,7 +82,7 @@
   }
   // ---------- Halloween: Kürbisse und Süßes oder Saures ----------
   const ttHouse = (h) => !h.gang && !h.office;
-  const ttDoor = h => ({ x: h.dx + 24, y: h.face === 1 ? h.dy + 10 : h.dy - 10 });
+  const ttDoor = h => ({ x: h.dx + 17, y: h.face === 1 ? h.y + h.h + 9 : h.y - 9 }); // v161: im Vorgarten direkt neben der Tür, nicht auf dem Gehweg
   function calTarget(px, py) {
     if (KR_NEUTRAL || !calOn('halloween') || player.fl || inCar()) return null; let best = null, bd = 34;
     for (let i = 0; i < HOUSES.length; i++) { const h = HOUSES[i]; if (!ttHouse(h)) continue; const p = ttDoor(h), dd = Math.hypot(px - p.x, py - p.y); if (dd < bd) { bd = dd; best = { type: 'cal', what: 'treat', idx: i, ar: AREAS.keller }; } }

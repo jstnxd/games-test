@@ -380,7 +380,7 @@
   const gtlKey = () => (KR_NEUTRAL || !G ? 'n' : seasonI()) + (state === 'edit' ? 'e' : '');
   function gtlDraw(x0, y0, S) { // zeichnet den unbeweglichen Boden für eine Kachel
     const v = [viewX0, viewX1, viewY0, viewY1]; viewX0 = x0 - 2; viewX1 = x0 + S + 2; viewY0 = y0 - 2; viewY1 = y0 + S + 2; gsPass = 1;
-    try { ctx.fillStyle = '#17261F'; ctx.fillRect(x0, y0, S, S); if (viewX1 > 0) drawCityGround(); if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); drawPaths(); drawMapGround(); drawBushes(); drawAmbientGround(); drawDetailsGround(); drawPark(); }
+    try { ctx.fillStyle = '#17261F'; ctx.fillRect(x0, y0, S, S); if (viewX1 > 0) drawCityGround(); if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); drawPaths(); drawMapGround(); drawBushes(); drawAmbientGround(); drawDetailsGround(); drawExtrasGround(); drawPark(); }
     finally { gsPass = 0; [viewX0, viewX1, viewY0, viewY1] = v; }
   }
   function gtlClear() { cacheClear('g|'); }
@@ -497,6 +497,7 @@
     ctx.fillStyle = '#6A6E75'; ctx.fillRect(h.dx - 9, gy, 18, 18); ctx.fillStyle = 'rgba(0,0,0,.18)'; for (let k = 0; k < 3; k++) ctx.fillRect(h.dx - 9, gy + 5 + k * 6, 18, 1);
     const snw = seaSnow(); ctx.fillStyle = snw ? '#9FB0BE' : '#1E3F28'; rr(x + 4, gy + 4, h.dx - 14 - x - 4, 10, 4); ctx.fill(); rr(h.dx + 14, gy + 4, x + w - 4 - h.dx - 14, 10, 4); ctx.fill();
     ctx.fillStyle = snw ? '#DCE5EE' : '#2C5A3A'; for (let k = x + 8; k < x + w - 8; k += 11) { if (Math.abs(k - h.dx) < 16) continue; ctx.beginPath(); ctx.arc(k, gy + 8, 3, 0, TAU); ctx.fill(); }
+    if (!snw && hi % 3 !== 2 && !KR_NEUTRAL) { const si = G ? seasonI() : 1, HC = [['#FF8FBF', '#FFFFFF'], ['#FF5C7A', '#FFD24A'], ['#E8833A', '#C9A2FF']][si === 2 ? 2 : si === 0 ? 0 : 1]; for (let k = x + 10, q = 0; k < x + w - 8; k += 7, q++) { if (Math.abs(k - h.dx) < 18 || (q * 5 + hi) % 3) continue; ctx.fillStyle = HC[q % 2]; ctx.beginPath(); ctx.arc(k + ((q * 3) % 4) - 2, gy + 5 + ((q * 7) % 5), 1.3, 0, TAU); ctx.fill(); } } // v161: Blüten in der Hecke
     // Schatten und Fassade
     ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.fillRect(x + 7, y + 9, w, hh);
     ctx.fillStyle = h.c; ctx.fillRect(x, fy0, w, fh);
@@ -795,7 +796,7 @@
     const ents = [GYM_AT, GYM2_AT, PIZZA_AT, CLUB_AT, BANK_AT, MAKLER_AT, APO_AT, LAGER_AT, WS_AT, KIOSK_AT, TREFF_AT, GV_AT, AH_AT, { x: 3070, y: RDH[0].c1 + 12 }, { x: DOOR.x, y: DOOR.y + 50 }, { x: DOOR2.x, y: DOOR2.y + 50 }, { x: DOOR3.x, y: DOOR3.y - 50 }].filter(Boolean);
     const bad = (x, y, rd) => NAV_VL.some(l => l.k === 'w' && Math.abs(l.x - x) < 110 && l.y0 <= rd.c0 && l.y1 >= rd.c1) || x < 80 || x > WW - 80 || RDV.some(v => x > v.c0 - SW - 70 && x < v.c1 + SW + 70) || HOUSES.some(q => Math.abs(q.dx - x) < 56 && Math.abs(q.dy - y) < 50)
       || ents.some(q => Math.abs(q.x - x) < 96 && Math.abs(q.y - y) < 56) || LAMPS.some(l => Math.abs(l.x - x) < 56 && Math.abs(l.y - y) < 30) || BINS.some(q => Math.abs(q.x - x) < 60 && Math.abs(q.y - y) < 30)
-      || [-50, -30, -10, 10, 30, 50].some(k => onPath(x + k, y)) || colliders.some(c => !c.fl && c.x < x + 52 && c.x + c.w > x - 44 && c.y < y + 12 && c.y + c.h > y - 12);
+      || [-40, -20, 0, 20, 40, 58].some(k => inKeep(x + k, y, 4) || inKeep(x + k, y + (rd.c0 > y ? -16 : 16), 4)) || [-50, -30, -10, 10, 30, 50].some(k => onPath(x + k, y)) || colliders.some(c => !c.fl && c.x < x + 52 && c.x + c.w > x - 44 && c.y < y + 12 && c.y + c.h > y - 12);
     BUS_ST = BUS_DEF.map(d => { const rd = RD.find(r => r.id === d.r), up = d.s < 0, y = up ? rd.c0 - 13 : rd.c1 + 13; let x = d.x;
       for (let k = 0; k <= 700; k += 10) { if (!bad(d.x + k, y, rd)) { x = d.x + k; break; } if (!bad(d.x - k, y, rd)) { x = d.x - k; break; } }
       return Object.assign({}, d, { x, y, up, rd, dir: up ? -1 : 1, lane: up ? rd.c0 + 23 : rd.c1 - 23 }); });
@@ -982,6 +983,7 @@
     drawBushes();
     if (state !== 'edit') drawAmbientGround();
     if (state !== 'edit') drawDetailsGround(); // v94
+    if (state !== 'edit') drawExtrasGround(); // v161
     }
     if (viewX0 < 0 && tiles) drawPlotGround();
     if (tiles) gsPass = 2; drawPark(); gsPass = 0; drawGym2(); drawKiosk(); drawStall(); drawAutohof(); drawLager(); drawPrPad(); drawWerk(); drawContainers(); drawCasino(); drawApotheke(); drawGangHof(); drawGangHof2(); drawBoulevard(); drawMarkt(); drawGym(); drawBank(); drawPizza(); drawClub(); drawMapTop();

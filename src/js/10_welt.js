@@ -508,6 +508,23 @@
     for (const Z of [SKATE, PITCH]) for (const [fx, fy] of [[0.05, 0.08], [0.95, 0.08], [0.05, 0.95], [0.95, 0.95]]) FLOODS.push({ x: Math.round(Z.x + Z.w * fx), y: Math.round(Z.y + Z.h * fy), cx: Z.x + Z.w / 2, cy: Z.y + Z.h / 2 });
   }
 
+  // v161: Wege zu Haustüren und Eingängen frei halten. Laternen, Tonnen (und später Hydranten, Briefkästen, Haltestellen) weichen zur Seite aus.
+  const KEEP = [];
+  { for (const h of HOUSES) { const dn = h.face === 1, e = dn ? h.y + h.h : h.y; KEEP.push({ x0: h.dx - 20, x1: h.dx + 20, y0: dn ? e : e - 58, y1: dn ? e + 58 : e }); }
+    for (const q of [GYM_AT, GYM2_AT, PIZZA_AT, CLUB_AT, BANK_AT, MAKLER_AT, APO_AT, LAGER_AT, WS_AT, TREFF_AT, GV_AT, AH_AT]) if (q && q.x > -999) KEEP.push({ x0: q.x - 28, x1: q.x + 28, y0: q.y - 34, y1: q.y + 34 });
+    KEEP.push({ x0: DOOR.x - 34, x1: DOOR.x + 34, y0: DOOR.y, y1: DOOR.y + 90 }, { x0: DOOR2.x - 44, x1: DOOR2.x + 44, y0: DOOR2.y, y1: DOOR2.y + 90 }, { x0: DOOR3.x - 40, x1: DOOR3.x + 40, y0: DOOR3.y - 90, y1: DOOR3.y });
+    KEEP.push({ x0: CAS_DOOR.x0 - 8, x1: CAS_DOOR.x1 + 8, y0: CAS.y + CAS.h - 4, y1: CAS.y + CAS.h + 60 });
+    if (typeof GV_DOOR !== 'undefined') KEEP.push({ x0: GV_DOOR.x - 24, x1: GV_DOOR.x + 24, y0: GV_DOOR.y - 30, y1: GV_DOOR.y + 30 });
+  }
+  const inKeep = (x, y, m) => KEEP.some(k => x > k.x0 - m && x < k.x1 + m && y > k.y0 - m && y < k.y1 + m);
+  const keepMove = (o, m, ok) => { // schiebt einen Gegenstand am Gehweg entlang aus dem freizuhaltenden Bereich
+    if (!inKeep(o.x, o.y, m)) return; const hor = RDH.some(r => (o.y > r.c0 - SW - 4 && o.y < r.c0 + 2) || (o.y > r.c1 - 2 && o.y < r.c1 + SW + 4)), ver = RDV.some(r => (o.x > r.c0 - SW - 4 && o.x < r.c0 + 2) || (o.x > r.c1 - 2 && o.x < r.c1 + SW + 4));
+    const dirs = hor || !ver ? [[1, 0], [-1, 0], [0, 1], [0, -1]] : [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    for (let d = 12; d <= 180; d += 6) for (const [ax, ay] of (hor || ver ? dirs.slice(0, 2) : dirs)) { const x = o.x + ax * d, y = o.y + ay * d; if (!inKeep(x, y, m) && (!ok || ok(x, y))) { o.x = x; o.y = y; return; } }
+  };
+  for (const l of LAMPS) keepMove(l, 8, (x, y) => !LAMPS.some(q => q !== l && Math.hypot(q.x - x, q.y - y) < 40) && !BINS.some(b => Math.hypot(b.x - x, b.y - y) < 24) && !RDV.some(v => x > v.c0 && x < v.c1) && !RDH.some(r => y > r.c0 && y < r.c1));
+  for (const b of BINS) keepMove(b, 10, (x, y) => !LAMPS.some(q => Math.hypot(q.x - x, q.y - y) < 24) && !BINS.some(q => q !== b && Math.hypot(q.x - x, q.y - y) < 30) && !RDV.some(v => x > v.c0 - SW - 20 && x < v.c1 + SW + 20) && !RDH.some(r => y > r.c0 && y < r.c1));
+
   // ---------- Gebiete und Arbeiter ----------
   const DEF_LOOK = { r: 63, g: 174, b: 106, outline: false, bnd: 'none', hat: 'none', size: 1, sex: 'm', hair: 1, hs: 0, skin: 1, top: 'tshirt', bot: 'auto', cos: 'none', aura: 'none', shoe: 'stdshoe', back: 'none' };
   // Figur: Auswahlfarben statt RGB. Frisuren sind gratis; Kleidung, Kostueme und Auren kosten Geld und brauchen Ruf.
