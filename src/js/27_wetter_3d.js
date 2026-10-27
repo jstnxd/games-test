@@ -192,7 +192,7 @@
   const PUDDLES = [], HYDRANTS = [];
   { let s = 9; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 70; i++) { const r = RD[Math.floor(rnd() * RD.length)], side = rnd() < 0.5 ? -1 : 1, along = (r.h ? 0 : YMIN) + 40 + rnd() * ((r.h ? WW : WH - YMIN) - 80), c = swLine(r, side) + (rnd() - 0.5) * 12; PUDDLES.push(r.h ? [along, c] : [c, along]); }
-    for (const r of RDH) for (const v of RDV) for (const q of [[v.c0 - SW - 12, r.c0 - SW + 6, 'h'], [v.c1 + SW + 12, r.c1 + SW - 6, rnd() < 0.5 ? 'm' : 'h']]) if (!doorZone(q[0], q[1], 8) && !inKeep(q[0], q[1], 8)) HYDRANTS.push(q); // v161: auch nicht vor Eingängen
+    for (const r of RDH) for (const v of RDV) for (const q of [[v.c0 - SW - 12, r.c0 - SW + 6, 'h'], [v.c1 + SW + 12, r.c1 + SW - 6, rnd() < 0.5 ? 'm' : 'h']]) if (!doorZone(q[0], q[1], 8) && !inKeep(q[0], q[1], 8)) { const o = { x: q[0], y: q[1] }; wallFix(o, 16); q[1] = o.y; HYDRANTS.push(q); } // v161: auch nicht vor Eingängen, v162: nicht an Hauswänden
   }
   function drawAmbientGround() {
     const L = lightK();

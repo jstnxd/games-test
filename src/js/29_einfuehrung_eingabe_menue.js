@@ -185,13 +185,14 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 162, date: 'Oktober 2026', title: 'Aufgeräumt', items: [
+      ['fix', '🗑️', 'Mülltonnen und Hydranten stehen nicht mehr halb verdeckt an Hauswänden (vor deinem Keller und an der Scheune)'],
+      ['chg', '💡', 'Straßenlaternen stehen jetzt an der Bordsteinkante statt an der Hauswand, keine Laterne ragt mehr in ein Gebäude'] ] },
     { v: 161, date: 'Oktober 2026', title: 'Schöner wohnen', items: [
       ['fix', '🚪', 'Alle Wege zu Haustüren und Eingängen sind frei: keine Laternen, Tonnen, Hydranten, Briefkästen oder Haltestellen mehr im Weg. Die Halloween-Kürbisse stehen jetzt neben der Tür'],
       ['neu', '🌷', 'Mehr Farbe: Blumenkübel an den Gehwegen, Kreidemalereien, bunte Wildblumen in Parks und Gärten, Blüten in den Vorgartenhecken und Wäscheleinen in den Gärten. Alles passend zur Jahreszeit'] ] },
     { v: 160, date: 'Oktober 2026', title: 'Eigene Räume', items: [
       ['fix', '🚪', 'Im Hinterzimmer, im Gang-HQ und im Mietraum ist draußen nichts mehr zu sehen: keine Straße, keine Blüten, keine Laternen. Es wirkt nicht mehr, als wärst du im Keller'] ] },
-    { v: 159, date: 'Oktober 2026', title: 'Iron Gym', items: [
-      ['fix', '🏋️', 'Ins Hinterzimmer des Iron Gym kommst du jetzt auch vom Iron Gym Express im Stadtpark. Bist du zu weit weg, sagt dir das Spiel, wo der Eingang ist'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

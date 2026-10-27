@@ -523,6 +523,14 @@
     for (let d = 12; d <= 180; d += 6) for (const [ax, ay] of (hor || ver ? dirs.slice(0, 2) : dirs)) { const x = o.x + ax * d, y = o.y + ay * d; if (!inKeep(x, y, m) && (!ok || ok(x, y))) { o.x = x; o.y = y; return; } }
   };
   for (const l of LAMPS) keepMove(l, 8, (x, y) => !LAMPS.some(q => q !== l && Math.hypot(q.x - x, q.y - y) < 40) && !BINS.some(b => Math.hypot(b.x - x, b.y - y) < 24) && !RDV.some(v => x > v.c0 && x < v.c1) && !RDH.some(r => y > r.c0 && y < r.c1));
+  // v162: Tonnen und Hydranten nicht direkt an Hauswände stellen, sonst verdeckt das Gebäude ihren oberen Teil
+  const wallFix = (o, top) => { for (let n = 0; n < 3; n++) { const c = colliders.find(c => !c.fl && o.x > c.x - 10 && o.x < c.x + c.w + 10 && o.y - top < c.y + c.h + 4 && o.y > c.y - 6); if (!c) return; o.y = c.y + c.h + top + 6; } };
+  for (const b of BINS) wallFix(b, 18);
+  // v162: Straßenlaternen stehen an der Bordsteinkante, nicht an der Hauswand-Seite des Gehwegs
+  for (const l of LAMPS) { for (const r of RDH) { if (l.y >= r.c0 - SW - 1 && l.y <= r.c0) l.y = r.c0 - 5; else if (l.y >= r.c1 && l.y <= r.c1 + SW + 1) l.y = r.c1 + 5; } for (const r of RDV) { if (l.x >= r.c0 - SW - 1 && l.x <= r.c0) l.x = r.c0 - 5; else if (l.x >= r.c1 && l.x <= r.c1 + SW + 1) l.x = r.c1 + 5; } }
+  for (const l of LAMPS) keepMove(l, 8, (x, y) => !LAMPS.some(q => q !== l && Math.hypot(q.x - x, q.y - y) < 40) && !BINS.some(b => Math.hypot(b.x - x, b.y - y) < 24) && !RDV.some(v => x > v.c0 && x < v.c1) && !RDH.some(r => y > r.c0 && y < r.c1));
+  // v162: Laternen nicht direkt an Gebäudekanten (Mast und Kopf ragen sonst in die Hauswand)
+  for (const l of LAMPS) for (let n = 0; n < 3; n++) { const c = colliders.find(c => !c.fl && c.w > 20 && c.h > 20 && l.y - 40 < c.y + c.h && l.y + 4 > c.y && ((l.x > c.x - 14 && l.x < c.x + 6) || (l.x > c.x + c.w - 6 && l.x < c.x + c.w + 14))); if (!c) break; const left = Math.abs(l.x - c.x) < Math.abs(l.x - c.x - c.w), nx = left ? c.x - 18 : c.x + c.w + 18, ok = x => !inKeep(x, l.y, 8) && !LAMPS.some(q => q !== l && Math.hypot(q.x - x, q.y - l.y) < 40) && !RDV.some(v => x > v.c0 && x < v.c1); if (ok(nx)) l.x = nx; else break; }
   for (const b of BINS) keepMove(b, 10, (x, y) => !LAMPS.some(q => Math.hypot(q.x - x, q.y - y) < 24) && !BINS.some(q => q !== b && Math.hypot(q.x - x, q.y - y) < 30) && !RDV.some(v => x > v.c0 - SW - 20 && x < v.c1 + SW + 20) && !RDH.some(r => y > r.c0 && y < r.c1));
 
   // ---------- Gebiete und Arbeiter ----------
