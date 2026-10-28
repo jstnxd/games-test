@@ -16,6 +16,7 @@ js/19b_arbeit.js
 js/20_karriere.js
 js/20b_kalender.js
 js/21_spaetes_spiel.js
+js/21b_tagesaufgaben.js
 js/22_spieler_gangs.js
 js/23_chat_umbau.js
 js/24_zeichnen_effekte.js

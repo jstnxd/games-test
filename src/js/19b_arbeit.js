@@ -291,7 +291,7 @@
   }
   // Gibt einen fertigen Beutel aus (in den Rucksack, sonst auf den Tisch)
   function packCredit(quiet) {
-    const ar = WK.ar, st = S(ar); if (unitRoom(ar) > 0) st.inv.bags += 1; else st.tab.bags += 1; WK.made++; WK.packSt = '';
+    const ar = WK.ar, st = S(ar); if (unitRoom(ar) > 0) st.inv.bags += 1; else st.tab.bags += 1; WK.made++; G.stat.pk = (G.stat.pk || 0) + 1; WK.packSt = '';
     if (!quiet) { try { sfx.harvest(); } catch (e) {} } floater(ar.TABLE.x, ar.TABLE.y + 10, '+1 ' + (WK.L.unit || ''), ar.dry);
   }
   function packDeposit() {
@@ -353,7 +353,7 @@
       if (WK.holding) for (const d of WK.drops) if (!d.m.visible && Math.random() < dt * 30) { d.m.visible = true; d.m.position.copy(tip); d.v.set((Math.random() - 0.5) * 0.15, -0.2, (Math.random() - 0.5) * 0.15); d.t = 0; break; }
       for (const d of WK.drops) if (d.m.visible) { d.v.y -= 3.2 * dt; d.m.position.addScaledVector(d.v, dt); d.t += dt; if (d.m.position.y < 0.3 || d.t > 1.2) d.m.visible = false; }
       if (over && WK.p.s === 1) { const b = WK.p.w; WK.p.w = Math.min(1, WK.p.w + dt * 1.0); if (WK.p.w > b && Math.random() < dt * 10) { try { sfx.water(); } catch (e) {} } workCount(); WK.pot.userData.soil.material.color.set(WK.p.w > 0.6 ? '#24160C' : '#3A2618');
-        if (WK.p.w >= 1 && !WK.done) { WK.done = true; WK.hintEl.textContent = 'Genug Wasser!'; setTimeout(() => { if (workOpen && WK.mode === 'water') workClose(); }, 800); } }
+        if (WK.p.w >= 1 && !WK.done) { WK.done = true; G.stat.wt = (G.stat.wt || 0) + 1; WK.hintEl.textContent = 'Genug Wasser!'; setTimeout(() => { if (workOpen && WK.mode === 'water') workClose(); }, 800); } }
     }
     if (WK.mode === 'harvest' && WK.plant) WK.plant.userData.picks.forEach((q, i) => { if (!q.userData.taken && WK.kind !== 'leaf') q.rotation.y = Math.sin(WK.t * 2 + i) * 0.2; });
     if (WK.mode === 'pack' && WK.bag && WK.packSt === 'sealed' && !WK.drag) WK.bag.position.y = WK.bag.userData.home.y + Math.abs(Math.sin(WK.t * 4)) * 0.02;

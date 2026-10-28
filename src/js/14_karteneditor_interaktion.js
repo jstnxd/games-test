@@ -375,7 +375,7 @@
         if (G.money >= sc) { G.money -= sc; p.s = 1; p.p = 0; p.w = 1; sfx.plant(); floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); }
         else { sfx.bad(); msg('Zu wenig Geld', true); }
       } else if (p.s === 1 && aHeld) {
-        const before = p.w; p.w = Math.min(1, p.w + dt * 1.4);
+        const before = p.w; p.w = Math.min(1, p.w + dt * 1.4); if (before < 1 && p.w >= 1) G.stat.wt = (G.stat.wt || 0) + 1;
         if (p.w > before && Math.random() < dt * 14) sfx.water();
       } else if (p.s === 2 && aEdge) {
         if (inv.fresh + hy > unitCap() + 6) { msg('Du trägst schon zu viel', true); sfx.bad(); }
@@ -403,7 +403,7 @@
       const fromInv = inv.dried >= ar.packN, fromTab = !fromInv && st.tab.dry >= ar.packN - 1e-6, toBag = unitRoom(ar) > 0, toTab = fromTab && !toBag && st.tab.bags < bagsMax();
       if (aHeld && (fromInv || fromTab) && (toBag || toTab)) {
         packPr += dt / 1.3;
-        if (packPr >= 1) { packPr = 0; if (fromInv) inv.dried -= ar.packN; else st.tab.dry = Math.max(0, st.tab.dry - ar.packN); if (toBag) inv.bags += 1; else st.tab.bags += 1; sfx.pack(); floater(ar.TABLE.x, ar.TABLE.y + 10, '+1 ' + L.unit, ar.dry); }
+        if (packPr >= 1) { packPr = 0; if (fromInv) inv.dried -= ar.packN; else st.tab.dry = Math.max(0, st.tab.dry - ar.packN); if (toBag) inv.bags += 1; else st.tab.bags += 1; G.stat.pk = (G.stat.pk || 0) + 1; sfx.pack(); floater(ar.TABLE.x, ar.TABLE.y + 10, '+1 ' + L.unit, ar.dry); }
       } else if (aEdge && (fromInv || fromTab)) { msg(fromTab ? 'Rucksack und Tisch sind voll' : 'Rucksack voll', true); sfx.bad(); }
       else if (aEdge) { msg('Zu wenig Trockene: ' + ar.packN + ' pro ' + L.unit, true); sfx.bad(); }
     } else if (tg.type === 'potbuy' && aEdge) {

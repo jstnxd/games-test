@@ -8,6 +8,7 @@
     if (o.b && typeof o.b === 'object') for (const k of Object.keys(LG_GOAL)) if (Number.isFinite(+o.b[k])) L.b[k] = +o.b[k];
     if (o.proj && typeof o.proj === 'object') for (const p of PROJ) if (o.proj[p.id]) L.proj[p.id] = 1;
     if (o.bw && typeof o.bw === 'object') for (const it of MK_SHOP) if (o.bw[it.id]) L.bw[it.id] = 1;
+    if (o.td) L.td = cleanTd(o.td);
     return L;
   }
   const LG = () => G.lg || (G.lg = lgDef());

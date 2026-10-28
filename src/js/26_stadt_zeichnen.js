@@ -816,7 +816,7 @@
     if (busWait() > 0) { sfx.bad(); msg('🚌 Der nächste Bus kommt in ' + busWait() + ' Spielminuten', true); return false; }
     if (G.money < BUS_FARE) { sfx.bad(); msg('Kein Geld für die Fahrkarte (' + fmt(BUS_FARE) + ')', true); return false; }
     G.money -= BUS_FARE; G.busCd = absMin() + BUS_CD; if (riding()) toggleRide(false); if (phoneOpen) closePhone();
-    busRide = { from: i, to: j, ph: 0, t: 0 }; busFx = null; joy.id = null; joy.dx = joy.dy = 0; sfx.buy(); return true;
+    busRide = { from: i, to: j, ph: 0, t: 0 }; busFx = null; G.stat.bus = (G.stat.bus || 0) + 1; joy.id = null; joy.dx = joy.dy = 0; sfx.buy(); return true;
   }
   function busTick(dt) {
     const r = busRide; if (!r) return; r.t += dt;
