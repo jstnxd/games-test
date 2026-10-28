@@ -185,6 +185,10 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 164, date: 'Oktober 2026', title: 'Feinschliff', items: [
+      ['fix', '✕', 'Die Arbeitsfenster lassen sich wieder schließen (✕, Fertig und Escape)'],
+      ['neu', '🛍️', 'Packen: Knospen in den offenen Beutel legen, Beutel antippen zum Verschließen und dann in die Kiste ziehen. Danach kommt der nächste Beutel'],
+      ['chg', '🌿', 'Schönere Pflanzen: gezackte Fächerblätter, Seitenäste, dicke Knospen mit Härchen. Tabak mit großen, breiten Blättern'] ] },
     { v: 163, date: 'Oktober 2026', title: 'Selbst anpacken', items: [
       ['neu', '🪴', 'Arbeitsfenster in 3D: Gießen, Ernten, Aufhängen und Packen machst du jetzt selbst. Kanne über den Topf ziehen und halten, Knospen antippen, an die Leine hängen und trockene abnehmen'],
       ['neu', '🛍️', 'Packtisch: Knospen einzeln in den Beutel legen und ihn dann verschließen. In der Scheune mit Tabakblättern'],
@@ -192,9 +196,6 @@
     { v: 162, date: 'Oktober 2026', title: 'Aufgeräumt', items: [
       ['fix', '🗑️', 'Mülltonnen und Hydranten stehen nicht mehr halb verdeckt an Hauswänden (vor deinem Keller und an der Scheune)'],
       ['chg', '💡', 'Straßenlaternen stehen jetzt an der Bordsteinkante statt an der Hauswand, keine Laterne ragt mehr in ein Gebäude'] ] },
-    { v: 161, date: 'Oktober 2026', title: 'Schöner wohnen', items: [
-      ['fix', '🚪', 'Alle Wege zu Haustüren und Eingängen sind frei: keine Laternen, Tonnen, Hydranten, Briefkästen oder Haltestellen mehr im Weg. Die Halloween-Kürbisse stehen jetzt neben der Tür'],
-      ['neu', '🌷', 'Mehr Farbe: Blumenkübel an den Gehwegen, Kreidemalereien, bunte Wildblumen in Parks und Gärten, Blüten in den Vorgartenhecken und Wäscheleinen in den Gärten. Alles passend zur Jahreszeit'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
