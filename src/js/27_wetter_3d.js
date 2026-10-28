@@ -103,7 +103,7 @@
     }
   }
   function ambUpdate(dt) {
-    duckUpdate(dt);
+    duckUpdate(dt); lifeUpdate(dt); // v169
     for (const p of amb.pig) {
       let fear = null; for (const e of [player].concat(cops.filter(c => c.on))) if (Math.hypot(e.x - p.x, e.y - p.y) < 52) { fear = e; break; }
       if (fear && p.fl <= 0) { p.fl = 1.4; const a = Math.atan2(p.y - fear.y, p.x - fear.x) + (Math.random() - 0.5) * 0.8; p.tx = clamp(p.x + Math.cos(a) * 110, ZP.x0, ZP.x1); p.ty = clamp(p.y + Math.sin(a) * 80, ZP.y0, ZP.y1); p.f = p.tx >= p.x ? 1 : -1; }

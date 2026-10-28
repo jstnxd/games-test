@@ -41,7 +41,7 @@
       for (const [x, y, c, sc] of p.pts) { ctx.strokeStyle = '#3E7A3A'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(x, y + 2.5); ctx.lineTo(x, y - 1); ctx.stroke(); ctx.fillStyle = F[c % 5]; for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(x + Math.cos(k * 1.256) * 1.6 * sc, y - 2 + Math.sin(k * 1.256) * 1.6 * sc, 1.15 * sc, 0, TAU); ctx.fill(); } ctx.fillStyle = '#FFE36A'; ctx.beginPath(); ctx.arc(x, y - 2, 0.7 * sc, 0, TAU); ctx.fill(); } }
     for (const c of XTR.chalk) { if (win || !inView(c.x, c.y, 30)) continue; drawChalk(c); }
     for (const p of XTR.planters) { if (!inView(p.x, p.y, 30)) continue; ctx.save(); ctx.translate(p.x, p.y); ctx.scale(1.2, 1.2); ctx.translate(-p.x, -p.y); drawPlanter(p, si); ctx.restore(); }
-    for (const l of XTR.lines) { if (!inView(l.x, l.y, 40)) continue; drawLine(l, win); }
+    for (const l of XTR.lines) { if (!inView(l.x, l.y, 40)) continue; drawLine(l, true); } // v169: Wäsche selbst flattert in lfLaundry
   }
   function drawChalk(c) {
     ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.a); ctx.strokeStyle = XCH[c.c]; ctx.fillStyle = XCH[c.c]; ctx.lineWidth = 1.3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
