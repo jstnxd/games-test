@@ -983,9 +983,9 @@
     drawBushes();
     if (state !== 'edit') drawAmbientGround();
     if (state !== 'edit') drawDetailsGround(); // v94
-    if (state !== 'edit') drawExtrasGround(); // v161
+    if (state !== 'edit') { drawExtrasGround(); vqDrawFlat(); } // v161, v168
     }
-    if (state !== 'edit') evDrawGround(); // v166: Stadt-Ereignisse, nie im Boden-Zwischenspeicher
+    if (state !== 'edit') { vqDrawObj(); evDrawGround(); } // v168, v166: Stadt-Ereignisse, nie im Boden-Zwischenspeicher
     if (viewX0 < 0 && tiles) drawPlotGround();
     if (tiles) gsPass = 2; drawPark(); gsPass = 0; drawGym2(); drawKiosk(); drawStall(); drawAutohof(); drawLager(); drawPrPad(); drawWerk(); drawContainers(); drawCasino(); drawApotheke(); drawGangHof(); drawGangHof2(); drawBoulevard(); drawMarkt(); drawGym(); drawBank(); drawPizza(); drawClub(); drawMapTop();
     drawBridges();
@@ -1078,7 +1078,7 @@
     if (player.stun > 0) drawStars(player.x, player.y - 12, gt);
     if (masterOn && state !== 'edit') drawMaster(player.x, player.y - 27);
     drawDriftCombo();
-    drawCompass(); drawWayPt(); kurDraw();
+    vqDrawSky(); drawCompass(); drawWayPt(); kurDraw();
     // v79: keine Tuetchen mehr ueber dem Kopf (die Ware steht oben links im HUD)
     if (!inCar()) drawOrbit(true);
     drawPetsWorld(true);

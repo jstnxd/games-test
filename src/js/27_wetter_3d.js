@@ -335,9 +335,10 @@
   function drawLights() {
     const L = lightK(); if (L <= 0.02) return; const oK = 1 - 0.4 * indoorK; // v56: sanfter, drinnen noch zurueckhaltender
     ctx.globalCompositeOperation = 'lighter';
-    for (const l of LAMPS) if (inView(l.x, l.y, 140) && !evDark(l.x, l.y)) glow(l.x, l.y - 30, 100, '255,206,130', 0.26 * L * oK);
+    for (const l of LAMPS) if (inView(l.x, l.y, 140) && !evDark(l.x, l.y) && !vqFlicker(l.x, l.y)) glow(l.x, l.y - 30, 100, '255,206,130', 0.26 * L * oK);
     calLights(L, oK); // v155
     evLights(L, oK); // v166
+    vqLights(L, oK); // v168
     gvLights(L, oK); // v79
     if (inView(GV2_P.barrel.x, GV2_P.barrel.y, 200)) glow(GV2_P.barrel.x, GV2_P.barrel.y - 4, 90 + 8 * Math.sin(gt * 9), '255,140,60', (0.42 + 0.08 * Math.sin(gt * 13)) * L * oK); // v109: Westhof
     if (inView(3910, 2490, 460)) for (let k = 0; k < 8; k++) { const t = (k + .5) / 8; glow(GV2.x + 10 + t * (GV2.w - 20), 2486 + 7 * 4 * t * (1 - t) * .5, 24, ['255,92,122', '255,210,74', '120,200,255', '180,120,255'][k % 4], .3 * L * oK); }
