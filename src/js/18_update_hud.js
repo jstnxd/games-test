@@ -32,7 +32,7 @@
     // Aufträge
     lgTick(dt); tdTick(dt); evTick(dt); kurTick(dt); tipTick(dt); // v121, v128
     if (!sleepS) G.nextOrder -= dt; // v98: im Schlaf kommen keine neuen Kunden
-    if (G.nextOrder <= 0) { addOrder(); G.nextOrder = clamp(20 - G.rep * 0.8, 7, 20) * (0.7 + Math.random() * 0.6) / (1 + 0.5 * Math.min(4, Object.keys(mp.friends).length)) / krOrd(); }
+    if (G.nextOrder <= 0) { addOrder(); const nf = mpPeers(); G.nextOrder = clamp(17 - G.rep * 0.8, 6, 17) * (0.7 + Math.random() * 0.6) * (1 + 0.45 * Math.min(4, nf)) / krOrd(); } // v174: mit Mitspielern langsamer statt schneller
     for (let i = G.orders.length - 1; i >= 0; i--) { if (G.orders[i].remote || sleepS) continue; G.orders[i].t -= dt; if (G.orders[i].t <= 0) { msg('Auftrag von ' + HOUSES[G.orders[i].house].name + ' ist abgelaufen' + (KR_NEUTRAL ? '' : ' (Ruf −0,1)'), true); if (!KR_NEUTRAL) { G.repP = Math.max(0, (G.repP || G.rep) - 0.1); G.rep = Math.floor(G.repP + 1e-9); } G.orders.splice(i, 1); } }
     for (const o of G.orders) if (o.mob && !o.remote) roamStep(o, dt, 16, 4);
     for (const ar of openAreas()) {

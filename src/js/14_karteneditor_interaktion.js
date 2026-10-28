@@ -461,7 +461,7 @@
         const pay = Math.round(o.price * (petPerk().tip || 1) * krTip() * rkMul(orderPos(o)) * evPay(orderPos(o))), bonus = o.t > o.tmax * (KR_NEUTRAL ? 0.6 : 0.6 - Math.min(0.2, 0.04 * specSum('kunde'))) ? Math.round(pay * 0.15) : 0;
         G.stat.del++; if (o.vip) G.stat.vip++; if (!KR_NEUTRAL && KR().ev && KR().ev.id === 'stamm' && KR().ev.n > 0) KR().ev.n--;
         rkPoint(orderPos(o), o.qty); // v128: Revierkampf
-        inv.bags -= o.qty; G.money += pay + bonus; G.earned += pay + bonus; G.orders.splice(i, 1); if (o.remote) { mpSteal(o); msg('Kunde von ' + ((mp.friends[o.remote] || {}).name || 'Freund') + ' weggeschnappt!'); } addRep((bonus ? REP_FAST : REP_SLOW) * (o.vip ? 2 : 1));
+        inv.bags -= o.qty; G.money += pay + bonus; G.earned += pay + bonus; G.orders.splice(i, 1); G.nextOrder = Math.max(G.nextOrder || 0, mpPeers() ? 14 + Math.random() * 10 : 5 + Math.random() * 5); if (o.remote) { mpSteal(o); msg('Kunde von ' + ((mp.friends[o.remote] || {}).name || 'Freund') + ' weggeschnappt!'); } addRep((bonus ? REP_FAST : REP_SLOW) * (o.vip ? 2 : 1));
         sfx.cash(); { const pp = orderPos(o); floater(pp.x, pp.y - 10, '+' + fmt(pay + bonus), '#FFB547'); }
         if (bonus) msg('Pünktlich geliefert: +' + fmt(bonus) + ' Trinkgeld, Ruf +' + String(REP_FAST).replace('.', ','));
         [2000000, 10000000, 50000000].forEach(g => { if (G.earned - (pay + bonus) < g && G.earned >= g) msg('Meilenstein: ' + fmt(g) + ' Umsatz!'); });

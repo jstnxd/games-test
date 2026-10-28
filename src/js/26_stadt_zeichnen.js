@@ -380,7 +380,7 @@
   const gtlKey = () => (KR_NEUTRAL || !G ? 'n' : seasonI()) + (state === 'edit' ? 'e' : '');
   function gtlDraw(x0, y0, S) { // zeichnet den unbeweglichen Boden für eine Kachel
     const v = [viewX0, viewX1, viewY0, viewY1]; viewX0 = x0 - 2; viewX1 = x0 + S + 2; viewY0 = y0 - 2; viewY1 = y0 + S + 2; gsPass = 1;
-    try { ctx.fillStyle = '#17261F'; ctx.fillRect(x0, y0, S, S); if (viewX1 > 0) drawCityGround(); if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); drawPaths(); drawMapGround(); drawBushes(); drawAmbientGround(); drawDetailsGround(); drawExtrasGround(); drawPark(); }
+    try { ctx.fillStyle = '#17261F'; ctx.fillRect(x0, y0, S, S); if (viewX1 > 0) drawCityGround(); if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); drawPaths(); drawMapGround(); drawBushes(); drawAmbientGround(); drawDetailsGround(); drawExtrasGround(); vqDrawFlat(); drawPark(); }
     finally { gsPass = 0; [viewX0, viewX1, viewY0, viewY1] = v; }
   }
   function gtlClear() { cacheClear('g|'); }
@@ -429,10 +429,13 @@
     const sb = gtlKey(), sk = sb + '@' + R, ix0 = Math.floor(viewX0 / GTS), ix1 = Math.floor(viewX1 / GTS), iy0 = Math.floor(viewY0 / GTS), iy1 = Math.floor(viewY1 / GTS), list = [], need = [];
     for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = 'g|' + ix + ',' + iy + ',' + sk; if (!cacheGet(k)) need.push([ix, iy, k]); } // sichtbare zuerst als benutzt markieren
     let built = 0; const lim = sb.length > 1 || sb === 'n' ? 3 : 1; for (const [ix, iy, k] of need) { if (built >= lim) break; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; const c = cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S)); if (!c) return false; if (sb.length === 1 && sb !== 'n') seasonPx(c, +sb); built++; }
-    if (need.length > built) return false; // noch nicht alle Kacheln fertig: dieses Bild noch live zeichnen
-    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const c = cacheGet('g|' + ix + ',' + iy + ',' + sk); if (!c || !c.width) return false; list.push([c, ix, iy]); }
+    // v174: fehlt eine Kachel, nur diese eine Stelle live zeichnen (nicht den ganzen Boden), sonst springt das Bild (Flackern)
+    const miss = []; for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const c = cacheGet('g|' + ix + ',' + iy + ',' + sk); if (!c || !c.width) miss.push([ix, iy]); else list.push([c, ix, iy]); }
+    if (!list.length) return false;
     const sp = GTP * R, sw = GTS * R;
-    for (const [c, ix, iy] of list) if (!cacheBlit(c, [sp, sp, sw + R, sw + R, ix * GTS, iy * GTS, GTS + 1, GTS + 1])) return false; // v154: 1 Einheit Überlappung, damit keine Fugen entstehen
+    for (const [c, ix, iy] of list) if (!cacheBlit(c, [sp, sp, sw + R, sw + R, ix * GTS, iy * GTS, GTS + 1, GTS + 1])) miss.push([ix, iy]); // v154: 1 Einheit Überlappung, damit keine Fugen entstehen
+    for (const [ix, iy] of miss) { const x0 = ix * GTS, y0 = iy * GTS; ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, GTS + 1, GTS + 1); ctx.clip(); try { gtlDraw(x0 - GTP, y0 - GTP, GTS + 2 * GTP); } catch (e) {} ctx.restore(); }
+    if (miss.length) return true;
     if (!built) gtlPrefetch(ix0, ix1, iy0, iy1, sk, R, sb); // v154: in ruhigen Bildern schon die Kacheln am Rand vorbereiten, damit beim Laufen nichts ruckelt
     return true;
   }
@@ -462,6 +465,7 @@
   // Selbsttest: draußen abwechselnd 2 Sekunden mit und ohne Zwischenspeicher, dann das Schnellere behalten
   const bcT = { i: 0, s: 0, c: 0, r: [0, 0], n: [0, 0] };
   function bcTick(int) {
+    if (bcMode === 'a' && !bcAuto) { bcAuto = '1'; bcOff = !!CB.fail; } // v174: kein abwechselndes Messen mehr (das Bild sprang alle 2 Sekunden)
     if (bcMode !== 'a' || bcAuto || state !== 'play' || player.fl || phoneOpen || !(int > 0 && int < 0.2)) return;
     if (AREA_KEYS.some(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; })) return;
     const ph = bcT.i % 2; bcOff = ph === 1; bcT.s += int; bcT.c++; if (bcT.s < 2) return;

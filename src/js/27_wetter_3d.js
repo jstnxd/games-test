@@ -314,10 +314,11 @@
     }
   }
   function drawSkyFx() {
-    if (amb.flock) {
+    if (amb.flock && !inOwnRoom() && indoorK < 0.3) {
       const f = amb.flock;
       for (let k = 0; k < f.n; k++) {
         const x = f.x - k * 22 + (k % 2) * 8, y = f.y + k * 9 - (k % 2) * 14, fl = Math.sin(gt * 10 + k) * 3;
+        if (AREA_KEYS.some(q => { const I = AREAS[q].IN; return x > I.x0 - 20 && x < I.x1 + 20 && y > I.y0 - 40 && y < I.y1 + 20; })) continue; // v174: nicht durch Keller, Scheune und Labor
         ctx.fillStyle = 'rgba(0,0,0,.14)'; ell(x + 18, y + 40, 6, 2); ctx.fill();
         ctx.strokeStyle = 'rgba(20,24,34,.7)'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(x - 7, y - fl); ctx.lineTo(x, y + 2); ctx.lineTo(x + 7, y - fl); ctx.stroke();
       }

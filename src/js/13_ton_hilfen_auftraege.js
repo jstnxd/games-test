@@ -223,12 +223,18 @@
     const hs = HOUSES[house], o = { id: G.oid++, house, prod: 'pr', qty, price: Math.round(per * qty), mob: false, vip: true, t: 260, tmax: 260, x: hs.dx, y: hs.face === 1 ? hs.dy + 16 : hs.dy - 16, pause: 0, ang: 0 };
     G.orders.push(o); sfx.ping(); msg('★ Spezialkunde! ' + hs.name + ' will ' + qty + ' ' + ar.lbl.unit); return o;
   }
+  // Mitspieler, die gerade im selben Raum online sind
+  const mpPeers = () => { try { return mp && mp.on && mp.friends ? Math.min(6, Object.keys(mp.friends).length) : 0; } catch (e) { return 0; } };
   function addOrder() {
-    const maxOpen = Math.min(12, 3 + Math.floor(G.rep / 3.5) + (G.t.unlocked ? 1 : 0) + (G.b.unlocked ? 1 : 0)) + projOrders();
-    if (G.orders.filter(o => !o.remote).length >= maxOpen) return;
+    // v174: allein mehr Kunden; mit Mitspielern teilt sich eine gemeinsame Obergrenze auf alle auf
+    const nf = mpPeers(), soloMax = Math.min(15, 4 + Math.floor(G.rep / 3) + (G.t.unlocked ? 1 : 0) + (G.b.unlocked ? 1 : 0)) + projOrders();
+    const maxOpen = nf ? Math.max(2, Math.round(soloMax * 1.5 / (nf + 1))) : soloMax, totalMax = nf ? soloMax + 3 : soloMax;
+    if (G.orders.filter(o => !o.remote).length >= maxOpen || G.orders.length >= totalMax) return;
     const free = []; for (let i = 0; i < HOUSES.length; i++) if (houseOpen(i) && !HOUSES[i].gang && !HOUSES[i].office && zoneOpenAt(HOUSES[i].dx, HOUSES[i].dy) && !G.orders.some(o => o.house === i)) free.push(i);
     if (!free.length) return;
-    const house = free[Math.floor(Math.random() * free.length)];
+    // v174: über die Karte verteilen: unter 6 zufälligen freien Häusern das nehmen, das am weitesten von anderen Kunden weg liegt
+    let house = free[Math.floor(Math.random() * free.length)], best = -1;
+    for (let k = 0; k < 6; k++) { const i = free[Math.floor(Math.random() * free.length)], h = HOUSES[i]; let md = 1e9; for (const o of G.orders) md = Math.min(md, Math.hypot(o.x - h.dx, o.y - h.dy)); const sc = Math.min(md, 2200) + Math.min(Math.hypot(player.x - h.dx, player.y - h.dy), 1400) * 0.25 + Math.random() * 120; if (sc > best) { best = sc; house = i; } }
     const rp = Math.random(), prod = G.t.unlocked && G.b.unlocked ? (rp < 0.6 ? 'keller' : rp < 0.82 ? 'tabak' : 'brau') : G.t.unlocked ? (rp < 0.72 ? 'keller' : 'tabak') : G.b.unlocked ? (rp < 0.72 ? 'keller' : 'brau') : 'keller', ar = AREAS[prod];
     const qty0 = 1 + Math.floor(Math.random() * Math.min(6, 1 + Math.floor(G.rep / 2.5)));
     const vip = G.rep >= VIP_REP && Math.random() < 0.14;   // Spezialkunde: ab Ruf 25, zahlt mehr, wartet kürzer

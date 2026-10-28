@@ -16,6 +16,7 @@
       for (let g = 0; g < n; g++) { const cx = z.x + 40 + rnd() * (z.w - 80), cy = z.y + 30 + rnd() * (z.h - 60); if (onPath(cx, cy) || blockedPt(cx, cy, 14)) continue;
         for (let i = 0; i < 3 + Math.floor(rnd() * 3); i++) LF.birds.push({ hx: cx, hy: cy, x: cx + (rnd() - 0.5) * 30, y: cy + (rnd() - 0.5) * 20, z: 0, vx: 0, vy: 0, vz: 0, st: 'peck', t: rnd() * 2, f: rnd() < 0.5 ? -1 : 1, c: Math.floor(rnd() * 3) }); } }
   }
+  const lfIndoor = (x, y) => AREA_KEYS.some(q => { const I = AREAS[q].IN; return x > I.x0 - 10 && x < I.x1 + 10 && y > I.y0 - 10 && y < I.y1 + 10; }) || blockedPt(x, y, 4);
   function lifeUpdate(dt) {
     if (!G) return; if (!LF.birds.length) lfBirdsInit();
     const D = DOGS, B = LF.ball, nearP = (x, y, r) => Math.abs(player.x - x) < r && Math.abs(player.y - y) < r;
@@ -35,7 +36,7 @@
     }
     // Spatzen: picken, hüpfen, fliegen bei Annäherung auf und kommen später zurück
     for (const b of LF.birds) { b.t -= dt;
-      if (b.st === 'fly') { b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt; b.vz -= 8 * dt; if (b.t <= 0) { b.st = 'back'; } continue; }
+      if (b.st === 'fly') { b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt; b.vz -= 8 * dt; if (b.t <= 0 || lfIndoor(b.x, b.y)) { b.st = 'back'; } continue; } // v174: nicht in Gebäude fliegen
       if (b.st === 'back') { const dx = b.hx - b.x, dy = b.hy - b.y, d = Math.hypot(dx, dy); b.x += dx / Math.max(1, d) * 90 * dt; b.y += dy / Math.max(1, d) * 90 * dt; b.z = Math.max(0, Math.min(40, d * 0.3)); b.f = dx > 0 ? 1 : -1; if (d < 14 && !nearP(b.hx, b.hy, 90)) { b.st = 'peck'; b.z = 0; b.t = 1; } continue; }
       if (nearP(b.x, b.y, 55) || cops.some(c => c.on && Math.abs(c.x - b.x) < 50 && Math.abs(c.y - b.y) < 50)) { const a = Math.atan2(b.y - player.y, b.x - player.x) + (Math.random() - 0.5); b.st = 'fly'; b.vx = Math.cos(a) * (110 + Math.random() * 60); b.vy = Math.sin(a) * 80; b.vz = 70; b.z = 2; b.t = 4 + Math.random() * 5; b.f = b.vx > 0 ? 1 : -1; continue; }
       if (b.t <= 0) { b.t = 0.4 + Math.random() * 1.6; if (Math.random() < 0.5) { b.x = clamp(b.x + (Math.random() - 0.5) * 16, b.hx - 26, b.hx + 26); b.y = clamp(b.y + (Math.random() - 0.5) * 10, b.hy - 18, b.hy + 18); b.f = Math.random() < 0.5 ? -1 : 1; b.hop = 0.18; } } if (b.hop > 0) b.hop -= dt; }

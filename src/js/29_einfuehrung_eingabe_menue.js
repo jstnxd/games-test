@@ -185,6 +185,10 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 174, date: 'Oktober 2026', title: 'Ruhiger zusammen spielen', items: [
+      ['fix', '🗺️', 'Die Karte flackert nicht mehr: Fehlt ein Stück Boden im Zwischenspeicher, wird nur diese Stelle neu gezeichnet und nicht mehr der ganze Boden umgeschaltet. Der Selbsttest, der alle 2 Sekunden umschaltete, ist weg'],
+      ['chg', '🏠', 'Kunden: Allein gibt es mehr Kunden. Mit Mitspielern teilt ihr euch eine Obergrenze, neue Kunden kommen langsamer und nach jeder Lieferung gibt es eine kurze Pause. Kunden verteilen sich über die ganze Karte, so entstehen richtige Routen'],
+      ['fix', '🐦', 'Vögel fliegen nicht mehr durch Keller, Scheune und Labor'] ] },
     { v: 173, date: 'Oktober 2026', title: 'Film ab', items: [
       ['neu', '🎬', 'Admin → Studio: Uhrzeit, Wetter, Jahreszeit und Feiertage, Ereignisse, Teleport, Zoom, Kino-Modus ohne Anzeige, Ruhe ohne Polizei und Gangs, Demo-Szenen. Fortschritt wird dabei nicht gespeichert'],
       ['neu', '▶', 'Showreel-Autopilot mit 3-2-1-Countdown und 10 Szenen: Drohnenflug, Neon bei Nacht, Gewitter, alle Arbeitsfenster, Kurierfahrt, Baustelle und Straßenfest, Polizeikontrolle, Morgennebel mit Tieren, Jahreszeiten-Zeitraffer, Gangviertel'],
@@ -193,9 +197,6 @@
       ['neu', '🌱', 'Pflanzen selbst: Loch in die Erde graben, Samen aus der Tüte hineinlegen und zuschütten, dann sprießt der Keimling. Danach gießen und ernten wie gewohnt'],
       ['neu', '✨', 'Glow-up der Arbeitsfenster: Regale, Lüfter, Poster und Jungpflanzen im Keller, Heu, Fenster und Tabakbündel in der Scheune. Blätter mit Adern, glitzernde Knospen, Staub im Lampenlicht'],
       ['neu', '🎉', 'Wasserspritzer, Blattschnipsel, Erntekorb, Waage, Etikett auf dem Beutel, Funken beim Verschließen und Konfetti, wenn etwas fertig ist'] ] },
-    { v: 171, date: 'Oktober 2026', title: 'Passt ins Bild', items: [
-      ['chg', '🎨', 'Die Arbeitsfenster (Gießen, Ernten, Trocknen, Packen) sehen jetzt aus wie der Rest vom Spiel: Comic-Look mit Umrissen, echter Raum mit deinem Kellerboden und Ziegelwand, Scheune mit Holzbrettern'],
-      ['chg', '💡', 'Pflanzenlampe mit Lichtkegel über dem Topf, weiche Schatten, Holztisch mit Fugen, Kamera mehr von oben wie im Spiel'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

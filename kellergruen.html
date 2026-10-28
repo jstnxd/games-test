@@ -909,7 +909,7 @@ body.cine #msg, body.cine #hint, body.cine #tipCard, body.cine #mini, body.cine 
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 173 · Neu für Admins: Studio und Showreel-Autopilot für Aufnahmen<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 174 · Fix: kein Flackern mehr, Kunden gerecht verteilt<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -3579,12 +3579,18 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const hs = HOUSES[house], o = { id: G.oid++, house, prod: 'pr', qty, price: Math.round(per * qty), mob: false, vip: true, t: 260, tmax: 260, x: hs.dx, y: hs.face === 1 ? hs.dy + 16 : hs.dy - 16, pause: 0, ang: 0 };
     G.orders.push(o); sfx.ping(); msg('★ Spezialkunde! ' + hs.name + ' will ' + qty + ' ' + ar.lbl.unit); return o;
   }
+  // Mitspieler, die gerade im selben Raum online sind
+  const mpPeers = () => { try { return mp && mp.on && mp.friends ? Math.min(6, Object.keys(mp.friends).length) : 0; } catch (e) { return 0; } };
   function addOrder() {
-    const maxOpen = Math.min(12, 3 + Math.floor(G.rep / 3.5) + (G.t.unlocked ? 1 : 0) + (G.b.unlocked ? 1 : 0)) + projOrders();
-    if (G.orders.filter(o => !o.remote).length >= maxOpen) return;
+    // v174: allein mehr Kunden; mit Mitspielern teilt sich eine gemeinsame Obergrenze auf alle auf
+    const nf = mpPeers(), soloMax = Math.min(15, 4 + Math.floor(G.rep / 3) + (G.t.unlocked ? 1 : 0) + (G.b.unlocked ? 1 : 0)) + projOrders();
+    const maxOpen = nf ? Math.max(2, Math.round(soloMax * 1.5 / (nf + 1))) : soloMax, totalMax = nf ? soloMax + 3 : soloMax;
+    if (G.orders.filter(o => !o.remote).length >= maxOpen || G.orders.length >= totalMax) return;
     const free = []; for (let i = 0; i < HOUSES.length; i++) if (houseOpen(i) && !HOUSES[i].gang && !HOUSES[i].office && zoneOpenAt(HOUSES[i].dx, HOUSES[i].dy) && !G.orders.some(o => o.house === i)) free.push(i);
     if (!free.length) return;
-    const house = free[Math.floor(Math.random() * free.length)];
+    // v174: über die Karte verteilen: unter 6 zufälligen freien Häusern das nehmen, das am weitesten von anderen Kunden weg liegt
+    let house = free[Math.floor(Math.random() * free.length)], best = -1;
+    for (let k = 0; k < 6; k++) { const i = free[Math.floor(Math.random() * free.length)], h = HOUSES[i]; let md = 1e9; for (const o of G.orders) md = Math.min(md, Math.hypot(o.x - h.dx, o.y - h.dy)); const sc = Math.min(md, 2200) + Math.min(Math.hypot(player.x - h.dx, player.y - h.dy), 1400) * 0.25 + Math.random() * 120; if (sc > best) { best = sc; house = i; } }
     const rp = Math.random(), prod = G.t.unlocked && G.b.unlocked ? (rp < 0.6 ? 'keller' : rp < 0.82 ? 'tabak' : 'brau') : G.t.unlocked ? (rp < 0.72 ? 'keller' : 'tabak') : G.b.unlocked ? (rp < 0.72 ? 'keller' : 'brau') : 'keller', ar = AREAS[prod];
     const qty0 = 1 + Math.floor(Math.random() * Math.min(6, 1 + Math.floor(G.rep / 2.5)));
     const vip = G.rep >= VIP_REP && Math.random() < 0.14;   // Spezialkunde: ab Ruf 25, zahlt mehr, wartet kürzer
@@ -4328,7 +4334,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         const pay = Math.round(o.price * (petPerk().tip || 1) * krTip() * rkMul(orderPos(o)) * evPay(orderPos(o))), bonus = o.t > o.tmax * (KR_NEUTRAL ? 0.6 : 0.6 - Math.min(0.2, 0.04 * specSum('kunde'))) ? Math.round(pay * 0.15) : 0;
         G.stat.del++; if (o.vip) G.stat.vip++; if (!KR_NEUTRAL && KR().ev && KR().ev.id === 'stamm' && KR().ev.n > 0) KR().ev.n--;
         rkPoint(orderPos(o), o.qty); // v128: Revierkampf
-        inv.bags -= o.qty; G.money += pay + bonus; G.earned += pay + bonus; G.orders.splice(i, 1); if (o.remote) { mpSteal(o); msg('Kunde von ' + ((mp.friends[o.remote] || {}).name || 'Freund') + ' weggeschnappt!'); } addRep((bonus ? REP_FAST : REP_SLOW) * (o.vip ? 2 : 1));
+        inv.bags -= o.qty; G.money += pay + bonus; G.earned += pay + bonus; G.orders.splice(i, 1); G.nextOrder = Math.max(G.nextOrder || 0, mpPeers() ? 14 + Math.random() * 10 : 5 + Math.random() * 5); if (o.remote) { mpSteal(o); msg('Kunde von ' + ((mp.friends[o.remote] || {}).name || 'Freund') + ' weggeschnappt!'); } addRep((bonus ? REP_FAST : REP_SLOW) * (o.vip ? 2 : 1));
         sfx.cash(); { const pp = orderPos(o); floater(pp.x, pp.y - 10, '+' + fmt(pay + bonus), '#FFB547'); }
         if (bonus) msg('Pünktlich geliefert: +' + fmt(bonus) + ' Trinkgeld, Ruf +' + String(REP_FAST).replace('.', ','));
         [2000000, 10000000, 50000000].forEach(g => { if (G.earned - (pay + bonus) < g && G.earned >= g) msg('Meilenstein: ' + fmt(g) + ' Umsatz!'); });
@@ -6630,7 +6636,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     // Aufträge
     lgTick(dt); tdTick(dt); evTick(dt); kurTick(dt); tipTick(dt); // v121, v128
     if (!sleepS) G.nextOrder -= dt; // v98: im Schlaf kommen keine neuen Kunden
-    if (G.nextOrder <= 0) { addOrder(); G.nextOrder = clamp(20 - G.rep * 0.8, 7, 20) * (0.7 + Math.random() * 0.6) / (1 + 0.5 * Math.min(4, Object.keys(mp.friends).length)) / krOrd(); }
+    if (G.nextOrder <= 0) { addOrder(); const nf = mpPeers(); G.nextOrder = clamp(17 - G.rep * 0.8, 6, 17) * (0.7 + Math.random() * 0.6) * (1 + 0.45 * Math.min(4, nf)) / krOrd(); } // v174: mit Mitspielern langsamer statt schneller
     for (let i = G.orders.length - 1; i >= 0; i--) { if (G.orders[i].remote || sleepS) continue; G.orders[i].t -= dt; if (G.orders[i].t <= 0) { msg('Auftrag von ' + HOUSES[G.orders[i].house].name + ' ist abgelaufen' + (KR_NEUTRAL ? '' : ' (Ruf −0,1)'), true); if (!KR_NEUTRAL) { G.repP = Math.max(0, (G.repP || G.rep) - 0.1); G.rep = Math.floor(G.repP + 1e-9); } G.orders.splice(i, 1); } }
     for (const o of G.orders) if (o.mob && !o.remote) roamStep(o, dt, 16, 4);
     for (const ar of openAreas()) {
@@ -13995,7 +14001,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const gtlKey = () => (KR_NEUTRAL || !G ? 'n' : seasonI()) + (state === 'edit' ? 'e' : '');
   function gtlDraw(x0, y0, S) { // zeichnet den unbeweglichen Boden für eine Kachel
     const v = [viewX0, viewX1, viewY0, viewY1]; viewX0 = x0 - 2; viewX1 = x0 + S + 2; viewY0 = y0 - 2; viewY1 = y0 + S + 2; gsPass = 1;
-    try { ctx.fillStyle = '#17261F'; ctx.fillRect(x0, y0, S, S); if (viewX1 > 0) drawCityGround(); if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); drawPaths(); drawMapGround(); drawBushes(); drawAmbientGround(); drawDetailsGround(); drawExtrasGround(); drawPark(); }
+    try { ctx.fillStyle = '#17261F'; ctx.fillRect(x0, y0, S, S); if (viewX1 > 0) drawCityGround(); if (viewX1 > 0 && (viewY0 < YMIN || viewY1 > WH)) drawOutside(); drawPaths(); drawMapGround(); drawBushes(); drawAmbientGround(); drawDetailsGround(); drawExtrasGround(); vqDrawFlat(); drawPark(); }
     finally { gsPass = 0; [viewX0, viewX1, viewY0, viewY1] = v; }
   }
   function gtlClear() { cacheClear('g|'); }
@@ -14044,10 +14050,13 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const sb = gtlKey(), sk = sb + '@' + R, ix0 = Math.floor(viewX0 / GTS), ix1 = Math.floor(viewX1 / GTS), iy0 = Math.floor(viewY0 / GTS), iy1 = Math.floor(viewY1 / GTS), list = [], need = [];
     for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const k = 'g|' + ix + ',' + iy + ',' + sk; if (!cacheGet(k)) need.push([ix, iy, k]); } // sichtbare zuerst als benutzt markieren
     let built = 0; const lim = sb.length > 1 || sb === 'n' ? 3 : 1; for (const [ix, iy, k] of need) { if (built >= lim) break; const x0 = ix * GTS - GTP, y0 = iy * GTS - GTP, S = GTS + 2 * GTP; const c = cacheMake(k, S, S, R, x0, y0, () => gtlDraw(x0, y0, S)); if (!c) return false; if (sb.length === 1 && sb !== 'n') seasonPx(c, +sb); built++; }
-    if (need.length > built) return false; // noch nicht alle Kacheln fertig: dieses Bild noch live zeichnen
-    for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const c = cacheGet('g|' + ix + ',' + iy + ',' + sk); if (!c || !c.width) return false; list.push([c, ix, iy]); }
+    // v174: fehlt eine Kachel, nur diese eine Stelle live zeichnen (nicht den ganzen Boden), sonst springt das Bild (Flackern)
+    const miss = []; for (let iy = iy0; iy <= iy1; iy++) for (let ix = ix0; ix <= ix1; ix++) { const c = cacheGet('g|' + ix + ',' + iy + ',' + sk); if (!c || !c.width) miss.push([ix, iy]); else list.push([c, ix, iy]); }
+    if (!list.length) return false;
     const sp = GTP * R, sw = GTS * R;
-    for (const [c, ix, iy] of list) if (!cacheBlit(c, [sp, sp, sw + R, sw + R, ix * GTS, iy * GTS, GTS + 1, GTS + 1])) return false; // v154: 1 Einheit Überlappung, damit keine Fugen entstehen
+    for (const [c, ix, iy] of list) if (!cacheBlit(c, [sp, sp, sw + R, sw + R, ix * GTS, iy * GTS, GTS + 1, GTS + 1])) miss.push([ix, iy]); // v154: 1 Einheit Überlappung, damit keine Fugen entstehen
+    for (const [ix, iy] of miss) { const x0 = ix * GTS, y0 = iy * GTS; ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, GTS + 1, GTS + 1); ctx.clip(); try { gtlDraw(x0 - GTP, y0 - GTP, GTS + 2 * GTP); } catch (e) {} ctx.restore(); }
+    if (miss.length) return true;
     if (!built) gtlPrefetch(ix0, ix1, iy0, iy1, sk, R, sb); // v154: in ruhigen Bildern schon die Kacheln am Rand vorbereiten, damit beim Laufen nichts ruckelt
     return true;
   }
@@ -14077,6 +14086,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   // Selbsttest: draußen abwechselnd 2 Sekunden mit und ohne Zwischenspeicher, dann das Schnellere behalten
   const bcT = { i: 0, s: 0, c: 0, r: [0, 0], n: [0, 0] };
   function bcTick(int) {
+    if (bcMode === 'a' && !bcAuto) { bcAuto = '1'; bcOff = !!CB.fail; } // v174: kein abwechselndes Messen mehr (das Bild sprang alle 2 Sekunden)
     if (bcMode !== 'a' || bcAuto || state !== 'play' || player.fl || phoneOpen || !(int > 0 && int < 0.2)) return;
     if (AREA_KEYS.some(k => { const I = AREAS[k].IN; return player.x > I.x0 && player.x < I.x1 && player.y > I.y0 && player.y < I.y1; })) return;
     const ph = bcT.i % 2; bcOff = ph === 1; bcT.s += int; bcT.c++; if (bcT.s < 2) return;
@@ -15426,10 +15436,11 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     }
   }
   function drawSkyFx() {
-    if (amb.flock) {
+    if (amb.flock && !inOwnRoom() && indoorK < 0.3) {
       const f = amb.flock;
       for (let k = 0; k < f.n; k++) {
         const x = f.x - k * 22 + (k % 2) * 8, y = f.y + k * 9 - (k % 2) * 14, fl = Math.sin(gt * 10 + k) * 3;
+        if (AREA_KEYS.some(q => { const I = AREAS[q].IN; return x > I.x0 - 20 && x < I.x1 + 20 && y > I.y0 - 40 && y < I.y1 + 20; })) continue; // v174: nicht durch Keller, Scheune und Labor
         ctx.fillStyle = 'rgba(0,0,0,.14)'; ell(x + 18, y + 40, 6, 2); ctx.fill();
         ctx.strokeStyle = 'rgba(20,24,34,.7)'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(x - 7, y - fl); ctx.lineTo(x, y + 2); ctx.lineTo(x + 7, y - fl); ctx.stroke();
       }
@@ -15716,6 +15727,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       for (let g = 0; g < n; g++) { const cx = z.x + 40 + rnd() * (z.w - 80), cy = z.y + 30 + rnd() * (z.h - 60); if (onPath(cx, cy) || blockedPt(cx, cy, 14)) continue;
         for (let i = 0; i < 3 + Math.floor(rnd() * 3); i++) LF.birds.push({ hx: cx, hy: cy, x: cx + (rnd() - 0.5) * 30, y: cy + (rnd() - 0.5) * 20, z: 0, vx: 0, vy: 0, vz: 0, st: 'peck', t: rnd() * 2, f: rnd() < 0.5 ? -1 : 1, c: Math.floor(rnd() * 3) }); } }
   }
+  const lfIndoor = (x, y) => AREA_KEYS.some(q => { const I = AREAS[q].IN; return x > I.x0 - 10 && x < I.x1 + 10 && y > I.y0 - 10 && y < I.y1 + 10; }) || blockedPt(x, y, 4);
   function lifeUpdate(dt) {
     if (!G) return; if (!LF.birds.length) lfBirdsInit();
     const D = DOGS, B = LF.ball, nearP = (x, y, r) => Math.abs(player.x - x) < r && Math.abs(player.y - y) < r;
@@ -15735,7 +15747,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     }
     // Spatzen: picken, hüpfen, fliegen bei Annäherung auf und kommen später zurück
     for (const b of LF.birds) { b.t -= dt;
-      if (b.st === 'fly') { b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt; b.vz -= 8 * dt; if (b.t <= 0) { b.st = 'back'; } continue; }
+      if (b.st === 'fly') { b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt; b.vz -= 8 * dt; if (b.t <= 0 || lfIndoor(b.x, b.y)) { b.st = 'back'; } continue; } // v174: nicht in Gebäude fliegen
       if (b.st === 'back') { const dx = b.hx - b.x, dy = b.hy - b.y, d = Math.hypot(dx, dy); b.x += dx / Math.max(1, d) * 90 * dt; b.y += dy / Math.max(1, d) * 90 * dt; b.z = Math.max(0, Math.min(40, d * 0.3)); b.f = dx > 0 ? 1 : -1; if (d < 14 && !nearP(b.hx, b.hy, 90)) { b.st = 'peck'; b.z = 0; b.t = 1; } continue; }
       if (nearP(b.x, b.y, 55) || cops.some(c => c.on && Math.abs(c.x - b.x) < 50 && Math.abs(c.y - b.y) < 50)) { const a = Math.atan2(b.y - player.y, b.x - player.x) + (Math.random() - 0.5); b.st = 'fly'; b.vx = Math.cos(a) * (110 + Math.random() * 60); b.vy = Math.sin(a) * 80; b.vz = 70; b.z = 2; b.t = 4 + Math.random() * 5; b.f = b.vx > 0 ? 1 : -1; continue; }
       if (b.t <= 0) { b.t = 0.4 + Math.random() * 1.6; if (Math.random() < 0.5) { b.x = clamp(b.x + (Math.random() - 0.5) * 16, b.hx - 26, b.hx + 26); b.y = clamp(b.y + (Math.random() - 0.5) * 10, b.hy - 18, b.hy + 18); b.f = Math.random() < 0.5 ? -1 : 1; b.hop = 0.18; } } if (b.hop > 0) b.hop -= dt; }
@@ -16280,7 +16292,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 173; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 174; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -16742,6 +16754,10 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 174, date: 'Oktober 2026', title: 'Ruhiger zusammen spielen', items: [
+      ['fix', '🗺️', 'Die Karte flackert nicht mehr: Fehlt ein Stück Boden im Zwischenspeicher, wird nur diese Stelle neu gezeichnet und nicht mehr der ganze Boden umgeschaltet. Der Selbsttest, der alle 2 Sekunden umschaltete, ist weg'],
+      ['chg', '🏠', 'Kunden: Allein gibt es mehr Kunden. Mit Mitspielern teilt ihr euch eine Obergrenze, neue Kunden kommen langsamer und nach jeder Lieferung gibt es eine kurze Pause. Kunden verteilen sich über die ganze Karte, so entstehen richtige Routen'],
+      ['fix', '🐦', 'Vögel fliegen nicht mehr durch Keller, Scheune und Labor'] ] },
     { v: 173, date: 'Oktober 2026', title: 'Film ab', items: [
       ['neu', '🎬', 'Admin → Studio: Uhrzeit, Wetter, Jahreszeit und Feiertage, Ereignisse, Teleport, Zoom, Kino-Modus ohne Anzeige, Ruhe ohne Polizei und Gangs, Demo-Szenen. Fortschritt wird dabei nicht gespeichert'],
       ['neu', '▶', 'Showreel-Autopilot mit 3-2-1-Countdown und 10 Szenen: Drohnenflug, Neon bei Nacht, Gewitter, alle Arbeitsfenster, Kurierfahrt, Baustelle und Straßenfest, Polizeikontrolle, Morgennebel mit Tieren, Jahreszeiten-Zeitraffer, Gangviertel'],
@@ -16750,9 +16766,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ['neu', '🌱', 'Pflanzen selbst: Loch in die Erde graben, Samen aus der Tüte hineinlegen und zuschütten, dann sprießt der Keimling. Danach gießen und ernten wie gewohnt'],
       ['neu', '✨', 'Glow-up der Arbeitsfenster: Regale, Lüfter, Poster und Jungpflanzen im Keller, Heu, Fenster und Tabakbündel in der Scheune. Blätter mit Adern, glitzernde Knospen, Staub im Lampenlicht'],
       ['neu', '🎉', 'Wasserspritzer, Blattschnipsel, Erntekorb, Waage, Etikett auf dem Beutel, Funken beim Verschließen und Konfetti, wenn etwas fertig ist'] ] },
-    { v: 171, date: 'Oktober 2026', title: 'Passt ins Bild', items: [
-      ['chg', '🎨', 'Die Arbeitsfenster (Gießen, Ernten, Trocknen, Packen) sehen jetzt aus wie der Rest vom Spiel: Comic-Look mit Umrissen, echter Raum mit deinem Kellerboden und Ziegelwand, Scheune mit Holzbrettern'],
-      ['chg', '💡', 'Pflanzenlampe mit Lichtkegel über dem Topf, weiche Schatten, Holztisch mit Fugen, Kamera mehr von oben wie im Spiel'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
