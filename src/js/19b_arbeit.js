@@ -35,11 +35,11 @@
   function workStart(mode, tg) {
     try {
       const el = workEl(), T = THREE3; if (!T) return false; const cv = el.querySelector('.wcv'), ar = tg.ar, L = ar.lbl || {};
-      if (!WK.r) { WK.r = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); WK.r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); if (T.SRGBColorSpace) WK.r.outputColorSpace = T.SRGBColorSpace; if (T.ACESFilmicToneMapping) { WK.r.toneMapping = T.ACESFilmicToneMapping; WK.r.toneMappingExposure = 1.05; } }
+      if (!WK.r) { WK.r = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); WK.r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); if (T.SRGBColorSpace) WK.r.outputColorSpace = T.SRGBColorSpace; if (T.NoToneMapping !== undefined) WK.r.toneMapping = T.NoToneMapping; }
       Object.assign(WK, { mode, tg, ar, L, kind: workKind(ar), anim: [], t: 0, last: 0, done: false, drag: false, holding: false, gc: {}, packSt: '', packFrom: 0 });
       el.hidden = false; workOpen = true; joy.id = null; joy.dx = joy.dy = 0; aHeld = false; bHeld = false;
       const title = { water: (L.water || 'Gießen'), harvest: (L.harvest || 'Ernten'), rack: (L.rack || 'Gestell'), pack: (L.table || 'Packtisch') }[mode];
-      el.querySelector('.wt').textContent = title; WK.btns = el.querySelector('.wbtns'); WK.btns.innerHTML = ''; WK.hintEl = el.querySelector('.whint'); WK.cntEl = el.querySelector('.wcount');
+      el.querySelector('.wt').textContent = ({ water: '💧 ', harvest: '✂️ ', rack: '🧺 ', pack: '📦 ' }[mode] || '') + title; WK.btns = el.querySelector('.wbtns'); WK.btns.innerHTML = ''; WK.hintEl = el.querySelector('.whint'); WK.cntEl = el.querySelector('.wcount');
       workBuild(mode); workResize(); workFit(); workBind(cv); WK.loop = requestAnimationFrame(workFrame); return true;
     } catch (e) { try { workClose(); } catch (x) {} return false; }
   }
@@ -56,8 +56,20 @@
   function workFit() { const f = WK.fit, c = WK.cam; if (!f || !c) return; const t = Math.tan(c.fov * Math.PI / 360), d = Math.max(f.h / 2 / t, f.w / 2 / (t * c.aspect)) * 1.08; c.position.copy(f.c).addScaledVector(f.dir, d); c.lookAt(f.c); }
   function workBtn(txt, fn, cls) { const b = document.createElement('button'); b.textContent = txt; if (cls) b.className = cls; b.addEventListener('click', fn); WK.btns.appendChild(b); return b; }
   // ---------- 3D-Bausteine ----------
-  const M = (c, o) => { const k = c + JSON.stringify(o || {}); if (WK.gc[k]) return WK.gc[k]; return (WK.gc[k] = new THREE3.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.7, metalness: 0 }, o || {}))); };
-  const M1 = (c, o) => new THREE3.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.7, metalness: 0 }, o || {}));
+  // v171: Comic-Look wie im Spiel: drei Helligkeitsstufen, dunkle Umrisse, weiche runde Bodenschatten
+  function toonGrad() { if (WK.gc.grad) return WK.gc.grad; const T = THREE3, d = new Uint8Array([120, 120, 120, 255, 190, 190, 190, 255, 255, 255, 255, 255]), t = new T.DataTexture(d, 3, 1, T.RGBAFormat); t.minFilter = t.magFilter = T.NearestFilter; t.generateMipmaps = false; t.needsUpdate = true; return (WK.gc.grad = t); }
+  const mOpt = o => { const r = Object.assign({}, o || {}); delete r.roughness; delete r.metalness; return r; };
+  const M = (c, o) => { const k = c + JSON.stringify(o || {}); if (WK.gc[k]) return WK.gc[k]; return (WK.gc[k] = new THREE3.MeshToonMaterial(Object.assign({ color: c, gradientMap: toonGrad() }, mOpt(o)))); };
+  const M1 = (c, o) => new THREE3.MeshToonMaterial(Object.assign({ color: c, gradientMap: toonGrad() }, mOpt(o)));
+  // Umriss: dieselbe Form etwas größer, nur die Rückseiten in Dunkel
+  function OL(m, k) { const T = THREE3, mat = WK.gc.olm || (WK.gc.olm = new T.MeshBasicMaterial({ color: '#10151C', side: T.BackSide })), o = new T.Mesh(m.geometry, mat); o.scale.setScalar(1 + (k || 0.06)); o.userData.ol = true; m.add(o); return m; }
+  function cvTex(w, h, fn, rx, ry) { const T = THREE3, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); fn(x, w, h); const t = new T.CanvasTexture(c); if (T.SRGBColorSpace) t.colorSpace = T.SRGBColorSpace; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(rx || 1, ry || 1); t.anisotropy = 4; return t; }
+  function blob(T, w, d, y, a, par) { const tex = WK.gc.blobT || (WK.gc.blobT = cvTex(64, 64, (x, W) => { const g = x.createRadialGradient(32, 32, 2, 32, 32, 31); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.55, 'rgba(0,0,0,.6)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); }));
+    const m = new T.Mesh(new T.PlaneGeometry(w, d), new T.MeshBasicMaterial({ map: tex, transparent: true, opacity: a || 0.45, depthWrite: false })); m.rotation.x = -Math.PI / 2; m.position.y = y || 0.003; (par || WK.root).add(m); return m; }
+  // Holz mit Brettfugen wie der Packtisch im Spiel
+  const woodTex = (base, line, n, vert) => cvTex(256, 256, (x, w, h) => { x.fillStyle = base; x.fillRect(0, 0, w, h); for (let i = 0; i < n; i++) { const p = i * (vert ? w : h) / n; x.fillStyle = line; if (vert) x.fillRect(p, 0, 3, h); else x.fillRect(0, p, w, 3); x.fillStyle = 'rgba(255,255,255,.06)'; if (vert) x.fillRect(p + 3, 0, 2, h); else x.fillRect(0, p + 3, w, 2); }
+    x.globalAlpha = 0.08; for (let i = 0; i < 40; i++) { x.fillStyle = i % 2 ? '#000' : '#fff'; const a = (i * 53) % w, b = (i * 97) % h; if (vert) x.fillRect(a, b, 1, 30 + (i % 5) * 10); else x.fillRect(b, a, 30 + (i % 5) * 10, 1); } x.globalAlpha = 1; });
+  const MTX = (map, c) => new THREE3.MeshToonMaterial({ map, color: c || '#FFFFFF', gradientMap: toonGrad() });
   const GEO = (k, fn) => WK.gc['g|' + k] || (WK.gc['g|' + k] = fn());
   // Blattfläche als Gitter: Länge entlang +Y, Breite wf(t, Reihe), hängt nach hinten (droop) und ist in der Mitte gefaltet (fold)
   function leafGeo(T, len, wf, N, Mw, droop, fold, zf) {
@@ -99,8 +111,8 @@
   const mkPiece = (T, dry) => WK.kind === 'leaf' ? mkLeafPiece(T, dry) : mkBud(T, dry);
   function mkPot(T) {
     const g = new T.Group(), prof = [[0.0, 0.01], [0.15, 0.01], [0.155, 0.02], [0.195, 0.25], [0.218, 0.255], [0.222, 0.3], [0.205, 0.305], [0.2, 0.29]].map(([x, y]) => new T.Vector2(x, y));
-    g.add(new T.Mesh(new T.LatheGeometry(prof, 40), M('#B85C34', { side: T.DoubleSide, roughness: 0.85 })));
-    const sau = new T.Mesh(new T.CylinderGeometry(0.21, 0.19, 0.022, 40), M('#9C4C2A', { roughness: 0.85 })); sau.position.y = 0.011; g.add(sau);
+    g.add(OL(new T.Mesh(new T.LatheGeometry(prof, 40), M('#C0663C', { side: T.DoubleSide })), 0.035));
+    const sau = OL(new T.Mesh(new T.CylinderGeometry(0.21, 0.19, 0.022, 40), M('#9C4C2A')), 0.03); sau.position.y = 0.011; g.add(sau); blob(T, 0.75, 0.6, 0.002, 0.5, g);
     const soil = new T.Mesh(new T.SphereGeometry(0.198, 32, 8, 0, Math.PI * 2, 0, 0.5), M('#3A2618', { roughness: 1 })); soil.scale.y = 0.18; soil.position.y = 0.268; g.add(soil); g.userData.soil = soil;
     const peb = new T.SphereGeometry(0.012, 6, 4); for (let i = 0; i < 9; i++) { const a = i * 2.3, r = 0.06 + (i % 4) * 0.03, m = new T.Mesh(peb, M(i % 2 ? '#7A6A5A' : '#52402F', { roughness: 1 })); m.position.set(Math.cos(a) * r, 0.284, Math.sin(a) * r); m.scale.y = 0.6; g.add(m); }
     return g;
@@ -139,55 +151,74 @@
     for (let i = 0; i < nL; i++) {
       const up = i / Math.max(1, nL - 1), y = base + 0.03 + H * 0.88 * Math.pow(up, 1.05), a = i * 2.4, ripe = nb > 0 && i < nb;
       const W = new T.Group(); W.position.y = y; W.rotation.y = a; g.add(W);
-      const lf = mkTobLeaf(T, false, (0.62 - up * 0.3) * (0.45 + stage * 0.55), ripe ? '#B9C45A' : (i % 2 ? '#6FA046' : '#7DAE4E')); lf.rotation.x = -Math.PI / 2 + 0.75 + up * 0.35; W.add(lf);
+      const lf = mkTobLeaf(T, false, (0.62 - up * 0.3) * (0.45 + stage * 0.55), ripe ? '#C2BE62' : (i % 2 ? '#5E9440' : '#6CA24A')); lf.rotation.x = -Math.PI / 2 + 0.75 + up * 0.35; W.add(lf);
       if (ripe) picks.push(lf); else lf.userData.pick = false;
     }
     if (stage > 0.8) { const cg = new T.ConeGeometry(0.014, 0.05, 8, 1, true); for (let i = 0; i < 6; i++) { const m = new T.Mesh(cg, M('#F2A6C8', { side: T.DoubleSide })), a = i * 1.05; m.position.set(Math.cos(a) * 0.03, base + H + 0.03 + (i % 2) * 0.02, Math.sin(a) * 0.03); m.rotation.set(Math.PI + Math.sin(a) * 0.4, 0, Math.cos(a) * 0.4); g.add(m); } }
     g.userData.picks = picks; return g;
   }
   function mkCan(T) {
-    const g = new T.Group(), mat = M('#3F9E6A', { metalness: 0.3, roughness: 0.4 });
-    const body = new T.Mesh(new T.CylinderGeometry(0.09, 0.1, 0.18, 20), mat); g.add(body);
-    const sp = new T.Mesh(new T.CylinderGeometry(0.012, 0.018, 0.26, 10), mat); sp.rotation.z = -1.0; sp.position.set(0.17, 0.05, 0); g.add(sp);
+    const g = new T.Group(), mat = M('#63C174');
+    const body = OL(new T.Mesh(new T.CylinderGeometry(0.09, 0.1, 0.18, 20), mat), 0.06); g.add(body);
+    const sp = OL(new T.Mesh(new T.CylinderGeometry(0.012, 0.018, 0.26, 10), mat), 0.25); sp.rotation.z = -1.0; sp.position.set(0.17, 0.05, 0); g.add(sp);
     const rose = new T.Mesh(new T.CylinderGeometry(0.03, 0.015, 0.03, 12), M('#C9D2DC', { metalness: 0.5 })); rose.rotation.z = -1.0; rose.position.set(0.28, 0.115, 0); g.add(rose);
     const hd = new T.Mesh(new T.TorusGeometry(0.07, 0.012, 8, 20, Math.PI), mat); hd.position.set(-0.02, 0.09, 0); hd.rotation.z = 0.2; g.add(hd);
     g.userData.tip = new T.Vector3(0.3, 0.12, 0); return g;
   }
   function baseScene(T, camPos, look, fw, fh) {
     const sc = new T.Scene(), cam = new T.PerspectiveCamera(36, 1.8, 0.05, 30); cam.position.copy(camPos); cam.lookAt(look); WK.fit = { c: look.clone(), dir: camPos.clone().sub(look).normalize(), w: fw || 1.6, h: fh || 1.2 };
-    sc.add(new T.HemisphereLight('#E8F0FF', '#5A5040', 1.0));
-    const key = new T.DirectionalLight('#FFE0B0', 2.4); key.position.set(0.6, 3, 1.4); sc.add(key);
-    const rim = new T.DirectionalLight('#9FD8FF', 1.1); rim.position.set(-1.5, 1.2, -2); sc.add(rim);
-    const fill = new T.DirectionalLight('#FFFFFF', 0.5); fill.position.set(-1.5, 0.8, 2); sc.add(fill);
-    const fl0 = new T.Mesh(new T.CircleGeometry(9, 48), M('#222B36', { roughness: 0.95 })); fl0.rotation.x = -Math.PI / 2; sc.add(fl0);
+    sc.background = new T.Color('#10151C');
+    sc.add(new T.HemisphereLight('#FFF1D6', '#3A3226', 1.6));
+    const key = new T.DirectionalLight('#FFE6BC', 2.2); key.position.set(0.8, 3.2, 1.6); sc.add(key);
+    const rim = new T.DirectionalLight('#A8D8FF', 0.7); rim.position.set(-1.6, 1.4, -1.5); sc.add(rim);
+    mkRoom(T, sc);
     WK.scene = sc; WK.cam = cam; WK.root = new T.Group(); sc.add(WK.root); return sc;
+  }
+  // Boden und Wand passend zum Gebäude: Keller (Fliesen in der gewählten Bodenfarbe, Ziegel), Scheune (Bretter), Premium (helle Fliesen)
+  function mkRoom(T, sc) {
+    const ar = WK.ar, k = ar.key, fl = (G.build && G.build.floor && G.build.floor[k]) || {}, fc = (typeof FLOOR_COLORS !== 'undefined' && FLOOR_COLORS[fl.c]) || null, pat = fl.p || 0;
+    const kind = k === 'tabak' ? 'barn' : k === 'pr' ? 'clean' : 'cellar', base = fc || (kind === 'barn' ? '#4A3424' : kind === 'clean' ? '#C9CED6' : '#34503F');
+    const floorT = (kind === 'barn' || pat === 1) ? woodTex(base, 'rgba(0,0,0,.35)', 6, false) : cvTex(256, 256, (x, w, h) => { x.fillStyle = base; x.fillRect(0, 0, w, h); const n = 4;
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { if (pat === 2 && (i + j) % 2) { x.fillStyle = 'rgba(0,0,0,.18)'; x.fillRect(i * w / n, j * h / n, w / n, h / n); } x.fillStyle = 'rgba(255,255,255,' + (0.02 + ((i * 7 + j * 3) % 4) * 0.012) + ')'; x.fillRect(i * w / n + 3, j * h / n + 3, w / n - 6, h / n - 6); }
+      if (pat !== 3) { x.fillStyle = 'rgba(0,0,0,.32)'; for (let i = 0; i <= n; i++) { x.fillRect(i * w / n - 1.5, 0, 3, h); x.fillRect(0, i * h / n - 1.5, w, 3); } } });
+    floorT.repeat.set(6, 6); const flm = new T.Mesh(new T.PlaneGeometry(9, 9), MTX(floorT)); flm.rotation.x = -Math.PI / 2; sc.add(flm);
+    const wallT = kind === 'barn' ? woodTex('#6A4A30', 'rgba(0,0,0,.4)', 8, true) : kind === 'clean' ? cvTex(256, 256, (x, w, h) => { x.fillStyle = '#E8ECF0'; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(0,0,0,.12)'; for (let i = 0; i <= 8; i++) { x.fillRect(i * 32 - 1, 0, 2, h); x.fillRect(0, i * 32 - 1, w, 2); } })
+      : cvTex(256, 256, (x, w, h) => { x.fillStyle = '#4A3B34'; x.fillRect(0, 0, w, h); for (let r = 0; r < 8; r++) for (let c = -1; c < 5; c++) { const bx = c * 64 + (r % 2) * 32, by = r * 32; x.fillStyle = ['#6E4A3A', '#7A5240', '#664436', '#73503E'][(r * 3 + c + 8) % 4]; x.fillRect(bx + 3, by + 3, 58, 26); x.fillStyle = 'rgba(255,255,255,.06)'; x.fillRect(bx + 3, by + 3, 58, 3); } });
+    wallT.repeat.set(kind === 'barn' ? 3 : 5, 2); const wall = new T.Mesh(new T.PlaneGeometry(9, 3.4), MTX(wallT, kind === 'clean' ? '#FFFFFF' : '#C8C0B8')); wall.position.set(0, 1.7, -1.25); sc.add(wall);
+    const sk = new T.Mesh(new T.BoxGeometry(9, 0.12, 0.06), M(kind === 'clean' ? '#AEB6C0' : '#2A211C')); sk.position.set(0, 0.06, -1.22); sc.add(sk);
+    const sh = new T.Mesh(new T.PlaneGeometry(9, 0.5), new T.MeshBasicMaterial({ map: cvTex(4, 64, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(0,0,0,.35)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }), transparent: true, depthWrite: false })); sh.rotation.x = -Math.PI / 2; sh.position.set(0, 0.004, -1.0); sc.add(sh);
   }
   // ---------- Szenen ----------
   function workBuild(mode) {
     const T = THREE3, ar = WK.ar, st = S(ar), L = WK.L, tg = WK.tg, pcs = WK.kind === 'leaf' ? 'Blätter' : 'Knospen';
     if (mode === 'water' || mode === 'harvest') {
-      baseScene(T, new T.Vector3(0, 1.15, 1.9), new T.Vector3(0, mode === 'harvest' ? (WK.kind === 'leaf' ? 0.76 : 0.7) : 0.64, 0), 1.5, mode === 'harvest' ? (WK.kind === 'leaf' ? 1.6 : 1.42) : 1.32); const p = potOf(tg), pot = mkPot(T); WK.root.add(pot); WK.pot = pot; WK.p = p;
+      baseScene(T, new T.Vector3(0, 1.75, 1.75), new T.Vector3(0, mode === 'harvest' ? (WK.kind === 'leaf' ? 0.84 : 0.82) : 0.72, 0), 1.6, mode === 'harvest' ? (WK.kind === 'leaf' ? 1.9 : 1.85) : 1.55); const p = potOf(tg), pot = mkPot(T); WK.root.add(pot); WK.pot = pot; WK.p = p;
+      { const lamp = new T.Group(), hood = OL(new T.Mesh(new T.BoxGeometry(0.62, 0.05, 0.3), M('#2E3238')), 0.04), panel = new T.Mesh(new T.PlaneGeometry(0.56, 0.24), new T.MeshBasicMaterial({ color: WK.kind === 'leaf' ? '#FFE6B0' : '#FFD9F0' })); panel.rotation.x = Math.PI / 2; panel.position.y = -0.027; lamp.add(hood); lamp.add(panel);
+        for (const x of [-0.26, 0.26]) { const c = new T.Mesh(new T.CylinderGeometry(0.004, 0.004, 1.2, 4), M('#1D2129')); c.position.set(x, 0.62, 0); lamp.add(c); }
+        const cone = new T.Mesh(new T.CylinderGeometry(0.28, 0.75, 1.3, 24, 1, true), new T.MeshBasicMaterial({ color: '#FFE3B0', transparent: true, opacity: 0.07, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending })); cone.position.y = -0.68; lamp.add(cone);
+        lamp.position.set(0, mode === 'harvest' ? 1.62 : 1.5, -0.05); WK.scene.add(lamp); }
       const nb = mode === 'harvest' ? Math.max(4, Math.min(9, harvestYield(ar))) : 0, plant = mkPlant(T, mode === 'harvest' ? 1 : Math.min(1, 0.15 + (p.p || 0) * 0.85), nb); WK.root.add(plant); WK.plant = plant;
       if (mode === 'water') { WK.can = mkCan(T); WK.can.position.set(0.5, 0.98, 0); WK.scene.add(WK.can); WK.drops = []; const dg = new T.SphereGeometry(0.012, 6, 4), dm = M('#7FC8F0', { transparent: true, opacity: 0.85 }); for (let i = 0; i < 40; i++) { const d = new T.Mesh(dg, dm); d.visible = false; WK.scene.add(d); WK.drops.push({ m: d, v: new T.Vector3(), t: 0 }); }
         WK.hintEl.textContent = 'Kanne mit dem Finger über den Topf ziehen und gedrückt halten'; workBtn('Fertig', () => workClose(), 'wok'); }
       else { WK.got = 0; WK.need = plant.userData.picks.length; WK.hintEl.textContent = WK.kind === 'leaf' ? 'Tippe die reifen, hellen Blätter an' : 'Tippe die Knospen an'; workBtn('Alle ernten', () => { plant.userData.picks.slice().forEach(q => workPick(q)); }, 'wall'); }
       workCount();
     } else if (mode === 'rack') {
-      baseScene(T, new T.Vector3(0, 1.05, 2.3), new T.Vector3(0, 0.68, 0.25), 2.1, 1.75); const cap = rackCap(ar), cols = Math.min(8, cap), rows = Math.ceil(cap / cols), W = 1.6, wood = M('#7A5232');
-      for (const x of [-W / 2 - 0.05, W / 2 + 0.05]) { const post = new T.Mesh(new T.BoxGeometry(0.05, 1.5, 0.05), wood); post.position.set(x, 0.75, 0); WK.root.add(post); }
+      baseScene(T, new T.Vector3(0, 1.55, 2.3), new T.Vector3(0, 0.7, 0.2), 2.2, 1.8); const cap = rackCap(ar), cols = Math.min(8, cap), rows = Math.ceil(cap / cols), W = 1.6, wood = MTX(woodTex('#8A5E3A', 'rgba(0,0,0,.3)', 3, true));
+      for (const x of [-W / 2 - 0.05, W / 2 + 0.05]) { const post = OL(new T.Mesh(new T.BoxGeometry(0.06, 1.5, 0.06), wood), 0.08); post.position.set(x, 0.75, 0); WK.root.add(post); const ft = OL(new T.Mesh(new T.BoxGeometry(0.08, 0.05, 0.4), wood), 0.08); ft.position.set(x, 0.025, 0); WK.root.add(ft); blob(T, 0.3, 0.55, 0.003, 0.45).position.x = x; }
+      { const bar = OL(new T.Mesh(new T.BoxGeometry(W + 0.2, 0.06, 0.06), wood), 0.04); bar.position.y = 1.5; WK.root.add(bar); }
       WK.slots = []; for (let r = 0; r < rows; r++) { const y = 1.38 - r * (1.0 / Math.max(1, rows)); const line = new T.Mesh(new T.CylinderGeometry(0.006, 0.006, W + 0.1, 6), M('#D8D2C4')); line.rotation.z = Math.PI / 2; line.position.y = y; WK.root.add(line);
         for (let c = 0; c < cols && WK.slots.length < cap; c++) WK.slots.push({ x: -W / 2 + (c + 0.5) * W / cols, y, item: null }); }
       const wet = Math.floor(st.rack.wet + 1e-6), dry = Math.floor(st.rack.dry + 1e-6); let si = 0;
       for (let i = 0; i < dry && si < WK.slots.length; i++) rackHang(WK.slots[si++], true, false);
       for (let i = 0; i < wet && si < WK.slots.length; i++) rackHang(WK.slots[si++], false, false);
-      const bk = new T.Mesh(new T.CylinderGeometry(0.2, 0.16, 0.14, 20, 1, true), M('#A07A4A', { side: T.DoubleSide })); bk.position.set(-0.55, 0.07, 0.55); WK.root.add(bk); WK.basket = bk; WK.basketItems = [];
-      const box = mkCrate(T, 0.36, 0.26, 0.12); box.position.set(0.55, 0, 0.55); WK.root.add(box); WK.box = box;
+      const bk = OL(new T.Mesh(new T.CylinderGeometry(0.2, 0.16, 0.14, 20, 1, true), MTX(woodTex('#C49A5E', 'rgba(90,50,20,.45)', 10, true))), 0.04); bk.material.side = T.DoubleSide; blob(T, 0.55, 0.45, 0.003, 0.45).position.set(-0.55, 0, 0.55); bk.position.set(-0.55, 0.07, 0.55); WK.root.add(bk); WK.basket = bk; WK.basketItems = [];
+      const box = mkCrate(T, 0.36, 0.26, 0.12); box.position.set(0.55, 0, 0.55); WK.root.add(box); WK.box = box; blob(T, 0.55, 0.42, 0.003, 0.45).position.set(0.55, 0, 0.55);
       rackBasket(); WK.hintEl.textContent = 'Tippe den Korb an zum Aufhängen, tippe trockene ' + pcs + ' zum Abnehmen';
       workBtn('Alle aufhängen', () => { let n = 0; while (S(ar).inv.fresh > 0 && rackHangOne()) if (++n > 99) break; }, 'wall'); workBtn('Alle Trockenen ab', () => { WK.slots.filter(s => s.item && s.dry).forEach(s => rackTake(s)); }, 'wall'); workBtn('Fertig', () => workClose(), 'wok'); workCount();
     } else if (mode === 'pack') {
-      baseScene(T, new T.Vector3(0, 1.45, 1.25), new T.Vector3(0.02, 0.52, 0.02), 1.8, 0.78); const top = new T.Mesh(new T.BoxGeometry(1.8, 0.06, 0.95), M('#8A5E3A')); top.position.y = 0.42; WK.root.add(top);
-      for (const [x, z] of [[-0.82, -0.4], [0.82, -0.4], [-0.82, 0.4], [0.82, 0.4]]) { const lg = new T.Mesh(new T.BoxGeometry(0.06, 0.42, 0.06), M('#6A4428')); lg.position.set(x, 0.21, z); WK.root.add(lg); }
-      const tray = new T.Mesh(new T.BoxGeometry(0.5, 0.02, 0.4), M('#C9CED6', { metalness: 0.4, roughness: 0.35 })); tray.position.set(-0.55, 0.46, 0.02); WK.root.add(tray);
+      baseScene(T, new T.Vector3(0, 1.75, 1.05), new T.Vector3(0.02, 0.5, 0.02), 1.9, 0.95); const top = OL(new T.Mesh(new T.BoxGeometry(1.8, 0.06, 0.95), MTX(woodTex('#8A5E3A', 'rgba(0,0,0,.28)', 5, false))), 0.012); top.position.y = 0.42; WK.root.add(top);
+      for (const [x, z] of [[-0.82, -0.4], [0.82, -0.4], [-0.82, 0.4], [0.82, 0.4]]) { const lg = OL(new T.Mesh(new T.BoxGeometry(0.06, 0.42, 0.06), M('#6A4428')), 0.1); lg.position.set(x, 0.21, z); WK.root.add(lg); } blob(T, 2.2, 1.35, 0.003, 0.5);
+      const tray = OL(new T.Mesh(new T.BoxGeometry(0.5, 0.02, 0.4), M('#C9CED6')), 0.03); tray.position.set(-0.55, 0.46, 0.02); WK.root.add(tray); blob(T, 0.6, 0.5, 0.452, 0.3).position.x = -0.55;
       WK.crate = mkCrate(T, 0.42, 0.36, 0.16); WK.crate.position.set(0.58, 0.45, 0.0); WK.root.add(WK.crate); WK.crateN = 0;
       WK.pkKind = L.unit === 'Beutel' ? 'bag' : /Dose/.test(L.unit || '') ? 'jar' : 'box';
       WK.pile = []; packPile(); WK.made = 0; packNewBag();
@@ -196,9 +227,9 @@
   }
   // Offene Holzkiste (Boden und vier Seiten)
   function mkCrate(T, w, d, h) {
-    const g = new T.Group(), wd = M('#A8784A', { roughness: 0.9 }), dk = M('#8A5E36', { roughness: 0.9 }), th = 0.018;
+    const g = new T.Group(), wd = M('#B9874F'), dk = M('#93653A'), th = 0.018;
     const bt = new T.Mesh(new T.BoxGeometry(w, th, d), dk); bt.position.y = th / 2; g.add(bt);
-    for (const [x, z, sx, sz] of [[0, -d / 2, w, th], [0, d / 2, w, th], [-w / 2, 0, th, d], [w / 2, 0, th, d]]) for (let k = 0; k < 2; k++) { const b = new T.Mesh(new T.BoxGeometry(sx, h * 0.42, sz), k ? wd : dk); b.position.set(x, h * (0.25 + k * 0.5), z); g.add(b); }
+    for (const [x, z, sx, sz] of [[0, -d / 2, w, th], [0, d / 2, w, th], [-w / 2, 0, th, d], [w / 2, 0, th, d]]) for (let k = 0; k < 2; k++) { const b = OL(new T.Mesh(new T.BoxGeometry(sx, h * 0.42, sz), k ? wd : dk), 0.04); b.position.set(x, h * (0.25 + k * 0.5), z); g.add(b); }
     g.userData.crate = true; return g;
   }
   function workCount() {
