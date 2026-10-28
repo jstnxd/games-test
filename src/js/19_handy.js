@@ -27,7 +27,7 @@
   IC.ruf = '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l3.6 7.4 8.1 1.1-5.9 5.7 1.4 8.1L16 22.4l-7.2 3.9 1.4-8.1-5.9-5.7 8.1-1.1z"/></svg>'; // v86: eigene Ruf-App
   // v95: Apps neu sortiert: 8 statt 14, Verwandtes in einer App mit Kategorien
   const APPS = [
-    { id: 'adm', name: 'Admin', sub: 'Nur für dich', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"><path d="M16 3.5l10 4v8c0 6.5-4.3 11-10 13-5.7-2-10-6.5-10-13v-8z"/><path d="M11.5 16l3.2 3.2 6-6.4" stroke-linecap="round"/></svg>', c: '#FF6B6B', c2: '#B32D3A', tabs: [['admin', 'Spieler'], ['admtool', 'Werkzeuge'], ['admtroll', 'Troll'], ['admerr', 'Fehler']] },
+    { id: 'adm', name: 'Admin', sub: 'Nur für dich', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"><path d="M16 3.5l10 4v8c0 6.5-4.3 11-10 13-5.7-2-10-6.5-10-13v-8z"/><path d="M11.5 16l3.2 3.2 6-6.4" stroke-linecap="round"/></svg>', c: '#FF6B6B', c2: '#B32D3A', tabs: [['admin', 'Spieler'], ['admstudio', 'Studio'], ['admtool', 'Werkzeuge'], ['admtroll', 'Troll'], ['admerr', 'Fehler']] },
     { id: 'orders', name: 'Aufträge', sub: 'Kunden', ic: IC.orders, c: '#FFB547', c2: '#E8861F', tabs: [['orders', 'Offen'], ['kurier', 'Kurier']] },
     { id: 'biz', name: 'Geschäft', sub: 'Ausbau & Team', ic: IC.shop, c: '#63C174', c2: '#2F8F4A', tabs: [['shop', 'Ausbau'], ['team', 'Anheuern'], ['crew', 'Mitarbeiter']] },
     { id: 'karr', name: 'Karriere', sub: 'Ruf & Quests', ic: IC.karr, c: '#FFD24A', c2: '#C4851A', tabs: [['ruf', 'Ruf'], ['heute', 'Heute'], ['woche', 'Woche'], ['quests', 'Quests'], ['liste', 'Bestenliste'], ['goals', 'Ziele'], ['welt', 'Events']] },
@@ -218,6 +218,8 @@
       renderAdmin(b);
     } else if (tab === 'orte') {
       renderOrte(b);
+    } else if (tab === 'admstudio') {
+      renderStudio(b);
     } else if (tab === 'admtool') {
       renderAdmTool(b);
     } else if (tab === 'admtroll') {

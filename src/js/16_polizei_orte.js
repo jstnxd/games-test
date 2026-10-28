@@ -1,7 +1,7 @@
   // ---------- Streife ----------
   // v60: tagsueber (6:30 bis 19:30) laeuft die Uhr langsamer, nachts schneller: der Tag dauert gut doppelt so lange wie die Nacht
   const timeRate = t => (t >= 390 && t < 1170) ? 1.5 : 2.7; // v92: noch langsamer (vorher 2 / 3,6), ein Tag dauert jetzt etwa 12,7 Minuten // v88: langsamer (vorher 3 / 5,5), ein Tag dauert jetzt etwa 9,5 statt 6,3 Minuten
-  function copsActive() { const night = G.time < 5 * 60 || G.time >= 21 * 60; return 1 + (night ? 1 : 0) + (G.rep >= 18 ? 1 : 0) + (G.rep >= 60 ? 1 : 0); } // v53: entspannter
+  function copsActive() { if (STU.on && STU.calm) return 0; const night = G.time < 5 * 60 || G.time >= 21 * 60; return 1 + (night ? 1 : 0) + (G.rep >= 18 ? 1 : 0) + (G.rep >= 60 ? 1 : 0); } // v53: entspannter
   // v41: Im Mehrspieler steuert der Spieler mit der kleinsten ID (Anführer) Streifen und Wagen, alle anderen sehen dasselbe.
   function copLeaderId() { let id = mp.id; if (mp.on) for (const k of Object.keys(mp.friends)) if (k < id) id = k; return id; }
   const copLead = () => !mp.on || copLeaderId() === mp.id;

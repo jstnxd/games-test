@@ -107,7 +107,7 @@
   let boardT = 0, boardList = null, boardErr = '', boardBusy = false, boardSel = 'woche';
   const boardRow = () => ({ g: gTag(), n: acc.name, r: G.rep, p: presLv(), m: LG().ml, e: Math.round(G.earned), wk: weekNo(), wd: Math.max(0, G.stat.del - (LG().wk === weekNo() ? LG().wd0 : G.stat.del)), t: Date.now() });
   async function boardPut(force) {
-    if (!fbOk() || !accOn() || !G || (G.flag && G.flag.n) || (!force && Date.now() - boardT < 180000)) return false; boardT = Date.now();
+    if (STU.on || !fbOk() || !accOn() || !G || (G.flag && G.flag.n) || (!force && Date.now() - boardT < 180000)) return false; boardT = Date.now();
     try { const t = await accToken(), o = boardRow(), f = {}; for (const [k, v] of Object.entries(o)) f[k] = typeof v === 'string' ? { stringValue: v } : { integerValue: String(Math.floor(v)) };
       const r = await fetch(fsBase() + 'board/' + acc.uid, { method: 'PATCH', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: f }) }); return r.ok; } catch (e) { return false; }
   }

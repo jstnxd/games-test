@@ -28,7 +28,7 @@
   function update(dt) {
 
     // Zeit
-    G.time += dt * timeRate(G.time); if (G.time >= 1440) { G.time -= 1440; G.day++; payDaily(); }
+    if (!(STU.on && STU.freeze)) G.time += dt * timeRate(G.time); if (G.time >= 1440) { G.time -= 1440; G.day++; payDaily(); }
     // Aufträge
     lgTick(dt); tdTick(dt); evTick(dt); kurTick(dt); tipTick(dt); // v121, v128
     if (!sleepS) G.nextOrder -= dt; // v98: im Schlaf kommen keine neuen Kunden

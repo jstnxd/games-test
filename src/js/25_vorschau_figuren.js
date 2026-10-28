@@ -1554,7 +1554,7 @@
     }
     return best;
   }
-  function drawCompass() { if (shotOn()) return;
+  function drawCompass() { if (shotOn() || STU.cine) return;
     if (!G.up.compass || player.fl === 4) return; // v131: im Gang-HQ kein Lieferkompass
     let slot = 0;
     for (const ar of openAreas()) {

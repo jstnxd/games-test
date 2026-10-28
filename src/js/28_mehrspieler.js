@@ -370,6 +370,7 @@
   }
   function mpHome() { if (!G) return false; player.x = DOOR.x; player.y = DOOR.y; player.fl = 0; cam.x = player.x; cam.y = player.y; closePhone(); msg('Wieder zu Hause'); return true; }
   function mpSend() {
+    if (STU.on) return; // v173: im Studio nichts senden
     const c = mp.client; if (!c || !c.connected || !G) return;
     let sn; if (gt - mp.snT > 4 || gt - mp.snChk > 0.6) { mp.snChk = gt; const q = mpSnap(), sg = JSON.stringify(AREA_KEYS.map(k => { const a = q[SN_KEYS[k]]; return [a.u, a.f, a.d, a.L, a.o, a.r, a.dc]; })); if (gt - mp.snT > 4 || sg !== mp.snSig) { sn = q; mp.snSig = sg; mp.snT = gt; } }
     const wh = mpWhere(); mp.copHits = mp.copHits.filter(z => gt - z.t < 3); const lead = copLead(); mp.gEv = mp.gEv.filter(z => gClock - z.t < 3); mp.gHit = mp.gHit.filter(z => gClock - z.t < 3);
@@ -455,7 +456,7 @@
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 172; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 173; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -591,7 +592,7 @@
     mpTick(dt); musicTick(); if (state === 'play') { try { pgTick(dt); } catch (e) {} } // v121
     if (window.__kgErrNew) { try { errUpload(); } catch (e) {} } // v123
     if (G && (W >= H || portOk) && state === 'play' && !phoneOpen && !chatOpen && !nameGateOpen && !tutOpen && !G.tut && !tierShow && !window.__KG_NOTUT) tutStart(0); // v84: Einführung einmal je Spielstand
-    if (G && (W >= H || portOk) && state === 'play' && !phoneOpen && !chatOpen && !nameGateOpen && !tutOpen && !qtyOpen && !casKind && !workOpen) { if (sleepS) sleepTick(); else if (busRide) busTick(dt); else update(dt); saveT += dt; if (saveT > 5) { saveT = 0; save(); } }
+    if (G && (W >= H || portOk) && state === 'play' && !phoneOpen && !chatOpen && !nameGateOpen && !tutOpen && !qtyOpen && !casKind && !workOpen) { if (sleepS) sleepTick(); else if (busRide) busTick(dt); else update(dt); saveT += dt; if (saveT > 5) { saveT = 0; save(); } } if (G && state === 'play' && STU.on) stuTick(dt); // v173: Studio
     render();
   }
 

@@ -785,3 +785,15 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
 .wpop{position:absolute;z-index:2;left:50%;top:38%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;padding:10px 22px;border-radius:18px;background:rgba(16,21,28,.82);color:#FFD27A;font-size:24px;font-weight:900;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,210,122,.35)}
 .wpop.on{animation:wpop 1.5s ease-out forwards}
 @keyframes wpop{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-60%) scale(1)}100%{opacity:0;transform:translate(-50%,-75%) scale(.95)}}
+/* v173: Studio */
+#stuBar{position:fixed;z-index:90;top:calc(max(6px,env(safe-area-inset-top)) + 46px);left:50%;transform:translateX(-50%);display:flex;gap:6px;opacity:.9}
+#stuBar button{border:0;border-radius:14px;padding:6px 12px;font-weight:800;font-size:12px;background:rgba(211,63,63,.92);color:#fff;cursor:pointer}
+#stuBar button[data-a=cine]{background:rgba(16,21,28,.85)}
+#stuBar.cine{opacity:.18}
+body.cine #msg, body.cine #hint, body.cine #tipCard, body.cine #mini, body.cine #locHud, body.cine #fpsHud, body.cine #news, body.cine #potInd, body.cine #raidPill { visibility: hidden !important; }
+#stuCd{position:fixed;z-index:95;left:50%;top:45%;transform:translate(-50%,-50%);font:900 120px/1 sans-serif;color:#FFD24A;text-shadow:0 6px 30px rgba(0,0,0,.6);pointer-events:none}
+#stuCd.on{animation:stuCd .9s ease-out forwards}
+@keyframes stuCd{0%{opacity:0;transform:translate(-50%,-50%) scale(1.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.8)}}
+#stuFade{position:fixed;inset:0;z-index:70;background:#000;pointer-events:none;opacity:0}
+#stuFade.on{animation:stuFade .6s ease-out}
+@keyframes stuFade{0%{opacity:.85}100%{opacity:0}}

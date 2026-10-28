@@ -30,7 +30,7 @@
   const evClosed = () => EVA.filter(e => e.k === 'bau' || e.k === 'fest');
   function evTick(dt) {
     if (!evOn()) { EVA = []; EVC = []; return; } evT -= dt;
-    if (evT <= 0) { evT = 0.5; const now = absMin(), was = EVA; EVA = evPlanDay(G.day - 1).concat(evPlanDay(G.day)).filter(e => now >= e.t0 && now < e.t1);
+    if (evT <= 0) { evT = 0.5; const now = absMin(), was = EVA; EVA = evPlanDay(G.day - 1).concat(evPlanDay(G.day)).filter(e => now >= e.t0 && now < e.t1); if (STU.on) EVA = EVA.filter(e => !STU.ev.length).concat(STU.ev); // v173: Studio
       for (const e of EVA) { const id = e.k + '@' + e.t0; if (evSeen.has(id)) continue; evSeen.add(id); evStart(e); }
       for (const e of was) if (!EVA.includes(e) && (e.k === 'bau' || e.k === 'fest' || e.k === 'kontrolle')) msg(EV_TXT[e.k] + ' in der ' + e.s.r.name + ' ist vorbei', false);
       EVC = []; for (const e of evClosed()) { const s = e.s; EVC.push({ x: s.x0 - 6, y: s.y0, w: 12, h: s.y1 - s.y0 }, { x: s.x1 - 6, y: s.y0, w: 12, h: s.y1 - s.y0 }); if (e.k === 'bau') EVC.push({ x: s.cx - 40, y: s.cy - 26, w: 80, h: 44 }); else for (const st of evStalls(s)) EVC.push({ x: st.x - 18, y: st.y - 8, w: 36, h: 16 }); }
@@ -138,7 +138,7 @@
     ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalCompositeOperation = 'source-over';
     if (wk === 'fog') { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(200,208,218,' + (0.42 * k) + ')'); g.addColorStop(1, 'rgba(190,198,210,' + (0.3 * k) + ')'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
       for (let i = 0; i < 6; i++) { const x = ((i * 0.23 + gt * 0.012 * (1 + i % 3)) % 1.4 - 0.2) * W, y = (0.15 + (i * 0.37) % 0.8) * H, r = Math.max(W, H) * (0.25 + (i % 3) * 0.08), rg = ctx.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(225,230,238,' + (0.22 * k) + ')'); rg.addColorStop(1, 'rgba(225,230,238,0)'); ctx.fillStyle = rg; ctx.fillRect(x - r, y - r, r * 2, r * 2); } }
-    else { ctx.fillStyle = 'rgba(8,12,26,' + (0.2 * k) + ')'; ctx.fillRect(0, 0, W, H); const ft = gt - evFl.t;
+    else { ctx.fillStyle = 'rgba(8,12,26,' + (0.32 * k) + ')'; ctx.fillRect(0, 0, W, H); const ft = gt - evFl.t;
       if (ft >= 0 && ft < 0.45) { const a = (ft < 0.08 ? 1 : ft < 0.14 ? 0.3 : ft < 0.22 ? 0.85 : Math.max(0, 1 - (ft - 0.22) / 0.23) * 0.6) * k * (LOFX ? 0.4 : 1); ctx.fillStyle = 'rgba(230,236,255,' + (0.5 * a).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H);
         if (ft < 0.22) { ctx.strokeStyle = 'rgba(255,255,255,' + a + ')'; ctx.lineWidth = 2.2; ctx.beginPath(); let x = evFl.x * W, y = 0; ctx.moveTo(x, y); const r2 = evRng(Math.floor(evFl.t * 1000)); while (y < H * 0.55) { x += (r2() - 0.5) * 40; y += 14 + r2() * 22; ctx.lineTo(x, y); } ctx.stroke(); } } }
     ctx.restore();

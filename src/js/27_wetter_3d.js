@@ -11,7 +11,7 @@
   let skyC = { a: 0, r: 255, g: 255, b: 255 }, indoorK = 0, lastRoom = null;
   const night = () => G ? skyNow().a : 0;
   const lightK = () => clamp(skyC.a * 1.8 - 0.06, 0, 1);
-  const rainTarget = () => { if (G && state === 'play' && evWeather() === 'storm') return 1; if (!G || state !== 'play' || ((G.day * 37) % 11) >= 2) return 0; const st = 7 + (G.day * 5) % 6, h = G.time / 60; return h >= st && h < st + 5 ? 1 : 0; };
+  const rainTarget = () => { if (STU.on && STU.rain !== null) return STU.rain; if (G && state === 'play' && evWeather() === 'storm') return 1; if (!G || state !== 'play' || ((G.day * 37) % 11) >= 2) return 0; const st = 7 + (G.day * 5) % 6, h = G.time / 60; return h >= st && h < st + 5 ? 1 : 0; };
   const amb = { pig: [], flock: null, flockT: 30, rain: 0 };
   for (let i = 0; i < 6; i++) amb.pig.push({ x: FOUNTAIN.x + Math.cos(i * 1.05) * 90, y: FOUNTAIN.y + Math.sin(i * 1.05) * 90, tx: 0, ty: 0, fl: 0, f: 1, wt: i * 0.6, mv: 0 });
   const traffic = []; let trafT = 3;
@@ -469,10 +469,10 @@
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       return;
     }
-    const port = isPort(), sc = (port ? W / 340 : H / 330) * (state === 'menu' ? 0.62 : 1);
+    const port = isPort(), sc = (port ? W / 340 : H / 330) * (state === 'menu' ? 0.62 : 1) * (STU.on ? STU.zoom : 1); // v173: Studio-Zoom
     const vw = W / sc, vh = H / sc;
     const mfa = gt * 0.016, menuFly = state === 'menu'; // v112: im Startmenue fliegt die Kamera langsam ueber die Stadt
-    const tx = state === 'play' ? player.x : menuFly ? 2550 + Math.cos(mfa) * 1500 : DOOR.x, ty = (state === 'play' ? player.y : menuFly ? 780 + Math.sin(mfa) * 1150 : DOOR.y) + (port ? vh * 0.1 : 0);
+    const tx = STU.on && STU.cam && state === 'play' ? STU.cam.x : state === 'play' ? player.x : menuFly ? 2550 + Math.cos(mfa) * 1500 : DOOR.x, ty = (STU.on && STU.cam && state === 'play' ? STU.cam.y : state === 'play' ? player.y : menuFly ? 780 + Math.sin(mfa) * 1150 : DOOR.y) + (port ? vh * 0.1 : 0);
     viewX0 = cam.x - vw / 2 - 80; viewX1 = cam.x + vw / 2 + 80; viewY0 = cam.y - vh / 2 - 80; viewY1 = cam.y + vh / 2 + 80;
     { const cx = clamp(tx, XMIN + vw / 2, WW - vw / 2); if (Math.abs(cx - cam.x) > 900) cam.x = cx; else cam.x += (cx - cam.x) * fk(0.15); } // v72: Freundes-Keller getrennt von der Stadt
     { const pad = state === 'play' ? vh * (port ? 0.3 : 0.2) : 0; cam.y += (clamp(ty, YMIN + vh / 2 - pad, WH - vh / 2 + pad) - cam.y) * fk(0.15); } // v110: am Kartenrand etwas weiter schauen, damit die Figur nicht unter der Anzeige verschwindet

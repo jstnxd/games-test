@@ -597,7 +597,7 @@
       gangT -= dt;
       if (gangT <= 0) {
         gangT = (65 + Math.random() * 70) * (1 - Math.min(0.4, G.rep / 150)); // v60: oefter
-        if (gangs.length < (G.rep >= 15 ? 2 : 1)) spawnGang();
+        if (gangs.length < (G.rep >= 15 ? 2 : 1) && !(STU.on && STU.calm)) spawnGang();
       }
     }
     for (let i = gangs.length - 1; i >= 0; i--) {
