@@ -368,6 +368,7 @@
   function act(tg, dt) {
     if (!tg) return;
     const ar = tg.ar || AREAS.keller, st = S(ar), inv = st.inv, L = ar.lbl;
+    if (aEdge && (tg.type === 'pot' || tg.type === 'rack' || tg.type === 'table') && workTry(tg)) { aEdge = false; return; } // v163: 3D-Arbeitsfenster
     if (tg.type === 'pot') {
       const p = potOf(tg), pos = potPos(tg), sc = seedCost(ar), hy = harvestYield(ar);
       if (p.s === 0 && aEdge) {

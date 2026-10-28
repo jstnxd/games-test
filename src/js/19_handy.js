@@ -587,6 +587,11 @@
       const paintC = () => cC.querySelectorAll('[data-cp]').forEach(e => e.classList.toggle('on', (e.dataset.cp === '1') === capOn));
       cC.querySelectorAll('[data-cp]').forEach(e => e.addEventListener('click', () => { setCap(e.dataset.cp === '1'); paintC(); }));
       paintC(); b.appendChild(cC);
+      const cW = document.createElement('div'); cW.className = 'card look'; // v163
+      cW.innerHTML = '<div class="nm">Arbeitsfenster (3D)</div><div class="ds" style="margin:2px 0 8px">Gießen, Ernten, Aufhängen und Packen machst du selbst in einem 3D-Fenster: Kanne über den Topf halten, Knospen antippen, an die Leine hängen, in den Beutel legen und verschließen. Aus: wie früher per Knopfdruck. Das Labor bleibt immer per Knopfdruck.</div><div class="chips"><button class="chip" data-wk="1">An</button><button class="chip" data-wk="0">Aus</button></div>';
+      const paintW = () => cW.querySelectorAll('[data-wk]').forEach(e => e.classList.toggle('on', (e.dataset.wk === '1') === workOn));
+      cW.querySelectorAll('[data-wk]').forEach(e => e.addEventListener('click', () => { setWorkOn(e.dataset.wk === '1'); paintW(); }));
+      paintW(); b.appendChild(cW);
       const cP = document.createElement('div'); cP.className = 'card look'; // v134
       cP.innerHTML = '<div class="nm">Bildrate anzeigen</div><div class="ds" style="margin:2px 0 8px">Zeigt oben in der Mitte, wie viele Bilder pro Sekunde dein Handy gerade schafft. Grün ab 100, gelb um 60, rot darunter. Die Bildrate gibt der Browser vor: auf 120-Hz-Handys bis zu 120, im Energiesparmodus oft nur 30 bis 60.</div><div class="chips"><button class="chip" data-fp="1">An</button><button class="chip" data-fp="0">Aus</button></div>';
       const paintP = () => cP.querySelectorAll('[data-fp]').forEach(e => e.classList.toggle('on', (e.dataset.fp === '1') === fpsOn));
