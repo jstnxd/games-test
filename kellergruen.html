@@ -893,7 +893,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 169 · Neu: Hunde, Spatzen, Entenfamilie, Morgennebel, lange Schatten und Klang je Viertel<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 170 · Fix: Verkäufe beim Hehler zählen für Tages- und Wochenziele<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -4378,7 +4378,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (!atGV() || !gvOpen()) return 0; const ar = AREAS[prod]; if (!ar || (!isOpen(ar) && prod !== 'pr')) return 0; const inv = (prod === 'pr' ? G.pr : S(ar)).inv; if (!inv) return 0;
     qty = Math.min(Math.floor(+qty || 0), inv.bags); if (qty <= 0) return 0;
     const s = gvState(), u = gvUnit(prod), pay = u * qty;
-    inv.bags -= qty; G.money += pay; G.earned += pay; if (G.kr) G.kr.cnt.hs += qty;
+    inv.bags -= qty; G.money += pay; G.earned += pay; if (G.kr) G.kr.cnt.hs += qty; G.stat.gv = (G.stat.gv || 0) + qty; // v170: zählt für Tages- und Wochenziel
     s.k = Math.max(GV_MIN, s.k - 0.0035 * qty); // die Gangs werden satt
     sfx.cash(); floater(GV_AT.x, GV_AT.y - 34, '+' + fmt(pay), '#FFB547');
     msg('Hehler nimmt ' + qty + ' ' + ar.lbl.unit + ' für ' + fmt(pay) + ' (' + fmt(u) + ' pro Stück)');
@@ -16071,7 +16071,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 169; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 170; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -16398,6 +16398,8 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 170, date: 'Oktober 2026', title: 'Hehler zählt', items: [
+      ['fix', '🤝', 'Verkäufe beim Hehler im Gangviertel zählen jetzt für die Aufgabe „Einheiten an den Hehler“ (Tages- und Wochenziel) und für den Erfolg „Großabnehmer“'] ] },
     { v: 169, date: 'Oktober 2026', title: 'Lebendige Stadt', items: [
       ['neu', '🐕', 'Hunde im Hundepark rennen dem Ball hinterher und bellen. Spatzen picken in Parks und Gärten und fliegen auf, wenn du kommst. Eine Entenfamilie schwimmt auf dem Teich'],
       ['neu', '🌫️', 'Morgennebel über dem Fluss, lange Schatten bei Sonnenauf- und -untergang, Wäsche flattert im Wind (bei Gewitter stärker)'],
@@ -16406,10 +16408,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ['neu', '🏗️', 'Gewerbegebiet: Kran mit drehendem Ausleger, Paletten, Ölflecken und Warnstreifen'],
       ['neu', '🌃', 'Vergnügungsmeile: Neonschilder (BAR, KARAOKE, TATTOO …), Litfaßsäulen, Plakate und Lichterketten über der Straße'],
       ['neu', '🏡', 'Nordviertel: Pools, Liegen, Formschnitt-Büsche, Rosenbeete, Gartenlaternen und Gartenzwerge. Gangviertel: Graffiti, Schlaglöcher, Müllsäcke, Reifen, brennende Tonnen und flackernde Laternen'] ] },
-    { v: 167, date: 'Oktober 2026', title: 'Eilpakete', items: [
-      ['neu', '📦', 'Kurierfahrten: Handy → Aufträge → Kurier. Mit dem Auto zur Abholung fahren, dann läuft die Zeit. Die Restzeit steht über deinem Auto'],
-      ['neu', '🥇', 'Gold, Silber oder Bronze je nach Restzeit, mit bis zu 50 % mehr Lohn. Deine beste Zeit je Strecke wird gemerkt'],
-      ['neu', '📋', 'Neue Tagesaufgabe: eine Kurierfahrt schaffen (wenn du ein Auto hast)'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

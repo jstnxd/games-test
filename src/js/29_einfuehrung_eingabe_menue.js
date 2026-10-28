@@ -185,6 +185,8 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 170, date: 'Oktober 2026', title: 'Hehler zählt', items: [
+      ['fix', '🤝', 'Verkäufe beim Hehler im Gangviertel zählen jetzt für die Aufgabe „Einheiten an den Hehler“ (Tages- und Wochenziel) und für den Erfolg „Großabnehmer“'] ] },
     { v: 169, date: 'Oktober 2026', title: 'Lebendige Stadt', items: [
       ['neu', '🐕', 'Hunde im Hundepark rennen dem Ball hinterher und bellen. Spatzen picken in Parks und Gärten und fliegen auf, wenn du kommst. Eine Entenfamilie schwimmt auf dem Teich'],
       ['neu', '🌫️', 'Morgennebel über dem Fluss, lange Schatten bei Sonnenauf- und -untergang, Wäsche flattert im Wind (bei Gewitter stärker)'],
@@ -193,10 +195,6 @@
       ['neu', '🏗️', 'Gewerbegebiet: Kran mit drehendem Ausleger, Paletten, Ölflecken und Warnstreifen'],
       ['neu', '🌃', 'Vergnügungsmeile: Neonschilder (BAR, KARAOKE, TATTOO …), Litfaßsäulen, Plakate und Lichterketten über der Straße'],
       ['neu', '🏡', 'Nordviertel: Pools, Liegen, Formschnitt-Büsche, Rosenbeete, Gartenlaternen und Gartenzwerge. Gangviertel: Graffiti, Schlaglöcher, Müllsäcke, Reifen, brennende Tonnen und flackernde Laternen'] ] },
-    { v: 167, date: 'Oktober 2026', title: 'Eilpakete', items: [
-      ['neu', '📦', 'Kurierfahrten: Handy → Aufträge → Kurier. Mit dem Auto zur Abholung fahren, dann läuft die Zeit. Die Restzeit steht über deinem Auto'],
-      ['neu', '🥇', 'Gold, Silber oder Bronze je nach Restzeit, mit bis zu 50 % mehr Lohn. Deine beste Zeit je Strecke wird gemerkt'],
-      ['neu', '📋', 'Neue Tagesaufgabe: eine Kurierfahrt schaffen (wenn du ein Auto hast)'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

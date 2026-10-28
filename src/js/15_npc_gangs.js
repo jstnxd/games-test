@@ -55,7 +55,7 @@
     if (!atGV() || !gvOpen()) return 0; const ar = AREAS[prod]; if (!ar || (!isOpen(ar) && prod !== 'pr')) return 0; const inv = (prod === 'pr' ? G.pr : S(ar)).inv; if (!inv) return 0;
     qty = Math.min(Math.floor(+qty || 0), inv.bags); if (qty <= 0) return 0;
     const s = gvState(), u = gvUnit(prod), pay = u * qty;
-    inv.bags -= qty; G.money += pay; G.earned += pay; if (G.kr) G.kr.cnt.hs += qty;
+    inv.bags -= qty; G.money += pay; G.earned += pay; if (G.kr) G.kr.cnt.hs += qty; G.stat.gv = (G.stat.gv || 0) + qty; // v170: zählt für Tages- und Wochenziel
     s.k = Math.max(GV_MIN, s.k - 0.0035 * qty); // die Gangs werden satt
     sfx.cash(); floater(GV_AT.x, GV_AT.y - 34, '+' + fmt(pay), '#FFB547');
     msg('Hehler nimmt ' + qty + ' ' + ar.lbl.unit + ' für ' + fmt(pay) + ' (' + fmt(u) + ' pro Stück)');
