@@ -185,15 +185,15 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 172, date: 'Oktober 2026', title: 'Glow-up', items: [
+      ['neu', '🌱', 'Pflanzen selbst: Loch in die Erde graben, Samen aus der Tüte hineinlegen und zuschütten, dann sprießt der Keimling. Danach gießen und ernten wie gewohnt'],
+      ['neu', '✨', 'Glow-up der Arbeitsfenster: Regale, Lüfter, Poster und Jungpflanzen im Keller, Heu, Fenster und Tabakbündel in der Scheune. Blätter mit Adern, glitzernde Knospen, Staub im Lampenlicht'],
+      ['neu', '🎉', 'Wasserspritzer, Blattschnipsel, Erntekorb, Waage, Etikett auf dem Beutel, Funken beim Verschließen und Konfetti, wenn etwas fertig ist'] ] },
     { v: 171, date: 'Oktober 2026', title: 'Passt ins Bild', items: [
       ['chg', '🎨', 'Die Arbeitsfenster (Gießen, Ernten, Trocknen, Packen) sehen jetzt aus wie der Rest vom Spiel: Comic-Look mit Umrissen, echter Raum mit deinem Kellerboden und Ziegelwand, Scheune mit Holzbrettern'],
       ['chg', '💡', 'Pflanzenlampe mit Lichtkegel über dem Topf, weiche Schatten, Holztisch mit Fugen, Kamera mehr von oben wie im Spiel'] ] },
     { v: 170, date: 'Oktober 2026', title: 'Hehler zählt', items: [
       ['fix', '🤝', 'Verkäufe beim Hehler im Gangviertel zählen jetzt für die Aufgabe „Einheiten an den Hehler“ (Tages- und Wochenziel) und für den Erfolg „Großabnehmer“'] ] },
-    { v: 169, date: 'Oktober 2026', title: 'Lebendige Stadt', items: [
-      ['neu', '🐕', 'Hunde im Hundepark rennen dem Ball hinterher und bellen. Spatzen picken in Parks und Gärten und fliegen auf, wenn du kommst. Eine Entenfamilie schwimmt auf dem Teich'],
-      ['neu', '🌫️', 'Morgennebel über dem Fluss, lange Schatten bei Sonnenauf- und -untergang, Wäsche flattert im Wind (bei Gewitter stärker)'],
-      ['neu', '🔊', 'Klang je Viertel: Vögel und Windspiele im Norden, Maschinen im Gewerbegebiet, Bass aus den Clubs auf der Vergnügungsmeile, knisternde Feuertonnen im Gangviertel'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

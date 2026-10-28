@@ -782,3 +782,6 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
 .wbtns{position:absolute;z-index:1;right:10px;bottom:10px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .wbtns button{min-height:40px;padding:0 16px;border-radius:12px;border:0;font-weight:800;font-size:14px;cursor:pointer;background:rgba(16,21,28,.85);color:#EEF2F7;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
 .wbtns .wok{background:#63C174;color:#0E1A12;box-shadow:0 4px 14px rgba(99,193,116,.3)}
+.wpop{position:absolute;z-index:2;left:50%;top:38%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;padding:10px 22px;border-radius:18px;background:rgba(16,21,28,.82);color:#FFD27A;font-size:24px;font-weight:900;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,210,122,.35)}
+.wpop.on{animation:wpop 1.5s ease-out forwards}
+@keyframes wpop{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-60%) scale(1)}100%{opacity:0;transform:translate(-50%,-75%) scale(.95)}}
