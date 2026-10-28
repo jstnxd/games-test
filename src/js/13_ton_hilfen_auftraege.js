@@ -193,6 +193,7 @@
         }
       }
     }
+    if (e === player && EVC.length && !ef) evPush(e, r); // v166: Absperrungen
     if (e.x < 0 && e === player) ghostWalls(e, r); // v86: Freundes-Gebaeude links neben dem Keller, zu Fuss erreichbar
     e.x = clamp(e.x, (e === player ? XMIN : 0) + r, WW - r);
     e.y = clamp(e.y, YMIN + r, WH - r);

@@ -94,6 +94,7 @@
     });
     if (seen && carrying) sus = Math.min(1, sus + dt * 0.3 * (near ? 1.15 : 1) * (petPerk().sus || 1)); // v53: langsamer misstrauisch
     else sus = Math.max(0, sus - dt * 0.5 * (gymOn('yoga') ? 1.6 : 1)); // v94: Yoga beruhigt
+    sus = Math.min(1, sus + evCheckSus(dt, carrying && outside)); // v166: Polizeikontrolle
     if (sus >= 1) busted();
   }
   function copSync() { return cops.map(c => [Math.round(c.x), Math.round(c.y), Math.round(c.ang * 100), c.st === 'alert' ? 1 : c.st === 'search' ? 2 : 0, Math.round(Math.max(0, c.stun) * 10), c.ko ? 1 : 0, c.on ? 1 : 0]); }

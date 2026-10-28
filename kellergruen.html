@@ -893,7 +893,7 @@ body.shot #hud, body.shot #pads, body.shot #emoteBar, body.shot #chat, body.shot
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 165 · Neu: Tagesaufgaben mit Serie und Marken<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 166 · Neu: Baustellen, Straßenfeste, Kontrollen, Stromausfall, Nebel und Gewitter<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -2800,7 +2800,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   const bagCap = () => (gymOn('kraft') ? 10 : 0) + 8 + 4 * Math.min(G.up.bag, 4) + 2 * clamp(G.up.bag - 4, 0, 8) + Math.max(0, G.up.bag - 12) + 3 * G.up.sack + 4 * G.up.cart + (G.t.unlocked ? 10 : 0) + (G.b.unlocked ? 8 : 0) + (petPerk().bag || 0) + carCap();
   const SPEED_CAP = 1.5; // Schuhe + Begleiter zusammen nie schneller als +50 %
   const walkSpeed = () => 135 * Math.min(SPEED_CAP, (1 + 0.08 * Math.min(G.up.shoes, 4) + 0.03 * Math.max(0, G.up.shoes - 4)) * (petPerk().speed || 1)) * (gymOn('run') ? 1.12 : 1); // v94: Ausdauertraining
-  const copRange = () => 145 * (1 + Math.min(G.rep, 40) * 0.002) * (petPerk().sight || 1); // v53: sieht weniger weit
+  const copRange = () => 145 * (1 + Math.min(G.rep, 40) * 0.002) * (petPerk().sight || 1) * evSightK(); // v53: sieht weniger weit
   const COP_CONE = 0.52;
   const unitCap = () => 24;
 
@@ -3533,6 +3533,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         }
       }
     }
+    if (e === player && EVC.length && !ef) evPush(e, r); // v166: Absperrungen
     if (e.x < 0 && e === player) ghostWalls(e, r); // v86: Freundes-Gebaeude links neben dem Keller, zu Fuss erreichbar
     e.x = clamp(e.x, (e === player ? XMIN : 0) + r, WW - r);
     e.y = clamp(e.y, YMIN + r, WH - r);
@@ -4308,7 +4309,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       const i = G.orders.findIndex(x => x.id === tg.idx); if (i < 0) return;
       const o = G.orders[i], h = HOUSES[o.house];
       if (inv.bags >= o.qty) {
-        const pay = Math.round(o.price * (petPerk().tip || 1) * krTip() * rkMul(orderPos(o))), bonus = o.t > o.tmax * (KR_NEUTRAL ? 0.6 : 0.6 - Math.min(0.2, 0.04 * specSum('kunde'))) ? Math.round(pay * 0.15) : 0;
+        const pay = Math.round(o.price * (petPerk().tip || 1) * krTip() * rkMul(orderPos(o)) * evPay(orderPos(o))), bonus = o.t > o.tmax * (KR_NEUTRAL ? 0.6 : 0.6 - Math.min(0.2, 0.04 * specSum('kunde'))) ? Math.round(pay * 0.15) : 0;
         G.stat.del++; if (o.vip) G.stat.vip++; if (!KR_NEUTRAL && KR().ev && KR().ev.id === 'stamm' && KR().ev.n > 0) KR().ev.n--;
         rkPoint(orderPos(o), o.qty); // v128: Revierkampf
         inv.bags -= o.qty; G.money += pay + bonus; G.earned += pay + bonus; G.orders.splice(i, 1); if (o.remote) { mpSteal(o); msg('Kunde von ' + ((mp.friends[o.remote] || {}).name || 'Freund') + ' weggeschnappt!'); } addRep((bonus ? REP_FAST : REP_SLOW) * (o.vip ? 2 : 1));
@@ -5223,6 +5224,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     });
     if (seen && carrying) sus = Math.min(1, sus + dt * 0.3 * (near ? 1.15 : 1) * (petPerk().sus || 1)); // v53: langsamer misstrauisch
     else sus = Math.max(0, sus - dt * 0.5 * (gymOn('yoga') ? 1.6 : 1)); // v94: Yoga beruhigt
+    sus = Math.min(1, sus + evCheckSus(dt, carrying && outside)); // v166: Polizeikontrolle
     if (sus >= 1) busted();
   }
   function copSync() { return cops.map(c => [Math.round(c.x), Math.round(c.y), Math.round(c.ang * 100), c.st === 'alert' ? 1 : c.st === 'search' ? 2 : 0, Math.round(Math.max(0, c.stun) * 10), c.ko ? 1 : 0, c.on ? 1 : 0]); }
@@ -6610,7 +6612,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     // Zeit
     G.time += dt * timeRate(G.time); if (G.time >= 1440) { G.time -= 1440; G.day++; payDaily(); }
     // Aufträge
-    lgTick(dt); tdTick(dt); tipTick(dt); // v121, v128
+    lgTick(dt); tdTick(dt); evTick(dt); tipTick(dt); // v121, v128
     if (!sleepS) G.nextOrder -= dt; // v98: im Schlaf kommen keine neuen Kunden
     if (G.nextOrder <= 0) { addOrder(); G.nextOrder = clamp(20 - G.rep * 0.8, 7, 20) * (0.7 + Math.random() * 0.6) / (1 + 0.5 * Math.min(4, Object.keys(mp.friends).length)) / krOrd(); }
     for (let i = G.orders.length - 1; i >= 0; i--) { if (G.orders[i].remote || sleepS) continue; G.orders[i].t -= dt; if (G.orders[i].t <= 0) { msg('Auftrag von ' + HOUSES[G.orders[i].house].name + ' ist abgelaufen' + (KR_NEUTRAL ? '' : ' (Ruf −0,1)'), true); if (!KR_NEUTRAL) { G.repP = Math.max(0, (G.repP || G.rep) - 0.1); G.rep = Math.floor(G.repP + 1e-9); } G.orders.splice(i, 1); } }
@@ -9906,6 +9908,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   }
   function renderWelt(b) {
     calWelt(b); // v155: echte Kalender-Events
+    evWelt(b); // v166: Stadt-Ereignisse
     const k = KR(), s = season(), ns = SEASONS[(seasonI() + 1) % 4];
     const c = krCard(b, s.ic + ' ' + s.name + ' · Jahr ' + seasonYear(), 'Tag ' + seasonDay() + '/' + SEASON_DAYS, s.txt.join(' · ') + '<br>Danach: ' + ns.ic + ' ' + ns.name + ' in ' + (SEASON_DAYS - seasonDay() + 1) + ' Tag(en)'); krBar(c, seasonDay() / SEASON_DAYS);
     const pts = collPoints(), m = k.col[seasonYear() + '-' + seasonI()] || 0, got = pts.filter((_, i) => m & (1 << i)).length, C = COLL[seasonI()];
@@ -14323,6 +14326,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     if (state !== 'edit') drawDetailsGround(); // v94
     if (state !== 'edit') drawExtrasGround(); // v161
     }
+    if (state !== 'edit') evDrawGround(); // v166: Stadt-Ereignisse, nie im Boden-Zwischenspeicher
     if (viewX0 < 0 && tiles) drawPlotGround();
     if (tiles) gsPass = 2; drawPark(); gsPass = 0; drawGym2(); drawKiosk(); drawStall(); drawAutohof(); drawLager(); drawPrPad(); drawWerk(); drawContainers(); drawCasino(); drawApotheke(); drawGangHof(); drawGangHof2(); drawBoulevard(); drawMarkt(); drawGym(); drawBank(); drawPizza(); drawClub(); drawMapTop();
     drawBridges();
@@ -14524,6 +14528,159 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       else { ctx.fillRect(px - 2.5, py, 5, 5); } // Socke/Tuch
       ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(px - 3, py, 6, 1); ctx.fillStyle = '#C9A06A'; ctx.fillRect(px - 0.5, py - 1, 1, 1.6); }
   }
+  // =====================================================================================================
+  // v166: Sichtbare Stadt-Ereignisse. Jeder Spieltag hat einen eigenen Plan (aus der Tagesnummer berechnet,
+  // muss nicht gespeichert werden): Baustelle, Straßenfest, Polizeikontrolle, Stromausfall, Nebel, Gewitter.
+  // =====================================================================================================
+  function evRng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  // Straßenabschnitte zwischen zwei Kreuzungen auf den drei großen waagerechten Straßen
+  const EV_SEGS = (() => { const L = [], vs = RDV.slice().sort((a, b) => a.c0 - b.c0); for (const h of RDH.filter(r => r.id === 'H1' || r.id === 'H2' || r.id === 'H3')) for (let i = 0; i < vs.length - 1; i++) { const x0 = vs[i].c1 + SW + 10, x1 = vs[i + 1].c0 - SW - 10; if (x1 - x0 > 400) L.push({ r: h, x0, x1, y0: h.c0, y1: h.c1, cx: (x0 + x1) / 2, cy: (h.c0 + h.c1) / 2 }); } return L; })();
+  const EV_TXT = { bau: '🚧 Baustelle', fest: '🎪 Straßenfest', kontrolle: '🚓 Polizeikontrolle', strom: '🔌 Stromausfall', fog: '🌫️ Nebel', storm: '⛈️ Gewitter' };
+  const EVPC = new Map();
+  function evPlanDay(d) {
+    if (EVPC.has(d)) return EVPC.get(d); const L = [];
+    if (d >= 2) {
+      const rnd = evRng(d * 7919 + 13), segs = EV_SEGS.slice(), seg = () => segs.splice(Math.floor(rnd() * segs.length), 1)[0], day0 = (d - 1) * 1440;
+      const add = (k, h0, dur, o) => L.push(Object.assign({ k, t0: Math.round(day0 + h0 * 60), t1: Math.round(day0 + (h0 + dur) * 60) }, o || {}));
+      const w = rnd(); if (w < 0.2) add('fog', 4 + rnd() * 2, 4 + rnd() * 2); else if (w < 0.38) add('storm', 14 + rnd() * 5, 1.5 + rnd() * 1.5);
+      const pool = ['bau', 'kontrolle', 'strom', 'fest'], n = 1 + (rnd() < 0.5 ? 1 : 0);
+      for (let i = 0; i < n && pool.length; i++) { const k = pool.splice(Math.floor(rnd() * pool.length), 1)[0];
+        if (k === 'bau') add('bau', 6 + rnd() * 3, 8 + rnd() * 4, { s: seg() });
+        else if (k === 'fest') add('fest', 12 + rnd() * 2, 8, { s: seg() });
+        else if (k === 'kontrolle') { const s = seg(), side = rnd() < 0.5 ? -1 : 1; add('kontrolle', 9 + rnd() * 10, 2 + rnd() * 1.5, { s, x: s.x0 + 90 + rnd() * (s.x1 - s.x0 - 180), y: side < 0 ? s.y0 + 15 : s.y1 - 15, side }); }
+        else { const hs = RDH.filter(r => r.id === 'H1' || r.id === 'H2' || r.id === 'H3'), h = hs[Math.floor(rnd() * hs.length)], v = RDV[Math.floor(rnd() * RDV.length)], cx = (v.c0 + v.c1) / 2, cy = (h.c0 + h.c1) / 2; add('strom', 18.5 + rnd() * 2.5, 5 + rnd() * 2, { x0: cx - 560, x1: cx + 560, y0: cy - 430, y1: cy + 430, nm: h.name + ' und ' + v.name }); }
+      }
+    }
+    EVPC.set(d, L); if (EVPC.size > 6) EVPC.delete(EVPC.keys().next().value); return L;
+  }
+  let EVA = [], EVC = [], evT = 0; const evSeen = new Set(), evWarn = new Set(); let evFl = { t: -9, x: 0, th: 0 }, evNext = 5;
+  const evOn = () => !!G && !KR_NEUTRAL && state === 'play';
+  const evK = e => { const now = absMin(); return clamp((now - e.t0) / 25, 0, 1) * clamp((e.t1 - now) / 25, 0, 1); };
+  const evHH = t => String(Math.floor(((t / 60) % 24 + 24) % 24)).padStart(2, '0') + ':' + String(Math.floor(((t % 60) + 60) % 60)).padStart(2, '0');
+  const evClosed = () => EVA.filter(e => e.k === 'bau' || e.k === 'fest');
+  function evTick(dt) {
+    if (!evOn()) { EVA = []; EVC = []; return; } evT -= dt;
+    if (evT <= 0) { evT = 0.5; const now = absMin(), was = EVA; EVA = evPlanDay(G.day - 1).concat(evPlanDay(G.day)).filter(e => now >= e.t0 && now < e.t1);
+      for (const e of EVA) { const id = e.k + '@' + e.t0; if (evSeen.has(id)) continue; evSeen.add(id); evStart(e); }
+      for (const e of was) if (!EVA.includes(e) && (e.k === 'bau' || e.k === 'fest' || e.k === 'kontrolle')) msg(EV_TXT[e.k] + ' in der ' + e.s.r.name + ' ist vorbei', false);
+      EVC = []; for (const e of evClosed()) { const s = e.s; EVC.push({ x: s.x0 - 6, y: s.y0, w: 12, h: s.y1 - s.y0 }, { x: s.x1 - 6, y: s.y0, w: 12, h: s.y1 - s.y0 }); if (e.k === 'bau') EVC.push({ x: s.cx - 40, y: s.cy - 26, w: 80, h: 44 }); else for (const st of evStalls(s)) EVC.push({ x: st.x - 18, y: st.y - 8, w: 36, h: 16 }); }
+    }
+    if (EVA.some(e => e.k === 'storm') && !inOwnRoom()) { evNext -= dt; if (evNext <= 0) { evNext = 5 + Math.random() * 9; evFl = { t: gt, x: Math.random(), th: 0.4 + Math.random() * 1.4 }; try { if (!LOFX) { tone(55, 1.6, 'sawtooth', 0.05, -25, evFl.th); tone(85, 1.0, 'triangle', 0.06, -40, evFl.th + 0.05); } } catch (x) {} } }
+  }
+  function evStart(e) {
+    const until = ' bis ' + evHH(e.t1);
+    if (e.k === 'bau') { msg('🚧 Baustelle in der ' + e.s.r.name + ': für Autos gesperrt' + until, false); for (let i = traffic.length - 1; i >= 0; i--) if (traffic[i].ln.r === e.s.r && !inView(traffic[i].x, traffic[i].y, 80)) traffic.splice(i, 1); }
+    else if (e.k === 'fest') { msg('🎪 Straßenfest in der ' + e.s.r.name + ': Lieferungen in der Nähe bringen 30 % mehr' + until, false); for (let i = traffic.length - 1; i >= 0; i--) if (traffic[i].ln.r === e.s.r && !inView(traffic[i].x, traffic[i].y, 80)) traffic.splice(i, 1); }
+    else if (e.k === 'kontrolle') msg('🚓 Polizeikontrolle in der ' + e.s.r.name + until + '. Mit Ware lieber einen Bogen machen', false);
+    else if (e.k === 'strom') msg('🔌 Stromausfall rund um ' + e.nm + until + ': dunkel, die Polizei sieht dort schlechter', false);
+    else if (e.k === 'fog') msg('🌫️ Dichter Nebel: Die Polizei sieht weniger weit', false);
+    else if (e.k === 'storm') msg('⛈️ Gewitter! Die Polizei sieht weniger weit', false);
+  }
+  // ---------- Auswirkungen ----------
+  const evRoadClosed = r => EVA.some(e => (e.k === 'bau' || e.k === 'fest') && e.s.r === r);
+  // Abstand des Verkehrsautos c zur nächsten Absperrung vor ihm (oder Infinity)
+  function evTrafBlock(c, half) {
+    if (!EVA.length || !c.h) return Infinity; let best = Infinity;
+    for (const e of EVA) { if ((e.k !== 'bau' && e.k !== 'fest') || e.s.r !== c.ln.r) continue; for (const bx of [e.s.x0 - 8, e.s.x1 + 8]) { const al = (bx - c.x) * c.dir - half; if (al > -4 && al < best) best = al; } }
+    return best;
+  }
+  function evPush(e, r) {
+    for (const c of EVC) { const nx = clamp(e.x, c.x, c.x + c.w), ny = clamp(e.y, c.y, c.y + c.h), dx = e.x - nx, dy = e.y - ny, d2 = dx * dx + dy * dy;
+      if (d2 < r * r) { if (d2 > 1e-6) { const d = Math.sqrt(d2), k = (r - d) / d; e.x += dx * k; e.y += dy * k; } else { const l = e.x - c.x, rr2 = c.x + c.w - e.x, t = e.y - c.y, b = c.y + c.h - e.y, m = Math.min(l, rr2, t, b); if (m === l) e.x = c.x - r; else if (m === rr2) e.x = c.x + c.w + r; else if (m === t) e.y = c.y - r; else e.y = c.y + c.h + r; } } }
+  }
+  const evDark = (x, y) => EVA.some(e => e.k === 'strom' && x > e.x0 && x < e.x1 && y > e.y0 && y < e.y1);
+  function evSightK() {
+    if (!EVA.length) return 1; let k = 1;
+    for (const e of EVA) { if (e.k === 'fog') k *= 1 - 0.4 * evK(e); else if (e.k === 'storm') k *= 1 - 0.25 * evK(e); else if (e.k === 'strom' && lightK() > 0.12 && evDark(player.x, player.y)) k *= 0.65; }
+    return k;
+  }
+  function evPay(p) { for (const e of EVA) if (e.k === 'fest' && p && Math.hypot(p.x - e.s.cx, p.y - e.s.cy) < 560) return 1.3; return 1; }
+  // Kontrolle: mit Ware in der Nähe wird die Polizei schnell misstrauisch
+  function evCheckSus(dt, carrying) {
+    let add = 0;
+    for (const e of EVA) { if (e.k !== 'kontrolle') continue; const d = Math.hypot(player.x - e.x, player.y - e.y), id = e.t0;
+      if (d < 260 && carrying && !evWarn.has(id)) { evWarn.add(id); msg('🚓 Vorsicht, Polizeikontrolle! Mit Ware nicht zu nah ran', true); }
+      if (carrying && d < 135) add += dt * 0.9; }
+    return add;
+  }
+  const evWeather = () => { for (const e of EVA) if (e.k === 'storm' || e.k === 'fog') return e.k; return ''; };
+  // ---------- Zeichnen ----------
+  const evStalls = s => { const L = [], n = Math.max(3, Math.floor((s.x1 - s.x0 - 120) / 130)); for (let i = 0; i < n; i++) { const x = s.x0 + 70 + i * (s.x1 - s.x0 - 140) / Math.max(1, n - 1); L.push({ x, y: s.y0 + 26, c: i }, { x: x + 55 > s.x1 - 50 ? x - 40 : x + 50, y: s.y1 - 30, c: i + 2 }); } return L; };
+  function evBarrier(x, y0, y1, blue) {
+    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - 3, y0 + 4, 8, y1 - y0 - 4);
+    const n = Math.ceil((y1 - y0) / 12); for (let i = 0; i < n; i++) { ctx.fillStyle = i % 2 ? '#F4F4F2' : (blue ? '#2F6FD6' : '#D33F3F'); ctx.fillRect(x - 3, y0 + i * 12, 6, Math.min(12, y1 - y0 - i * 12)); }
+    for (const yy of [y0 + 4, (y0 + y1) / 2, y1 - 4]) { ctx.fillStyle = '#3A3F46'; ctx.fillRect(x - 6, yy - 2, 12, 4); }
+    if (!blue) { const on = Math.sin(gt * 6 + x) > 0; for (const yy of [y0 + 6, y1 - 6]) { ctx.fillStyle = on ? '#FFB547' : '#7A5A2A'; ctx.beginPath(); ctx.arc(x, yy - 6, 3, 0, TAU); ctx.fill(); } }
+  }
+  function evCone(x, y) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x + 1, y + 3, 5, 2, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#F07A2A'; ctx.beginPath(); ctx.moveTo(x - 4.5, y + 2); ctx.lineTo(x, y - 9); ctx.lineTo(x + 4.5, y + 2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x - 2.6, y - 4, 5.2, 2); ctx.fillStyle = '#2E3440'; ctx.fillRect(x - 5.5, y + 1.5, 11, 2); }
+  function evDigger(x, y) {
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x + 3, y + 14, 38, 10, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#2E3238'; rr(x - 30, y + 2, 44, 12, 4); ctx.fill(); ctx.fillStyle = '#4A4F57'; for (let i = 0; i < 6; i++) ctx.fillRect(x - 27 + i * 7, y + 4, 4, 8);
+    ctx.fillStyle = '#E8B23A'; rr(x - 26, y - 14, 36, 18, 3); ctx.fill(); ctx.fillStyle = '#C4901F'; ctx.fillRect(x - 26, y, 36, 4);
+    ctx.fillStyle = '#E8B23A'; rr(x - 4, y - 30, 16, 18, 2); ctx.fill(); ctx.fillStyle = 'rgba(160,210,240,.85)'; ctx.fillRect(x - 1, y - 27, 10, 9);
+    const a = Math.sin(gt * 0.8) * 0.15; ctx.save(); ctx.translate(x + 10, y - 10); ctx.rotate(-0.5 + a); ctx.fillStyle = '#D9A02E'; ctx.fillRect(0, -3, 30, 6); ctx.translate(30, 0); ctx.rotate(1.3 - a * 2); ctx.fillRect(0, -2.5, 22, 5); ctx.translate(22, 0); ctx.fillStyle = '#5A5F66'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(9, -2); ctx.lineTo(7, 6); ctx.lineTo(-1, 4); ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+  function evDrawGround() {
+    if (!EVA.length || inOwnRoom()) return;
+    for (const e of EVA) {
+      if (e.k === 'bau' || e.k === 'fest') { const s = e.s; if (!(s.x1 > viewX0 - 60 && s.x0 < viewX1 + 60 && s.y1 > viewY0 - 60 && s.y0 < viewY1 + 60)) continue;
+        if (e.k === 'bau') {
+          ctx.fillStyle = '#6E5A44'; rr(s.cx - 120, s.cy - 34, 240, 62, 14); ctx.fill(); ctx.fillStyle = '#7E6A52'; for (let i = 0; i < 14; i++) { ctx.beginPath(); ctx.arc(s.cx - 105 + (i * 37) % 210, s.cy - 22 + (i * 23) % 44, 3 + (i % 3), 0, TAU); ctx.fill(); }
+          ctx.fillStyle = '#9A9286'; ctx.beginPath(); ctx.ellipse(s.cx + 70, s.cy + 6, 28, 14, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#B0A89C'; ctx.beginPath(); ctx.ellipse(s.cx + 66, s.cy + 2, 18, 8, 0, 0, TAU); ctx.fill();
+          for (let x = s.x0 + 40; x < s.x1 - 30; x += 70) { evCone(x, s.y0 + 12); evCone(x + 35, s.y1 - 10); }
+          evDigger(s.cx - 30, s.cy - 2);
+          ctx.fillStyle = '#F2C14E'; rr(s.x0 + 14, s.cy - 18, 30, 26, 3); ctx.fill(); ctx.fillStyle = '#1D2129'; ctx.font = '900 7px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('BAU', s.x0 + 29, s.cy - 8); ctx.fillText('⚠', s.x0 + 29, s.cy + 1);
+        } else {
+          const st = evStalls(s), cols = [['#D33F3F', '#FFFFFF'], ['#2F6FD6', '#FFFFFF'], ['#3FAE6A', '#F2E8C8'], ['#E8833A', '#FFF2D6'], ['#8A5FC9', '#F4E8FF']];
+          for (let x = s.x0 + 50; x < s.x1 - 20; x += 120) { ctx.strokeStyle = 'rgba(40,40,40,.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, s.y0); ctx.quadraticCurveTo(x + 10, s.cy, x, s.y1); ctx.stroke();
+            for (let i = 0; i < 9; i++) { const t = (i + 0.5) / 9, yy = s.y0 + t * (s.y1 - s.y0), xx = x + 20 * t * (1 - t) * 2; ctx.fillStyle = ['#FF5C7A', '#FFD24A', '#5BC0EB', '#63C174', '#C9A2FF'][i % 5]; ctx.beginPath(); ctx.moveTo(xx, yy - 4); ctx.lineTo(xx + 7, yy); ctx.lineTo(xx, yy + 4); ctx.closePath(); ctx.fill(); } }
+          for (const p of st) { const c = cols[p.c % cols.length]; ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(p.x - 17, p.y + 4, 36, 8); ctx.fillStyle = '#8A5E3A'; ctx.fillRect(p.x - 16, p.y - 2, 32, 9);
+            for (let i = 0; i < 6; i++) { ctx.fillStyle = c[i % 2]; ctx.fillRect(p.x - 18 + i * 6, p.y - 14, 6, 11); } ctx.fillStyle = c[0]; for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.arc(p.x - 15 + i * 6, p.y - 3, 3, 0, Math.PI); ctx.fill(); }
+            ctx.fillStyle = ['#FFD24A', '#FF8FA3', '#9FE3B0', '#FFB547'][p.c % 4]; for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(p.x - 9 + i * 9, p.y + 1, 2.4, 0, TAU); ctx.fill(); } }
+          for (let i = 0; i < 4; i++) { const bx = s.cx - 150 + i * 100, by = s.cy - 30 + Math.sin(gt * 1.3 + i) * 4; ctx.strokeStyle = 'rgba(60,60,60,.5)'; ctx.beginPath(); ctx.moveTo(bx, by + 8); ctx.lineTo(bx + 2, by + 30); ctx.stroke(); ctx.fillStyle = ['#FF5C7A', '#5BC0EB', '#FFD24A', '#63C174'][i]; ctx.beginPath(); ctx.ellipse(bx, by, 6, 8, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.arc(bx - 2, by - 3, 1.8, 0, TAU); ctx.fill(); }
+          ctx.font = '700 11px sans-serif'; ctx.textAlign = 'center'; for (let i = 0; i < 3; i++) { const t = ((gt * 0.35 + i / 3) % 1); ctx.globalAlpha = Math.sin(t * Math.PI) * 0.8; ctx.fillStyle = '#FFE08A'; ctx.fillText(i % 2 ? '♫' : '♪', s.cx - 60 + i * 60 + Math.sin(gt + i) * 8, s.cy + 10 - t * 40); } ctx.globalAlpha = 1;
+        }
+        evBarrier(s.x0, s.y0, s.y1, e.k === 'fest'); evBarrier(s.x1, s.y0, s.y1, e.k === 'fest');
+      } else if (e.k === 'kontrolle') { if (!inView(e.x, e.y, 120)) continue;
+        const ang = e.side < 0 ? 0 : Math.PI; drawCar(e.x, e.y, ang, 'suv', 5, null, true);
+        ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(ang); ctx.fillStyle = '#2F6FD6'; ctx.fillRect(-20, -11, 40, 3); ctx.fillRect(-20, 8, 40, 3); const on = Math.floor(gt * 6) % 2; ctx.fillStyle = on ? '#4FA3FF' : '#1E4FA8'; ctx.fillRect(-3, -7, 5, 6); ctx.fillStyle = on ? '#1E4FA8' : '#4FA3FF'; ctx.fillRect(-3, 1, 5, 6); ctx.restore();
+        const dy = e.side < 0 ? 30 : -30; for (let i = -2; i <= 2; i++) evCone(e.x + i * 26, e.y + dy);
+        ctx.fillStyle = '#FFFFFF'; rr(e.x + 34, e.y - 14, 34, 16, 3); ctx.fill(); ctx.strokeStyle = '#D33F3F'; ctx.lineWidth = 1.6; ctx.stroke(); ctx.fillStyle = '#1D2129'; ctx.font = '900 5.5px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('POLIZEI', e.x + 51, e.y - 9); ctx.fillText('KONTROLLE', e.x + 51, e.y - 3);
+      }
+    }
+  }
+  // Lichter: Blaulicht, Baustellen-Blinker, Lichterketten, Dunkelheit beim Stromausfall
+  function evLights(L, oK) {
+    if (!EVA.length || inOwnRoom()) return;
+    for (const e of EVA) {
+      if (e.k === 'strom' && L > 0.05) { ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(4,6,16,' + (0.32 * L).toFixed(3) + ')'; ctx.fillRect(e.x0, e.y0, e.x1 - e.x0, e.y1 - e.y0); ctx.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < 7; i++) { const x = e.x0 + 120 + ((i * 397) % (e.x1 - e.x0 - 240)), y = e.y0 + 100 + ((i * 251) % (e.y1 - e.y0 - 200)); if (inView(x, y, 60)) glow(x, y, 18, '255,170,80', (0.25 + 0.08 * Math.sin(gt * 9 + i)) * L * oK); } }
+      else if (e.k === 'kontrolle' && inView(e.x, e.y, 200)) { const on = Math.floor(gt * 6) % 2; glow(e.x, e.y - 4, 70, on ? '80,150,255' : '40,90,220', (0.25 + 0.3 * L) * oK); }
+      else if ((e.k === 'bau' || e.k === 'fest') && L > 0.05) { const s = e.s; if (!(s.x1 > viewX0 - 60 && s.x0 < viewX1 + 60 && s.y1 > viewY0 - 60 && s.y0 < viewY1 + 60)) continue;
+        if (e.k === 'bau') { const on = Math.sin(gt * 6) > 0; if (on) for (const x of [s.x0, s.x1]) for (const y of [s.y0 + 6, s.y1 - 6]) glow(x, y - 6, 26, '255,180,60', 0.5 * L * oK); }
+        else { for (let x = s.x0 + 50; x < s.x1 - 20; x += 120) for (let i = 0; i < 6; i++) { const t = (i + 0.5) / 6; glow(x + 20 * t * (1 - t) * 2, s.y0 + t * (s.y1 - s.y0), 16, ['255,92,122', '255,210,74', '120,200,255', '180,240,140'][i % 4], (0.35 + 0.1 * Math.sin(gt * 4 + i + x)) * L * oK); }
+          for (const p of evStalls(s)) glow(p.x, p.y - 6, 40, '255,210,140', 0.3 * L * oK); } }
+    }
+  }
+  // Bildschirm: Nebel und Gewitter (über der Welt, unter der Anzeige)
+  function evScreen() {
+    if (!EVA.length || state !== 'play' || inOwnRoom()) return; const wk = evWeather(); if (!wk) return; const e = EVA.find(x => x.k === wk), k = evK(e) * (indoorK ? 1 - 0.7 * indoorK : 1); if (k <= 0.01) return;
+    ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalCompositeOperation = 'source-over';
+    if (wk === 'fog') { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(200,208,218,' + (0.42 * k) + ')'); g.addColorStop(1, 'rgba(190,198,210,' + (0.3 * k) + ')'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 6; i++) { const x = ((i * 0.23 + gt * 0.012 * (1 + i % 3)) % 1.4 - 0.2) * W, y = (0.15 + (i * 0.37) % 0.8) * H, r = Math.max(W, H) * (0.25 + (i % 3) * 0.08), rg = ctx.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(225,230,238,' + (0.22 * k) + ')'); rg.addColorStop(1, 'rgba(225,230,238,0)'); ctx.fillStyle = rg; ctx.fillRect(x - r, y - r, r * 2, r * 2); } }
+    else { ctx.fillStyle = 'rgba(8,12,26,' + (0.2 * k) + ')'; ctx.fillRect(0, 0, W, H); const ft = gt - evFl.t;
+      if (ft >= 0 && ft < 0.45) { const a = (ft < 0.08 ? 1 : ft < 0.14 ? 0.3 : ft < 0.22 ? 0.85 : Math.max(0, 1 - (ft - 0.22) / 0.23) * 0.6) * k * (LOFX ? 0.4 : 1); ctx.fillStyle = 'rgba(230,236,255,' + (0.5 * a).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H);
+        if (ft < 0.22) { ctx.strokeStyle = 'rgba(255,255,255,' + a + ')'; ctx.lineWidth = 2.2; ctx.beginPath(); let x = evFl.x * W, y = 0; ctx.moveTo(x, y); const r2 = evRng(Math.floor(evFl.t * 1000)); while (y < H * 0.55) { x += (r2() - 0.5) * 40; y += 14 + r2() * 22; ctx.lineTo(x, y); } ctx.stroke(); } } }
+    ctx.restore();
+  }
+  // Handy: Karriere → Events
+  function evWelt(b) {
+    if (!G || KR_NEUTRAL) return; const now = absMin(), L = evPlanDay(G.day - 1).filter(e => e.t1 > now).concat(evPlanDay(G.day)); if (!L.length) return;
+    krGrp(b, 'Heute in der Stadt');
+    for (const e of L) { const where = e.s ? 'in der ' + e.s.r.name : e.k === 'strom' ? 'rund um ' + e.nm : 'in der ganzen Stadt', st = now >= e.t1 ? 'vorbei' : now >= e.t0 ? 'läuft bis ' + evHH(e.t1) : 'ab ' + evHH(e.t0);
+      const ds = { bau: 'Die Straße ist für Autos gesperrt. Zu Fuß geht es über den Gehweg.', fest: 'Lieferungen in der Nähe bringen 30 % mehr. Für Autos gesperrt.', kontrolle: 'Wer mit Ware nah vorbeigeht, macht die Polizei schnell misstrauisch.', strom: 'Nachts ist es dort dunkel. Die Polizei sieht schlechter.', fog: 'Die Polizei sieht weniger weit.', storm: 'Regen, Blitze, Donner. Die Polizei sieht weniger weit.' }[e.k];
+      const c = krCard(b, EV_TXT[e.k] + ' ' + where, st, ds); if (now >= e.t1) c.classList.add('done'); }
+  }
   // ---------- Tag und Nacht, Wetter, Leben auf der Karte (v48) ----------
   const SKY = [[0, .64, 6, 10, 40], [4.5, .64, 6, 10, 40], [5.8, .34, 70, 40, 80], [7, .10, 255, 160, 90], [8.5, 0, 255, 255, 255], [16.5, 0, 255, 255, 255], [17.8, .10, 255, 140, 60], [19.2, .36, 70, 30, 90], [20.8, .62, 6, 10, 40], [24, .64, 6, 10, 40]];
   function skyNow() {
@@ -14537,7 +14694,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   let skyC = { a: 0, r: 255, g: 255, b: 255 }, indoorK = 0, lastRoom = null;
   const night = () => G ? skyNow().a : 0;
   const lightK = () => clamp(skyC.a * 1.8 - 0.06, 0, 1);
-  const rainTarget = () => { if (!G || state !== 'play' || ((G.day * 37) % 11) >= 2) return 0; const st = 7 + (G.day * 5) % 6, h = G.time / 60; return h >= st && h < st + 5 ? 1 : 0; };
+  const rainTarget = () => { if (G && state === 'play' && evWeather() === 'storm') return 1; if (!G || state !== 'play' || ((G.day * 37) % 11) >= 2) return 0; const st = 7 + (G.day * 5) % 6, h = G.time / 60; return h >= st && h < st + 5 ? 1 : 0; };
   const amb = { pig: [], flock: null, flockT: 30, rain: 0 };
   for (let i = 0; i < 6; i++) amb.pig.push({ x: FOUNTAIN.x + Math.cos(i * 1.05) * 90, y: FOUNTAIN.y + Math.sin(i * 1.05) * 90, tx: 0, ty: 0, fl: 0, f: 1, wt: i * 0.6, mv: 0 });
   const traffic = []; let trafT = 3;
@@ -14557,7 +14714,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ln = LANES[Math.random() < 0.3 ? Math.floor(Math.random() * 2) : Math.floor(Math.random() * LANES.length)], lim = ln.h ? WW : WH, p = ln.dir > 0 ? (ln.h ? 0 : YMIN) - 90 : lim + 90;
     const c = { ln, h: ln.h, dir: ln.dir, p, v: 0, vt: 70 + Math.random() * 45, col: TCOL[Math.floor(Math.random() * TCOL.length)], truck: Math.random() < 0.18 };
     c.x = ln.h ? p : ln.c; c.y = ln.h ? ln.c : p;
-    if (traffic.some(o => o.ln === ln && Math.abs(o.p - p) < 140)) return null;
+    if (traffic.some(o => o.ln === ln && Math.abs(o.p - p) < 140) || evRoadClosed(ln.r)) return null;
     traffic.push(c); return c;
   }
   // v86: fahrende Autos: kurz K.O., ein bis zwei Beutel gehen verloren (ohne Ware ein bisschen Geld). Das Verlorene liegt am Boden und kann wieder aufgesammelt werden.
@@ -14596,6 +14753,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         const busy = traffic.some(o => o !== c && o.h !== c.h && committed(o, b)) || (!c.h && (traffic.some(o => o.h && Math.abs(o.y - (b.y0 + b.y1) / 2) < 80 && (b.x0 - o.x) * o.dir > -30 && (b.x0 - o.x) * o.dir < 150) || cars.some(o => Math.abs(o.x - (b.x0 + b.x1) / 2) < 170)));
         if (busy) tv = 0;
       }
+      if (EVA.length && evTrafBlock(c, half) < 50) { tv = 0; if (c.v < 1 && !inView(c.x, c.y, 60)) { traffic.splice(i, 1); continue; } } // v166: Absperrung
       c.v += clamp(tv - c.v, -170 * dt, 60 * dt); c.p += c.dir * c.v * dt;
       if (c.h) c.x = c.p; else c.y = c.p;
       trafficHit(c);
@@ -14860,8 +15018,9 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   function drawLights() {
     const L = lightK(); if (L <= 0.02) return; const oK = 1 - 0.4 * indoorK; // v56: sanfter, drinnen noch zurueckhaltender
     ctx.globalCompositeOperation = 'lighter';
-    for (const l of LAMPS) if (inView(l.x, l.y, 140)) glow(l.x, l.y - 30, 100, '255,206,130', 0.26 * L * oK);
+    for (const l of LAMPS) if (inView(l.x, l.y, 140) && !evDark(l.x, l.y)) glow(l.x, l.y - 30, 100, '255,206,130', 0.26 * L * oK);
     calLights(L, oK); // v155
+    evLights(L, oK); // v166
     gvLights(L, oK); // v79
     if (inView(GV2_P.barrel.x, GV2_P.barrel.y, 200)) glow(GV2_P.barrel.x, GV2_P.barrel.y - 4, 90 + 8 * Math.sin(gt * 9), '255,140,60', (0.42 + 0.08 * Math.sin(gt * 13)) * L * oK); // v109: Westhof
     if (inView(3910, 2490, 460)) for (let k = 0; k < 8; k++) { const t = (k + .5) / 8; glow(GV2.x + 10 + t * (GV2.w - 20), 2486 + 7 * 4 * t * (1 - t) * .5, 24, ['255,92,122', '255,210,74', '120,200,255', '180,120,255'][k % 4], .3 * L * oK); }
@@ -14871,7 +15030,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     HOUSES.forEach((h, hi) => {
       if (!inView(h.x + h.w / 2, h.y + h.h / 2, 160)) return;
       houseWins(h).forEach(([wx, wy], j) => {
-        if (!winLit(hi, j)) return;
+        if (!winLit(hi, j) || evDark(wx, wy)) return;
         const tv = (hi + j) % 4 === 0, fl = tv ? 0.7 + Math.sin(gt * 7 + hi) * 0.15 : 1;
         glow(wx, wy, 40, tv ? '120,170,255' : '255,200,110', 0.3 * L * fl * oK);
       });
@@ -15032,7 +15191,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
         ctx.globalCompositeOperation = 'source-over'; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       }
     }
-    { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } if (!inOwnRoom()) drawRain(); ctx.restore(); } // v59: kein Regen in Raeumen
+    { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } if (!inOwnRoom()) drawRain(); ctx.restore(); } evScreen(); // v59: kein Regen in Raeumen
     if (state === 'play' || state === 'menu') calDrawSky(); // v155: Feuerwerk, Herzen, Konfetti
     if (state === 'play') drawVignette(); // v94
     if (state === 'play') drawCopLights(); // v127: Polizeilicht statt Balken
@@ -15566,7 +15725,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 165; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 166; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -15893,6 +16052,10 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 166, date: 'Oktober 2026', title: 'Was los in der Stadt', items: [
+      ['neu', '🚧', 'Stadt-Ereignisse: Jeden Tag passiert etwas. Baustellen sperren Straßen für Autos, Straßenfeste mit Buden und Lichterketten bringen 30 % mehr für Lieferungen in der Nähe'],
+      ['neu', '🚓', 'Polizeikontrollen: Mit Ware lieber einen Bogen machen. Beim Stromausfall bleibt ein Viertel nachts dunkel und die Polizei sieht dort schlechter'],
+      ['neu', '⛈️', 'Nebel und Gewitter mit Blitz und Donner: Die Polizei sieht weniger weit. Alles für heute steht im Handy unter Karriere → Events'] ] },
     { v: 165, date: 'Oktober 2026', title: 'Jeden Tag was zu tun', items: [
       ['neu', '📋', 'Tagesaufgaben: Jeden Spieltag drei neue Aufgaben aus Verkauf, Arbeit und Stadt. Jede bringt Geld und Ruf. Zu finden im Handy unter Karriere → Heute'],
       ['neu', '🔥', 'Serie: Schaffst du alle drei, gibt es einen Bonus und deine Serie wächst. Jeder 5. Tag in Folge bringt eine Marke'] ] },
@@ -15900,10 +16063,6 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
       ['fix', '✕', 'Die Arbeitsfenster lassen sich wieder schließen (✕, Fertig und Escape)'],
       ['neu', '🛍️', 'Packen: Knospen in den offenen Beutel legen, Beutel antippen zum Verschließen und dann in die Kiste ziehen. Danach kommt der nächste Beutel'],
       ['chg', '🌿', 'Schönere Pflanzen: gezackte Fächerblätter, Seitenäste, dicke Knospen mit Härchen. Tabak mit großen, breiten Blättern'] ] },
-    { v: 163, date: 'Oktober 2026', title: 'Selbst anpacken', items: [
-      ['neu', '🪴', 'Arbeitsfenster in 3D: Gießen, Ernten, Aufhängen und Packen machst du jetzt selbst. Kanne über den Topf ziehen und halten, Knospen antippen, an die Leine hängen und trockene abnehmen'],
-      ['neu', '🛍️', 'Packtisch: Knospen einzeln in den Beutel legen und ihn dann verschließen. In der Scheune mit Tabakblättern'],
-      ['info', '⚙️', 'Lieber wie früher per Knopf? Einstellungen → Arbeitsfenster (3D) → Aus. Das Labor und die Helfer arbeiten weiter automatisch'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
@@ -16090,7 +16249,7 @@ window.addEventListener('unhandledrejection', function (e) { var r = e && e.reas
   } catch (e) {}
   loadWorldLocal(); setTimeout(worldStart, 1500); // v59: gemeinsame Karte
   if (r3Want) setTimeout(r3Start, 50); // v90: 3D-Ansicht vom letzten Mal
-  if (window.__KG_DEBUG) window.__KG_DEBUG({ get XTR() { return XTR; }, extrasInit, LAMPS, BINS, HYDRANTS, BENCHES, TREES, FLOODS, busStops, ENTS: () => ({ GYM_AT, GYM2_AT, PIZZA_AT, CLUB_AT, BANK_AT, MAKLER_AT, APO_AT, LAGER_AT, WS_AT, KIOSK_AT, TREFF_AT, GV_AT, AH_AT, CAS_DOOR, DOOR, DOOR2, DOOR3 }), onStreet, bizEnter, bizLeave, GYM2_AT, GYM_AT, roofA, areaHidden, get indoorK() { return indoorK; }, FIG, DECOR, CACHE, CB, drawGroundTiles, seasonPx, setCalOv(v) { calOv = v; calC.t = -1; }, CAL, calList, calTarget, calAct, advOpen, eggPoints, CS, get bcOff() { return bcOff; }, drawTraffic, get DET() { return DET; }, detInit, catUpdate, blockedPt, drawSlotMachine, drawBJTable, shotStart, shotOn, shotEnd, get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, set sus(v) { sus = v; }, bustNow() { copBust = gt; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, mpBinAcks, binRestore, wzReset() { wzDel0 = -1; wzT = 0; }, rkZone, rkPoint, rkMerge, rkLoad, rkBoard, rkOwners, rkMul, rkClaim, goCur, goDeliver, goNeed, get rkList() { return rkList; }, set rkList(v) { rkList = v; }, get rkPend() { return rkPend; }, renderPgRev, wzFlush, TIPS, tipTick, tipShow, tipClose, get tipCur() { return tipCur; }, lfBar, lfNewCount, get lfMode() { return lfMode; }, set lfMode(v) { lfMode = v; }, get LOFX() { return LOFX; }, setLofx, perfTick, setAutoOn, lagMove, renderPgLager, get BC() { return CACHE; }, get CB() { return CB; }, cacheFail, set bcOff(v) { bcOff = v; }, setBc, bcTick, get bcAuto() { return bcAuto; }, get bcT() { return bcT; }, setFps, fpsTick, get fpsM() { return fpsM; }, ghqRot, ghqResetSt, stSet, stSave, ghqApplyLay, GHQ_ST, GBEET, petView, petViewClose, startGhqEdit, ed, editHit, renderGhqPanel, ghqDelSel, gdUse, gpUse, gSell, gdOf, gbYield, gSellP, GHQ_DRY, GHQ_PACK, GD_TIME, drawPet, drawPet130, drawDec130, get autoLow() { return autoLow; }, get perf() { return perf; }, get DPR() { return DPR; }, fk, drawCopLights, uiDef, cleanUi, canPay, payCost, bankUp, bankLv, bankHere, busWait, pgBuyDeco, pgMoveDeco, pgRemoveDeco, hqItems, lagPut, lagTake, lagArr, donList, hqTaxi, pgAppSync, hqPick, hqDrop, get hqCarry() { return hqCarry; }, pgSet, gbUse, wzClaim, wzCur, GBEET, renderAdmErr, errLocal, pgMakeBoss, pgReqN, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, TD, TD_GOAL, tdRoll, tdTick, tdProg, tdStreak, renderHeute, workTry, workClose, setWorkOn, loadThree, get workOpen() { return workOpen; }, get WK() { return WK; }, get THREE3() { return THREE3; }, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
+  if (window.__KG_DEBUG) window.__KG_DEBUG({ get XTR() { return XTR; }, extrasInit, LAMPS, BINS, HYDRANTS, BENCHES, TREES, FLOODS, busStops, ENTS: () => ({ GYM_AT, GYM2_AT, PIZZA_AT, CLUB_AT, BANK_AT, MAKLER_AT, APO_AT, LAGER_AT, WS_AT, KIOSK_AT, TREFF_AT, GV_AT, AH_AT, CAS_DOOR, DOOR, DOOR2, DOOR3 }), onStreet, bizEnter, bizLeave, GYM2_AT, GYM_AT, roofA, areaHidden, get indoorK() { return indoorK; }, FIG, DECOR, CACHE, CB, drawGroundTiles, seasonPx, setCalOv(v) { calOv = v; calC.t = -1; }, CAL, calList, calTarget, calAct, advOpen, eggPoints, CS, get bcOff() { return bcOff; }, drawTraffic, get DET() { return DET; }, detInit, catUpdate, blockedPt, drawSlotMachine, drawBJTable, shotStart, shotOn, shotEnd, get G() { return G; }, player, cops, POTS, RACK, TABLE, HOUSES, DOOR, update, begin, save, load, setA(v, e) { aHeld = v; if (e) aEdge = true; }, get sus() { return sus; }, set sus(v) { sus = v; }, bustNow() { copBust = gt; }, findTarget, openPhone, renderPhone, closePhone, UPS, addOrder, getState: () => state, setB() { bEdge = true; }, joy, keys, buyCos, equipCos, COS, get fx() { return fx; }, get hist() { return hist; }, get lastMsg() { return lastMsg; }, rackCap, hintFor, objective, get workers() { return workers; }, get potClaim() { return AREAS.keller.claim; }, AREAS, S, POTS2, RACK2, TABLE2, DOOR2, IN2, BARN_GATE, buyArea, totalBags, areaAt, get curKey() { return curKey; }, set curKey(v) { curKey = v; }, hire, ROLES, PILE, get BAGS_MAX() { return bagsMax(); }, payWages, rebuildWorkers, wageTotal, navBlock, GW, GH, CELL, colliders, upgradeStaff, DEF_LOOK, UPG_COST, setTab: t => { tab = t; }, renderStyle, UPS, COS, PERKS, bagCap, walkSpeed, copRange, aud, audSave, audApply, musicTick, vibrate, renderSound, APPS, appOf, AREA_THEME, renderHome, roamPath, ACH, claimAch, achReady, upLevels, FOUNTAIN, BENCHES, RIVER, copLead, copLeaderId, copSync, carSync, mpApplyCops, cars, spawnCar, updateCars, payDaily, dailyCosts, repEff, seedCost, COP_LOOK, GOALS, DECOR, buyDecor, decStock, pet, petSnap, petUpdate, inField, renderDeko, orderPos, bestOrder, roamPick, roamStep, ZP, pets, activePets, addDecor, moveDecor, removeDecor, startEdit, finishEdit, layoutValid, moveStation, resetLayout, applyLayout, captureLayout, BASE, buySide, setFloor, syncGate, runCmd, parseAmount, mp, mpHandle, mpSend, mpTryPush, get cmdOk() { return cmdOk; }, set cmdOk(v) { cmdOk = v; }, orbitList, toggleOrbit, setPortOk, isPort, get portOk() { return portOk; }, doKill, undoKill, IN3, DOOR3, POTS3, RACK3, TABLE3, BREW_GATE, BATS, buyBat, equipBat, batSwing, drawBat, renderWpn, doEmote, EMOTES, get myEm() { return myEm; }, mpTick, mpDraw, mpConnect, mpDisconnect, renderFriendsTab, openChat, closeChat, get chatOpen() { return chatOpen; }, editHit, editDown, editMove, editUp, ed, ev, FLOOR_COLORS, FLOOR_PATS, RUGS, MAXDEC, rebuildNav, render, SAVE_VER, WEAR, WEAR_BY, wearOwned, equipWear, buyWear, renderWear, fixWear, drawAura, doSay, sayClean, cleanLook, sprite, HAIR_COLS, SKIN_COLS, OUTFITS, HAIR_STYLES, get XMIN() { return XMIN; }, VEHS, VEH_BY, buyVeh, equipVeh, toggleRide, riding, rideMult, drawVehicle, drawRide, skyNow, night, lightK, LAMPS, TREES, amb, traffic, ambUpdate, updateTraffic, renderVeh, renderDShop, renderHMine, renderHNbr, DCAT, drawLights, get rainK() { return amb.rain; }, OBST, obstAt, KIOSK, STALL, avoid, turnTo, roamStep, roamPick, drawDecorItem, WGRP, guardOf, defenseScore, threatScore, drawGadget, PLOT_W, MAX_PLOTS, mpSnap, mpParseSn, mpWhere, mpMapPos, mpSlots, mpVisit, mpHome, setSideGeom, withGhost, drawPlots, drawKeller, get GH_ON() { return GH_ON; }, gangs, drops, GANGS, spawnGang, updateGangs, drawGangs, gangShove, gangStep, gangAt, gangDeliver, gangHit, gangStrike, gangLead, gangTargets, trailPoint, gangRoll, gangCards, gangSync, dropSync, mpApplyGangs, mpGangEvents, mpGangHits, gangAdopt, gangWho, get gClock() { return gClock; }, get WORLD() { return WORLD; }, set WORLD(v) { WORLD = v; }, MTOOLS, cleanMap, applyWorld, startAdmin, finishAdmin, admAdd, admErase, admUndo, adm, ed, edZoom, worldIncoming, publishWorld, onBridge, itemBox, drawBrewDec, dHalfIt, INST, showInstall, hideInstall, renderInstall, FLOORS, FLPOTS, FLP, FLS, PATHS, onPath, viaPaths, CRATE, floorAreas, STC, setStair, buyPotAt, STAIR_STYLES, DEC_KEYS, floorLayoutValid, STAIR_D, STAIR_U, FL_STAIR, flPotCost, loadFloors, drawKellerFloor, KIOSK_AT, atKiosk, openKiosk, renderKiosk, drawGrowDec, potOf, get gangShield() { return gangShield; }, set gangShield(v) { gangShield = v; }, get gangT() { return gangT; }, set gangT(v) { gangT = v; }, selBike, selCar, hudCfg, hudSave, hudApply, hudEditStart, hudEditEnd, hudReset, hudEdit, renderHudSet, HUD_PADS, MINI, drift, carDrive, carBump, driftTick, ducks, duckUpdate, get bHeld() { return bHeld; }, set bHeld(v) { bHeld = v; }, WERK, WS_AT, WS_LOT, atWerk, openWerk, renderWerk, TUNE, buyTune, setTune, tuneOf, tuneArr, parseTune, cleanTune, smokes, smokeUpdate, spawnSmoke, inCar, CONTAINERS, AH_LOT, newsIncoming, showNews, hideNews, cleanNews, publishNews, NEWS_UPDATE, INFO_TOPIC, LAGER, LAGER_AT, AUTOHOF, AH_AT, atLager, atAutohof, openLager, openAutohof, buyLager, upLager, lagerPut, lagerTake, lagerCap, renderLager, renderAutohof, buyCar, paintCar, carCap, carColI, CAR_COLS, drawCar, btraf, updateBridgeTraffic, BINS, BIN_MAX, binUse, binHide, binTake, binRummage, binNear, binHint, binsParse, binList, cleanStash, mpBinWants, mpBinLoot, binTick, stashSum, ALLB, drawDrop, MP_MAX, rotateStation, edRotate, setCrate, crateStand, timeRate, BRIDGES, stationObj, rotAng, rotBegin, rotEnd, houseCount, editHit, BASE, num3, applySavedLayout, captureLayout, RD, RDH, RDV, NAV, NAV_HL, NAV_VL, navNext, navNext0, navRoute, navRandPt, navNear, segClear, blockedPt, onRoadway, TREFF, TREFF_AT, atTreff, openTreff, treffReturn, LANES, spawnTraffic, crossBoxes, SKATE, PLAY, PITCH, DOGS, FENCES, HALFPIPE, GRAFF, POND, houseWins, drawHouse, setPlayerName, nameGateOk, nameGateShow, get nameGateOpen() { return nameGateOpen; }, MP_DEF_ROOM, renderProfile, mpAuto, mpLoadCfg, gangExit, gangWalkPt, gangSpawnPt, UFER_N, UFER_S, FOOT_X, PUDDLES, drawCityGround, SKATERS, ZP, plotAt, mpWhere, GROUNDS, swLine, BROOKS, HBR, FLOODS, mpReload, doorZone, HYDRANTS, drawMoreDec, drawBack, cannaLeaf, drawMaster, get masterOn() { return masterOn; }, COSTUME, drawFigure, drawBatBack, weaponInHand, figUp, GV, GV_AT, GV_NPC, GV_DOOR, atGV, gvSell, gvSellAll, gvState, gvUnit, gvBase, gvUpdate, openGV, renderGV, drawGangHof, drawCompass, GV_REP, gvOpen, buyCargo, buyPlate, setPlate, cargoLv, cargoBonus, carCap, tuneOf, tuneDef, cleanPlate, tuneFits, get KR_NEUTRAL() { return KR_NEUTRAL; }, set KR_NEUTRAL(v) { KR_NEUTRAL = v; }, KR, TIERS, CHARS, CHAR_BY, EVENTS, SEASONS, SPECS, season, seasonI, seasonYear, absMin, krDef, cleanKr, krTalk, get ktalk() { return ktalk; }, qOf, taskProg, charHere, charReady, questsDone, krStartEvent, krEndEvent, krChoose, krEvTick, krTierTick, tierReady, crewSync, crewAssign, crewXp, crewSkill, crewSpec, crewTrain, crewMove, moveTargets, specSum, xpNeed, crewWage, krPrice, krOrd, krGrow, krSeed, krUpkeep, krTip, krRepCap, collPoints, collTick, renderRuf, renderQuests, renderWelt, renderCrew, renderTalk, krUpdate, drawKrChars, drawSeasonFx, krNear, krRegular, msVal, tierClose, TUT, tutStart, tutEnd, tutGo, get tutOpen() { return tutOpen; }, get tutI() { return tutI; }, tutLayout, KW, FW, kOx, fOx, slotAt, farmIds, ghostWalls, isOpen, potsOpen, roomEnter, roomLeave, prSetup, prBuyUp, buyPrPotAt, prGrow, roomTarget, apoSell, apoOpen, apoUnit, wheelSpin, wheelReady, bjDeal, bjHit, bjStand, bjDouble, bjVal, slotResult, slotPick, CAS, CAS_IN, CAS_WHEEL, CAS_SLOTS, CAS_BJ, APO, APO_AT, PR_PAD, PR_EXIT, PR_SHELF_AT, PR_POTS, inCasino, inRoom, lagerHere, qtyAsk, qtyClose, qtyDo, screenFit, r3Set, r3SetQ, get r3() { return r3; }, get r3Err() { return r3Err; }, KG3D_API, casShow, casHide, get casKind() { return casKind; }, get qtyOpen() { return qtyOpen; }, get bj() { return bj; }, set bj(v) { bj = v; }, get prVisit() { return prVisit; }, unitRoom, prCap, FG, lagerTake, lagerPut, mpWhere, mpMapPos, casCos, CONTAINERS, act, gymTrain, gymOn, pizzaOrder, pizzaOn, bankMove, bankInterest, clubSell, clubOpen, clubMax, clubLeft, walkSpeed, payDaily, CHAR_BY, TIERS, charHere, krTalk, bjPlan, get bjV() { return bjV; }, zoneRepAt, LAGER_AT, WS_AT, GYM_AT, PIZZA_AT, BANK_AT, CLUB_AT, copMates, prSetup, CHARS, bedNear, sleepAsk, sleepStart, sleepTick, get sleepS() { return sleepS; }, BIZ, bizBuy, bizEnter, bizLeave, bizDeposit, bizTick, get bizIn() { return bizIn; }, MAKLER_AT, raidRun, raidPay, heatDaily, raidPending, raidSeizable, bizPut, bizTake, bizInv, gvSell, gvSellAll, GV_AT, act, fullFix, screenInfo, fixBurst, CHARS, renderTeam, drawDec106, DEC_NEW, locName, busStops, busNear, busGo, busTick, busOpen, busZone, get busRide() { return busRide; }, renderBus, get busAt() { return busAt; }, set busAt(v) { busAt = v; }, retireFloors, OLD_FLOOR_ROLES, drawZoneLocks, doPrestige, presCan, presLv, presPrice, presRep, saveCode, readCode, importCode, saveObj, atGym, GYM2_AT, GYM2, krReward, buyWear, buyDecor, cleanKr, addRep, krRepBonus, REP_MAX, PRES_ITEM, renderPrestige, TIERS_N: TIERS.length, accLogin, accSync, accLogout, isAdm, admSend, cmdPoll, cmdRun, troll, tpTo, get acc2() { return acc; }, admLoad, admBan, admReset, admClearFlags, get admList() { return admList; }, doPrestige2: null, cloudPut, accOn, nameMail, get acc() { return acc; }, menuRefresh, lgShow, setPlayerName, mp, bigMapOpen, bigMapClose, bigMapTap, get wayPt() { return wayPt; }, set wayPt(v) { wayPt = v; }, wayTick, setTmSel(v) { tmSel = v; }, renderOrte, mpBinAcks, binRestore, wzReset() { wzDel0 = -1; wzT = 0; }, rkZone, rkPoint, rkMerge, rkLoad, rkBoard, rkOwners, rkMul, rkClaim, goCur, goDeliver, goNeed, get rkList() { return rkList; }, set rkList(v) { rkList = v; }, get rkPend() { return rkPend; }, renderPgRev, wzFlush, TIPS, tipTick, tipShow, tipClose, get tipCur() { return tipCur; }, lfBar, lfNewCount, get lfMode() { return lfMode; }, set lfMode(v) { lfMode = v; }, get LOFX() { return LOFX; }, setLofx, perfTick, setAutoOn, lagMove, renderPgLager, get BC() { return CACHE; }, get CB() { return CB; }, cacheFail, set bcOff(v) { bcOff = v; }, setBc, bcTick, get bcAuto() { return bcAuto; }, get bcT() { return bcT; }, setFps, fpsTick, get fpsM() { return fpsM; }, ghqRot, ghqResetSt, stSet, stSave, ghqApplyLay, GHQ_ST, GBEET, petView, petViewClose, startGhqEdit, ed, editHit, renderGhqPanel, ghqDelSel, gdUse, gpUse, gSell, gdOf, gbYield, gSellP, GHQ_DRY, GHQ_PACK, GD_TIME, drawPet, drawPet130, drawDec130, get autoLow() { return autoLow; }, get perf() { return perf; }, get DPR() { return DPR; }, fk, drawCopLights, uiDef, cleanUi, canPay, payCost, bankUp, bankLv, bankHere, busWait, pgBuyDeco, pgMoveDeco, pgRemoveDeco, hqItems, lagPut, lagTake, lagArr, donList, hqTaxi, pgAppSync, hqPick, hqDrop, get hqCarry() { return hqCarry; }, pgSet, gbUse, wzClaim, wzCur, GBEET, renderAdmErr, errLocal, pgMakeBoss, pgReqN, panicPress, panicTick, PN, PANIC_AT, panicOn, raidRun, newsIncoming, get newsCleared() { return newsCleared; }, move, LEFT_GAP, set XMIN(v) { XMIN = v; }, loadKey, lgTick, LG, lgRoll, weekNo, mstAdd, mkBuy, MK_SHOP, projBuy, PROJ, projPrice, krPrice, wageK, presStart, cheatScan, boardPut, boardLoad, get boardList() { return boardList; }, renderWoche, renderListe, renderProj, pgCreate, pgJoin, pgAccept, pgKick, pgRole, pgLeave, pgDeposit, pgUpgrade, pgPlace, pgClear, pgChat, pgRefresh, pgListLoad, get pgList() { return pgList; }, get pgang() { return pgang; }, set pgang(v) { pgang = v; }, myGid, gTag, ghqEnter, ghqLeave, ghqTarget, drawGangHQ, renderPg, setPgSeg(v) { pgSeg = v; }, GHQ_AT, GSLOT, ghqSlots, pgPrice, mpWhere, mpMapPos, pgTick, cleanPgSave: cleanGangSave, GHQ_UP, accRecover, recStore, recHas, accNewPw, accVerify, recId, recNorm, recNew, admCopy, renderPwCard, setViewBox(x0, y0, x1, y1) { viewX0 = x0; viewY0 = y0; viewX1 = x1; viewY1 = y1; }, drawWorld, get EVA() { return EVA; }, EVC: () => EVC, EV_SEGS, evPlanDay, evTick, evSightK, evPay, evDark, evRoadClosed, evWeather, TD, TD_GOAL, tdRoll, tdTick, tdProg, tdStreak, renderHeute, workTry, workClose, setWorkOn, loadThree, get workOpen() { return workOpen; }, get WK() { return WK; }, get THREE3() { return THREE3; }, withCtx(c, fn) { const s0 = ctx; try { ctx = c; fn(); } finally { ctx = s0; } } });
   requestAnimationFrame(frame);
 })();
 </script>

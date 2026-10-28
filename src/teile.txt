@@ -23,6 +23,7 @@ js/24_zeichnen_effekte.js
 js/25_vorschau_figuren.js
 js/26_stadt_zeichnen.js
 js/26b_details.js
+js/26c_ereignisse.js
 js/27_wetter_3d.js
 js/28_mehrspieler.js
 js/29_einfuehrung_eingabe_menue.js

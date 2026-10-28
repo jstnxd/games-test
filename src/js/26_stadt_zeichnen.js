@@ -985,6 +985,7 @@
     if (state !== 'edit') drawDetailsGround(); // v94
     if (state !== 'edit') drawExtrasGround(); // v161
     }
+    if (state !== 'edit') evDrawGround(); // v166: Stadt-Ereignisse, nie im Boden-Zwischenspeicher
     if (viewX0 < 0 && tiles) drawPlotGround();
     if (tiles) gsPass = 2; drawPark(); gsPass = 0; drawGym2(); drawKiosk(); drawStall(); drawAutohof(); drawLager(); drawPrPad(); drawWerk(); drawContainers(); drawCasino(); drawApotheke(); drawGangHof(); drawGangHof2(); drawBoulevard(); drawMarkt(); drawGym(); drawBank(); drawPizza(); drawClub(); drawMapTop();
     drawBridges();

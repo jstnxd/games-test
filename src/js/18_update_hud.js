@@ -30,7 +30,7 @@
     // Zeit
     G.time += dt * timeRate(G.time); if (G.time >= 1440) { G.time -= 1440; G.day++; payDaily(); }
     // Aufträge
-    lgTick(dt); tdTick(dt); tipTick(dt); // v121, v128
+    lgTick(dt); tdTick(dt); evTick(dt); tipTick(dt); // v121, v128
     if (!sleepS) G.nextOrder -= dt; // v98: im Schlaf kommen keine neuen Kunden
     if (G.nextOrder <= 0) { addOrder(); G.nextOrder = clamp(20 - G.rep * 0.8, 7, 20) * (0.7 + Math.random() * 0.6) / (1 + 0.5 * Math.min(4, Object.keys(mp.friends).length)) / krOrd(); }
     for (let i = G.orders.length - 1; i >= 0; i--) { if (G.orders[i].remote || sleepS) continue; G.orders[i].t -= dt; if (G.orders[i].t <= 0) { msg('Auftrag von ' + HOUSES[G.orders[i].house].name + ' ist abgelaufen' + (KR_NEUTRAL ? '' : ' (Ruf −0,1)'), true); if (!KR_NEUTRAL) { G.repP = Math.max(0, (G.repP || G.rep) - 0.1); G.rep = Math.floor(G.repP + 1e-9); } G.orders.splice(i, 1); } }

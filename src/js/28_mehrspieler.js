@@ -455,7 +455,7 @@
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 165; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 166; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);

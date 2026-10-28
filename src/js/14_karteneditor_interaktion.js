@@ -458,7 +458,7 @@
       const i = G.orders.findIndex(x => x.id === tg.idx); if (i < 0) return;
       const o = G.orders[i], h = HOUSES[o.house];
       if (inv.bags >= o.qty) {
-        const pay = Math.round(o.price * (petPerk().tip || 1) * krTip() * rkMul(orderPos(o))), bonus = o.t > o.tmax * (KR_NEUTRAL ? 0.6 : 0.6 - Math.min(0.2, 0.04 * specSum('kunde'))) ? Math.round(pay * 0.15) : 0;
+        const pay = Math.round(o.price * (petPerk().tip || 1) * krTip() * rkMul(orderPos(o)) * evPay(orderPos(o))), bonus = o.t > o.tmax * (KR_NEUTRAL ? 0.6 : 0.6 - Math.min(0.2, 0.04 * specSum('kunde'))) ? Math.round(pay * 0.15) : 0;
         G.stat.del++; if (o.vip) G.stat.vip++; if (!KR_NEUTRAL && KR().ev && KR().ev.id === 'stamm' && KR().ev.n > 0) KR().ev.n--;
         rkPoint(orderPos(o), o.qty); // v128: Revierkampf
         inv.bags -= o.qty; G.money += pay + bonus; G.earned += pay + bonus; G.orders.splice(i, 1); if (o.remote) { mpSteal(o); msg('Kunde von ' + ((mp.friends[o.remote] || {}).name || 'Freund') + ' weggeschnappt!'); } addRep((bonus ? REP_FAST : REP_SLOW) * (o.vip ? 2 : 1));

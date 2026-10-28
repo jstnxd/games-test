@@ -11,7 +11,7 @@
   let skyC = { a: 0, r: 255, g: 255, b: 255 }, indoorK = 0, lastRoom = null;
   const night = () => G ? skyNow().a : 0;
   const lightK = () => clamp(skyC.a * 1.8 - 0.06, 0, 1);
-  const rainTarget = () => { if (!G || state !== 'play' || ((G.day * 37) % 11) >= 2) return 0; const st = 7 + (G.day * 5) % 6, h = G.time / 60; return h >= st && h < st + 5 ? 1 : 0; };
+  const rainTarget = () => { if (G && state === 'play' && evWeather() === 'storm') return 1; if (!G || state !== 'play' || ((G.day * 37) % 11) >= 2) return 0; const st = 7 + (G.day * 5) % 6, h = G.time / 60; return h >= st && h < st + 5 ? 1 : 0; };
   const amb = { pig: [], flock: null, flockT: 30, rain: 0 };
   for (let i = 0; i < 6; i++) amb.pig.push({ x: FOUNTAIN.x + Math.cos(i * 1.05) * 90, y: FOUNTAIN.y + Math.sin(i * 1.05) * 90, tx: 0, ty: 0, fl: 0, f: 1, wt: i * 0.6, mv: 0 });
   const traffic = []; let trafT = 3;
@@ -31,7 +31,7 @@
     const ln = LANES[Math.random() < 0.3 ? Math.floor(Math.random() * 2) : Math.floor(Math.random() * LANES.length)], lim = ln.h ? WW : WH, p = ln.dir > 0 ? (ln.h ? 0 : YMIN) - 90 : lim + 90;
     const c = { ln, h: ln.h, dir: ln.dir, p, v: 0, vt: 70 + Math.random() * 45, col: TCOL[Math.floor(Math.random() * TCOL.length)], truck: Math.random() < 0.18 };
     c.x = ln.h ? p : ln.c; c.y = ln.h ? ln.c : p;
-    if (traffic.some(o => o.ln === ln && Math.abs(o.p - p) < 140)) return null;
+    if (traffic.some(o => o.ln === ln && Math.abs(o.p - p) < 140) || evRoadClosed(ln.r)) return null;
     traffic.push(c); return c;
   }
   // v86: fahrende Autos: kurz K.O., ein bis zwei Beutel gehen verloren (ohne Ware ein bisschen Geld). Das Verlorene liegt am Boden und kann wieder aufgesammelt werden.
@@ -70,6 +70,7 @@
         const busy = traffic.some(o => o !== c && o.h !== c.h && committed(o, b)) || (!c.h && (traffic.some(o => o.h && Math.abs(o.y - (b.y0 + b.y1) / 2) < 80 && (b.x0 - o.x) * o.dir > -30 && (b.x0 - o.x) * o.dir < 150) || cars.some(o => Math.abs(o.x - (b.x0 + b.x1) / 2) < 170)));
         if (busy) tv = 0;
       }
+      if (EVA.length && evTrafBlock(c, half) < 50) { tv = 0; if (c.v < 1 && !inView(c.x, c.y, 60)) { traffic.splice(i, 1); continue; } } // v166: Absperrung
       c.v += clamp(tv - c.v, -170 * dt, 60 * dt); c.p += c.dir * c.v * dt;
       if (c.h) c.x = c.p; else c.y = c.p;
       trafficHit(c);
@@ -334,8 +335,9 @@
   function drawLights() {
     const L = lightK(); if (L <= 0.02) return; const oK = 1 - 0.4 * indoorK; // v56: sanfter, drinnen noch zurueckhaltender
     ctx.globalCompositeOperation = 'lighter';
-    for (const l of LAMPS) if (inView(l.x, l.y, 140)) glow(l.x, l.y - 30, 100, '255,206,130', 0.26 * L * oK);
+    for (const l of LAMPS) if (inView(l.x, l.y, 140) && !evDark(l.x, l.y)) glow(l.x, l.y - 30, 100, '255,206,130', 0.26 * L * oK);
     calLights(L, oK); // v155
+    evLights(L, oK); // v166
     gvLights(L, oK); // v79
     if (inView(GV2_P.barrel.x, GV2_P.barrel.y, 200)) glow(GV2_P.barrel.x, GV2_P.barrel.y - 4, 90 + 8 * Math.sin(gt * 9), '255,140,60', (0.42 + 0.08 * Math.sin(gt * 13)) * L * oK); // v109: Westhof
     if (inView(3910, 2490, 460)) for (let k = 0; k < 8; k++) { const t = (k + .5) / 8; glow(GV2.x + 10 + t * (GV2.w - 20), 2486 + 7 * 4 * t * (1 - t) * .5, 24, ['255,92,122', '255,210,74', '120,200,255', '180,120,255'][k % 4], .3 * L * oK); }
@@ -345,7 +347,7 @@
     HOUSES.forEach((h, hi) => {
       if (!inView(h.x + h.w / 2, h.y + h.h / 2, 160)) return;
       houseWins(h).forEach(([wx, wy], j) => {
-        if (!winLit(hi, j)) return;
+        if (!winLit(hi, j) || evDark(wx, wy)) return;
         const tv = (hi + j) % 4 === 0, fl = tv ? 0.7 + Math.sin(gt * 7 + hi) * 0.15 : 1;
         glow(wx, wy, 40, tv ? '120,170,255' : '255,200,110', 0.3 * L * fl * oK);
       });
@@ -506,7 +508,7 @@
         ctx.globalCompositeOperation = 'source-over'; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       }
     }
-    { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } if (!inOwnRoom()) drawRain(); ctx.restore(); } // v59: kein Regen in Raeumen
+    { ctx.save(); if (room) { ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(room.x, room.y, room.w, room.h); ctx.clip('evenodd'); } if (!inOwnRoom()) drawRain(); ctx.restore(); } evScreen(); // v59: kein Regen in Raeumen
     if (state === 'play' || state === 'menu') calDrawSky(); // v155: Feuerwerk, Herzen, Konfetti
     if (state === 'play') drawVignette(); // v94
     if (state === 'play') drawCopLights(); // v127: Polizeilicht statt Balken

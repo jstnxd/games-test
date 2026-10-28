@@ -609,7 +609,7 @@
   const bagCap = () => (gymOn('kraft') ? 10 : 0) + 8 + 4 * Math.min(G.up.bag, 4) + 2 * clamp(G.up.bag - 4, 0, 8) + Math.max(0, G.up.bag - 12) + 3 * G.up.sack + 4 * G.up.cart + (G.t.unlocked ? 10 : 0) + (G.b.unlocked ? 8 : 0) + (petPerk().bag || 0) + carCap();
   const SPEED_CAP = 1.5; // Schuhe + Begleiter zusammen nie schneller als +50 %
   const walkSpeed = () => 135 * Math.min(SPEED_CAP, (1 + 0.08 * Math.min(G.up.shoes, 4) + 0.03 * Math.max(0, G.up.shoes - 4)) * (petPerk().speed || 1)) * (gymOn('run') ? 1.12 : 1); // v94: Ausdauertraining
-  const copRange = () => 145 * (1 + Math.min(G.rep, 40) * 0.002) * (petPerk().sight || 1); // v53: sieht weniger weit
+  const copRange = () => 145 * (1 + Math.min(G.rep, 40) * 0.002) * (petPerk().sight || 1) * evSightK(); // v53: sieht weniger weit
   const COP_CONE = 0.52;
   const unitCap = () => 24;
 

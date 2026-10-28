@@ -683,6 +683,7 @@
   }
   function renderWelt(b) {
     calWelt(b); // v155: echte Kalender-Events
+    evWelt(b); // v166: Stadt-Ereignisse
     const k = KR(), s = season(), ns = SEASONS[(seasonI() + 1) % 4];
     const c = krCard(b, s.ic + ' ' + s.name + ' · Jahr ' + seasonYear(), 'Tag ' + seasonDay() + '/' + SEASON_DAYS, s.txt.join(' · ') + '<br>Danach: ' + ns.ic + ' ' + ns.name + ' in ' + (SEASON_DAYS - seasonDay() + 1) + ' Tag(en)'); krBar(c, seasonDay() / SEASON_DAYS);
     const pts = collPoints(), m = k.col[seasonYear() + '-' + seasonI()] || 0, got = pts.filter((_, i) => m & (1 << i)).length, C = COLL[seasonI()];
