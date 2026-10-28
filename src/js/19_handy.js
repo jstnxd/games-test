@@ -28,7 +28,7 @@
   // v95: Apps neu sortiert: 8 statt 14, Verwandtes in einer App mit Kategorien
   const APPS = [
     { id: 'adm', name: 'Admin', sub: 'Nur für dich', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"><path d="M16 3.5l10 4v8c0 6.5-4.3 11-10 13-5.7-2-10-6.5-10-13v-8z"/><path d="M11.5 16l3.2 3.2 6-6.4" stroke-linecap="round"/></svg>', c: '#FF6B6B', c2: '#B32D3A', tabs: [['admin', 'Spieler'], ['admtool', 'Werkzeuge'], ['admtroll', 'Troll'], ['admerr', 'Fehler']] },
-    { id: 'orders', name: 'Aufträge', sub: 'Kunden', ic: IC.orders, c: '#FFB547', c2: '#E8861F', tabs: [['orders', 'Offen']] },
+    { id: 'orders', name: 'Aufträge', sub: 'Kunden', ic: IC.orders, c: '#FFB547', c2: '#E8861F', tabs: [['orders', 'Offen'], ['kurier', 'Kurier']] },
     { id: 'biz', name: 'Geschäft', sub: 'Ausbau & Team', ic: IC.shop, c: '#63C174', c2: '#2F8F4A', tabs: [['shop', 'Ausbau'], ['team', 'Anheuern'], ['crew', 'Mitarbeiter']] },
     { id: 'karr', name: 'Karriere', sub: 'Ruf & Quests', ic: IC.karr, c: '#FFD24A', c2: '#C4851A', tabs: [['ruf', 'Ruf'], ['heute', 'Heute'], ['woche', 'Woche'], ['quests', 'Quests'], ['liste', 'Bestenliste'], ['goals', 'Ziele'], ['welt', 'Events']] },
     { id: 'cosm', name: 'Style', sub: 'Look & Begleiter', ic: IC.cosm, c: '#FF8FD0', c2: '#C44F96', tabs: [['kopf', 'Kopf'], ['figur', 'Figur'], ['kleid', 'Kleidung'], ['shoes', 'Schuhe'], ['ruecken', 'Rücken'], ['kost', 'Kostüme'], ['pets', 'Begleiter'], ['aura', 'Effekte']] },
@@ -139,6 +139,7 @@
     renderNav();
     const b = $('phBody'); b.innerHTML = '';
     if (tab === 'home') { renderHome(b); return; }
+    if (tab === 'kurier') { renderKurier(b); } else
     if (tab === 'orders') {
       const gcn = gangCards(b);
       if (!G.orders.length) { if (!gcn) b.innerHTML = '<div class="empty">Gerade keine Aufträge. Neue kommen von selbst. Je höher dein Ruf, desto mehr Kunden und bessere Preise.</div>'; return; }

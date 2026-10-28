@@ -16,6 +16,7 @@
     gv: { grp: 2, ic: '🤝', t: n => n + ' Einheiten an den Hehler', v: () => G.stat.gv || 0, n: () => 5, ok: () => gvOpen() },
     club: { grp: 2, ic: '🪩', t: () => 'Eine Club-Lieferung (nachts)', v: () => G.stat.club || 0, n: () => 1, ok: () => G.rep >= CLUB_REP },
     apo: { grp: 2, ic: '💊', t: n => n + ' Dosen an die Apotheke', v: () => G.stat.apo || 0, n: () => 3, ok: () => isOpen(AREAS.pr) },
+    kur: { grp: 2, ic: '📦', t: () => 'Eine Kurierfahrt schaffen', v: () => G.stat.kur || 0, n: () => 1, ok: () => !!kurCarId() },
     bus: { grp: 2, ic: '🚌', t: () => 'Einmal Bus fahren', v: () => G.stat.bus || 0, n: () => 1 }
   };
   const tdDef = () => ({ d: -1, g: [], st: 0, sd: -1 });

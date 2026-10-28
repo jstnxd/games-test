@@ -30,7 +30,7 @@
     // Zeit
     G.time += dt * timeRate(G.time); if (G.time >= 1440) { G.time -= 1440; G.day++; payDaily(); }
     // Aufträge
-    lgTick(dt); tdTick(dt); evTick(dt); tipTick(dt); // v121, v128
+    lgTick(dt); tdTick(dt); evTick(dt); kurTick(dt); tipTick(dt); // v121, v128
     if (!sleepS) G.nextOrder -= dt; // v98: im Schlaf kommen keine neuen Kunden
     if (G.nextOrder <= 0) { addOrder(); G.nextOrder = clamp(20 - G.rep * 0.8, 7, 20) * (0.7 + Math.random() * 0.6) / (1 + 0.5 * Math.min(4, Object.keys(mp.friends).length)) / krOrd(); }
     for (let i = G.orders.length - 1; i >= 0; i--) { if (G.orders[i].remote || sleepS) continue; G.orders[i].t -= dt; if (G.orders[i].t <= 0) { msg('Auftrag von ' + HOUSES[G.orders[i].house].name + ' ist abgelaufen' + (KR_NEUTRAL ? '' : ' (Ruf −0,1)'), true); if (!KR_NEUTRAL) { G.repP = Math.max(0, (G.repP || G.rep) - 0.1); G.rep = Math.floor(G.repP + 1e-9); } G.orders.splice(i, 1); } }
@@ -206,7 +206,7 @@
     if (wayPt && Math.hypot(wx - wayPt.x, wy - wayPt.y) < 120) { wayPt = null; msg('Wegpunkt entfernt'); } else { wayPt = { x: clamp(wx, 20, WW - 20), y: clamp(wy, YMIN + 20, WH - 20) }; sfx.ping(); msg('📍 Wegpunkt gesetzt'); }
     bigMapDraw();
   }
-  function wayTick() { if (wayPt && G && player.x >= 0 && Math.hypot(player.x - wayPt.x, player.y - wayPt.y) < 50) { wayPt = null; sfx.cash(); msg('📍 Ziel erreicht', false, 'ok'); } if (bigOpen && gt - BIGM.t > 0.15) bigMapDraw(); }
+  function wayTick() { if (wayPt && !wayPt.cur && G && player.x >= 0 && Math.hypot(player.x - wayPt.x, player.y - wayPt.y) < 50) { wayPt = null; sfx.cash(); msg('📍 Ziel erreicht', false, 'ok'); } if (bigOpen && gt - BIGM.t > 0.15) bigMapDraw(); }
   function drawWayPt() { if (shotOn()) return; // Fahne am Ziel und ein Pfeil am Bildrand, wenn es nicht zu sehen ist
     if (!wayPt || player.x < 0) return; const p = wayPt, bob = Math.sin(gt * 3) * 2;
     if (inView(p.x, p.y, 30)) { ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, 9, 3.5, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,92,168,.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, 14 + 4 * Math.sin(gt * 4), 6, 0, 0, TAU); ctx.stroke();
