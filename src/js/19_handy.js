@@ -30,13 +30,14 @@
     { id: 'adm', name: 'Admin', sub: 'Nur für dich', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"><path d="M16 3.5l10 4v8c0 6.5-4.3 11-10 13-5.7-2-10-6.5-10-13v-8z"/><path d="M11.5 16l3.2 3.2 6-6.4" stroke-linecap="round"/></svg>', c: '#FF6B6B', c2: '#B32D3A', tabs: [['admin', 'Spieler'], ['admstudio', 'Studio'], ['admtool', 'Werkzeuge'], ['admtroll', 'Troll'], ['admerr', 'Fehler']] },
     { id: 'orders', name: 'Aufträge', sub: 'Kunden', ic: IC.orders, c: '#FFB547', c2: '#E8861F', tabs: [['orders', 'Offen'], ['kurier', 'Kurier']] },
     { id: 'biz', name: 'Geschäft', sub: 'Ausbau & Team', ic: IC.shop, c: '#63C174', c2: '#2F8F4A', tabs: [['shop', 'Ausbau'], ['team', 'Anheuern'], ['crew', 'Mitarbeiter']] },
-    { id: 'karr', name: 'Karriere', sub: 'Ruf & Quests', ic: IC.karr, c: '#FFD24A', c2: '#C4851A', tabs: [['ruf', 'Ruf'], ['heute', 'Heute'], ['woche', 'Woche'], ['quests', 'Quests'], ['liste', 'Bestenliste'], ['goals', 'Ziele'], ['welt', 'Events']] },
+    { id: 'karr', name: 'Karriere', sub: 'Ruf & Quests', ic: IC.karr, c: '#FFD24A', c2: '#C4851A', tabs: [['ruf', 'Ruf'], ['heute', 'Heute'], ['rueck', 'Rückblick'], ['woche', 'Woche'], ['quests', 'Quests'], ['liste', 'Bestenliste'], ['goals', 'Ziele'], ['welt', 'Events']] },
     { id: 'cosm', name: 'Style', sub: 'Look & Begleiter', ic: IC.cosm, c: '#FF8FD0', c2: '#C44F96', tabs: [['kopf', 'Kopf'], ['figur', 'Figur'], ['kleid', 'Kleidung'], ['shoes', 'Schuhe'], ['ruecken', 'Rücken'], ['kost', 'Kostüme'], ['pets', 'Begleiter'], ['aura', 'Effekte']] },
     { id: 'gear', name: 'Ausrüstung', sub: 'Rucksack, Rad, Waffen', ic: IC.fzg, c: '#6EE0A0', c2: '#2F9A6A', tabs: [['gearup', 'Für dich'], ['veh', 'Fahrzeuge'], ['wpn', 'Waffen']] },
     { id: 'wohn', name: 'Wohnen', sub: 'Deko & Häuser', ic: IC.deko, c: '#D9A066', c2: '#9A6A3C', tabs: [['deko', 'Einrichten'], ['dshop', 'Deko-Laden'], ['hmine', 'Meine Häuser'], ['hnbr', 'Nachbarn']] },
     { id: 'gang', name: 'Gang', sub: 'Deine Gang', ic: '<span class="gic">🏴</span>', c: '#FF5C7A', c2: '#A8243F', tabs: [['g_info', 'Übersicht'], ['g_chat', 'Chat'], ['g_mem', 'Mitglieder'], ['g_hq', 'HQ'], ['g_rev', 'Revier'], ['g_deko', 'Einrichten'], ['g_set', 'Einstellungen']] },
     { id: 'social', name: 'Freunde', sub: 'Online, Gang & Chat', ic: IC.social, c: '#7FD0C8', c2: '#2F9A92', tabs: [['friends', 'Spieler'], ['gang', 'Gang'], ['group', 'Online']] },
     { id: 'stadt', name: 'Stadt', sub: 'Orte & Projekte', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"><path d="M16 28s-9-8.2-9-15a9 9 0 0 1 18 0c0 6.8-9 15-9 15z"/><circle cx="16" cy="13" r="3.4" fill="#fff"/></svg>', c: '#FF7AB6', c2: '#C2407F', tabs: [['orte', 'Orte'], ['proj', 'Projekte']] },
+    { id: 'cam', name: 'Kamera', sub: 'Fotos & Videos', ic: '<span class="gic">📸</span>', c: '#5BC0EB', c2: '#2A7FB0', tabs: [['kamera', 'Kamera']] }, // v176
     { id: 'set', name: 'Einstellungen', sub: 'Anzeige & Ton', ic: IC.set, c: '#AAB6C6', c2: '#6B778A', tabs: [['profil', 'Profil'], ['view', 'Anzeige'], ['hudset', 'Steuerung'], ['sound', 'Ton'], ['system', 'Hilfe']] }
   ];
   const appOf = t => t === 'style' || t === 'wear' ? APPS.find(a => a.id === 'cosm') : APPS.find(a => a.tabs.some(x => x[0] === t));
@@ -200,6 +201,10 @@
       renderPg(b);
     } else if (tab === 'heute') {
       renderHeute(b);
+    } else if (tab === 'rueck') {
+      renderRueck(b);
+    } else if (tab === 'kamera') {
+      renderKamera(b);
     } else if (tab === 'woche') {
       renderWoche(b);
     } else if (tab === 'liste') {
@@ -571,6 +576,7 @@
       c3.querySelectorAll('[data-g]').forEach(e => e.addEventListener('click', () => { r3Set(e.dataset.g === '1'); paint3(); }));
       c3.querySelectorAll('[data-q]').forEach(e => e.addEventListener('click', () => { r3SetQ(e.dataset.q); paint3(); }));
       paint3(); b.appendChild(c3);
+      sparCard(b); // v176
       const cQ = document.createElement('div'); cQ.className = 'card look'; // v98
       cQ.innerHTML = '<div class="nm">Bildqualität</div><div class="ds" style="margin:2px 0 8px">Hoch zeichnet doppelt so fein wie Sparsam und ist trotzdem flott, Sparsam schont den Akku am meisten. Der Farbfilter gibt dem Bild wärmere Farben, goldene und blaue Stunde.</div><div class="chips"><button class="chip" data-gq="0">Sparsam</button><button class="chip" data-gq="1">Hoch</button></div><div class="chips" style="margin-top:6px"><button class="chip" data-gf="1">Farbfilter an</button><button class="chip" data-gf="0">aus</button></div>';
       const paintQ = () => { cQ.querySelectorAll('[data-gq]').forEach(e => e.classList.toggle('on', +e.dataset.gq === GFX_Q)); cQ.querySelectorAll('[data-gf]').forEach(e => e.classList.toggle('on', (e.dataset.gf === '1') === GFX_FX)); };
@@ -609,7 +615,7 @@
       paintA(); b.appendChild(cA);
       const cS = document.createElement('div'); cS.className = 'card look'; // v143: Foto-Modus
       cS.innerHTML = '<div class="nm">📸 Foto-Modus</div><div class="ds" style="margin:2px 0 8px">Blendet für 10 Sekunden Kompass, Minikarte, Geld, Knöpfe und alle anderen Anzeigen aus, damit du schöne Screenshots machen kannst. Tippen beendet ihn früher.</div>';
-      const bS = document.createElement('button'); bS.className = 'buy'; bS.textContent = '10 Sekunden ohne Anzeigen'; bS.style.gridColumn = '1 / -1'; bS.addEventListener('click', () => shotStart(10)); cS.appendChild(bS); b.appendChild(cS);
+      const bS = document.createElement('button'); bS.className = 'buy'; bS.textContent = '10 Sekunden ohne Anzeigen'; bS.style.gridColumn = '1 / -1'; bS.addEventListener('click', () => shotStart(10)); cS.appendChild(bS); const bS2 = document.createElement('button'); bS2.className = 'buy'; bS2.textContent = '📸 Kamera mit Filtern und Video'; bS2.style.gridColumn = '1 / -1'; bS2.addEventListener('click', fotoStart); cS.appendChild(bS2); b.appendChild(cS);
     }
     if (part === 'system') { const hdS = document.createElement('div'); hdS.className = 'grp'; hdS.textContent = 'Hilfe bei Problemen'; b.appendChild(hdS);
       const cV = document.createElement('div'); cV.className = 'card look'; cV.innerHTML = '<div class="nm">Kellergrün · Version ' + GAME_VER + '</div><div class="ds" style="margin:2px 0 8px">Dein Spielstand wird automatisch gespeichert. Frei erfundenes Spiel.</div>'; const bCL = document.createElement('button'); bCL.className = 'buy'; bCL.textContent = '✨ Was ist neu?'; bCL.style.gridColumn = '1 / -1'; bCL.addEventListener('click', () => showChangelog(true)); cV.appendChild(bCL); b.appendChild(cV);
@@ -683,7 +689,7 @@
   function openPhone() { if (state !== 'play') return; closeChat(); G.area = curKey; tmSel = player.fl === 2 && !prVisit ? 'pr' : ''; phoneOpen = true; $('phone').hidden = false; renderPhone(); }
   // v143: Foto-Modus: alle Anzeigen kurz weg
   let shotUntil = 0, shotT = null;
-  function shotOn() { return shotUntil > 0; }
+  function shotOn() { return shotUntil > 0 || FOTO.on; }
   function shotEnd() { if (!shotUntil) return; shotUntil = 0; clearTimeout(shotT); document.body.classList.remove('shot'); document.removeEventListener('pointerdown', shotTap, true); msg('📸 Foto-Modus beendet'); }
   function shotTap(e) { if (performance.now() - shotUntil + 10000 < 600) return; e.preventDefault(); e.stopPropagation(); shotEnd(); }
   function shotStart(sec) { closePhone(); shotUntil = performance.now() + sec * 1000; document.body.classList.add('shot'); clearTimeout(shotT); shotT = setTimeout(shotEnd, sec * 1000); setTimeout(() => { if (shotUntil) document.addEventListener('pointerdown', shotTap, true); }, 400); }

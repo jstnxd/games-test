@@ -797,3 +797,43 @@ body.cine #msg, body.cine #hint, body.cine #tipCard, body.cine #mini, body.cine 
 #stuFade{position:fixed;inset:0;z-index:70;background:#000;pointer-events:none;opacity:0}
 #stuFade.on{animation:stuFade .6s ease-out}
 @keyframes stuFade{0%{opacity:.85}100%{opacity:0}}
+
+/* v176: Kamera für alle, Feierabend-Rückblick */
+body.foto #msg,body.foto #hint,body.foto #tipCard,body.foto #fpsHud{visibility:hidden!important}
+#fotoBar[hidden],#fotoShow[hidden]{display:none!important}
+#fotoBar{position:fixed;z-index:92;top:max(8px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:max-content;display:flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:calc(100vw - 16px);padding:6px;border-radius:18px;background:rgba(16,21,28,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#fotoBar button{border:0;border-radius:12px;min-height:36px;padding:6px 9px;font-weight:800;font-size:13px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer}
+#fotoBar button.on{background:rgba(99,193,116,.85)}
+#fotoBar button.big{background:#FFD24A;color:#1D2129;font-size:14px}
+#fotoBar button.rec,#fotoShow.rec{background:#E5484D;color:#fff;animation:fotoRec 1s ease-in-out infinite}
+#fotoShow{position:fixed;z-index:92;right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(16,21,28,.45);opacity:.55;cursor:pointer}
+#fotoFlash{position:fixed;inset:0;z-index:93;background:#fff;opacity:0;pointer-events:none}
+#fotoFlash.on{animation:fotoFlash .35s ease-out}
+#fotoPanel{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;background:rgba(6,10,16,.6);padding:12px}
+#fotoPanel[hidden]{display:none}
+#fotoPanel .fp-in{background:#1D2129;border-radius:20px;padding:12px;max-width:min(92vw,520px);max-height:92vh;display:flex;flex-direction:column;gap:8px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+#fotoPanel img,#fotoPanel video{max-width:100%;max-height:58vh;border-radius:12px;object-fit:contain;background:#000}
+#fotoPanel .fp-t{color:#fff;font-weight:800;font-size:14px}
+#fotoPanel .fp-h{color:#9FB3C8;font-size:12px}
+#fotoPanel .fp-b{display:flex;gap:8px}
+#fotoPanel .fp-b button{flex:1;border:0;border-radius:14px;min-height:42px;font-weight:900;font-size:14px;cursor:pointer;background:rgba(255,255,255,.12);color:#fff}
+#fotoPanel .fp-b .fp-s{background:#63C174;color:#0E1A12}
+@keyframes fotoFlash{0%{opacity:.85}100%{opacity:0}}
+@keyframes fotoRec{50%{opacity:.6}}
+#faCard{position:fixed;z-index:65;left:50%;top:50%;width:min(92vw,400px);transform:translate(-50%,-46%) scale(.92);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;background:linear-gradient(160deg,#22344A,#141C26);border:2px solid rgba(255,210,74,.35);border-radius:22px;padding:14px 14px 12px;color:#fff;box-shadow:0 14px 44px rgba(0,0,0,.55)}
+#faCard.on{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+#faCard .fa-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+#faCard .fa-t{font-size:22px;font-weight:900}
+#faCard .fa-d{font-size:13px;color:#9FB3C8;font-weight:700}
+#faCard .fa-d b{color:#FFD24A}
+#faCard .fa-g{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#faCard .fa-r{display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;background:rgba(255,255,255,.07);border-radius:14px;padding:7px 9px}
+#faCard .fa-r.rec{background:rgba(255,210,74,.18)}
+#faCard .fa-r i{font-style:normal;font-size:20px;grid-row:1/span 2}
+#faCard .fa-r b{font-size:17px;font-weight:900;line-height:1.1}
+#faCard .fa-r span{font-size:11.5px;color:#C9D6E3;font-weight:700}
+#faCard .fa-f{margin:9px 2px 8px;font-size:12.5px;color:#C9D6E3;font-weight:700}
+#faCard .fa-b{display:flex;gap:8px}
+#faCard .fa-b button{flex:1;border:0;border-radius:14px;min-height:42px;font-weight:900;font-size:14px;cursor:pointer;background:rgba(255,255,255,.12);color:#fff}
+#faCard .fa-b .fa-ok{background:#63C174;color:#0E1A12}
+@media (max-height:420px){#faCard{width:min(86vw,560px);padding:10px 12px}#faCard .fa-g{grid-template-columns:1fr 1fr 1fr}#faCard .fa-t{font-size:19px}}

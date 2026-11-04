@@ -35,8 +35,9 @@
   function workStart(mode, tg) {
     try {
       const el = workEl(), T = THREE3; if (!T) return false; const cv = el.querySelector('.wcv'), ar = tg.ar, L = ar.lbl || {};
-      if (!WK.r) { WK.r = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); WK.r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); if (T.SRGBColorSpace) WK.r.outputColorSpace = T.SRGBColorSpace; if (T.NoToneMapping !== undefined) WK.r.toneMapping = T.NoToneMapping; }
-      Object.assign(WK, { mode, tg, ar, L, kind: workKind(ar), anim: [], t: 0, last: 0, done: false, drag: false, holding: false, gc: {}, packSt: '', packFrom: 0, fx: [], motes: [], fans: [], bulb: null, hbasket: null, scaleD: null, pl: '', spT: 0, tw: [], sp: [] });
+      if (!WK.r) { WK.r = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); WK.r.setPixelRatio(SPAR ? 1 : Math.min(2, window.devicePixelRatio || 1)); if (T.SRGBColorSpace) WK.r.outputColorSpace = T.SRGBColorSpace; if (T.NoToneMapping !== undefined) WK.r.toneMapping = T.NoToneMapping; }
+      Object.assign(WK, { mode, tg, ar, L, kind: workKind(ar), anim: [], t: 0, last: 0, done: false, drag: false, holding: false, gc: {}, packSt: '', packFrom: 0, fx: [], motes: [], fans: [], bulb: null, hbasket: null, scaleD: null, pl: '', spT: 0, tw: [], sp: [], upd: [], lamp: null, lampPanel: null, lampCone: null });
+      if (SPAR) WK.r.setPixelRatio(1); // v176
       { const pp = el.querySelector('.wpop'); if (pp) pp.classList.remove('on'); } WK.slow = 0; WK.lowRes = WK.lowRes || false;
       el.hidden = false; workOpen = true; joy.id = null; joy.dx = joy.dy = 0; aHeld = false; bHeld = false;
       const title = { plant: (L.sow || 'Pflanzen'), water: (L.water || 'Gießen'), harvest: (L.harvest || 'Ernten'), rack: (L.rack || 'Gestell'), pack: (L.table || 'Packtisch') }[mode];
@@ -204,11 +205,11 @@
       { const lamp = new T.Group(), hood = OL(new T.Mesh(new T.BoxGeometry(0.62, 0.05, 0.3), M('#2E3238')), 0.04), panel = new T.Mesh(new T.PlaneGeometry(0.56, 0.24), new T.MeshBasicMaterial({ color: WK.kind === 'leaf' ? '#FFE6B0' : '#FFD9F0' })); panel.rotation.x = Math.PI / 2; panel.position.y = -0.027; lamp.add(hood); lamp.add(panel);
         for (const x of [-0.26, 0.26]) { const c = new T.Mesh(new T.CylinderGeometry(0.004, 0.004, 1.2, 4), M('#1D2129')); c.position.set(x, 0.62, 0); lamp.add(c); }
         const cone = new T.Mesh(new T.CylinderGeometry(0.28, 0.75, 1.3, 24, 1, true), new T.MeshBasicMaterial({ color: '#FFE3B0', transparent: true, opacity: 0.07, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending })); cone.position.y = -0.68; lamp.add(cone);
-        lamp.position.set(0, mode === 'harvest' ? 1.62 : 1.5, -0.05); WK.scene.add(lamp); }
+        lamp.position.set(0, mode === 'harvest' ? 1.62 : 1.5, -0.05); WK.scene.add(lamp); WK.lamp = lamp; WK.lampPanel = panel; WK.lampCone = cone; }
       const nb = mode === 'harvest' ? Math.max(4, Math.min(9, harvestYield(ar))) : 0, plant = mkPlant(T, mode === 'harvest' ? 1 : Math.min(1, 0.15 + (p.p || 0) * 0.85), nb); WK.root.add(plant); WK.plant = plant;
       if (mode === 'water') { WK.can = mkCan(T); WK.can.position.set(0.5, 0.98, 0); WK.scene.add(WK.can); WK.drops = []; const dg = new T.SphereGeometry(0.012, 6, 4), dm = M('#7FC8F0', { transparent: true, opacity: 0.85 }); for (let i = 0; i < 80; i++) { const d = new T.Mesh(dg, dm); d.visible = false; WK.scene.add(d); WK.drops.push({ m: d, v: new T.Vector3(), t: 0 }); }
         WK.hintEl.textContent = 'Kanne mit dem Finger über den Topf ziehen und gedrückt halten'; workBtn('Fertig', () => workClose(), 'wok'); }
-      else { WK.got = 0; WK.need = plant.userData.picks.length; WK.hintEl.textContent = WK.kind === 'leaf' ? 'Tippe die reifen, hellen Blätter an' : 'Tippe die Knospen an'; workBtn('Alle ernten', () => { plant.userData.picks.filter(q => !q.userData.taken).forEach((q, i) => setTimeout(() => { if (workOpen && WK.mode === 'harvest') workPick(q); }, i * 140)); }, 'wall'); }
+      else { WK.got = 0; WK.need = plant.userData.picks.length; WK.hintEl.textContent = WK.kind === 'leaf' ? 'Tippe die reifen, hellen Blätter an' : 'Tippe die Knospen an'; workBtn('Alle ernten', () => { plant.userData.picks.filter(q => !q.userData.taken).forEach((q, i) => setTimeout(() => { if (workOpen && WK.mode === 'harvest') workPick(q, true); }, i * 140)); }, 'wall'); }
       workCount();
     } else if (mode === 'rack') {
       baseScene(T, new T.Vector3(0, 1.55, 2.3), new T.Vector3(0, 0.7, 0.2), 2.2, 1.8); const cap = rackCap(ar), cols = Math.min(8, cap), rows = Math.ceil(cap / cols), W = 1.6, wood = MTX(woodTex('#8A5E3A', 'rgba(0,0,0,.3)', 3, true));
@@ -233,6 +234,7 @@
       workBtn('Fertig', () => workClose(), 'wok'); workCount();
     }
     decoMode(T); // v172
+    try { decoUps(T); } catch (e) { console.warn('Ausbau-Deko:', e && e.message); } // v176
   }
   // Offene Holzkiste (Boden und vier Seiten)
   function mkCrate(T, w, d, h) {
@@ -251,7 +253,7 @@
     WK.cntEl.textContent = t;
   }
   // ---------- Ernten ----------
-  function workPick(q) {
+  function workPick(q, auto) {
     if (!q || q.userData.taken) return; q.userData.taken = true; const T = THREE3, wp = new T.Vector3(); q.getWorldPosition(wp); q.parent.remove(q); q.position.copy(wp); WK.scene.add(q);
     try { burst(wp, WK.kind === 'leaf' ? ['#8DB04A', '#C2BE62', '#6CA24A'] : ['#63C174', '#8CC25A', '#E5832E', '#FFFFFF'], 16, 0.5, 0.6, 0.025, 2.5, false); } catch (e) {}
     // v175: Schere schnappt zu, Pflanze wippt, das Teil fliegt hoch über den Korb und fällt von oben hinein.
@@ -259,7 +261,7 @@
     const hb = WK.hbasket, n = WK.hbN = (WK.hbN || 0) + 1, lv = WK.kind === 'leaf', yaw = n * 2.4, rr = 0.025 + (n % 3) * 0.008;
     const dst = hb ? new T.Vector3(hb.position.x + Math.cos(yaw) * rr, 0.03 + Math.min(3, Math.floor((n - 1) / 4)) * 0.018, hb.position.z + Math.sin(yaw) * rr) : new T.Vector3(0.85, 1.25, 0.2);
     const fit = Math.min(1, (lv ? 0.2 : 0.17) / lenOf(q)) * (q.scale.x || 1);
-    snip(wp); spring(WK.plant, 'tilt', 0.07, 14, 4); q.userData.fly = true; const tr = trail(q, ['#FFF6C8', '#CFFFB0']);
+    snip(wp); combo(wp, auto); spring(WK.plant, 'tilt', 0.07, 14, 4); q.userData.fly = true; const tr = trail(q, ['#FFF6C8', '#CFFFB0']);
     const qrt = layRot(lv, yaw + Math.PI / 2), qdst = centerAt(q, dst, qrt, fit);
     tw(q, { delay: 0.16, d: 0.7, ez: 'inOut', a: wp.clone(), b: qdst, h: 0.18, drop: 0.32, rt: qrt, turns: 1, s1: fit / (q.scale.x || 1), fn: () => tr(),
       end: () => { if (!hb) { WK.scene.remove(q); return; } hb.attach(q); spring(hb, 'sq', 0.14, 22, 6); ring(new T.Vector3(hb.position.x, 0.01, hb.position.z), '#FFE9A0', 0.24); burst(dst.clone().add(new T.Vector3(0, 0.05, 0)), lv ? ['#C2BE62', '#8DB04A'] : ['#8CC25A', '#FFFFFF'], 8, 0.35, 0.4, 0.02, 2, false); asnd.pop(n); pop3d(n + ' / ' + WK.need, dst.clone().add(new T.Vector3(0, 0.24, 0)), n >= WK.need ? '#FFD24A' : '#FFFFFF'); } });
@@ -358,7 +360,7 @@
     b = centerAt(pc, b, rt, s1); b.y = Math.max(b.y, 0.012);
     tw(pc, { d: 0.55, ez: 'inOut', a: pc.position.clone(), b, h: 0.12, drop: 0.28, rt, turns: 1, fn: e => pc.scale.setScalar(s0 + (s1 - s0) * e),
       end: () => { spring(bag, 'sq', fullNow ? 0.22 : 0.13, 24, 6); if (WK.scaleG) spring(WK.scaleG, 'py', -0.012, 26, 7); asnd.pop(nn); const wp = new T.Vector3(); bag.getWorldPosition(wp); wp.y += (u.h || 0.12) + 0.03; burst(wp, ['#FFFFFF', '#CFFFB0'], 6, 0.25, 0.35, 0.018, 1, true); pop3d(nn + ' / ' + ar.packN, wp.clone().add(new T.Vector3(0, 0.12, 0)), fullNow ? '#FFD24A' : '#FFFFFF'); if (fullNow) { ring(new T.Vector3(wp.x, 0.455, wp.z), '#FFD24A', 0.3); if (WK.bag === bag && WK.packSt === 'landing') { WK.packSt = 'full'; WK.hintEl.textContent = 'Tippe ' + pkName(0) + ' an zum Verschließen'; } } } });
-    WK.bagItems.push(pc); WK.inBag++; scaleShow(WK.inBag);
+    WK.bagItems.push(pc); WK.inBag++; scaleShow(WK.inBag); try { const cw = new T.Vector3(); WK.bag.getWorldPosition(cw); combo(cw); } catch (e) {}
     packPile(); workCount();
     if (WK.inBag >= ar.packN) { WK.packSt = 'landing'; WK.hintEl.textContent = 'Gleich voll …'; }
   }

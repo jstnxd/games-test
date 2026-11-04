@@ -48,6 +48,7 @@
   let lofxUser = (() => { try { return localStorage.getItem('kellergruen.lofx') === '1'; } catch (e) { return false; } })(); // v128: Weniger Effekte (pro Gerät)
   let autoLow = false, autoOn = (() => { try { return localStorage.getItem('kellergruen.autolow') !== '0'; } catch (e) { return true; } })(); // v129: automatisch sparen, wenn das Handy drosselt (Energiesparmodus)
   let LOFX = lofxUser; // wirksam: von Hand an oder automatisch
+  let SPAR = (() => { try { return localStorage.getItem('kellergruen.spar') === '1'; } catch (e) { return false; } })(); // v176: Sparmodus (alles auf einmal, pro Gerät)
   function setLofx(v) { lofxUser = !!v; LOFX = lofxUser || autoLow; try { localStorage.setItem('kellergruen.lofx', lofxUser ? '1' : '0'); } catch (e) {} }
   // v129: Glätten unabhängig von der Bildrate (bei 30 Bildern/s im Energiesparmodus sonst ruckelig)
   // v134: Bildraten-Anzeige (pro Gerät, unter Einstellungen → Anzeige)
@@ -68,7 +69,7 @@
   function setAutoLow(v) { autoLow = !!v; LOFX = lofxUser || autoLow; resize(); }
   function setAutoOn(v) { autoOn = !!v; try { localStorage.setItem('kellergruen.autolow', autoOn ? '1' : '0'); } catch (e) {} if (!autoOn && autoLow) setAutoLow(false); perf.latch = false; }
   function resize() {
-    { const dp = window.devicePixelRatio || 1; DPR = autoLow ? Math.min(dp, 1.25) : GFX_Q === 0 ? Math.min(dp, 1.5) : Math.min(dp, 2); } // v135: Hoch zeichnet höchstens doppelt so fein (statt dreifach), spart auf iPhones viel Rechenzeit // v129: beim automatischen Sparen noch etwas geringer
+    { const dp = window.devicePixelRatio || 1; DPR = (autoLow || SPAR) ? Math.min(dp, 1.25) : GFX_Q === 0 ? Math.min(dp, 1.5) : Math.min(dp, 2); } // v135: Hoch zeichnet höchstens doppelt so fein (statt dreifach), spart auf iPhones viel Rechenzeit // v129: beim automatischen Sparen noch etwas geringer
     W = window.innerWidth; H = window.innerHeight;
     const fx = fullFix(); if (fx) { W = fx.w; H = fx.h; }
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);

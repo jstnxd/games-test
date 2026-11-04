@@ -32,6 +32,7 @@
   // ---------- Teilchen ----------
   // burst: einmaliger Ausstoß (Schnipsel, Spritzer, Funken, Konfetti)
   function burst(pos, cols, n, sp, life, size, grav, add) {
+    if (SPAR) n = Math.max(1, Math.ceil(n / 2)); // v176: Sparmodus
     const T = THREE3, P = new Float32Array(n * 3), C = new Float32Array(n * 3), V = [], c = new T.Color();
     for (let i = 0; i < n; i++) { P[i * 3] = pos.x; P[i * 3 + 1] = pos.y; P[i * 3 + 2] = pos.z; c.set(cols[i % cols.length]); C[i * 3] = c.r; C[i * 3 + 1] = c.g; C[i * 3 + 2] = c.b; const a = Math.random() * Math.PI * 2, u = Math.random() * 0.9 + 0.1; V.push([Math.cos(a) * sp * u, sp * (0.6 + Math.random()), Math.sin(a) * sp * u]); }
     const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(P, 3)); geo.setAttribute('color', new T.BufferAttribute(C, 3));
@@ -40,6 +41,7 @@
   }
   // Staub im Licht: langsam schwebende Punkte in einem Kasten
   function motes(c, sx, sy, sz, n, col) {
+    if (SPAR) return; // v176: Sparmodus
     const T = THREE3, P = new Float32Array(n * 3); for (let i = 0; i < n; i++) { P[i * 3] = c.x + (Math.random() - 0.5) * sx; P[i * 3 + 1] = c.y + (Math.random() - 0.5) * sy; P[i * 3 + 2] = c.z + (Math.random() - 0.5) * sz; }
     const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(P, 3)); const pts = new T.Points(geo, new T.PointsMaterial({ map: dotTex(), color: col || '#FFE9C0', size: 0.014, transparent: true, opacity: 0.55, depthWrite: false, blending: T.AdditiveBlending })); pts.raycast = () => {};
     WK.scene.add(pts); (WK.motes || (WK.motes = [])).push({ pts, c, sx, sy, sz });
@@ -77,7 +79,8 @@
       { const th = box(T, 0.16, 0.24, 0.04, '#E8E2D6', -0.62, 1.35, Z + 0.04, 0.06); const d = new T.Mesh(new T.PlaneGeometry(0.11, 0.06), new T.MeshBasicMaterial({ color: '#7BE07B' })); d.position.set(0, 0.04, 0.021); th.add(d); const tx = new T.Mesh(new T.PlaneGeometry(0.1, 0.05), MTX(cvTex(64, 32, (x, w, h) => { x.fillStyle = '#123A1C'; x.fillRect(0, 0, w, h); x.fillStyle = '#9BFF9B'; x.font = '900 18px monospace'; x.textAlign = 'center'; x.fillText('24°', w / 2, 23); }))); tx.position.set(0, 0.04, 0.022); th.add(tx); }
       { const s = box(T, 0.42, 0.22, 0.26, '#B08A5A', -1.6, 0.11, -0.75, 0.04); s.rotation.y = 0.3; const lab = new T.Mesh(new T.PlaneGeometry(0.26, 0.12), MTX(cvTex(64, 32, (x, w, h) => { x.fillStyle = '#F2E8C8'; x.fillRect(0, 0, w, h); x.fillStyle = '#5A3A1A'; x.font = '900 14px sans-serif'; x.textAlign = 'center'; x.fillText('ERDE', w / 2, 21); }))); lab.position.set(0, 0.01, 0.131); s.add(lab); blob(T, 0.7, 0.5, 0.003, 0.4, sc).position.set(-1.6, 0, -0.75); }
       { const hose = new T.Mesh(new T.TorusGeometry(0.16, 0.022, 8, 28), M('#3F9E6A')); hose.rotation.x = Math.PI / 2; hose.position.set(1.45, 0.025, -0.6); OL(hose, 0.1); sc.add(hose); const h2 = hose.clone(); h2.scale.setScalar(0.8); h2.position.y = 0.065; sc.add(h2); }
-      if (mode === 'water' || mode === 'harvest') for (const x of [-1.05, 1.1]) { const g = new T.Group(), pot = mkPot(T); pot.scale.setScalar(0.75); g.add(pot); const pl = mkBudPlant(T, 0.45, 0); pl.scale.setScalar(0.75); g.add(pl); g.position.set(x, 0, -0.85); sc.add(g); }
+      // v176: so viele Hintergrund-Töpfe, wie Töpfe offen sind
+      if (mode === 'water' || mode === 'harvest') for (const x of [-1.05, 1.1, 1.75, -0.5].slice(0, wkBgPots())) { const g = new T.Group(), pot = mkPot(T); pot.scale.setScalar(0.75); g.add(pot); const pl = mkBudPlant(T, 0.45, 0); pl.scale.setScalar(0.75); g.add(pl); g.position.set(x, 0, -0.85); sc.add(g); }
     } else if (kind === 'barn') {
       const bm = box(T, 9, 0.12, 0.14, MTX(woodTex('#5A3A22', 'rgba(0,0,0,.35)', 2, false)), 0, 2.05, Z + 0.1, 0.03);
       for (let i = 0; i < 6; i++) { const g = new T.Group(), x = -2.1 + i * 0.85; g.position.set(x, 2.0, Z + 0.15); sc.add(g); const str = cyl(T, 0.004, 0.004, 0.12, '#C9A06A', 0, -0.06, 0, 0, g, 4);
@@ -111,7 +114,7 @@
   // Waagen-Anzeige zeigt, wie viel im Beutel liegt
   function scaleShow(n) { if (!WK.scaleD) return; const t = cvTex(64, 20, (x, w, h) => { x.fillStyle = '#0E2A12'; x.fillRect(0, 0, w, h); x.fillStyle = '#7BE07B'; x.font = '900 15px monospace'; x.textAlign = 'center'; x.fillText(n ? n + ' St.' : '0.00', w / 2, 15); }); if (WK.scaleD.material.map) WK.scaleD.material.map.dispose(); WK.scaleD.material.map = t; WK.scaleD.material.needsUpdate = true; }
   // Etikett auf dem verschlossenen Beutel
-  function packLabel(g) { const T = THREE3, u = g.userData, t = cvTex(96, 48, (x, w, h) => { x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, w, h); x.fillStyle = '#63C174'; x.fillRect(0, 0, w, 10); x.fillStyle = '#1D2129'; x.font = '900 13px sans-serif'; x.textAlign = 'center'; x.fillText(WK.L.unit === 'Beutel' ? 'KELLERGRÜN' : (WK.L.unit || '').toUpperCase().slice(0, 10), w / 2, 28); x.font = '700 9px sans-serif'; x.fillText(WK.ar.packN + ' Stück', w / 2, 42); });
+  function packLabel(g) { const T = THREE3, u = g.userData, t = cvTex(96, 48, (x, w, h) => { x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, w, h); x.fillStyle = '#63C174'; x.fillRect(0, 0, w, 10); x.fillStyle = '#1D2129'; x.font = '900 13px sans-serif'; x.textAlign = 'center'; x.fillText(WK.L.unit === 'Beutel' ? 'KELLERGRÜN' : (WK.L.unit || '').toUpperCase().slice(0, 10), w / 2, 28); x.font = '700 9px sans-serif'; const sd = wkUp('seed'); if (sd >= 3) { x.fillStyle = '#FFD24A'; x.fillRect(0, 0, w, 10); x.fillStyle = '#B8861E'; x.font = '900 10px sans-serif'; x.textAlign = 'right'; x.fillText(wkStars(Math.ceil(sd / 3)), w - 4, 44); x.textAlign = 'left'; x.fillStyle = '#1D2129'; x.font = '700 9px sans-serif'; x.fillText(WK.ar.packN + ' St.', 5, 42); } else x.fillText(WK.ar.packN + ' Stück', w / 2, 42); }); // v176: Sterne für bessere Samen
     const lab = new T.Mesh(new T.PlaneGeometry(u.w * 0.6, u.w * 0.3), new T.MeshBasicMaterial({ map: t })); lab.position.set(0, (u.h || 0.12) * 0.5, (u.d || 0.1) / 2 + 0.004); g.add(lab); }
   // ---------- jedes Bild ----------
   function decoFrame(dt) {

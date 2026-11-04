@@ -15,11 +15,13 @@ js/19_handy.js
 js/19b_arbeit.js
 js/19c_arbeit_deko.js
 js/19d_arbeit_anim.js
+js/19e_arbeit_ausbau.js
 js/20_karriere.js
 js/20b_kalender.js
 js/21_spaetes_spiel.js
 js/21b_tagesaufgaben.js
 js/21c_kurier.js
+js/21d_feierabend.js
 js/22_spieler_gangs.js
 js/23_chat_umbau.js
 js/24_zeichnen_effekte.js
@@ -32,5 +34,6 @@ js/27_wetter_3d.js
 js/27b_leben.js
 js/28_mehrspieler.js
 js/29b_studio.js
+js/29c_foto.js
 js/29_einfuehrung_eingabe_menue.js
 99_ende.html

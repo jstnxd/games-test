@@ -9,6 +9,7 @@
     if (o.proj && typeof o.proj === 'object') for (const p of PROJ) if (o.proj[p.id]) L.proj[p.id] = 1;
     if (o.bw && typeof o.bw === 'object') for (const it of MK_SHOP) if (o.bw[it.id]) L.bw[it.id] = 1;
     if (o.td) L.td = cleanTd(o.td);
+    if (o.fa) L.fa = cleanFa(o.fa); // v176: Feierabend
     return L;
   }
   const LG = () => G.lg || (G.lg = lgDef());

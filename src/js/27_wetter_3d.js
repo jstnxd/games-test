@@ -470,10 +470,10 @@
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       return;
     }
-    const port = isPort(), sc = (port ? W / 340 : H / 330) * (state === 'menu' ? 0.62 : 1) * (STU.on ? STU.zoom : 1); // v173: Studio-Zoom
+    const port = isPort(), sc = (port ? W / 340 : H / 330) * (state === 'menu' ? 0.62 : 1) * (STU.on ? STU.zoom : 1) * fotoZoom(); // v173: Studio-Zoom, v176: Kamera-Zoom
     const vw = W / sc, vh = H / sc;
     const mfa = gt * 0.016, menuFly = state === 'menu'; // v112: im Startmenue fliegt die Kamera langsam ueber die Stadt
-    const tx = STU.on && STU.cam && state === 'play' ? STU.cam.x : state === 'play' ? player.x : menuFly ? 2550 + Math.cos(mfa) * 1500 : DOOR.x, ty = (STU.on && STU.cam && state === 'play' ? STU.cam.y : state === 'play' ? player.y : menuFly ? 780 + Math.sin(mfa) * 1150 : DOOR.y) + (port ? vh * 0.1 : 0);
+    const tx = camOver() ? camOver().x : state === 'play' ? player.x : menuFly ? 2550 + Math.cos(mfa) * 1500 : DOOR.x, ty = (camOver() ? camOver().y : state === 'play' ? player.y : menuFly ? 780 + Math.sin(mfa) * 1150 : DOOR.y) + (port ? vh * 0.1 : 0);
     viewX0 = cam.x - vw / 2 - 80; viewX1 = cam.x + vw / 2 + 80; viewY0 = cam.y - vh / 2 - 80; viewY1 = cam.y + vh / 2 + 80;
     { const cx = clamp(tx, XMIN + vw / 2, WW - vw / 2); if (Math.abs(cx - cam.x) > 900) cam.x = cx; else cam.x += (cx - cam.x) * fk(0.15); } // v72: Freundes-Keller getrennt von der Stadt
     { const pad = state === 'play' ? vh * (port ? 0.3 : 0.2) : 0; cam.y += (clamp(ty, YMIN + vh / 2 - pad, WH - vh / 2 + pad) - cam.y) * fk(0.15); } // v110: am Kartenrand etwas weiter schauen, damit die Figur nicht unter der Anzeige verschwindet
@@ -514,6 +514,7 @@
     if (state === 'play' || state === 'menu') calDrawSky(); // v155: Feuerwerk, Herzen, Konfetti
     if (state === 'play') drawVignette(); // v94
     if (state === 'play') drawCopLights(); // v127: Polizeilicht statt Balken
+    if (FOTO.on && state === 'play') fotoDraw(); // v176: Filter, Balken und Logo der Kamera
     if (busRide) drawBusFade(); // v104
     drawJoystick();
   }

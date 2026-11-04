@@ -83,6 +83,11 @@
   function centerAt(o, dst, rt, sc) { lenOf(o); const v = lenOf.c.clone().multiplyScalar(sc).applyEuler(new THREE3.Euler(rt.x, rt.y, rt.z, 'YXZ')); return dst.clone().sub(v); }
   // Liegend in einen Behälter: Knospe quer entlang yaw, Blatt flach entlang yaw
   function layRot(lv, yaw) { return lv ? { x: -Math.PI / 2, y: yaw, z: 0 } : { x: 0, y: yaw, z: Math.PI / 2 }; }
+  // v176: Combo, wenn man schnell hintereinander antippt (nicht bei den Alle-Knöpfen)
+  function combo(pos, auto) {
+    if (auto) { WK.cb = 0; return; } const now = WK.t; WK.cb = now - (WK.cbT === undefined ? -9 : WK.cbT) < 1.3 ? (WK.cb || 0) + 1 : 1; WK.cbT = now;
+    if (WK.cb >= 3) { pop3d('🔥 Combo x' + WK.cb, pos.clone().add(new THREE3.Vector3(0, 0.42, 0)), WK.cb >= 8 ? '#FF5C7A' : '#FF9A3C', true); asnd.ding(WK.cb); try { faCombo(WK.cb); } catch (e) {} if (WK.cb % 5 === 0) celebrate('🔥 Combo x' + WK.cb + '!', pos.clone()); }
+  }
   // Abschluss-Hopser für das Hauptobjekt
   function joy3(o) { spring(o, 'sq', 0.16, 16, 5); }
   // jedes Bild: Tweens, Federn und das sanfte "Atmen" der antippbaren Teile
@@ -102,6 +107,7 @@
       if (k >= 1) { WK.tw.splice(i, 1); if (a.end) { try { a.end(); } catch (x) { console.warn('Animation:', x && x.message); } } } }
     if (WK.sp) for (let i = WK.sp.length - 1; i >= 0; i--) { const s = WK.sp[i]; s.t += dt; const env = Math.exp(-s.t * s.dm);
       if (env < 0.01 || !s.o.parent) { springSet(s, 0); WK.sp.splice(i, 1); continue; } springSet(s, s.amt * Math.sin(s.t * s.f) * env); }
+    if (WK.upd) for (const f of WK.upd) f(dt);
     if (WK.mode === 'harvest' && WK.plant) WK.plant.userData.picks.forEach((q, i) => { if (!q.userData.taken) q.scale.setScalar(1 + 0.06 * Math.max(0, Math.sin(WK.t * 3.2 - i * 0.7))); });
     if (WK.mode === 'pack' && WK.pile) { let first = true; for (const p of WK.pile) { if (p.userData.taken || p.userData.fly) continue; const b = p.userData.bs || (p.userData.bs = p.scale.x); p.scale.setScalar(b * (first && WK.packSt === 'open' ? 1 + 0.08 * Math.max(0, Math.sin(WK.t * 4)) : 1)); first = false; } }
   }
