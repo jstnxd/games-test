@@ -64,3 +64,19 @@
         if (extra >= 1) { const t = box(T, 0.12, 0.1, 0.06, '#C98A3C', -0.17, 0.05, 0.02, 0.06, g); t.rotation.y = 0.3; } }
     }
   }
+
+  // =====================================================================================================
+  // v185: Qualität durch gutes Arbeiten. Selbst im 3D-Fenster gepflanzt gibt 45 %, einmal selbst gegossen, bevor die
+  // Pflanze durstig ist, gibt 30 % dazu. Steht sie trocken, sinkt die Qualität langsam. Beim Ernten im Fenster gibt es
+  // dafür Bonus-Ertrag (bis +40 %), die Bonus-Knospen leuchten golden. Helfer und der A-Knopf ernten ohne Bonus.
+  // =====================================================================================================
+  function qualWater(p, w0) { if (!p || p.s !== 1 || p.qw || !(w0 < 0.6)) return 0; const add = Math.min(0.3, 1 - (p.q || 0)); p.q = Math.min(1, (p.q || 0) + 0.3); p.qw = 1; return add; }
+  const qualBonus = (ar, p) => Math.round(harvestYield(ar) * 0.4 * Math.min(1, Math.max(0, (p && p.q) || 0)));
+  const qualTxt = p => (p && p.q > 0.01 ? ' · ⭐ ' + Math.round(p.q * 100) + ' %' : '');
+  function qualGold(plant, p) {
+    const T = THREE3, picks = plant.userData.picks || [], n = Math.round(picks.length * Math.min(1, (p && p.q) || 0)); if (!n) return;
+    const gm = WK.gc.goldM || (WK.gc.goldM = new T.MeshToonMaterial({ color: '#FFD24A', emissive: '#7A5410', gradientMap: toonGrad() }));
+    picks.slice(0, n).forEach(q => { q.traverse(o => { if (o.isMesh && !o.userData.ol && o.material && o.material.color) o.material = gm; });
+      const sp = new T.Sprite(new T.SpriteMaterial({ map: dotTex(), color: '#FFE9A0', transparent: true, opacity: 0.6, depthWrite: false, blending: T.AdditiveBlending })); sp.scale.setScalar(0.14); sp.position.y = 0.05; sp.raycast = () => {}; q.add(sp);
+      WK.upd.push(() => { if (sp.parent) sp.material.opacity = 0.35 + 0.3 * Math.sin(WK.t * 4 + q.id); }); q.userData.gold = true; });
+  }

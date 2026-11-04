@@ -257,7 +257,7 @@
   const flName = f => FLOORS[flKey(f)].name;
   // Etagen-Zustand: eigene Toepfe, Gestell und Packtisch; Ware (inv) und Verbesserungen (up) sind die des Kellers
   const floorState = o => Object.defineProperties(o, { inv: { get: () => G.inv }, up: { get: () => G.up } });
-  const mkFloor = () => floorState({ own: false, n: FL_START, pots: FLPOTS.map(() => ({ s: 0, p: 0, w: 1 })), rack: { wet: 0, dry: 0 }, tab: { dry: 0, bags: 0 } });
+  const mkFloor = () => floorState({ own: false, n: FL_START, pots: FLPOTS.map(() => ({ s: 0, p: 0, w: 1, q: 0, qw: 0 })), rack: { wet: 0, dry: 0 }, tab: { dry: 0, bags: 0 } });
   const floorAreas = () => ['ku', 'ko'].map(k => AREAS[k]).filter(isOpen);
   const flPotCost = n => Math.round(450 * Math.pow(1.32, n - FL_START) / 10) * 10;
   const potOf = tg => S(tg.ar).pots[tg.idx];

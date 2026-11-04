@@ -569,15 +569,15 @@
     G = {
       money: 60, rep: 0, earned: 0, eod: 0, day: 1, sOff: 0, time: 9 * 60, won: false, bank: 0, buf: {}, club: { n: -1, s: 0 }, biz: {}, heat: 0, raid: null, heatE: 0,
       up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, shoes: 0, bag: 0, sack: 0, cart: 0, seed: 0, water: 0, compass: 0 }, repP: 0, prest: 0, prN: 0, lg: lgDef(), gang: null, pn: pnDef(), ui: uiDef(),
-      pots: POTS.map(() => ({ s: 0, p: 0, w: 1 })),
+      pots: POTS.map(() => ({ s: 0, p: 0, w: 1, q: 0, qw: 0 })),
       rack: { wet: 0, dry: 0 }, inv: { fresh: 0, dried: 0, bags: 0 },
       orders: [], nextOrder: 5, oid: 1, kr: krDef(), tut: '',
       cos: { owned: {}, orbit: 'none', orbit2: 'none', trail: 'none', pet: 'none', pet2: 'none' }, wpn: { owned: {}, eq: 'none' }, dec: { owned: {}, items: { keller: [], tabak: [], brau: [], ku: [], ko: [] } },
       lay: { keller: null, tabak: null, brau: null, ku: null, ko: null }, build: { door: { keller: false, tabak: false, brau: false }, floor: { keller: { c: 0, p: 0 }, tabak: { c: 0, p: 0 }, brau: { c: 0, p: 0 }, ku: { c: 0, p: 0 }, ko: { c: 0, p: 0 } }, stair: { keller: 0, ku: 0, ko: 0 } },
       staff: Object.fromEntries(Object.keys(ROLES).map(k => [k, 0])), tab: { dry: 0, bags: 0 },
       staffUp: Object.fromEntries(Object.keys(ROLES).map(k => [k, { speed: 0, skill: 0 }])), look: Object.assign({}, DEF_LOOK), wear: { owned: {} }, veh: { owned: {}, eq: 'none', bike: 'none', car: 'none', on: false, col: {}, tune: {} }, lager: { own: false, lv: 0, inv: [0, 0, 0, 0, 0, 0, 0, 0, 0] }, pr: prDef(), cas: { wd: '', sp: 0 }, stat: { del: 0, vip: 0, ko: 0, car: 0, bust: 0, gv: 0, gb: 0, pk: 0, wt: 0, bus: 0, kur: 0 }, fl: { u: mkFloor(), o: mkFloor() }, crate: 0, stash: {}, ach: { done: {} }, area: 'keller',
-      t: { unlocked: false, pots: POTS2.map(() => ({ s: 0, p: 0, w: 1 })), rack: { wet: 0, dry: 0 }, tab: { dry: 0, bags: 0 }, inv: { fresh: 0, dried: 0, bags: 0 }, up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, water: 0, seed: 0 } },
-      b: { unlocked: false, pots: POTS3.map(() => ({ s: 0, p: 0, w: 1 })), rack: { wet: 0, dry: 0 }, tab: { dry: 0, bags: 0 }, inv: { fresh: 0, dried: 0, bags: 0 }, up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, water: 0, seed: 0 } }
+      t: { unlocked: false, pots: POTS2.map(() => ({ s: 0, p: 0, w: 1, q: 0, qw: 0 })), rack: { wet: 0, dry: 0 }, tab: { dry: 0, bags: 0 }, inv: { fresh: 0, dried: 0, bags: 0 }, up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, water: 0, seed: 0 } },
+      b: { unlocked: false, pots: POTS3.map(() => ({ s: 0, p: 0, w: 1, q: 0, qw: 0 })), rack: { wet: 0, dry: 0 }, tab: { dry: 0, bags: 0 }, inv: { fresh: 0, dried: 0, bags: 0 }, up: { pots: 0, grow: 0, yield: 0, rack: 0, dry: 0, water: 0, seed: 0 } }
     };
     for (const k of DEC_KEYS) { applyLayout(AREAS[k], BASE[k]); rebuildNav(AREAS[k]); }
     syncGate();

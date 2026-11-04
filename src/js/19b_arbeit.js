@@ -212,6 +212,7 @@
         const cone = new T.Mesh(new T.CylinderGeometry(0.28, 0.75, 1.3, 24, 1, true), new T.MeshBasicMaterial({ color: '#FFE3B0', transparent: true, opacity: 0.07, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending })); cone.position.y = -0.68; lamp.add(cone);
         lamp.position.set(0, mode === 'harvest' ? 1.62 : 1.5, -0.05); WK.scene.add(lamp); WK.lamp = lamp; WK.lampPanel = panel; WK.lampCone = cone; }
       const nb = mode === 'harvest' ? Math.max(4, Math.min(9, harvestYield(ar))) : 0, plant = mkPlant(T, mode === 'harvest' ? 1 : Math.min(1, 0.15 + (p.p || 0) * 0.85), nb); WK.root.add(plant); WK.plant = plant;
+      WK.w0 = p.w; if (mode === 'harvest') try { qualGold(plant, p); } catch (e) {}
       if (mode === 'water') { WK.can = mkCan(T); WK.can.position.set(0.5, 0.98, 0); WK.scene.add(WK.can); WK.drops = []; const dg = new T.SphereGeometry(0.012, 6, 4), dm = M('#7FC8F0', { transparent: true, opacity: 0.85 }); for (let i = 0; i < 80; i++) { const d = new T.Mesh(dg, dm); d.visible = false; WK.scene.add(d); WK.drops.push({ m: d, v: new T.Vector3(), t: 0 }); }
         WK.hintEl.textContent = 'Kanne mit dem Finger über den Topf ziehen und gedrückt halten'; workBtn('Fertig', () => workClose(), 'wok'); }
       else { WK.got = 0; WK.need = plant.userData.picks.length; WK.hintEl.textContent = WK.kind === 'leaf' ? 'Tippe die reifen, hellen Blätter an' : 'Tippe die Knospen an'; workBtn('Alle ernten', () => { plant.userData.picks.filter(q => !q.userData.taken).forEach((q, i) => setTimeout(() => { if (workOpen && WK.mode === 'harvest') workPick(q, true); }, i * 140)); }, 'wall'); }
@@ -252,8 +253,8 @@
     const ar = WK.ar, st = S(ar), L = WK.L; let t = '';
     if (WK.mode === 'plant' && WK.pl === 'busy') return;
     if (WK.mode === 'plant') t = ['🕳️ Loch graben', '🌰 Samen hinein', '🤲 Zuschütten', '🌱 Gepflanzt!'][['dig', 'seed', 'cover', 'done'].indexOf(WK.pl)] + ' · ' + fmt(seedCost(WK.ar));
-    else if (WK.mode === 'water') t = '💧 ' + Math.round((WK.p.w || 0) * 100) + ' %';
-    else if (WK.mode === 'harvest') t = '🧺 ' + WK.got + ' / ' + WK.need;
+    else if (WK.mode === 'water') t = '💧 ' + Math.round((WK.p.w || 0) * 100) + ' %' + qualTxt(WK.p);
+    else if (WK.mode === 'harvest') t = '🧺 ' + WK.got + ' / ' + WK.need + qualTxt(WK.p);
     else if (WK.mode === 'rack') t = '🧺 ' + st.inv.fresh + ' ' + (L.fresh || 'frisch') + ' · ' + Math.floor(st.rack.wet) + ' trocknen · ' + Math.floor(st.rack.dry) + ' trocken · 📦 ' + st.inv.dried;
     else if (WK.mode === 'pack') t = (WK.kind === 'leaf' ? '🍂 ' : '🌿 ') + packAvail() + ' trocken · drin ' + (WK.inBag || 0) + ' / ' + ar.packN + ' · in der Kiste: ' + WK.made;
     WK.cntEl.textContent = t;
@@ -272,7 +273,7 @@
     tw(q, { delay: 0.16, d: 0.7, ez: 'inOut', a: wp.clone(), b: qdst, h: 0.18, drop: 0.32, rt: qrt, turns: 1, s1: fit / (q.scale.x || 1), fn: () => tr(),
       end: () => { if (!hb) { WK.scene.remove(q); return; } hb.attach(q); spring(hb, 'sq', 0.14, 22, 6); ring(new T.Vector3(hb.position.x, 0.01, hb.position.z), '#FFE9A0', 0.24); burst(dst.clone().add(new T.Vector3(0, 0.05, 0)), lv ? ['#C2BE62', '#8DB04A'] : ['#8CC25A', '#FFFFFF'], 8, 0.35, 0.4, 0.02, 2, false); asnd.pop(n); pop3d(n + ' / ' + WK.need, dst.clone().add(new T.Vector3(0, 0.24, 0)), n >= WK.need ? '#FFD24A' : '#FFFFFF'); } });
     WK.got++; workCount();
-    if (WK.got >= WK.need && !WK.done) { WK.done = true; const ar = WK.ar, inv = S(ar).inv, p = WK.p, hy = harvestYield(ar); inv.fresh += hy; p.s = 0; p.p = 0; if (G.kr) G.kr.cnt.hv++; try { sfx.harvest(); } catch (e) {} const pos = potPos(WK.tg); floater(pos.x, pos.y - 20, '+' + hy + ' ' + (WK.L.fresh || ''), ar.leaf); WK.hintEl.textContent = 'Geerntet: +' + hy + ' ' + (WK.L.fresh || ''); setTimeout(() => { if (!workOpen || WK.mode !== 'harvest') return; celebrate('✂️ +' + hy + ' ' + (WK.L.fresh || '')); if (WK.hbasket) joy3(WK.hbasket); }, 750); setTimeout(() => { if (workOpen && WK.mode === 'harvest') workClose(); }, 2100); }
+    if (WK.got >= WK.need && !WK.done) { WK.done = true; const ar = WK.ar, inv = S(ar).inv, p = WK.p, hq = qualBonus(ar, p), hy = harvestYield(ar) + hq; inv.fresh += hy; p.q = 0; p.qw = 0; p.s = 0; p.p = 0; if (G.kr) G.kr.cnt.hv++; try { sfx.harvest(); } catch (e) {} const pos = potPos(WK.tg); floater(pos.x, pos.y - 20, '+' + hy + ' ' + (WK.L.fresh || ''), ar.leaf); WK.hintEl.textContent = 'Geerntet: +' + hy + ' ' + (WK.L.fresh || '') + (hq ? ' (davon ' + hq + ' Qualitätsbonus ✨)' : ''); setTimeout(() => { if (!workOpen || WK.mode !== 'harvest') return; celebrate('✂️ +' + hy + ' ' + (WK.L.fresh || '')); if (WK.hbasket) joy3(WK.hbasket); }, 750); setTimeout(() => { if (workOpen && WK.mode === 'harvest') workClose(); }, 2100); }
   }
   // ---------- Gestell ----------
   function rackHang(slot, dry, anim) {
@@ -343,7 +344,7 @@
       WK.pl = 'busy'; setTimeout(() => { if (!workOpen || WK.mode !== 'plant') return; pot.remove(h); WK.hole = null; WK.heaps = []; if (WK.seed && WK.ar.key !== 'pr') { WK.scene.remove(WK.seed); WK.seed = null; }
         const bump = new T.Mesh(new T.SphereGeometry(0.05, 14, 8), soilMat(T, '#6A4A32')); bump.position.set(hp.x, SOIL_Y - 0.004, hp.z); bump.scale.set(1, 0.18, 1); pot.add(bump);
         if (WK.ar.key !== 'pr') { const sp = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(0.005, 0.007, 0.07, 6), M('#6FAE48')); st.position.y = 0.035; sp.add(st); for (const s2 of [-1, 1]) { const c = new T.Mesh(new T.SphereGeometry(0.022, 10, 6), M('#7BC85A')); c.scale.set(1, 0.3, 0.6); c.position.set(s2 * 0.022, 0.07, 0); sp.add(c); } sp.position.set(hp.x, SOIL_Y + 0.006, hp.z); sp.scale.setScalar(0.01); pot.add(sp); tw(sp, { d: 0.6, ez: 'back', sc: [0.01, 1.4] }); }
-        G.money -= sc; p.s = 1; p.p = 0; p.w = 1; try { sfx.plant(); } catch (e) {} floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); WK.pl = 'done'; WK.hintEl.textContent = 'Gepflanzt! Jetzt wächst sie, vergiss das Gießen nicht'; workCount(); celebrate('🌱 Gepflanzt!', null, true);
+        G.money -= sc; p.s = 1; p.p = 0; p.w = 1; p.q = 0.45; p.qw = 0; try { sfx.plant(); } catch (e) {} floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); WK.pl = 'done'; WK.hintEl.textContent = 'Gepflanzt! Jetzt wächst sie, vergiss das Gießen nicht'; workCount(); celebrate('🌱 Gepflanzt!', null, true);
         setTimeout(() => { if (workOpen && WK.mode === 'plant') workClose(); }, 1700); }, 260); }
   }
   // v184: Die ausgehobene Erde verteilt sich auf fünf Häufchen im Kreis um das Loch. Jedes angetippte Häufchen rutscht ins Loch.
@@ -499,7 +500,7 @@
       if (WK.holding) for (let q = 0; q < 2; q++) for (const d of WK.drops) if (!d.m.visible && Math.random() < dt * 40) { d.m.visible = true; d.m.position.copy(tip); d.v.set((Math.random() - 0.5) * 0.15, -0.2, (Math.random() - 0.5) * 0.15); d.t = 0; break; }
       WK.spT -= dt; for (const d of WK.drops) if (d.m.visible) { d.v.y -= 3.2 * dt; d.m.position.addScaledVector(d.v, dt); d.t += dt; if (d.m.position.y < 0.3 || d.t > 1.2) { d.m.visible = false; if (WK.spT <= 0 && d.m.position.y < 0.32 && Math.hypot(d.m.position.x, d.m.position.z) < 0.22) { WK.spT = 0.12; burst(d.m.position.clone(), ['#9FD8FF', '#CFEFFF', '#FFFFFF'], 6, 0.35, 0.35, 0.02, 3, true); if (Math.random() < 0.35) ring(new T.Vector3(d.m.position.x, 0.305, d.m.position.z), '#9FD8FF', 0.08, 0.4); } } }
       if (over && WK.p.s === 1) { const b = WK.p.w; WK.p.w = Math.min(1, WK.p.w + dt * 1.0); if (WK.p.w > b && Math.random() < dt * 10) { try { sfx.water(); } catch (e) {} } workCount(); 
-        if (WK.p.w >= 1 && !WK.done) { WK.done = true; G.stat.wt = (G.stat.wt || 0) + 1; WK.hintEl.textContent = 'Genug Wasser!'; celebrate('💧 Genug Wasser!'); joy3(WK.plant); ring(new T.Vector3(0, 0.31, 0), '#9FD8FF', 0.3); setTimeout(() => { if (workOpen && WK.mode === 'water') workClose(); }, 1400); } }
+        if (WK.p.w >= 1 && !WK.done) { WK.done = true; G.stat.wt = (G.stat.wt || 0) + 1; const qup = qualWater(WK.p, WK.w0); WK.hintEl.textContent = 'Genug Wasser!' + (qup ? ' Qualität +' + Math.round(qup * 100) + ' %' : ''); celebrate('💧 Genug Wasser!'); joy3(WK.plant); ring(new THREE3.Vector3(0, 0.31, 0), '#9FD8FF', 0.3); setTimeout(() => { if (workOpen && WK.mode === 'water') workClose(); }, 1400); } }
     }
     if (WK.mode === 'harvest' && WK.plant) WK.plant.userData.picks.forEach((q, i) => { if (!q.userData.taken && WK.kind !== 'leaf') q.rotation.y = Math.sin(WK.t * 2 + i) * 0.2; });
     if (WK.mode === 'pack' && WK.bag && WK.packSt === 'sealed' && !WK.drag) WK.bag.position.y = WK.bag.userData.home.y + Math.abs(Math.sin(WK.t * 4)) * 0.02;
