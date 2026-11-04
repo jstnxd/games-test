@@ -370,9 +370,9 @@
     const ar = tg.ar || AREAS.keller, st = S(ar), inv = st.inv, L = ar.lbl;
     if (aEdge && (tg.type === 'pot' || tg.type === 'rack' || tg.type === 'table') && workTry(tg)) { aEdge = false; return; } // v163: 3D-Arbeitsfenster
     if (tg.type === 'pot') {
-      const p = potOf(tg), pos = potPos(tg), sc = seedCost(ar), hy = harvestYield(ar);
+      const p = potOf(tg), pos = potPos(tg), sc = seedCost(ar), hy = sortY(ar, p);
       if (p.s === 0 && aEdge) {
-        if (G.money >= sc) { G.money -= sc; p.s = 1; p.p = 0; p.w = 1; p.q = 0; p.qw = 0; sfx.plant(); floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); }
+        if (G.money >= sc) { G.money -= sc; p.s = 1; p.p = 0; p.w = 1; p.q = 0; p.qw = 0; p.v = sortsFor(ar) ? sortCur().i : 0; sfx.plant(); floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); }
         else { sfx.bad(); msg('Zu wenig Geld', true); }
       } else if (p.s === 1 && aHeld) {
         const before = p.w; p.w = Math.min(1, p.w + dt * 1.4); if (before < 1 && p.w >= 1) G.stat.wt = (G.stat.wt || 0) + 1;

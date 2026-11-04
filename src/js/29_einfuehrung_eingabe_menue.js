@@ -187,6 +187,9 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 186, date: 'November 2026', title: 'Neue Sorten', items: [
+      ['neu', '🌱', 'Pflanzen-Sorten: Im Pflanzen-Fenster wählst du mit dem Knopf „Sorte“ zwischen Kellergrün, Zitronenzauber (ab Ruf 8), Waldriese (ab Ruf 20) und Lila Nebel (ab Ruf 35). Alles fiktive Namen'],
+      ['neu', '🎨', 'Jede Sorte sieht anders aus und wächst anders: schneller, mehr Ertrag oder höhere Startqualität. Die Samentüte hat die Farbe der Sorte'] ] },
     { v: 185, date: 'November 2026', title: 'Gute Arbeit lohnt sich', items: [
       ['neu', '⭐', 'Qualität: Selbst im 3D-Fenster gepflanzt gibt 45 %, einmal rechtzeitig selbst gegossen 30 % dazu. Steht die Pflanze trocken, sinkt die Qualität langsam'],
       ['neu', '✨', 'Beim Ernten im Fenster leuchten die Bonus-Knospen golden und bringen bis zu 40 % mehr Ertrag. Helfer und der A-Knopf ernten ohne Bonus'],
@@ -195,10 +198,6 @@
       ['chg', '🕳️', 'Beim Graben liegt die ausgehobene Erde gut sichtbar neben dem Loch'],
       ['neu', '🟤', 'Zudecken: Die Erde verteilt sich auf fünf Häufchen im Kreis um das Loch. Jedes Häufchen antippen, es rutscht auf den Samen, nach dem fünften ist er zugedeckt'],
       ['chg', '🌱', 'Ruhiger: keine fliegenden Krümel, kein Aufblitzen und kein Konfetti mehr beim Einpflanzen'] ] },
-    { v: 183, date: 'November 2026', title: 'Selbst gegraben', items: [
-      ['chg', '🌱', 'Einpflanzen neu: Die Erde füllt den ganzen Topf, kein verwirrender Kreis mehr. Wo du tippst, gräbst du das Loch, dreimal tippen macht es tiefer, daneben wächst der Erdhaufen'],
-      ['chg', '🌰', 'Der Samen fällt genau in dein Loch. Tippst du auf den Erdhaufen, wird die Erde zurückgeschoben und an der Stelle kommt der Keimling'],
-      ['fix', '✨', 'Ringe beim Landen blitzen nicht mehr kurz riesig auf'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

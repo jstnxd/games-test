@@ -871,7 +871,7 @@
     cols: { pots: PR_COLS, rack: PR_RACK_COL, table: PR_TABLE_COL }, claim: PR_POTS.map(() => 0), roleKey: { gardener: 'prgardener', rack: 'prrack', packer: 'prpacker' },
     lbl: { fresh: 'Premium-Blüten', unit: 'Apotheken-Dosen', rack: 'Klima-Trockenschrank', hud: 'Premium', dried: 'Premium trocken', table: 'Abfülltisch', sow: 'Steckling setzen', water: 'Nährlösung geben', harvest: 'Premium ernten', seed: 'Stecklinge' },
     seedBase: 60, seedUp: 8, growBase: 120, yieldBase: 5, rackBase: 10, rackUp: 4, dryBase: 0.18, packN: 3, price: 260, leaf: '#7FE0A0', dry: '#C9A8FF', bub: '#E6E9FF', floor: '#2F3A44', wallCol: '#E4E8EE' };
-  const prDef = () => ({ own: false, n: 2, pots: PR_POTS.map(() => ({ s: 0, p: 0, w: 1, q: 0, qw: 0 })), rack: { wet: 0, dry: 0 }, tab: { dry: 0, bags: 0 }, inv: { fresh: 0, dried: 0, bags: 0 }, up: { seed: 0, grow: 0, yield: 0, rack: 0, dry: 0, water: 0 } });
+  const prDef = () => ({ own: false, n: 2, pots: PR_POTS.map(() => ({ s: 0, p: 0, w: 1, q: 0, qw: 0, v: 0 })), rack: { wet: 0, dry: 0 }, tab: { dry: 0, bags: 0 }, inv: { fresh: 0, dried: 0, bags: 0 }, up: { seed: 0, grow: 0, yield: 0, rack: 0, dry: 0, water: 0 } });
   function cleanPr(o) {
     const P = prDef(); if (!o || typeof o !== 'object') return P;
     const n = (v, a, b, d) => Number.isFinite(+v) ? clamp(+v, a, b) : d;
@@ -1103,11 +1103,11 @@
     const ar = w.ar, st = S(ar), L = ar.lbl;
     if (j.pot !== undefined) ar.claim[j.pot] = 0;
     crewXp(w, j.type); // v81
-    if (j.type === 'harvest') { const p = st.pots[j.pot]; if (p.s === 2) { w.carry += harvestYield(ar) + crewHarvestBonus(w); p.s = 0; p.p = 0; if (G.kr) G.kr.cnt.hv++; } }
+    if (j.type === 'harvest') { const p = st.pots[j.pot]; if (p.s === 2) { w.carry += sortY(ar, p) + crewHarvestBonus(w); p.s = 0; p.p = 0; if (G.kr) G.kr.cnt.hv++; } }
     else if (j.type === 'water') { const p = st.pots[j.pot]; if (p.s === 1) p.w = 1; }
     else if (j.type === 'plant') {
       const p = st.pots[j.pot], sc = seedCost(ar);
-      if (p.s === 0 && G.money >= sc) { G.money -= sc; p.s = 1; p.p = 0; p.w = 1; p.q = 0; p.qw = 0; floater(ar.POTS[j.pot].x, ar.POTS[j.pot].y - 20, '−' + fmt(sc), '#FF8FA3'); }
+      if (p.s === 0 && G.money >= sc) { G.money -= sc; p.s = 1; p.p = 0; p.w = 1; p.q = 0; p.qw = 0; p.v = sortsFor(ar) ? sortCur().i : 0; floater(ar.POTS[j.pot].x, ar.POTS[j.pot].y - 20, '−' + fmt(sc), '#FF8FA3'); }
     } else if (j.type === 'deposit') {
       const space = rackCap(ar) - Math.floor(st.rack.wet + st.rack.dry), n = Math.min(Math.floor(w.carry), Math.max(0, space));
       if (n > 0) { st.rack.wet += n; w.carry -= n; floater(ar.RACK.x, ar.RACK.y + 50, '+' + n + ' ' + L.fresh, ar.leaf); }

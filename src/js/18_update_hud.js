@@ -42,7 +42,7 @@
         const p = st.pots[i]; if (p.s !== 1) continue;
         p.w = Math.max(0, p.w - dt * krWater() / (24 * (1 + 0.3 * (st.up.water || 0))));
         if (p.w <= 0.02 && p.q > 0) p.q = Math.max(0, p.q - dt * 0.004); // v185: ausgetrocknet: Qualität sinkt langsam
-      if (p.w > 0.12) { p.p += dt / growTime(ar); if (p.p >= 1) { p.p = 1; p.s = 2; sfx.ping(); floater(ar.POTS[i].x, ar.POTS[i].y - 22, 'Reif', '#FFB547'); } }
+      if (p.w > 0.12) { p.p += dt / (growTime(ar) * sortG(ar, p)); if (p.p >= 1) { p.p = 1; p.s = 2; sfx.ping(); floater(ar.POTS[i].x, ar.POTS[i].y - 22, 'Reif', '#FFB547'); } }
       }
       // Trockengestell
       if (st.rack.wet > 0) { const m = Math.min(st.rack.wet, dryRate(ar) * dt); st.rack.wet -= m; st.rack.dry += m; if (st.rack.wet < 0.001) { st.rack.dry += st.rack.wet; st.rack.wet = 0; } }

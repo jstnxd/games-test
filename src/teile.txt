@@ -16,6 +16,7 @@ js/19b_arbeit.js
 js/19c_arbeit_deko.js
 js/19d_arbeit_anim.js
 js/19e_arbeit_ausbau.js
+js/19f_sorten.js
 js/20_karriere.js
 js/20b_kalender.js
 js/21_spaetes_spiel.js
