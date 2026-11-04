@@ -187,24 +187,22 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 177, date: 'November 2026', title: 'Schnelle Reparatur', items: [
+      ['fix', '🛠️', 'Nach dem Update blieb das Startmenü unscharf hängen und man konnte nichts antippen. Das Fenster mit den Neuigkeiten öffnet sich jetzt wieder richtig, und ein Tipp daneben schließt es'] ] },
     { v: 176, date: 'November 2026', title: 'Kamera läuft', items: [
-      ['new', '📸', 'Neue App Kamera: Fotos und Videos (10, 15 oder 30 s, mit Ton) ohne Anzeigen, mit Filtern, Zoom, freier Kamera, Kino-Balken und Logo. Direkt teilen oder sichern'],
-      ['new', '🌙', 'Feierabend: Um Mitternacht zeigt eine Karte deinen Tag mit Rekorden, als Bild teilbar. Die letzten 7 Tage stehen unter Karriere → Rückblick'],
-      ['new', '🏗️', 'Dein Ausbau ist in den 3D-Fenstern zu sehen: LED-Lampe, Tropfschlauch mit Tank, Dünger, Ventilatoren, Entfeuchter, goldene Samen, Rucksack und eine Ausbau-Plakette'],
-      ['new', '🔥', 'Combo: Schnell hintereinander ernten oder packen zählt hoch, die beste Combo landet im Feierabend'],
-      ['new', '🔋', 'Sparmodus: ein Schalter für alle Spar-Einstellungen, ideal für ältere Handys und mehrere Spieler'] ] },
+      ['neu', '📸', 'Neue App Kamera: Fotos und Videos (10, 15 oder 30 s, mit Ton) ohne Anzeigen, mit Filtern, Zoom, freier Kamera, Kino-Balken und Logo. Direkt teilen oder sichern'],
+      ['neu', '🌙', 'Feierabend: Um Mitternacht zeigt eine Karte deinen Tag mit Rekorden, als Bild teilbar. Die letzten 7 Tage stehen unter Karriere → Rückblick'],
+      ['neu', '🏗️', 'Dein Ausbau ist in den 3D-Fenstern zu sehen: LED-Lampe, Tropfschlauch mit Tank, Dünger, Ventilatoren, Entfeuchter, goldene Samen, Rucksack und eine Ausbau-Plakette'],
+      ['neu', '🔥', 'Combo: Schnell hintereinander ernten oder packen zählt hoch, die beste Combo landet im Feierabend'],
+      ['neu', '🔋', 'Sparmodus: ein Schalter für alle Spar-Einstellungen, ideal für ältere Handys und mehrere Spieler'] ] },
     { v: 175, date: 'November 2026', title: 'Saubere Handgriffe', items: [
-      ['new', '✂️', 'Ernten: Eine Schere schnappt zu, die Pflanze wippt und jede Knospe fliegt in hohem Bogen in den Korb und landet ordentlich darin'],
-      ['new', '📦', 'Packen: Reißverschluss am Beutel, Schraubdeckel an der Dose, Klebeband am Päckchen. Fertige Beutel fallen von oben in die Kiste'],
+      ['neu', '✂️', 'Ernten: Eine Schere schnappt zu, die Pflanze wippt und jede Knospe fliegt in hohem Bogen in den Korb und landet ordentlich darin'],
+      ['neu', '📦', 'Packen: Reißverschluss am Beutel, Schraubdeckel an der Dose, Klebeband am Päckchen. Fertige Beutel fallen von oben in die Kiste'],
       ['chg', '🧺', 'Alles liegt jetzt sauber in Korb, Beutel, Dose und Kiste und ragt nicht mehr durch die Wände'],
       ['chg', '✨', 'Mehr Gefühl: Behälter federn beim Auffangen, Zähler steigen über dem Korb auf, neue Klänge für Schneiden, Zumachen und Landen'] ] },
-    { v: 174, date: 'Oktober 2026', title: 'Ruhiger zusammen spielen', items: [
-      ['fix', '🗺️', 'Die Karte flackert nicht mehr: Fehlt ein Stück Boden im Zwischenspeicher, wird nur diese Stelle neu gezeichnet und nicht mehr der ganze Boden umgeschaltet. Der Selbsttest, der alle 2 Sekunden umschaltete, ist weg'],
-      ['chg', '🏠', 'Kunden: Allein gibt es mehr Kunden. Mit Mitspielern teilt ihr euch eine Obergrenze, neue Kunden kommen langsamer und nach jeder Lieferung gibt es eine kurze Pause. Kunden verteilen sich über die ganze Karte, so entstehen richtige Routen'],
-      ['fix', '🐦', 'Vögel fliegen nicht mehr durch Keller, Scheune und Labor'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
-  const CL_TAG = { neu: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
+  const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
   let clEl = null;
   function showChangelog(force) {
     if (!clEl) { clEl = document.createElement('div'); clEl.className = 'clwrap'; document.body.appendChild(clEl); }
@@ -213,12 +211,14 @@
       const c = CHANGELOG[cur];
       clEl.innerHTML = '<div class="clcard"><div class="clhead"><div class="clspark">✨</div><div><div class="clt">Was ist neu?</div><div class="cls">Kellergrün · Version ' + GAME_VER + ' · die letzten drei Updates</div></div></div>'
         + '<div class="cltabs">' + CHANGELOG.map((x, i) => '<button data-i="' + i + '" class="' + (i === cur ? 'on' : '') + '">Version ' + x.v + (i === 0 ? ' <i>NEU</i>' : '') + '</button>').join('') + '</div>'
-        + '<div class="clbody"><div class="clvt">' + c.title + '</div><div class="cld">' + c.date + '</div><ul>' + c.items.map(([k, ic, tx]) => '<li><span class="clic">' + ic + '</span><span class="cltx"><em style="--c:' + CL_TAG[k][1] + '">' + CL_TAG[k][0] + '</em>' + tx + '</span></li>').join('') + '</ul></div>'
+        + '<div class="clbody"><div class="clvt">' + c.title + '</div><div class="cld">' + c.date + '</div><ul>' + c.items.map(([k, ic, tx]) => '<li><span class="clic">' + ic + '</span><span class="cltx"><em style="--c:' + (CL_TAG[k] || CL_TAG.info)[1] + '">' + (CL_TAG[k] || CL_TAG.info)[0] + '</em>' + tx + '</span></li>').join('') + '</ul></div>'
         + '<button class="clok">' + (state === 'play' ? 'Schließen' : 'Los geht’s!') + '</button></div>';
       clEl.querySelectorAll('[data-i]').forEach(b => b.addEventListener('click', () => { cur = +b.dataset.i; paint(); }));
       clEl.querySelector('.clok').addEventListener('click', closeChangelog);
     };
-    paint(); clEl.hidden = false; try { joy.id = null; joy.dx = joy.dy = 0; } catch (e) {}
+    // v177: Fehler beim Aufbau darf nie einen leeren Schleier über dem Spiel lassen. Tippen neben die Karte schließt.
+    try { paint(); clEl.hidden = false; } catch (e) { console.warn('Changelog:', e && e.message); closeChangelog(); return; } try { joy.id = null; joy.dx = joy.dy = 0; } catch (e) {}
+    if (!clEl._bg) { clEl._bg = 1; clEl.addEventListener('click', e => { if (e.target === clEl) closeChangelog(); }); }
   }
   function closeChangelog() { if (clEl) clEl.hidden = true; store.set(CL_KEY, String(GAME_VER)); }
   try { $('clBtn').addEventListener('click', () => showChangelog(true)); } catch (e) {}
