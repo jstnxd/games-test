@@ -94,7 +94,7 @@
         <button class="mm-tile" id="mute"><i>🔊</i><span>Ton an</span></button>
         <button class="mm-tile inst-open" id="instBtn" hidden><i>📲</i><span>Als App</span></button>
       </div>
-      <div class="note">Stand: Version 177 · Startbildschirm hängt nicht mehr<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
+      <div class="note">Stand: Version 178 · Einpflanzen neu, Notausgang und Sicherung vor Updates<br>Frei erfundenes Spiel. Es gibt hier keine echten Anbauanleitungen.</div>
     </section>
   </div>
   <div class="mm-sheet" id="mmLogin" hidden>
@@ -172,5 +172,19 @@ window.__kgErr = function (msg, where, stack) { try { var K = 'kellergruen.errs'
   if (localStorage.getItem('kellergruen.showerr') === '1') { var d = document.getElementById('kgerr'); if (!d) { d = document.createElement('pre'); d.id = 'kgerr'; d.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99999;margin:0;padding:10px;background:#300;color:#fff;font:12px monospace;white-space:pre-wrap;max-height:30vh;overflow:auto;pointer-events:none;opacity:.85'; document.body.appendChild(d); } d.textContent += m + ' (' + w + ')\n'; } } catch (x) {} };
 window.addEventListener('error', function (e) { window.__kgErr(e.message, (e.lineno || '?') + ':' + (e.colno || '?'), e.error && e.error.stack); });
 window.addEventListener('unhandledrejection', function (e) { var r = e && e.reason; window.__kgErr('Promise: ' + ((r && r.message) || r), '', r && r.stack); });
+</script>
+<script>
+// v178: Notausgang. Hängt ein leeres Fenster über dem Spiel oder läuft das Spiel nicht mehr, erscheint unten ein Knopf zum Neuladen.
+(function () { var t0 = Date.now(), vis = Date.now(), bad = 0;
+  document.addEventListener('visibilitychange', function () { vis = Date.now(); });
+  function stuck() { var cw = document.querySelector('.clwrap'); if (cw && !cw.hidden && !cw.querySelector('.clcard')) return 'Fenster leer';
+    if (document.hidden || Date.now() - vis < 6000 || Date.now() - t0 < 9000) return ''; if (!window.__kgAlive || Date.now() - window.__kgAlive > 6000) return 'Spiel reagiert nicht'; return ''; }
+  function show(why) { if (document.getElementById('kgRescue')) return; var d = document.createElement('div'); d.id = 'kgRescue';
+    d.style.cssText = 'position:fixed;z-index:2147483000;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);transform:translateX(-50%);display:flex;gap:8px;align-items:center;padding:8px;border-radius:18px;background:rgba(16,21,28,.94);box-shadow:0 8px 30px rgba(0,0,0,.5);font:700 14px system-ui,sans-serif;color:#fff';
+    d.innerHTML = '<span style="padding:0 6px">Etwas hakt?</span><button style="border:0;border-radius:12px;padding:10px 14px;font:900 14px system-ui,sans-serif;background:#63C174;color:#0E1A12">Neu laden</button><button style="border:0;border-radius:12px;padding:10px 12px;font:800 13px system-ui,sans-serif;background:rgba(255,255,255,.12);color:#fff">Weg</button>';
+    var bs = d.getElementsByTagName('button'); bs[0].onclick = function () { try { var cw = document.querySelector('.clwrap'); if (cw) cw.hidden = true; } catch (e) {} location.reload(); }; bs[1].onclick = function () { try { var cw = document.querySelector('.clwrap'); if (cw && !cw.querySelector('.clcard')) cw.hidden = true; } catch (e) {} d.remove(); bad = -5; };
+    document.body.appendChild(d); try { window.__kgErr && window.__kgErr('Notausgang: ' + why, 'rescue'); } catch (e) {} }
+  setInterval(function () { try { var w = stuck(); if (w) { bad++; if (bad >= 2) show(w); } else { bad = Math.min(0, bad); var d = document.getElementById('kgRescue'); if (d && bad === 0) d.remove(); } } catch (e) {} }, 2000);
+})();
 </script>
 <script>

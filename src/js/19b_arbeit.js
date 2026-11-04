@@ -36,7 +36,7 @@
     try {
       const el = workEl(), T = THREE3; if (!T) return false; const cv = el.querySelector('.wcv'), ar = tg.ar, L = ar.lbl || {};
       if (!WK.r) { WK.r = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); WK.r.setPixelRatio(SPAR ? 1 : Math.min(2, window.devicePixelRatio || 1)); if (T.SRGBColorSpace) WK.r.outputColorSpace = T.SRGBColorSpace; if (T.NoToneMapping !== undefined) WK.r.toneMapping = T.NoToneMapping; }
-      Object.assign(WK, { mode, tg, ar, L, kind: workKind(ar), anim: [], t: 0, last: 0, done: false, drag: false, holding: false, gc: {}, packSt: '', packFrom: 0, fx: [], motes: [], fans: [], bulb: null, hbasket: null, scaleD: null, pl: '', spT: 0, tw: [], sp: [], upd: [], lamp: null, lampPanel: null, lampCone: null });
+      Object.assign(WK, { mode, tg, ar, L, kind: workKind(ar), anim: [], t: 0, last: 0, done: false, drag: false, holding: false, gc: {}, packSt: '', packFrom: 0, fx: [], motes: [], fans: [], bulb: null, hbasket: null, scaleD: null, pl: '', spT: 0, tw: [], sp: [], upd: [], pit: null, trowel: null, mound: null, seed: null, lamp: null, lampPanel: null, lampCone: null });
       if (SPAR) WK.r.setPixelRatio(1); // v176
       { const pp = el.querySelector('.wpop'); if (pp) pp.classList.remove('on'); } WK.slow = 0; WK.lowRes = WK.lowRes || false;
       el.hidden = false; workOpen = true; joy.id = null; joy.dx = joy.dy = 0; aHeld = false; bHeld = false;
@@ -111,11 +111,14 @@
   }
   const mkLeafPiece = (T, dry) => mkTobLeaf(T, dry, 0.22);
   const mkPiece = (T, dry) => WK.kind === 'leaf' ? mkLeafPiece(T, dry) : mkBud(T, dry);
+  // v178: Erde weich schattiert mit Krümeln (die Comic-Stufen sahen auf der Wölbung wie ein Loch aus)
+  function soilMat(T, col) { const tx = WK.gc.soilTx || (WK.gc.soilTx = cvTex(128, 128, (x, w, h) => { x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, w, h); for (let i = 0; i < 420; i++) { const v = 150 + ((i * 37) % 90); x.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')'; const r = 1 + (i % 3); x.beginPath(); x.arc((i * 53) % w, (i * 97 + (i >> 3) * 13) % h, r, 0, 7); x.fill(); } }, 3, 3));
+    return new T.MeshLambertMaterial({ color: col, map: tx }); }
   function mkPot(T) {
     const g = new T.Group(), prof = [[0.0, 0.01], [0.15, 0.01], [0.155, 0.02], [0.195, 0.25], [0.218, 0.255], [0.222, 0.3], [0.205, 0.305], [0.2, 0.29]].map(([x, y]) => new T.Vector2(x, y));
     g.add(OL(new T.Mesh(new T.LatheGeometry(prof, 40), M('#C0663C', { side: T.DoubleSide })), 0.035));
     const sau = OL(new T.Mesh(new T.CylinderGeometry(0.21, 0.19, 0.022, 40), M('#9C4C2A')), 0.03); sau.position.y = 0.011; g.add(sau); blob(T, 0.75, 0.6, 0.002, 0.5, g);
-    const soil = new T.Mesh(new T.SphereGeometry(0.198, 32, 8, 0, Math.PI * 2, 0, 0.5), M('#3A2618', { roughness: 1 })); soil.scale.y = 0.18; soil.position.y = 0.268; g.add(soil); g.userData.soil = soil;
+    const soil = new T.Mesh(new T.SphereGeometry(0.198, 32, 8, 0, Math.PI * 2, 0, 0.5), soilMat(T, '#3A2618')); soil.scale.y = 0.18; soil.position.y = 0.268; g.add(soil); g.userData.soil = soil;
     const peb = new T.SphereGeometry(0.012, 6, 4); for (let i = 0; i < 9; i++) { const a = i * 2.3, r = 0.06 + (i % 4) * 0.03, m = new T.Mesh(peb, M(i % 2 ? '#7A6A5A' : '#52402F', { roughness: 1 })); m.position.set(Math.cos(a) * r, 0.284, Math.sin(a) * r); m.scale.y = 0.6; g.add(m); }
     { const band = new T.Mesh(new T.CylinderGeometry(0.2215, 0.2185, 0.03, 40, 1, true), M('#D9844E')); band.position.y = 0.28; g.add(band); const lab = new T.Mesh(new T.PlaneGeometry(0.12, 0.07), MTX(cvTex(64, 36, (x, w, h) => { x.fillStyle = '#F2E8C8'; x.fillRect(0, 0, w, h); x.fillStyle = '#3E8E41'; x.font = '900 13px sans-serif'; x.textAlign = 'center'; x.fillText('🌱', w / 2, 24); }))); lab.position.set(0, 0.15, 0.205); lab.rotation.x = -0.15; g.add(lab); }
     return g;
@@ -195,10 +198,10 @@
   function workBuild(mode) {
     const T = THREE3, ar = WK.ar, st = S(ar), L = WK.L, tg = WK.tg, pcs = WK.kind === 'leaf' ? 'Blätter' : 'Knospen';
     if (mode === 'plant') {
-      baseScene(T, new T.Vector3(0, 1.6, 1.5), new T.Vector3(0.12, 0.42, 0.05), 1.5, 1.0); const p = potOf(tg), pot = mkPot(T); WK.root.add(pot); WK.pot = pot; WK.p = p; pot.userData.soil.userData.soilT = true; pot.userData.soil.material = M1('#4A3220');
+      baseScene(T, new T.Vector3(0, 1.6, 1.5), new T.Vector3(0.12, 0.42, 0.05), 1.5, 1.0); const p = potOf(tg), pot = mkPot(T); WK.root.add(pot); WK.pot = pot; WK.p = p; pot.userData.soil.userData.soilT = true; pot.userData.soil.material = soilMat(T, '#5A3E28');
       { const pk = new T.Group(), bag = OL(new T.Mesh(new T.BoxGeometry(0.16, 0.22, 0.03), MTX(cvTex(64, 96, (x, w, h) => { x.fillStyle = WK.kind === 'leaf' ? '#C98A3C' : WK.ar.key === 'pr' ? '#5BC0EB' : '#63C174'; x.fillRect(0, 0, w, h); x.fillStyle = '#FFFFFF'; x.fillRect(6, 34, w - 12, 40); x.fillStyle = '#1D2129'; x.font = '900 11px sans-serif'; x.textAlign = 'center'; x.fillText((L.seed || 'SAMEN').toUpperCase().slice(0, 9), w / 2, 52); x.font = '900 18px sans-serif'; x.fillText(WK.kind === 'leaf' ? '🍂' : '🌱', w / 2, 70); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(0, 0, w, 8); }))), 0.05);
         bag.position.y = 0.11; bag.rotation.x = -0.25; pk.add(bag); pk.position.set(0.48, 0, 0.22); pk.rotation.y = -0.4; pk.userData.seedpk = true; WK.root.add(pk); blob(T, 0.3, 0.2, 0.003, 0.4).position.set(0.48, 0, 0.22); WK.seedPk = pk;
-        const tr = new T.Group(); tr.position.set(-0.45, 0.01, 0.25); tr.rotation.y = 0.8; WK.root.add(tr); const bl = OL(new T.Mesh(new T.ConeGeometry(0.05, 0.14, 12, 1, true), M('#C9D2DC', { side: T.DoubleSide })), 0.08); bl.rotation.z = Math.PI / 2; bl.scale.z = 0.4; tr.add(bl); const hd = OL(new T.Mesh(new T.CylinderGeometry(0.016, 0.016, 0.12, 8), M('#C0663C')), 0.1); hd.rotation.z = Math.PI / 2; hd.position.x = -0.12; tr.add(hd); }
+        const tr = new T.Group(); tr.position.set(-0.45, 0.01, 0.25); tr.rotation.y = 0.8; WK.root.add(tr); WK.trowel = tr; const bl = OL(new T.Mesh(new T.ConeGeometry(0.05, 0.14, 12, 1, true), M('#C9D2DC', { side: T.DoubleSide })), 0.08); bl.rotation.z = Math.PI / 2; bl.scale.z = 0.4; tr.add(bl); const hd = OL(new T.Mesh(new T.CylinderGeometry(0.016, 0.016, 0.12, 8), M('#C0663C')), 0.1); hd.rotation.z = Math.PI / 2; hd.position.x = -0.12; tr.add(hd); }
       WK.pl = 'dig'; WK.hintEl.textContent = 'Tippe auf die Erde, um ein Loch zu graben'; workBtn('Abbrechen', () => workClose(), 'wall'); workCount();
     } else if (mode === 'water' || mode === 'harvest') {
       baseScene(T, new T.Vector3(0, 1.75, 1.75), new T.Vector3(0, mode === 'harvest' ? (WK.kind === 'leaf' ? 0.84 : 0.82) : 0.72, 0), 1.6, mode === 'harvest' ? (WK.kind === 'leaf' ? 1.9 : 1.85) : 1.55); const p = potOf(tg), pot = mkPot(T); WK.root.add(pot); WK.pot = pot; WK.p = p;
@@ -245,6 +248,7 @@
   }
   function workCount() {
     const ar = WK.ar, st = S(ar), L = WK.L; let t = '';
+    if (WK.mode === 'plant' && WK.pl === 'busy') return;
     if (WK.mode === 'plant') t = ['🕳️ Loch graben', '🌰 Samen hinein', '🤲 Zuschütten', '🌱 Gepflanzt!'][['dig', 'seed', 'cover', 'done'].indexOf(WK.pl)] + ' · ' + fmt(seedCost(WK.ar));
     else if (WK.mode === 'water') t = '💧 ' + Math.round((WK.p.w || 0) * 100) + ' %';
     else if (WK.mode === 'harvest') t = '🧺 ' + WK.got + ' / ' + WK.need;
@@ -295,18 +299,45 @@
       pc.rotation.set(r.x, r.y, r.z, 'YXZ'); pc.position.copy(centerAt(pc, new T.Vector3(WK.basket.position.x + Math.cos(i * 2.2) * 0.035, 0.03 + Math.floor(i / 3) * 0.02, WK.basket.position.z + Math.sin(i * 2.2) * 0.035), r, pc.scale.x)); pc.userData.basket = true; WK.root.add(pc); WK.basketItems.push(pc); }
   }
   // ---------- Pflanzen: Loch graben, Samen hinein, zuschütten ----------
+  // v178: Die Erde ist zuerst ganz glatt. Erst beim Antippen gräbt die Schaufel ein Loch (es wächst sichtbar auf),
+  // der Samen fliegt aus der Tüte und fällt richtig in das Loch, beim Zuschütten schließt sich das Loch über ihm.
+  const SOIL_R = 0.198, HOLE_R = 0.056, HOLE_D = 0.05;
+  function soilHole(pot, r) {
+    const T = THREE3, s = pot.userData.soil, th = r > 0.002 ? Math.asin(Math.min(0.95, r / SOIL_R)) : 0, old = s.geometry;
+    s.geometry = new T.SphereGeometry(SOIL_R, 32, 8, 0, Math.PI * 2, th, 0.5 - th); if (old && old !== s.userData.g0) old.dispose(); if (!s.userData.g0) s.userData.g0 = old;
+    const pit = WK.pit; if (pit) { const k = Math.max(0.001, r / HOLE_R); pit.scale.set(k, 1, k); pit.visible = r > 0.002; }
+  }
+  function mkPit(T, pot) {
+    const g = new T.Group(), top = 0.268 + SOIL_R * 0.18 * Math.cos(Math.asin(HOLE_R / SOIL_R));
+    const wall = new T.Mesh(new T.CylinderGeometry(HOLE_R, HOLE_R * 0.75, HOLE_D, 24, 1, true), M('#24160C', { side: T.DoubleSide })); wall.position.y = top - HOLE_D / 2; g.add(wall);
+    const bt = new T.Mesh(new T.CircleGeometry(HOLE_R * 0.75, 24), M('#140C06')); bt.rotation.x = -Math.PI / 2; bt.position.y = top - HOLE_D + 0.001; g.add(bt);
+    const rim = new T.Mesh(new T.TorusGeometry(HOLE_R, 0.006, 6, 28), M('#5A3E28')); rim.rotation.x = Math.PI / 2; rim.position.y = top; g.add(rim);
+    g.visible = false; g.userData.top = top; g.userData.bottom = top - HOLE_D; pot.add(g); return g;
+  }
   function plantStep() {
-    const T = THREE3, pot = WK.pot, top = new T.Vector3(0, 0.29, 0); pot.localToWorld(top);
-    if (WK.pl === 'dig') { const hole = new T.Mesh(new T.CircleGeometry(0.055, 20), new T.MeshBasicMaterial({ color: '#140C06' })); hole.rotation.x = -Math.PI / 2; hole.position.set(0, 0.302, 0); pot.add(hole); const mound = new T.Mesh(new T.SphereGeometry(0.06, 14, 8), M('#4A3220')); mound.scale.set(1, 0.35, 0.8); mound.position.set(0.1, 0.3, 0.02); pot.add(mound); WK.hole = hole; WK.mound = mound;
-      burst(top, ['#4A3220', '#6A4A30', '#2E1E12'], 18, 0.6, 0.6, 0.03, 3, false); try { sfx.put(); } catch (e) {} WK.pl = 'seed'; WK.hintEl.textContent = 'Tippe die ' + (WK.L.seed ? WK.L.seed : 'Samen') + 'tüte an'; }
+    const T = THREE3, pot = WK.pot, top = new T.Vector3(0, 0.3, 0); pot.localToWorld(top);
+    if (WK.pl === 'dig') {
+      WK.pl = 'busy'; if (!WK.pit) WK.pit = mkPit(T, pot); const tr = WK.trowel, home = tr ? tr.position.clone() : null, r0 = tr ? tr.rotation.clone() : null;
+      const mound = new T.Mesh(new T.SphereGeometry(0.06, 14, 8), M('#4A3220')); mound.position.set(0.1, 0.3, 0.02); mound.scale.set(0.01, 0.01, 0.01); pot.add(mound); WK.mound = mound;
+      const dig = () => { tw(pot, { d: 0.45, ez: 'out', fn: e => soilHole(pot, HOLE_R * e) }); tw(mound, { d: 0.45, ez: 'back', fn: e => mound.scale.set(e, 0.35 * e, 0.8 * e) });
+        burst(top, ['#4A3220', '#6A4A30', '#2E1E12'], 22, 0.6, 0.6, 0.03, 3, false); setTimeout(() => { try { burst(top, ['#4A3220', '#6A4A30'], 12, 0.5, 0.5, 0.028, 3, false); } catch (e) {} }, 200); try { sfx.put(); } catch (e) {} spring(pot, 'sq', 0.06, 22, 6); };
+      const done = () => { WK.pl = 'seed'; WK.hintEl.textContent = 'Tippe die ' + (WK.L.seed ? WK.L.seed : 'Samen') + 'tüte an'; workCount(); };
+      if (tr) { tw(tr, { d: 0.25, ez: 'out', b: new T.Vector3(0.16, 0.42, 0.06), rt: { x: 0, y: 0.8, z: 0.9 }, turns: 0 });
+        tw(tr, { delay: 0.25, d: 0.32, ez: 'inOut', fn: (e, k) => { tr.rotation.z = 0.9 - Math.sin(k * Math.PI * 2) * 0.55; tr.position.y = 0.42 - Math.sin(k * Math.PI * 2) * 0.05; }, start: dig });
+        tw(tr, { delay: 0.6, d: 0.25, ez: 'inOut', b: home, rt: { x: r0.x, y: r0.y, z: r0.z }, turns: 0, end: done }); }
+      else { dig(); setTimeout(done, 500); }
+    }
     else if (WK.pl === 'seed') { const sd = WK.ar.key === 'pr' ? (() => { const g = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(0.006, 0.008, 0.08, 6), M('#4E8A36')); st.position.y = 0.04; g.add(st); const lf = fanLeaf(T, 0.05, 5, '#4A9A42', 0.6); lf.position.y = 0.08; g.add(lf); return g; })() : new T.Mesh(new T.SphereGeometry(0.014, 10, 8), M(WK.kind === 'leaf' ? '#5A3A1A' : '#7A5A3A')); if (sd.scale && WK.ar.key !== 'pr') sd.scale.set(1, 0.7, 1.3);
-      const from = new T.Vector3(); WK.seedPk.getWorldPosition(from); from.y += 0.25; WK.scene.add(sd); sd.position.copy(from); WK.seed = sd; WK.pl = 'busy';
-      WK.anim.push({ o: sd, t: 0, d: 0.6, a: from, b: top.clone().add(new T.Vector3(0, 0.01, 0)), end: () => { ring(top.clone().add(new T.Vector3(0, 0.005, 0)), '#FFE9A0', 0.12); asnd.land(); WK.pl = 'cover'; WK.hintEl.textContent = 'Tippe auf das Loch, um es zuzuschütten'; workCount(); } }); try { sfx.put(); } catch (e) {} }
+      const from = new T.Vector3(); WK.seedPk.getWorldPosition(from); from.y += 0.25; WK.scene.add(sd); sd.position.copy(from); WK.seed = sd; WK.pl = 'busy'; spring(WK.seedPk, 'sq', 0.18, 20, 6);
+      const pitB = new T.Vector3(0, (WK.pit ? WK.pit.userData.bottom : 0.26) + (WK.ar.key === 'pr' ? 0.0 : 0.012), 0); pot.localToWorld(pitB);
+      tw(sd, { d: 0.75, ez: 'inOut', a: from, b: pitB, h: 0.12, drop: 0.2, spin: { x: 6, z: 3 }, end: () => { sd.rotation.set(0, 0, 0); spring(sd, 'sq', 0.25, 26, 7); ring(top.clone(), '#FFE9A0', 0.1); asnd.land(); WK.pl = 'cover'; WK.hintEl.textContent = 'Tippe auf das Loch, um es zuzuschütten'; workCount(); } }); try { sfx.put(); } catch (e) {} }
     else if (WK.pl === 'cover') { const ar = WK.ar, sc = seedCost(ar), p = WK.p, pos = potPos(WK.tg); if (G.money < sc) { WK.hintEl.textContent = 'Zu wenig Geld für ' + (WK.L.seed || 'Samen'); return; }
-      if (WK.hole) pot.remove(WK.hole); if (WK.mound) WK.anim.push({ o: WK.mound, t: 0, d: 0.3, sc: [1, 0.01], ax: 'x' }); if (WK.seed && WK.ar.key !== 'pr') WK.scene.remove(WK.seed); burst(top, ['#4A3220', '#6A4A30'], 14, 0.4, 0.5, 0.03, 3, false);
-      if (WK.ar.key !== 'pr') { const sp = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(0.005, 0.007, 0.07, 6), M('#6FAE48')); st.position.y = 0.035; sp.add(st); for (const s of [-1, 1]) { const c = new T.Mesh(new T.SphereGeometry(0.022, 10, 6), M('#7BC85A')); c.scale.set(1, 0.3, 0.6); c.position.set(s * 0.022, 0.07, 0); sp.add(c); } sp.position.set(0, 0.3, 0); sp.scale.setScalar(0.01); pot.add(sp); WK.anim.push({ o: sp, t: 0, d: 0.6, sc: [0.01, 1.4], ax: 'y' }); WK.anim.push({ o: sp, t: 0, d: 0.6, sc: [0.01, 1.4], ax: 'x' }); WK.anim.push({ o: sp, t: 0, d: 0.6, sc: [0.01, 1.4], ax: 'z' }); }
-      spring(pot, 'sq', 0.12, 20, 6); G.money -= sc; p.s = 1; p.p = 0; p.w = 1; try { sfx.plant(); } catch (e) {} floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); WK.pl = 'done'; WK.hintEl.textContent = 'Gepflanzt! Jetzt wächst sie, vergiss das Gießen nicht'; workCount(); celebrate('🌱 Gepflanzt!');
-      setTimeout(() => { if (workOpen && WK.mode === 'plant') workClose(); }, 1700); }
+      WK.pl = 'busy'; const mound = WK.mound; if (mound) tw(mound, { d: 0.4, ez: 'in', fn: e => { const k = 1 - e; mound.scale.set(Math.max(0.01, k), Math.max(0.01, 0.35 * k), Math.max(0.01, 0.8 * k)); mound.position.x = 0.1 - 0.08 * e; } });
+      tw(pot, { d: 0.4, ez: 'in', fn: e => soilHole(pot, HOLE_R * (1 - e)), end: () => { const s = pot.userData.soil; if (s.userData.g0) { s.geometry.dispose(); s.geometry = s.userData.g0; s.userData.g0 = null; } if (WK.pit) WK.pit.visible = false; if (WK.seed && WK.ar.key !== 'pr') { WK.scene.remove(WK.seed); WK.seed = null; } if (WK.mound) pot.remove(WK.mound);
+        burst(top, ['#4A3220', '#6A4A30'], 14, 0.4, 0.5, 0.03, 3, false);
+        if (WK.ar.key !== 'pr') { const sp = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(0.005, 0.007, 0.07, 6), M('#6FAE48')); st.position.y = 0.035; sp.add(st); for (const s2 of [-1, 1]) { const c = new T.Mesh(new T.SphereGeometry(0.022, 10, 6), M('#7BC85A')); c.scale.set(1, 0.3, 0.6); c.position.set(s2 * 0.022, 0.07, 0); sp.add(c); } sp.position.set(0, 0.3, 0); sp.scale.setScalar(0.01); pot.add(sp); tw(sp, { d: 0.6, ez: 'back', sc: [0.01, 1.4] }); }
+        spring(pot, 'sq', 0.12, 20, 6); G.money -= sc; p.s = 1; p.p = 0; p.w = 1; try { sfx.plant(); } catch (e) {} floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); WK.pl = 'done'; WK.hintEl.textContent = 'Gepflanzt! Jetzt wächst sie, vergiss das Gießen nicht'; workCount(); celebrate('🌱 Gepflanzt!');
+        setTimeout(() => { if (workOpen && WK.mode === 'plant') workClose(); }, 1700); } }); }
   }
   // ---------- Packtisch ----------
   // Ablauf: Knospen in den offenen Beutel legen, Beutel antippen (verschließen), Beutel in die Kiste ziehen, nächster Beutel

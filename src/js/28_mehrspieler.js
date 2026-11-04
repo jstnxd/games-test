@@ -456,7 +456,7 @@
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 177; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 178; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);
@@ -549,7 +549,7 @@
   }
   let bkSure = '';
   function renderBackups(b, mk) { // v122: Sicherungen anzeigen und zurueckholen
-    const L = [['.auto', 'Automatische Sicherung (alle 5 Minuten)'], ['.vorRazzia', 'Vor der letzten Razzia'], ['.prest', 'Vor dem letzten Prestige'], ['.vorReset', 'Vor einer Admin-Änderung'], ['.vorWiederherstellen', 'Vor dem letzten Zurückholen'], ['.bak', 'Ältere Sicherung']].map(([k, n]) => { let o = null; try { o = JSON.parse(store.get(SAVE_KEY + k, 'null')); } catch (e) {} return o && Number.isFinite(+o.money) ? { k, n, o } : null; }).filter(Boolean);
+    const L = [['.vorUpdate', 'Vor dem letzten Update' + (store.get('kellergruen.vorUpdateV', '') ? ' (Version ' + store.get('kellergruen.vorUpdateV', '') + ')' : '')], ['.auto', 'Automatische Sicherung (alle 5 Minuten)'], ['.vorRazzia', 'Vor der letzten Razzia'], ['.prest', 'Vor dem letzten Prestige'], ['.vorReset', 'Vor einer Admin-Änderung'], ['.vorWiederherstellen', 'Vor dem letzten Zurückholen'], ['.bak', 'Ältere Sicherung']].map(([k, n]) => { let o = null; try { o = JSON.parse(store.get(SAVE_KEY + k, 'null')); } catch (e) {} return o && Number.isFinite(+o.money) ? { k, n, o } : null; }).filter(Boolean);
     if (!L.length) return;
     const c = mk('div', '', 'card'); c.style.gridTemplateColumns = '1fr'; c.appendChild(mk('div', '🛟 Sicherungen', 'nm'));
     c.appendChild(mk('div', 'Falls etwas schiefgeht, kannst du hier einen früheren Stand zurückholen. Dein jetziger Stand wird vorher selbst gesichert.', 'ds'));
@@ -582,6 +582,7 @@
   function setCap(on) { capOn = !!on; try { localStorage.setItem('kellergruen.cap', capOn ? '1' : '0'); } catch (e) {} }
   function frame(ts) { // v123: ein Fehler in einem Bild haelt das Spiel nicht mehr an
     const over = state === 'play' && (phoneOpen || chatOpen || bigOpen), gap = over ? 1000 / 30 : capOn ? 1000 / 60 : 0; // v158: Startmenü wieder ohne Drosselung (flackerte auf dem iPhone)
+    window.__kgAlive = Date.now(); // v178: Lebenszeichen für den Notausgang
     if (gap && ts - lastDraw < gap - 1.5) { requestAnimationFrame(frame); return; } lastDraw = ts; frameNo++;
     { const sn = seaSnow() && state === 'play'; if (sn !== snowCls) { snowCls = sn; try { document.body.classList.toggle('snowy', sn); } catch (e) {} } } // v154
     try { frameBody(ts); } catch (e) { if (typeof window.__kgErr !== 'function') throw e; try { window.__kgErr(e && e.message, 'frame', e && e.stack); } catch (x) {} }

@@ -24,7 +24,7 @@
         if (gr >= 10) { const gl = new T.Sprite(new T.SpriteMaterial({ map: dotTex(), color: leaf ? '#FFE6B0' : '#FF9FE6', transparent: true, opacity: 0.5, depthWrite: false, blending: T.AdditiveBlending })); gl.scale.set(1.1, 0.4, 1); gl.position.y = -0.06; WK.lamp.add(gl); WK.upd.push(() => { gl.material.opacity = 0.42 + 0.08 * Math.sin(WK.t * 2); }); } }
       // Tropfbewässerung: Tank hinten rechts, Schlauch bis an den Topf, ein Tropfen fällt in die Erde
       const wa = wkUp('water');
-      if (wa >= 1) { const g = new T.Group(); WK.root.add(g); const big = wa >= 6, th = big ? 0.42 : 0.3, tx0 = m === 'plant' ? 0.6 : 0.5, tz0 = m === 'plant' ? -0.55 : -0.32;
+      if (wa >= 1 && m !== 'plant') { const g = new T.Group(); WK.root.add(g); const big = wa >= 6, th = big ? 0.42 : 0.3, tx0 = m === 'plant' ? 0.6 : 0.5, tz0 = m === 'plant' ? -0.55 : -0.32;
         const tank = cyl(T, big ? 0.11 : 0.085, big ? 0.11 : 0.085, th, M1('#CFE8F2', { transparent: true, opacity: 0.55 }), tx0, th / 2, tz0, 0.05, g, 18); const wl = cyl(T, (big ? 0.1 : 0.077), (big ? 0.1 : 0.077), th * 0.62, '#4AA3E0', tx0, th * 0.31 + 0.01, tz0, 0, g, 18); cyl(T, (big ? 0.115 : 0.09), (big ? 0.115 : 0.09), 0.03, '#2E3238', tx0, th + 0.015, tz0, 0.08, g, 18);
         blob(T, 0.3, 0.3, 0.003, 0.4, g).position.set(tx0, 0, tz0);
         const cur = new T.CatmullRomCurve3([new T.Vector3(tx0 - 0.06, 0.04, tz0 + 0.05), new T.Vector3(0.36, 0.02, -0.2), new T.Vector3(0.2, 0.02, -0.12), new T.Vector3(0.17, 0.2, -0.08), new T.Vector3(0.12, 0.33, -0.05), new T.Vector3(0.06, 0.32, -0.02)]);
