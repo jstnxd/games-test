@@ -187,6 +187,10 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 184, date: 'November 2026', title: 'Fünf Häufchen', items: [
+      ['chg', '🕳️', 'Beim Graben liegt die ausgehobene Erde gut sichtbar neben dem Loch'],
+      ['neu', '🟤', 'Zudecken: Die Erde verteilt sich auf fünf Häufchen im Kreis um das Loch. Jedes Häufchen antippen, es rutscht auf den Samen, nach dem fünften ist er zugedeckt'],
+      ['chg', '🌱', 'Ruhiger: keine fliegenden Krümel, kein Aufblitzen und kein Konfetti mehr beim Einpflanzen'] ] },
     { v: 183, date: 'November 2026', title: 'Selbst gegraben', items: [
       ['chg', '🌱', 'Einpflanzen neu: Die Erde füllt den ganzen Topf, kein verwirrender Kreis mehr. Wo du tippst, gräbst du das Loch, dreimal tippen macht es tiefer, daneben wächst der Erdhaufen'],
       ['chg', '🌰', 'Der Samen fällt genau in dein Loch. Tippst du auf den Erdhaufen, wird die Erde zurückgeschoben und an der Stelle kommt der Keimling'],
@@ -194,9 +198,6 @@
     { v: 182, date: 'November 2026', title: 'Aufgeräumt', items: [
       ['chg', '🛡️', 'Schummelschutz: Zusätzlich zur Prüfung des Spielstands wird jetzt geschaut, ob Ruf und Spieltage schneller steigen, als das Spiel es zulässt. Auffällige Spielstände landen nicht in der Bestenliste'],
       ['chg', '🧹', 'Aufgeräumt: 13 Stellen alter, nicht mehr benutzter Code sind entfernt'] ] },
-    { v: 181, date: 'November 2026', title: 'Zusammen stark', items: [
-      ['neu', '🤝', 'Team-Aufträge: Spielt ihr zu zweit oder mehr, will ab und zu ein Großkunde viele Beutel auf einmal. Alle liefern zusammen an denselben Ort, jeder bekommt Geld für seine Beutel und, wenn ihr es rechtzeitig schafft, seinen Anteil am Bonus'],
-      ['neu', '📱', 'Handy → Aufträge → Team zeigt den Fortschritt, wer wie viel geliefert hat, und setzt einen Wegpunkt'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

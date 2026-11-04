@@ -47,8 +47,8 @@
     WK.scene.add(pts); (WK.motes || (WK.motes = [])).push({ pts, c, sx, sy, sz });
   }
   // Großes Häkchen und Konfetti beim Abschluss
-  function celebrate(txt, at) {
-    try { burst(at || new THREE3.Vector3(0, 0.9, 0.2), ['#FF5C7A', '#FFD24A', '#5BC0EB', '#63C174', '#C9A2FF', '#FFFFFF'], 70, 1.3, 1.4, 0.035, 2.2, false); } catch (e) {}
+  function celebrate(txt, at, calm) {
+    if (!calm) try { burst(at || new THREE3.Vector3(0, 0.9, 0.2), ['#FF5C7A', '#FFD24A', '#5BC0EB', '#63C174', '#C9A2FF', '#FFFFFF'], 70, 1.3, 1.4, 0.035, 2.2, false); } catch (e) {}
     const st = WK.el && WK.el.querySelector('.wstage'); if (!st) return; let p = st.querySelector('.wpop'); if (!p) { p = document.createElement('div'); p.className = 'wpop'; st.appendChild(p); }
     p.textContent = txt; p.classList.remove('on'); void p.offsetWidth; p.classList.add('on');
   }

@@ -36,7 +36,7 @@
     try {
       const el = workEl(), T = THREE3; if (!T) return false; const cv = el.querySelector('.wcv'), ar = tg.ar, L = ar.lbl || {};
       if (!WK.r) { WK.r = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); WK.r.setPixelRatio(SPAR ? 1 : Math.min(2, window.devicePixelRatio || 1)); if (T.SRGBColorSpace) WK.r.outputColorSpace = T.SRGBColorSpace; if (T.NoToneMapping !== undefined) WK.r.toneMapping = T.NoToneMapping; }
-      Object.assign(WK, { mode, tg, ar, L, kind: workKind(ar), anim: [], t: 0, last: 0, done: false, drag: false, holding: false, gc: {}, packSt: '', packFrom: 0, fx: [], motes: [], fans: [], bulb: null, hbasket: null, scaleD: null, pl: '', spT: 0, tw: [], sp: [], upd: [], hole: null, digN: 0, trHome: null, trowel: null, mound: null, seed: null, lamp: null, lampPanel: null, lampCone: null });
+      Object.assign(WK, { mode, tg, ar, L, kind: workKind(ar), anim: [], t: 0, last: 0, done: false, drag: false, holding: false, gc: {}, packSt: '', packFrom: 0, fx: [], motes: [], fans: [], bulb: null, hbasket: null, scaleD: null, pl: '', spT: 0, tw: [], sp: [], upd: [], hole: null, digN: 0, trHome: null, heaps: [], trowel: null, mound: null, seed: null, lamp: null, lampPanel: null, lampCone: null });
       if (SPAR) WK.r.setPixelRatio(1); // v176
       { const pp = el.querySelector('.wpop'); if (pp) pp.classList.remove('on'); } WK.slow = 0; WK.lowRes = WK.lowRes || false;
       el.hidden = false; workOpen = true; joy.id = null; joy.dx = joy.dy = 0; aHeld = false; bHeld = false;
@@ -311,7 +311,7 @@
       const r = Math.hypot(p.x, p.z), lim = 0.12; if (r > lim) { p.x *= lim / r; p.z *= lim / r; }
       const tx = holeTex(); tx.wrapS = tx.wrapT = T.ClampToEdgeWrapping; const h = new T.Mesh(new T.CircleGeometry(1, 32), new T.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
       h.rotation.x = -Math.PI / 2; h.position.set(p.x, SOIL_Y + 0.002, p.z); h.scale.setScalar(0.001); h.userData.soilT = true; pot.add(h); WK.hole = h;
-      const d = Math.hypot(p.x, p.z) > 0.02 ? new T.Vector2(-p.x, -p.z).normalize() : new T.Vector2(0.8, 0.6); const pile = OL(new T.Mesh(new T.SphereGeometry(0.07, 16, 10), soilMat(T, '#B08560')), 0.05); pile.position.set(p.x + d.x * 0.115, SOIL_Y + 0.004, p.z + d.y * 0.115); pile.scale.set(0.01, 0.01, 0.01); pile.userData.soilT = true; pot.add(pile); WK.mound = pile; WK.digN = 0; }
+      const d = Math.hypot(p.x, p.z) > 0.02 ? new T.Vector2(-p.x, -p.z).normalize() : new T.Vector2(0.8, 0.6); const pile = new T.Group(), pm = soilMat(T, '#4A3020'); for (let i = 0; i < 6; i++) { const a = i * 1.9, rr = i ? 0.028 + (i % 2) * 0.012 : 0, b = new T.Mesh(new T.SphereGeometry(0.034 - (i ? 0.006 : 0), 12, 8), pm); b.position.set(Math.cos(a) * rr, 0, Math.sin(a) * rr); b.scale.set(1.1, 0.45, 0.9); b.userData.soilT = true; pile.add(b); } pile.position.set(p.x + d.x * 0.115, SOIL_Y, p.z + d.y * 0.115); pile.scale.set(0.01, 0.01, 0.01); pile.userData.soilT = true; pot.add(pile); WK.mound = pile; WK.digN = 0; }
     return WK.hole;
   }
   function plantStep(pt) {
@@ -319,8 +319,8 @@
     if (WK.pl === 'dig') {
       const lp = pt ? pot.worldToLocal(pt.clone()) : new T.Vector3(0.03, 0, 0.03); const h = digAt(pot, lp), n = ++WK.digN, k = n / DIG_N, hw = new T.Vector3(); h.getWorldPosition(hw);
       WK.pl = 'busy'; const tr = WK.trowel; if (tr && !WK.trHome) WK.trHome = { p: tr.position.clone(), r: tr.rotation.clone() }; const home = tr ? WK.trHome.p : null, r0 = tr ? WK.trHome.r : null, pile = WK.mound;
-      const dig = () => { const r1 = HOLE_MAX * k, r0h = h.scale.x; tw(h, { d: 0.22, ez: 'out', fn: e => h.scale.setScalar(Math.max(0.001, r0h + (r1 - r0h) * e)) }); const s0 = pile.scale.x, s1 = 0.45 + 0.55 * k; tw(pile, { d: 0.22, ez: 'back', fn: e => { const q = s0 + (s1 - s0) * e; pile.scale.set(q, 0.5 * q, q); } });
-        burst(hw.clone().add(new T.Vector3(0, 0.01, 0)), ['#5A3E28', '#7A5A3E', '#3A2616'], 16, 0.5, 0.5, 0.028, 3, false); try { sfx.put(); } catch (e) {} spring(pot, 'sq', 0.04, 22, 6); };
+      const dig = () => { const r1 = HOLE_MAX * k, r0h = h.scale.x; tw(h, { d: 0.22, ez: 'out', fn: e => h.scale.setScalar(Math.max(0.001, r0h + (r1 - r0h) * e)) }); const s0 = pile.scale.x, s1 = 0.45 + 0.55 * k; tw(pile, { d: 0.22, ez: 'out', fn: e => { const q = s0 + (s1 - s0) * e; pile.scale.set(q, q, q); } });
+        try { sfx.put(); } catch (e) {} };
       const done = () => { if (WK.digN >= DIG_N) { WK.pl = 'seed'; WK.hintEl.textContent = 'Loch fertig! Tippe die ' + (WK.L.seed ? WK.L.seed : 'Samen') + 'tüte an'; } else { WK.pl = 'dig'; WK.hintEl.textContent = 'Weiter graben (' + WK.digN + ' / ' + DIG_N + '): tippe auf das Loch'; } workCount(); };
       if (tr) { const at = pot.worldToLocal(hw.clone()); const tp = new T.Vector3(at.x + 0.1, 0.4, at.z + 0.09);
         tw(tr, { d: 0.12, ez: 'out', b: tp, rt: { x: 0, y: 0.8, z: 0.9 }, turns: 0 });
@@ -328,19 +328,35 @@
         tw(tr, { delay: 0.28, d: n >= DIG_N ? 0.18 : 0.04, ez: 'inOut', b: n >= DIG_N ? home : tp.clone(), rt: n >= DIG_N ? { x: r0.x, y: r0.y, z: r0.z } : { x: 0, y: 0.8, z: 0.9 }, turns: 0, end: done }); }
       else { dig(); setTimeout(done, 300); }
     }
-    else if (WK.pl === 'seed') { const sd = WK.ar.key === 'pr' ? (() => { const g = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(0.006, 0.008, 0.08, 6), M('#4E8A36')); st.position.y = 0.04; g.add(st); const lf = fanLeaf(T, 0.05, 5, '#4A9A42', 0.6); lf.position.y = 0.08; g.add(lf); return g; })() : OL(new T.Mesh(new T.SphereGeometry(0.02, 14, 10), M(WK.kind === 'leaf' ? '#C99A5A' : '#E8C890')), 0.12); if (WK.ar.key !== 'pr') sd.scale.set(1, 0.75, 1.35);
+    else if (WK.pl === 'seed') { const sd = WK.ar.key === 'pr' ? (() => { const g = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(0.006, 0.008, 0.08, 6), M('#4E8A36')); st.position.y = 0.04; g.add(st); const lf = fanLeaf(T, 0.05, 5, '#4A9A42', 0.6); lf.position.y = 0.08; g.add(lf); return g; })() : OL(new T.Mesh(new T.SphereGeometry(0.016, 14, 10), M(WK.kind === 'leaf' ? '#C99A5A' : '#E8C890')), 0.12); if (WK.ar.key !== 'pr') sd.scale.set(1, 0.75, 1.35);
       const from = new T.Vector3(); WK.seedPk.getWorldPosition(from); from.y += 0.25; WK.scene.add(sd); sd.position.copy(from); WK.seed = sd; WK.pl = 'busy'; spring(WK.seedPk, 'sq', 0.18, 20, 6);
-      const hw = new T.Vector3(); WK.hole.getWorldPosition(hw); const to = hw.clone().add(new T.Vector3(0, 0.012, 0));
-      tw(sd, { d: 0.75, ez: 'inOut', a: from, b: to, h: 0.12, drop: 0.2, spin: { x: 6, z: 3 }, end: () => { sd.rotation.set(0, 0, 0); sd.scale.multiplyScalar(0.85); spring(sd, 'sq', 0.25, 26, 7); ring(hw.clone(), '#FFE9A0', 0.09); asnd.land(); WK.pl = 'cover'; WK.hintEl.textContent = 'Samen liegt im Loch. Tippe auf den Erdhaufen, um es zuzuschütten'; workCount(); } }); try { sfx.put(); } catch (e) {} }
+      const hw = new T.Vector3(); WK.hole.getWorldPosition(hw); const to = hw.clone().add(new T.Vector3(0, 0.006, 0));
+      tw(sd, { d: 0.75, ez: 'inOut', a: from, b: to, h: 0.12, drop: 0.2, spin: { x: 6, z: 3 }, end: () => { sd.rotation.set(0, 0, 0); sd.scale.multiplyScalar(0.85); asnd.land(); mkHeaps(); WK.hintEl.textContent = 'Samen liegt im Loch. Tippe die 5 Erdhäufchen an, um ihn zuzudecken'; workCount(); } }); try { sfx.put(); } catch (e) {} }
     else if (WK.pl === 'cover') { const ar = WK.ar, sc = seedCost(ar), p = WK.p, pos = potPos(WK.tg); if (G.money < sc) { WK.hintEl.textContent = 'Zu wenig Geld für ' + (WK.L.seed || 'Samen'); return; }
-      WK.pl = 'busy'; const h = WK.hole, pile = WK.mound, hp = h.position.clone(), pp = pile.position.clone(), ps = pile.scale.x, hs = h.scale.x, hw = new T.Vector3(); h.getWorldPosition(hw);
-      tw(pile, { d: 0.5, ez: 'inOut', fn: e => { pile.position.lerpVectors(pp, hp, e); const q = ps * (1 - 0.7 * e); pile.scale.set(q, 0.5 * q * (1 - 0.5 * e), q); } });
-      tw(h, { d: 0.5, ez: 'in', fn: e => h.scale.setScalar(Math.max(0.001, hs * (1 - e))), end: () => { pot.remove(h); pot.remove(pile); WK.hole = null; WK.mound = null; if (WK.seed && WK.ar.key !== 'pr') { WK.scene.remove(WK.seed); WK.seed = null; }
+      const free = (WK.heaps || []).filter(q => !q.userData.used); if (!free.length) return; let q = free[0];
+      if (pt) { const lp = pot.worldToLocal(pt.clone()), dd = x => Math.hypot(x.position.x - lp.x, x.position.z - lp.z); q = free.reduce((b2, x) => dd(x) < dd(b2) ? x : b2, free[0]); }
+      q.userData.used = true; const h = WK.hole, hp = h.position.clone(), q0 = q.position.clone(), qs = q.scale.x, n = WK.heaps.filter(x => x.userData.used).length, hs0 = h.scale.x, hs1 = HOLE_MAX * (1 - n / HEAP_N) * 0.9;
+      tw(q, { d: 0.22, ez: 'inOut', fn: e => { q.position.lerpVectors(q0, hp, e); q.position.y = SOIL_Y + Math.sin(e * Math.PI) * 0.035; const k = qs * (1 - 0.75 * e); q.scale.set(k, k, k); }, end: () => { pot.remove(q); if (n >= 3 && WK.seed && WK.ar.key !== 'pr') { WK.scene.remove(WK.seed); WK.seed = null; } } });
+      tw(h, { d: 0.22, ez: 'out', fn: e => h.scale.setScalar(Math.max(0.001, hs0 + (hs1 - hs0) * e)) }); if (WK.seed && WK.ar.key !== 'pr') { const sd = WK.seed, s0 = sd.scale.x, y0 = sd.position.y; tw(sd, { d: 0.22, ez: 'in', fn: e => { const k = s0 * (1 - 0.3 * e); sd.scale.set(k, k * 0.75, k * 1.35); sd.position.y = y0 - 0.004 * e; } }); }
+      try { asnd.pop(n); } catch (e) {} WK.hintEl.textContent = n < HEAP_N ? 'Zudecken: ' + n + ' / ' + HEAP_N + ' Häufchen' : 'Zugedeckt!'; workCount();
+      if (n < HEAP_N) return;
+      WK.pl = 'busy'; setTimeout(() => { if (!workOpen || WK.mode !== 'plant') return; pot.remove(h); WK.hole = null; WK.heaps = []; if (WK.seed && WK.ar.key !== 'pr') { WK.scene.remove(WK.seed); WK.seed = null; }
         const bump = new T.Mesh(new T.SphereGeometry(0.05, 14, 8), soilMat(T, '#6A4A32')); bump.position.set(hp.x, SOIL_Y - 0.004, hp.z); bump.scale.set(1, 0.18, 1); pot.add(bump);
-        burst(hw, ['#5A3E28', '#7A5A3E'], 14, 0.4, 0.5, 0.03, 3, false);
         if (WK.ar.key !== 'pr') { const sp = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(0.005, 0.007, 0.07, 6), M('#6FAE48')); st.position.y = 0.035; sp.add(st); for (const s2 of [-1, 1]) { const c = new T.Mesh(new T.SphereGeometry(0.022, 10, 6), M('#7BC85A')); c.scale.set(1, 0.3, 0.6); c.position.set(s2 * 0.022, 0.07, 0); sp.add(c); } sp.position.set(hp.x, SOIL_Y + 0.006, hp.z); sp.scale.setScalar(0.01); pot.add(sp); tw(sp, { d: 0.6, ez: 'back', sc: [0.01, 1.4] }); }
-        spring(pot, 'sq', 0.12, 20, 6); G.money -= sc; p.s = 1; p.p = 0; p.w = 1; try { sfx.plant(); } catch (e) {} floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); WK.pl = 'done'; WK.hintEl.textContent = 'Gepflanzt! Jetzt wächst sie, vergiss das Gießen nicht'; workCount(); celebrate('🌱 Gepflanzt!');
-        setTimeout(() => { if (workOpen && WK.mode === 'plant') workClose(); }, 1700); } }); }
+        G.money -= sc; p.s = 1; p.p = 0; p.w = 1; try { sfx.plant(); } catch (e) {} floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); WK.pl = 'done'; WK.hintEl.textContent = 'Gepflanzt! Jetzt wächst sie, vergiss das Gießen nicht'; workCount(); celebrate('🌱 Gepflanzt!', null, true);
+        setTimeout(() => { if (workOpen && WK.mode === 'plant') workClose(); }, 1700); }, 260); }
+  }
+  // v184: Die ausgehobene Erde verteilt sich auf fünf Häufchen im Kreis um das Loch. Jedes angetippte Häufchen rutscht ins Loch.
+  const HEAP_N = 5;
+  function mkHeaps() {
+    const T = THREE3, pot = WK.pot, h = WK.hole, pile = WK.mound; WK.heaps = []; WK.pl = 'busy'; if (!h) { WK.pl = 'cover'; return; }
+    const hp = h.position, pp = pile ? pile.position.clone() : hp.clone(), mat = soilMat(T, '#4A3020');
+    for (let i = 0; i < HEAP_N; i++) { const a = i / HEAP_N * Math.PI * 2 + 0.3; let x = hp.x + Math.cos(a) * 0.085, z = hp.z + Math.sin(a) * 0.085; const r = Math.hypot(x, z); if (r > 0.17) { x *= 0.17 / r; z *= 0.17 / r; }
+      const q = OL(new T.Mesh(new T.SphereGeometry(0.032, 14, 8), mat), 0.06); q.userData.soilT = true; q.userData.heap = true; q.position.copy(pp); q.scale.set(0.01, 0.01, 0.01); pot.add(q); WK.heaps.push(q);
+      tw(q, { delay: i * 0.04, d: 0.28, ez: 'back', fn: e => { q.position.set(pp.x + (x - pp.x) * e, SOIL_Y + Math.sin(e * Math.PI) * 0.04, pp.z + (z - pp.z) * e); q.scale.set(e, 0.7 * e, e); } }); }
+    if (pile) tw(pile, { d: 0.22, ez: 'in', fn: e => { const k = Math.max(0.01, 1 - e); pile.scale.set(k, k, k); }, end: () => { pot.remove(pile); WK.mound = null; } });
+    setTimeout(() => { if (workOpen && WK.mode === 'plant' && WK.pl === 'busy') { WK.pl = 'cover'; workCount(); } }, 480);
+    WK.upd.push(() => { if (WK.pl !== 'cover' || !WK.heaps) return; for (const [i, q] of WK.heaps.entries()) if (!q.userData.used) q.scale.set(1 + 0.1 * Math.max(0, Math.sin(WK.t * 4 - i)), 0.7, 1 + 0.1 * Math.max(0, Math.sin(WK.t * 4 - i))); });
   }
   // ---------- Packtisch ----------
   // Ablauf: Knospen in den offenen Beutel legen, Beutel antippen (verschließen), Beutel in die Kiste ziehen, nächster Beutel
