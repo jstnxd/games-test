@@ -1082,7 +1082,7 @@
     if (player.stun > 0) drawStars(player.x, player.y - 12, gt);
     if (masterOn && state !== 'edit') drawMaster(player.x, player.y - 27);
     drawDriftCombo();
-    lifeDrawPond(); if (!SPAR) lifeMist(); vqDrawSky(); drawCompass(); drawWayPt(); kurDraw();
+    lifeDrawPond(); if (!SPAR) lifeMist(); vqDrawSky(); drawCompass(); drawWayPt(); kurDraw(); taDraw();
     // v79: keine Tuetchen mehr ueber dem Kopf (die Ware steht oben links im HUD)
     if (!inCar()) drawOrbit(true);
     drawPetsWorld(true);

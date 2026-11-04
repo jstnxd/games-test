@@ -23,6 +23,7 @@ js/21b_tagesaufgaben.js
 js/21c_kurier.js
 js/21d_feierabend.js
 js/21e_erste_schritte.js
+js/21f_team.js
 js/22_spieler_gangs.js
 js/23_chat_umbau.js
 js/24_zeichnen_effekte.js
