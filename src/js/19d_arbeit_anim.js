@@ -53,7 +53,7 @@
   // Ringwelle auf einer Fläche
   function ring(pos, col, r, d) {
     const T = THREE3, m = new T.Mesh(WK.gc.ringG || (WK.gc.ringG = new T.RingGeometry(0.82, 1, 40)), new T.MeshBasicMaterial({ color: col || '#FFFFFF', transparent: true, opacity: 0.8, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide }));
-    m.rotation.x = -Math.PI / 2; m.position.copy(pos); m.raycast = () => {}; WK.scene.add(m); r = r || 0.25;
+    r = r || 0.25; m.rotation.x = -Math.PI / 2; m.position.copy(pos); m.scale.setScalar(r * 0.15); m.raycast = () => {}; WK.scene.add(m);
     tw(m, { d: d || 0.5, ez: 'out', fn: (e, k) => { m.scale.setScalar(r * (0.15 + e * 0.85)); m.material.opacity = 0.6 * (1 - k) * (1 - k); }, end: () => { if (m.parent) m.parent.remove(m); m.material.dispose(); } });
   }
   // Schere schnappt zu (zeigt zur Kamera)

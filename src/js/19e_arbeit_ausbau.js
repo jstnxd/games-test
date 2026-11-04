@@ -32,7 +32,7 @@
         const drop = new T.Mesh(new T.SphereGeometry(0.008, 8, 6), M('#7FC8F0')); g.add(drop); let dt0 = 0; WK.upd.push(dt => { dt0 = (dt0 + dt * (big ? 1.4 : 1)) % 1.6; const k = Math.min(1, dt0 / 0.45); drop.visible = dt0 < 0.45; drop.position.set(0.05, 0.3 - k * 0.0, -0.02); drop.position.y = 0.305 - k * k * 0.02; drop.scale.setScalar(0.6 + k * 0.6); wl.scale.y = 1 + 0.02 * Math.sin(WK.t * 1.3); }); }
       // Dünger: Flaschen links neben dem Topf, ab 5 ein Sack dazu, ab 10 eine goldene Flasche
       const yi = wkUp('yield');
-      if (yi >= 1) { const g = new T.Group(); g.position.set(m === 'plant' ? -0.62 : -0.5, 0, m === 'plant' ? -0.1 : 0.05); WK.root.add(g); blob(T, 0.4, 0.3, 0.003, 0.4, g);
+      if (yi >= 1) { const g = new T.Group(); g.position.set(m === 'plant' ? -0.42 : -0.5, 0, m === 'plant' ? -0.18 : 0.05); WK.root.add(g); blob(T, 0.4, 0.3, 0.003, 0.4, g);
         const bot = (x, z, col, gold) => { cyl(T, 0.035, 0.04, 0.13, col, x, 0.065, z, 0.08, g, 12); cyl(T, 0.016, 0.02, 0.04, gold ? '#FFE9A0' : '#F2F4F7', x, 0.15, z, 0.1, g, 8); const lb = new T.Mesh(new T.PlaneGeometry(0.05, 0.05), new T.MeshBasicMaterial({ map: cvTex(32, 32, (q, w) => { q.fillStyle = gold ? '#FFF6D0' : '#FFFFFF'; q.fillRect(0, 0, w, w); q.fillStyle = gold ? '#B8861E' : '#2F8F4A'; q.font = '900 20px sans-serif'; q.textAlign = 'center'; q.fillText(gold ? '★' : '+', w / 2, 24); }) })); lb.position.set(x, 0.07, z + 0.042); g.add(lb); };
         bot(0, 0, '#3FAE6A'); if (yi >= 3) bot(0.09, 0.03, '#2E7A4A');
         if (yi >= 5) { const sk = box(T, 0.16, 0.1, 0.1, '#D9C08A', -0.11, 0.05, -0.02, 0.05, g); sk.rotation.y = 0.4; const top = box(T, 0.14, 0.03, 0.08, '#C9AE76', -0.11, 0.115, -0.02, 0, g); top.rotation.y = 0.4; }

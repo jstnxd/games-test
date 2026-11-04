@@ -64,7 +64,7 @@
     { id: 'gewitter', nm: '⛈️ Gewitter mit Blitz', d: 8, setup() { stuTime(19.2); STU.freeze = true; STU.zoom = 0.9; stuEvent('storm'); amb.rain = 1; }, tick(t, dt) { STU.cam = camPath([[FOUNTAIN.x - 250, FOUNTAIN.y], [FOUNTAIN.x + 250, FOUNTAIN.y + 60]], t / this.d); if (evNext > 1.6) evNext = 0.4 + Math.random() * 1.0; }, end() { STU.ev = STU.ev.filter(e => e.k !== 'storm'); STU.rain = 0; } },
     { id: 'arbeit', nm: '🌱 Arbeit im Keller (alle Fenster)', d: 34, setup() { stuTime(11); STU.freeze = true; STU.zoom = 1; stuGo(DOOR.x, DOOR.y + 40); const ar = AREAS.keller, st = S(ar); st.pots[0].s = 0; G.money = Math.max(G.money, 50000); st.rack.wet = 3; st.rack.dry = Math.min(8, rackCap(ar) - 3); st.inv.fresh = 0; st.inv.dried = 10; st.inv.bags = 0; this.q = null; },
       tick(t, dt) { const st = S(AREAS.keller), p = st.pots[0], step = (at, fn) => { if (t >= at && !this['s' + at]) { this['s' + at] = 1; try { fn(); } catch (e) {} } }, cut = at => step(at - 0.15, () => stuFade());
-        step(0.2, () => workStart('plant', potTg('keller'))); step(1.2, () => plantStep()); step(2.2, () => plantStep()); step(3.6, () => plantStep());
+        step(0.2, () => workStart('plant', potTg('keller'))); step(1.0, () => plantStep()); step(1.4, () => plantStep()); step(1.8, () => plantStep()); step(2.4, () => plantStep()); step(3.7, () => plantStep());
         cut(6.0); cut(9.6); cut(16.0); cut(21.4);
         step(6.0, () => { if (workOpen) workClose(); p.s = 1; p.p = 0.75; p.w = 0.05; workStart('water', potTg('keller')); }); step(6.6, () => { WK.holding = true; WK.can.position.set(-0.28, 0.98, 0); });
         step(9.6, () => { if (workOpen) workClose(); p.s = 2; st.inv.fresh = 0; workStart('harvest', potTg('keller')); });

@@ -187,15 +187,16 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 183, date: 'November 2026', title: 'Selbst gegraben', items: [
+      ['chg', '🌱', 'Einpflanzen neu: Die Erde füllt den ganzen Topf, kein verwirrender Kreis mehr. Wo du tippst, gräbst du das Loch, dreimal tippen macht es tiefer, daneben wächst der Erdhaufen'],
+      ['chg', '🌰', 'Der Samen fällt genau in dein Loch. Tippst du auf den Erdhaufen, wird die Erde zurückgeschoben und an der Stelle kommt der Keimling'],
+      ['fix', '✨', 'Ringe beim Landen blitzen nicht mehr kurz riesig auf'] ] },
     { v: 182, date: 'November 2026', title: 'Aufgeräumt', items: [
       ['chg', '🛡️', 'Schummelschutz: Zusätzlich zur Prüfung des Spielstands wird jetzt geschaut, ob Ruf und Spieltage schneller steigen, als das Spiel es zulässt. Auffällige Spielstände landen nicht in der Bestenliste'],
       ['chg', '🧹', 'Aufgeräumt: 13 Stellen alter, nicht mehr benutzter Code sind entfernt'] ] },
     { v: 181, date: 'November 2026', title: 'Zusammen stark', items: [
       ['neu', '🤝', 'Team-Aufträge: Spielt ihr zu zweit oder mehr, will ab und zu ein Großkunde viele Beutel auf einmal. Alle liefern zusammen an denselben Ort, jeder bekommt Geld für seine Beutel und, wenn ihr es rechtzeitig schafft, seinen Anteil am Bonus'],
       ['neu', '📱', 'Handy → Aufträge → Team zeigt den Fortschritt, wer wie viel geliefert hat, und setzt einen Wegpunkt'] ] },
-    { v: 180, date: 'November 2026', title: 'Guter Start', items: [
-      ['neu', '🚀', 'Erste Schritte: Neue Spieler sehen oben im Handy sechs kurze Ziele vom ersten Samen bis zum ersten Ausbau, jedes mit Belohnung und am Ende ein Bonus'],
-      ['chg', '⚖️', 'Balance: Sind alle drei Kurierfahrten vergeben, kommen neue erst nach etwa anderthalb Minuten. Vorher gab es endlos neue, damit war Kurier fahren viel lohnender als alles andere'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
