@@ -292,6 +292,7 @@
     const btn = (r, t, fn, cls) => { const x = mk('button', t, 'buy' + (cls ? ' ' + cls : '')); x.style.flex = '1 1 90px'; x.addEventListener('click', () => { fn(); }); r.appendChild(x); return x; };
     const num = (r, ph) => { const i = mk('input'); i.type = 'number'; i.inputMode = 'numeric'; i.placeholder = ph; i.className = 'adm-in'; i.addEventListener('keydown', e => e.stopPropagation()); i.addEventListener('keyup', e => e.stopPropagation()); r.appendChild(i); return i; };
     const st = mk('div', '', 'ds'); const say = t => { st.textContent = t; }; 
+    try { perfCard(b, card, row, btn); } catch (e) {} // v179
     { const c = card('💰 Geld und Ruf', 'Gilt für deinen eigenen Spielstand. Wird nicht als Schummeln markiert.'); const r = row(c); const ig = num(r, 'Betrag');
       btn(r, '+ dazu', () => { const v = Math.floor(+ig.value) || 0; admMark(); G.money = Math.max(0, G.money + v); save(); say('Geld: ' + fmt(G.money)); }); btn(r, 'Setzen', () => { admMark(); G.money = Math.max(0, Math.floor(+ig.value) || 0); save(); say('Geld: ' + fmt(G.money)); }, 'alt');
       const r2 = row(c), ir = num(r2, 'Ruf 0–100'); btn(r2, 'Ruf setzen', () => { admMark(); G.rep = clamp(Math.floor(+ir.value) || 0, 0, REP_MAX); G.repP = G.rep; save(); say('Ruf: ' + G.rep); });
