@@ -85,7 +85,7 @@
   function layRot(lv, yaw) { return lv ? { x: -Math.PI / 2, y: yaw, z: 0 } : { x: 0, y: yaw, z: Math.PI / 2 }; }
   // v176: Combo, wenn man schnell hintereinander antippt (nicht bei den Alle-Knöpfen)
   function combo(pos, auto) {
-    if (auto) { WK.cb = 0; return; } const now = WK.t; WK.cb = now - (WK.cbT === undefined ? -9 : WK.cbT) < 1.3 ? (WK.cb || 0) + 1 : 1; WK.cbT = now;
+    if (auto) { WK.cb = 0; return; } const now = WK.t; WK.cb = now - (WK.cbT === undefined ? -9 : WK.cbT) < 1.3 ? (WK.cb || 0) + 1 : 1; WK.cbT = now; if (G && WK.cb > (G.stat.cb || 0)) G.stat.cb = WK.cb;
     if (WK.cb >= 3) { pop3d('🔥 Combo x' + WK.cb, pos.clone().add(new THREE3.Vector3(0, 0.42, 0)), WK.cb >= 8 ? '#FF5C7A' : '#FF9A3C', true); asnd.ding(WK.cb); try { faCombo(WK.cb); } catch (e) {} if (WK.cb % 5 === 0) celebrate('🔥 Combo x' + WK.cb + '!', pos.clone()); }
   }
   // Abschluss-Hopser für das Hauptobjekt

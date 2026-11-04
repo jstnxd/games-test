@@ -290,8 +290,18 @@
     { id: 'areas', name: 'Imperium', desc: 'Tabakscheune und Chemielabor besitzen', t: 2, v: () => (G.t.unlocked ? 1 : 0) + (G.b.unlocked ? 1 : 0), cash: 20000 },
     { id: 'gv50', name: 'Großabnehmer', desc: '50 Einheiten an Gangs verkaufen', t: 50, v: () => G.stat.gv, cash: 4000 },
     { id: 'gb5', name: 'Gangschreck', desc: '5 Gangs in die Flucht schlagen', t: 5, v: () => G.stat.gb, cash: 3500 },
-    { id: 'gb25', name: 'Herr der Gehwege', desc: '25 Gangs in die Flucht schlagen', t: 25, v: () => G.stat.gb, cash: 20000 }
+    { id: 'gb25', name: 'Herr der Gehwege', desc: '25 Gangs in die Flucht schlagen', t: 25, v: () => G.stat.gb, cash: 20000 },
+    // v187: Ziele für die neuen Arbeitsfenster und den Mehrspieler
+    { id: 'pl25', name: 'Grüner Daumen', desc: '25 Pflanzen selbst im Fenster einpflanzen', t: 25, v: () => G.stat.pl || 0, cash: 1500 },
+    { id: 'gold50', name: 'Goldrichtig', desc: '50 goldene Knospen ernten', t: 50, v: () => G.stat.gold || 0, cash: 3000 },
+    { id: 'cb10', name: 'Flinke Finger', desc: 'Eine Combo x10 schaffen', t: 10, v: () => G.stat.cb || 0, cash: 1200 },
+    { id: 'sorts', name: 'Sortenkenner', desc: 'Alle 4 Sorten einmal ernten', t: 4, v: () => [0, 1, 2, 3].filter(i => (G.stat.sv || 0) & (1 << i)).length, cash: 5000 },
+    { id: 'team5', name: 'Teamplayer', desc: '5 Team-Aufträge zusammen schaffen', t: 5, v: () => G.stat.tm || 0, cash: 4000 },
+    { id: 'kur25', name: 'Eilbote', desc: '25 Kurierfahrten schaffen', t: 25, v: () => G.stat.kur || 0, cash: 6000 }
   ];
+  // v187: Jedes erreichte Ziel ist ein Abzeichen. Eins davon kann man wählen, es steht für alle sichtbar vor dem Namen.
+  const ACH_IC = { d1: '📦', d50: '🚚', d250: '🏘️', d1000: '👑', r25: '⭐', r60: '🌟', r100: '🏆', r150: '🔄', p5: '💫', p10: '♾️', e500k: '💶', e2m: '💰', e10m: '💎', day10: '📅', day50: '🗓️', vip50: '🎩', day100: '💯', vip10: '🥂', ko10: '🥊', car3: '🚓', upg100: '🔧', staff: '👥', areas: '🏰', gv50: '🕶️', gb5: '🧢', gb25: '🛡️', pl25: '🌱', gold50: '✨', cb10: '🔥', sorts: '🌈', team5: '🤝', kur25: '🏎️' };
+  const myBadge = () => (G && G.ach && G.ach.bd && G.ach.done[G.ach.bd] && ACH_IC[G.ach.bd]) || '';
   const achDone = a => !!G.ach.done[a.id], achReady = a => !achDone(a) && a.v() >= a.t;
   function claimAch(id) {
     const a = ACH.find(x => x.id === id); if (!a || !G || !achReady(a)) return false;
@@ -308,6 +318,11 @@
 
   function renderGoals(b) {
     const todo = ACH.filter(a => !achDone(a)).length, rd = ACH.filter(achReady).length;
+    { const mine = ACH.filter(achDone), c = document.createElement('div'); c.className = 'card look'; // v187: Abzeichen wählen
+      c.innerHTML = '<div class="nm">🎖️ Dein Abzeichen</div><div class="ds" style="margin:2px 0 8px">' + (mine.length ? 'Steht vor deinem Namen, so sehen es alle Mitspieler und die Bestenliste. Jedes erledigte Ziel ist ein Abzeichen.' : 'Erledige ein Ziel, dann kannst du hier ein Abzeichen wählen. Es steht dann vor deinem Namen.') + '</div>';
+      if (mine.length) { const ch = document.createElement('div'); ch.className = 'chips'; const add = (id, txt) => { const x = document.createElement('button'); x.className = 'chip' + ((G.ach.bd || '') === id ? ' on' : ''); x.textContent = txt; x.title = id ? (ACH.find(a => a.id === id) || {}).name || '' : 'Keins'; x.addEventListener('click', () => { G.ach.bd = id || undefined; save(); renderPhone(); }); ch.appendChild(x); };
+        add('', 'Keins'); for (const a of mine) add(a.id, (ACH_IC[a.id] || '🏅') + ' ' + a.name); c.appendChild(ch); }
+      b.appendChild(c); }
     const info = document.createElement('div'); info.className = 'ds'; info.style.margin = '0 0 6px';
     info.textContent = rd ? rd + ' Ziel(e) bereit zum Abholen!' : todo ? 'Noch ' + todo + ' Ziele offen. Belohnungen: Geld sowie Auren und Kostüme, die es nirgends zu kaufen gibt.' : 'Alle Ziele erledigt. Stark!'; b.appendChild(info);
     const order = ACH.slice().sort((x, y) => (achDone(x) - achDone(y)) || (achReady(y) - achReady(x)));

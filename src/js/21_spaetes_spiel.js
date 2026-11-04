@@ -106,7 +106,7 @@
   }
   // Bestenliste (Firestore board/<uid>), nur mit Konto. Markierte Spielstaende werden nicht eingetragen.
   let boardT = 0, boardList = null, boardErr = '', boardBusy = false, boardSel = 'woche';
-  const boardRow = () => ({ g: gTag(), n: acc.name, r: G.rep, p: presLv(), m: LG().ml, e: Math.round(G.earned), wk: weekNo(), wd: Math.max(0, G.stat.del - (LG().wk === weekNo() ? LG().wd0 : G.stat.del)), t: Date.now() });
+  const boardRow = () => ({ g: gTag(), b: myBadge(), n: acc.name, r: G.rep, p: presLv(), m: LG().ml, e: Math.round(G.earned), wk: weekNo(), wd: Math.max(0, G.stat.del - (LG().wk === weekNo() ? LG().wd0 : G.stat.del)), t: Date.now() });
   async function boardPut(force) {
     if (STU.on || !fbOk() || !accOn() || !G || (G.flag && G.flag.n) || (!force && Date.now() - boardT < 180000)) return false; boardT = Date.now();
     try { const t = await accToken(), o = boardRow(), f = {}; for (const [k, v] of Object.entries(o)) f[k] = typeof v === 'string' ? { stringValue: v } : { integerValue: String(Math.floor(v)) };
@@ -115,7 +115,7 @@
   async function boardLoad() {
     boardBusy = true; boardErr = '';
     try { await boardPut(true); const t = await accToken(), r = await fetch(fsBase() + 'board?pageSize=300', { headers: { Authorization: 'Bearer ' + t } }); if (!r.ok) throw new Error('Bestenliste gerade nicht lesbar (' + r.status + ').');
-      const j = await r.json(); boardList = (j.documents || []).map(d => { const f = d.fields || {}, g = k => +((f[k] && (f[k].integerValue || f[k].doubleValue)) || 0); return { uid: d.name.split('/').pop(), g: (f.g && f.g.stringValue) || '', n: (f.n && f.n.stringValue) || '?', r: g('r'), p: g('p'), m: g('m'), e: g('e'), wk: g('wk'), wd: g('wd'), t: g('t') }; });
+      const j = await r.json(); boardList = (j.documents || []).map(d => { const f = d.fields || {}, g = k => +((f[k] && (f[k].integerValue || f[k].doubleValue)) || 0); return { uid: d.name.split('/').pop(), g: (f.g && f.g.stringValue) || '', b: (f.b && typeof f.b.stringValue === 'string' && Object.values(ACH_IC).includes(f.b.stringValue)) ? f.b.stringValue : '', n: (f.n && f.n.stringValue) || '?', r: g('r'), p: g('p'), m: g('m'), e: g('e'), wk: g('wk'), wd: g('wd'), t: g('t') }; });
     } catch (e) { boardErr = e.message || 'Fehler'; }
     boardBusy = false; if (phoneOpen && tab === 'liste') renderPhone();
   }
@@ -129,7 +129,7 @@
     if (boardErr) { b.appendChild(uiEl('div', 'empty', boardErr)); }
     const L = boardSorted(boardSel).slice(0, 50); if (!L.length && !boardErr) b.appendChild(uiEl('div', 'empty', boardSel === 'woche' ? 'Diese Woche hat noch niemand geliefert. Sei der Erste!' : 'Noch niemand eingetragen.'));
     L.forEach((x, i) => { const me = x.uid === acc.uid, c = uiEl('div', 'card lb' + (me ? ' me' : '')); c.style.gridTemplateColumns = '34px 1fr auto';
-      c.appendChild(uiEl('div', 'lbn', i < 3 ? ['🥇', '🥈', '🥉'][i] : String(i + 1))); const nm = uiEl('div', 'nm', (x.p ? '✦' + x.p + ' ' : '') + (x.g ? '[' + x.g + '] ' : '') + x.n + (me ? ' (du)' : '')); c.appendChild(nm);
+      c.appendChild(uiEl('div', 'lbn', i < 3 ? ['🥇', '🥈', '🥉'][i] : String(i + 1))); const nm = uiEl('div', 'nm', (x.b ? x.b + ' ' : '') + (x.p ? '✦' + x.p + ' ' : '') + (x.g ? '[' + x.g + '] ' : '') + x.n + (me ? ' (du)' : '')); c.appendChild(nm);
       c.appendChild(uiEl('div', 'pr', boardSel === 'woche' ? x.wd + ' Lief.' : boardSel === 'umsatz' ? fmt(x.e) : 'Ruf ' + x.r + (x.m ? ' · M' + x.m : ''))); b.appendChild(c); });
     const rl = uiEl('button', 'buy alt', '⟳ Aktualisieren'); rl.style.marginTop = '8px'; rl.addEventListener('click', () => { boardList = null; boardLoad(); renderPhone(); }); b.appendChild(rl);
   }

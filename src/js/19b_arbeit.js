@@ -262,7 +262,7 @@
   }
   // ---------- Ernten ----------
   function workPick(q, auto) {
-    if (!q || q.userData.taken) return; q.userData.taken = true; const T = THREE3, wp = new T.Vector3(); q.getWorldPosition(wp); q.parent.remove(q); q.position.copy(wp); WK.scene.add(q);
+    if (!q || q.userData.taken) return; q.userData.taken = true; if (q.userData.gold) G.stat.gold = (G.stat.gold || 0) + 1; const T = THREE3, wp = new T.Vector3(); q.getWorldPosition(wp); q.parent.remove(q); q.position.copy(wp); WK.scene.add(q);
     try { burst(wp, WK.kind === 'leaf' ? ['#8DB04A', '#C2BE62', '#6CA24A'] : ['#63C174', '#8CC25A', '#E5832E', '#FFFFFF'], 16, 0.5, 0.6, 0.025, 2.5, false); } catch (e) {}
     // v175: Schere schnappt zu, Pflanze wippt, das Teil fliegt hoch über den Korb und fällt von oben hinein.
     // Es wird so verkleinert und hingelegt, dass es ganz im Korb liegt (nichts sticht durch die Korbwand).
@@ -274,7 +274,7 @@
     tw(q, { delay: 0.16, d: 0.7, ez: 'inOut', a: wp.clone(), b: qdst, h: 0.18, drop: 0.32, rt: qrt, turns: 1, s1: fit / (q.scale.x || 1), fn: () => tr(),
       end: () => { if (!hb) { WK.scene.remove(q); return; } hb.attach(q); spring(hb, 'sq', 0.14, 22, 6); ring(new T.Vector3(hb.position.x, 0.01, hb.position.z), '#FFE9A0', 0.24); burst(dst.clone().add(new T.Vector3(0, 0.05, 0)), lv ? ['#C2BE62', '#8DB04A'] : ['#8CC25A', '#FFFFFF'], 8, 0.35, 0.4, 0.02, 2, false); asnd.pop(n); pop3d(n + ' / ' + WK.need, dst.clone().add(new T.Vector3(0, 0.24, 0)), n >= WK.need ? '#FFD24A' : '#FFFFFF'); } });
     WK.got++; workCount();
-    if (WK.got >= WK.need && !WK.done) { WK.done = true; const ar = WK.ar, inv = S(ar).inv, p = WK.p, hq = qualBonus(ar, p), hy = sortY(ar, p) + hq; inv.fresh += hy; p.q = 0; p.qw = 0; p.s = 0; p.p = 0; if (G.kr) G.kr.cnt.hv++; try { sfx.harvest(); } catch (e) {} const pos = potPos(WK.tg); floater(pos.x, pos.y - 20, '+' + hy + ' ' + (WK.L.fresh || ''), ar.leaf); WK.hintEl.textContent = 'Geerntet: +' + hy + ' ' + (WK.L.fresh || '') + (hq ? ' (davon ' + hq + ' Qualitätsbonus ✨)' : ''); setTimeout(() => { if (!workOpen || WK.mode !== 'harvest') return; celebrate('✂️ +' + hy + ' ' + (WK.L.fresh || '')); if (WK.hbasket) joy3(WK.hbasket); }, 750); setTimeout(() => { if (workOpen && WK.mode === 'harvest') workClose(); }, 2100); }
+    if (WK.got >= WK.need && !WK.done) { WK.done = true; const ar = WK.ar, inv = S(ar).inv, p = WK.p, hq = qualBonus(ar, p), hy = sortY(ar, p) + hq; inv.fresh += hy; if (sortsFor(ar)) G.stat.sv = (G.stat.sv || 0) | (1 << ((p.v | 0) & 3)); p.q = 0; p.qw = 0; p.s = 0; p.p = 0; if (G.kr) G.kr.cnt.hv++; try { sfx.harvest(); } catch (e) {} const pos = potPos(WK.tg); floater(pos.x, pos.y - 20, '+' + hy + ' ' + (WK.L.fresh || ''), ar.leaf); WK.hintEl.textContent = 'Geerntet: +' + hy + ' ' + (WK.L.fresh || '') + (hq ? ' (davon ' + hq + ' Qualitätsbonus ✨)' : ''); setTimeout(() => { if (!workOpen || WK.mode !== 'harvest') return; celebrate('✂️ +' + hy + ' ' + (WK.L.fresh || '')); if (WK.hbasket) joy3(WK.hbasket); }, 750); setTimeout(() => { if (workOpen && WK.mode === 'harvest') workClose(); }, 2100); }
   }
   // ---------- Gestell ----------
   function rackHang(slot, dry, anim) {
@@ -346,7 +346,7 @@
       WK.pl = 'busy'; setTimeout(() => { if (!workOpen || WK.mode !== 'plant') return; pot.remove(h); WK.hole = null; WK.heaps = []; if (WK.seed && WK.ar.key !== 'pr') { WK.scene.remove(WK.seed); WK.seed = null; }
         const bump = new T.Mesh(new T.SphereGeometry(0.05, 14, 8), soilMat(T, '#6A4A32')); bump.position.set(hp.x, SOIL_Y - 0.004, hp.z); bump.scale.set(1, 0.18, 1); pot.add(bump);
         if (WK.ar.key !== 'pr') { const sp = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(0.005, 0.007, 0.07, 6), M('#6FAE48')); st.position.y = 0.035; sp.add(st); for (const s2 of [-1, 1]) { const c = new T.Mesh(new T.SphereGeometry(0.022, 10, 6), M('#7BC85A')); c.scale.set(1, 0.3, 0.6); c.position.set(s2 * 0.022, 0.07, 0); sp.add(c); } sp.position.set(hp.x, SOIL_Y + 0.006, hp.z); sp.scale.setScalar(0.01); pot.add(sp); tw(sp, { d: 0.6, ez: 'back', sc: [0.01, 1.4] }); }
-        G.money -= sc; p.s = 1; p.p = 0; p.w = 1; p.v = sortsFor(ar) ? sortCur().i : 0; p.q = Math.min(1, 0.45 + (sortsFor(ar) ? sortCur().q : 0)); p.qw = 0; try { sfx.plant(); } catch (e) {} floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); WK.pl = 'done'; WK.hintEl.textContent = 'Gepflanzt! Jetzt wächst sie, vergiss das Gießen nicht'; workCount(); celebrate('🌱 Gepflanzt!', null, true);
+        G.stat.pl = (G.stat.pl || 0) + 1; G.money -= sc; p.s = 1; p.p = 0; p.w = 1; p.v = sortsFor(ar) ? sortCur().i : 0; p.q = Math.min(1, 0.45 + (sortsFor(ar) ? sortCur().q : 0)); p.qw = 0; try { sfx.plant(); } catch (e) {} floater(pos.x, pos.y - 20, '−' + fmt(sc), '#FF8FA3'); WK.pl = 'done'; WK.hintEl.textContent = 'Gepflanzt! Jetzt wächst sie, vergiss das Gießen nicht'; workCount(); celebrate('🌱 Gepflanzt!', null, true);
         setTimeout(() => { if (workOpen && WK.mode === 'plant') workClose(); }, 1700); }, 260); }
   }
   // v184: Die ausgehobene Erde verteilt sich auf fünf Häufchen im Kreis um das Loch. Jedes angetippte Häufchen rutscht ins Loch.

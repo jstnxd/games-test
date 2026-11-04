@@ -31,7 +31,7 @@
   function taPay(a) {
     if (TA.paid[a.k] || TA.myK !== a.k || TA.my <= 0) { TA.paid[a.k] = 1; return; } TA.paid[a.k] = 1;
     const ok = a.d === 1, u = taUnit(), bonus = ok ? Math.round(u * a.n * 0.5 * TA.my / Math.max(1, Math.max(a.n, taTot(a)))) : 0, pay = TA.my * u + bonus;
-    G.money += pay; G.earned += pay; if (ok) addRep(0.8); try { sfx.cash(); } catch (e) {}
+    G.money += pay; G.earned += pay; if (ok) { addRep(0.8); G.stat.tm = (G.stat.tm || 0) + 1; } try { sfx.cash(); } catch (e) {}
     msg(ok ? '🤝 Team-Auftrag geschafft! Deine ' + TA.my + ' ' + (AREAS.keller.lbl.unit || 'Beutel') + ' bringen ' + fmt(TA.my * u) + ' + Bonus ' + fmt(bonus) : '⏱️ Team-Auftrag abgelaufen. Für deine ' + TA.my + ' ' + (AREAS.keller.lbl.unit || 'Beutel') + ' gibt es ' + fmt(pay), !ok, 'ok');
     TA.my = 0; TA.myK = ''; save();
   }

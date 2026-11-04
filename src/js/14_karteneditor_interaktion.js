@@ -379,7 +379,7 @@
         if (p.w > before && Math.random() < dt * 14) sfx.water();
       } else if (p.s === 2 && aEdge) {
         if (inv.fresh + hy > unitCap() + 6) { msg('Du trägst schon zu viel', true); sfx.bad(); }
-        else { inv.fresh += hy; p.s = 0; p.p = 0; if (G.kr) G.kr.cnt.hv++; sfx.harvest(); floater(pos.x, pos.y - 20, '+' + hy + ' ' + L.fresh, ar.leaf); }
+        else { inv.fresh += hy; if (sortsFor(ar)) G.stat.sv = (G.stat.sv || 0) | (1 << ((p.v | 0) & 3)); p.s = 0; p.p = 0; if (G.kr) G.kr.cnt.hv++; sfx.harvest(); floater(pos.x, pos.y - 20, '+' + hy + ' ' + L.fresh, ar.leaf); }
       }
     } else if (tg.type === 'rack') {
       if (aEdge) {

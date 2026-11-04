@@ -580,7 +580,7 @@
     if (!player.fl) {
       for (const c of CHARS) { if (KR_NEUTRAL || !charHere(c) || Math.hypot(player.x - c.x, player.y - c.y) > 520) continue; lab(c.x, c.y, 62, (charReady(c) ? '! ' : '') + c.name, charReady(c) ? '#FFD24A' : '#EEF2F7'); }
       for (const o of G.orders) { const p = orderPos(o), h = HOUSES[o.house]; const y = o.mob ? p.y : (h.face === 1 ? p.y + 16 : p.y - 16); if (Math.hypot(player.x - p.x, player.y - y) > 700) continue; lab(p.x, y, 80, (o.vip ? '★ ' : '') + o.qty + ' ' + AREAS[o.prod || 'keller'].lbl.unit, o.vip ? '#FFD24A' : '#8FE3A0'); }
-      for (const f of Object.values(mp.friends)) if (f.vis && !(f.rg && f.rg.slice(-2) === ':r')) lab(f.x, f.y, 58, f.name, '#9FD8FF');
+      for (const f of Object.values(mp.friends)) if (f.vis && !(f.rg && f.rg.slice(-2) === ':r')) lab(f.x, f.y, 58, (f.bd ? f.bd + ' ' : '') + f.name, '#9FD8FF');
     }
     ctx.font = '800 14px sans-serif';
     for (const f of floaters) { const p = r3.project(f.x, f.y, 40 + f.t * 30); if (!p) continue; ctx.globalAlpha = 1 - f.t / 1.3; ctx.fillStyle = f.color; ctx.fillText(f.text, p.x, p.y); }
