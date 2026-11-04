@@ -16,6 +16,7 @@
   function RIVER_HIT(p) { return p.y > RIVER.y0 - 30 && p.y < RIVER.y1 + 30; }
   const KUR_KIND = [{ k: 'kurz', nm: 'Kurz', d0: 700, d1: 1500, f: 1 }, { k: 'mittel', nm: 'Mittel', d0: 1600, d1: 2800, f: 1.15 }, { k: 'lang', nm: 'Lang', d0: 2900, d1: 5200, f: 1.3 }];
   const kurDist = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  const KUR_WAIT = 150; // Spielminuten Pause, wenn alle Fahrten vergeben sind (etwa 1,5 Minuten echte Zeit)
   function kurOffers() {
     const car = kurCarId(), spd = car ? VEH_BY[car].spd : 300, L = [];
     for (const K of KUR_KIND) { for (let n = 0; n < 200; n++) { const a = KUR_PTS[Math.floor(Math.random() * KUR_PTS.length)], b = KUR_PTS[Math.floor(Math.random() * KUR_PTS.length)], d = kurDist(a, b); if (d < K.d0 || d > K.d1 || a.nm === b.nm || !zoneOpenAt(a.x, a.y) || !zoneOpenAt(b.x, b.y)) continue;
@@ -56,7 +57,9 @@
     const j = KUR.job;
     if (j) { const c = krCard(b, '📦 ' + j.nm + ': ' + j.a.nm + ' → ' + j.b.nm, j.st === 'pick' ? 'zur Abholung' : '⏱️ ' + kurFmt(j.t), (j.st === 'pick' ? 'Fahr zu ' + j.a.nm + (j.a.rd ? ' (' + j.a.rd + ')' : '') + '. Ab dort hast du ' + kurFmt(j.lim) + '.' : 'Bring das Paket zu ' + j.b.nm + (j.b.rd ? ' (' + j.b.rd + ')' : '') + '.') + ' Lohn ab ' + fmt(j.pay) + '.');
       const bt = uiEl('button', 'buy alt', 'Abbrechen'); bt.addEventListener('click', () => { kurCancel('Kurierfahrt abgebrochen'); renderPhone(); }); c.appendChild(bt); return; }
-    if (!KUR.offers.length || absMin() - KUR.oT > 120) kurOffers();
+    // v180: Balance. Sind alle drei Fahrten vergeben, kommen neue erst nach einer Pause (vorher sofort und damit ohne Ende)
+    { const age = absMin() - (KUR.oT || -1e9); if ((!KUR.offers.length && age > KUR_WAIT) || age > 240) kurOffers(); }
+    if (!KUR.offers.length) { const left = Math.max(1, Math.ceil((KUR_WAIT - (absMin() - KUR.oT)) / timeRate(G.time))); uiInfo(b, '⏳ Gerade keine Eilpakete. Neue gibt es in etwa ' + (left > 90 ? Math.ceil(left / 60) + ' Minuten' : left + ' Sekunden') + '.'); }
     const B = G.kurB || {};
     KUR.offers.forEach((o, i) => { const c = krCard(b, '📦 ' + o.nm + ' · ' + Math.round(o.d / 100) * 10 + ' m', fmt(o.pay) + '+', o.a.nm + (o.a.rd ? ' (' + o.a.rd + ')' : '') + ' → ' + o.b.nm + (o.b.rd ? ' (' + o.b.rd + ')' : '') + '<br>Zeit: ' + kurFmt(o.lim) + (B[o.k] ? ' · deine beste ' + o.nm + '-Fahrt: ' + kurFmt(B[o.k]) : ''));
       const bt = uiEl('button', 'buy', 'Annehmen'); bt.addEventListener('click', () => { if (kurTake(i)) closePhone(); }); c.appendChild(bt); });

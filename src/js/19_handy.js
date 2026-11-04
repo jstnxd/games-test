@@ -85,7 +85,7 @@
     hc.innerHTML = '<div class="hc-top"><div class="hc-time">' + hh + '</div><div class="hc-day">Tag ' + G.day + (s && !KR_NEUTRAL ? ' · ' + s.ic + ' ' + s.name : '') + (amb.rain > 0.5 ? ' · 🌧' : '') + '</div></div>'
       + '<div class="hc-row"><div><span>Bargeld</span><b class="am">' + fmt(G.money) + '</b></div><div class="hc-go" data-go="bank"><span>Konto ›</span><b>' + fmt(G.bank || 0) + '</b></div><div><span>Umsatz</span><b>' + fmt(G.earned) + '</b></div></div>'
       + (T0 ? '<div class="hc-tier"><span>★ ' + T0.name + ' · Ruf ' + G.rep + '</span><i><u style="width:' + Math.round(pr * 100) + '%"></u></i>' + (T1 ? '<em>nächste Stufe: ' + T1.name + ' ab Ruf ' + T1.rep + '</em>' : '<em>höchste Stufe erreicht</em>') + '</div>' : '');
-    b.appendChild(hc); try { hc.querySelector('[data-go=bank]').addEventListener('click', () => { tab = 'bank'; renderPhone(); }); } catch (e) {}
+    b.appendChild(hc); try { fsCard(b); } catch (e) {} try { hc.querySelector('[data-go=bank]').addEventListener('click', () => { tab = 'bank'; renderPhone(); }); } catch (e) {}
     const g = document.createElement('div'); g.className = 'apps';
     const badge = id => id === 'karr' ? (rufUnseen() ? '!' : ACH.filter(achReady).length) : id === 'orders' ? G.orders.filter(o => !o.remote).length : id === 'social' ? (mp.on ? Object.keys(mp.friends).length : 0) : id === 'gang' ? (pgReqN() ? '🙋' + pgReqN() : pgUnread() || 0) : 0;
     const subOf = a => a.id === 'gang' ? (pgang ? Object.keys(pgang.mem).length + ' Mitglieder' : 'Deine Gang') : a.id === 'orders' ? (G.orders.length ? G.orders.length + ' offen' : 'keine offen') : a.id === 'biz' ? staffN() + ' Helfer' : a.id === 'karr' ? 'Ruf ' + G.rep : a.sub;

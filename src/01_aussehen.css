@@ -837,3 +837,9 @@ body.foto #msg,body.foto #hint,body.foto #tipCard,body.foto #fpsHud{visibility:h
 #faCard .fa-b button{flex:1;border:0;border-radius:14px;min-height:42px;font-weight:900;font-size:14px;cursor:pointer;background:rgba(255,255,255,.12);color:#fff}
 #faCard .fa-b .fa-ok{background:#63C174;color:#0E1A12}
 @media (max-height:420px){#faCard{width:min(86vw,560px);padding:10px 12px}#faCard .fa-g{grid-template-columns:1fr 1fr 1fr}#faCard .fa-t{font-size:19px}}
+
+/* v180: Erste Schritte auf der Handy-Startseite */
+.card.fscard{border-left:4px solid #FFD24A;background:linear-gradient(135deg,rgba(255,210,74,.14),rgba(255,210,74,.03))}
+.fscard .fs-r{display:grid;grid-template-columns:22px 1fr auto;gap:6px;align-items:start;padding:3px 0;opacity:.55}
+.fscard .fs-r.cur{opacity:1}.fscard .fs-r.ok{opacity:.8}.fscard .fs-r.ok i{color:#63C174;font-weight:900}
+.fscard .fs-r i{font-style:normal;text-align:center}.fscard .fs-r em{font-style:normal;color:#FFD24A;font-weight:800;font-size:12px}

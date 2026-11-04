@@ -187,6 +187,9 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 180, date: 'November 2026', title: 'Guter Start', items: [
+      ['neu', '🚀', 'Erste Schritte: Neue Spieler sehen oben im Handy sechs kurze Ziele vom ersten Samen bis zum ersten Ausbau, jedes mit Belohnung und am Ende ein Bonus'],
+      ['chg', '⚖️', 'Balance: Sind alle drei Kurierfahrten vergeben, kommen neue erst nach etwa anderthalb Minuten. Vorher gab es endlos neue, damit war Kurier fahren viel lohnender als alles andere'] ] },
     { v: 179, date: 'November 2026', title: 'Schneller Start', items: [
       ['chg', '⚡', 'Das Spiel ist ein Viertel kleiner und startet schneller, vor allem bei schwachem Netz'],
       ['neu', '⏱️', 'Admin → Werkzeuge: Leistung messen. Bildrate, schlechteste Momente und Rechenzeit pro Bild an jedem Ort, auch im 3D-Fenster'] ] },
@@ -195,8 +198,6 @@
       ['neu', '🛟', 'Notausgang: Hängt etwas oder reagiert das Spiel nicht mehr, erscheint unten ein Knopf zum Neuladen'],
       ['neu', '💾', 'Vor jedem Update wird dein Spielstand gesichert: Handy → Einstellungen → Profil → Sicherungen'],
       ['fix', '🧪', 'Jedes Update wird vorher wie von einem echten Spieler gestartet und getestet'] ] },
-    { v: 177, date: 'November 2026', title: 'Schnelle Reparatur', items: [
-      ['fix', '🛠️', 'Nach dem Update blieb das Startmenü unscharf hängen und man konnte nichts antippen. Das Fenster mit den Neuigkeiten öffnet sich jetzt wieder richtig, und ein Tipp daneben schließt es'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
