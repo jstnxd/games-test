@@ -42,7 +42,23 @@
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v, t + att); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(g); g.connect(musIn); o.start(t); o.stop(t + dur + 0.05);
   }
+  // v188: Musik je Viertel. Jeder 8-Sekunden-Takt fragt, wo du gerade bist, und spielt dazu einen eigenen Stil.
+  // Der Wechsel passiert am Taktanfang, die weichen Flächen blenden dabei von selbst über.
+  let musSt = '';
+  function musStyle() { try { if (state !== 'play' || player.fl || inOwnRoom()) return 'mitte'; return vqK(player.x, player.y) || 'mitte'; } catch (e) { return 'mitte'; } }
+  function musKick(t, v) { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.18); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3); o.connect(g); g.connect(musIn); o.start(t); o.stop(t + 0.35); }
+  const MUS_V = {
+    // Vergnügungsmeile: Neon-Synthpop, Bass in Achteln, Arpeggio, leichter Beat
+    verg: { ch: [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]], bar(t, ch) { for (const n of ch) musVoice(t, mtof(n), 8.5, 'sawtooth', 0.012, 0.4); for (let k = 0; k < 16; k++) { const tt = t + k * 0.5; musVoice(tt, mtof(ch[0] - 24), 0.45, 'square', 0.025, 0.01); if (k % 2 === 0) musVoice(tt + 0.25, mtof(ch[(k / 2) % 3] + 12), 0.4, 'triangle', 0.03, 0.01); if (k % 4 === 0) musKick(tt, 0.11); } } },
+    // Nordviertel: ruhiges Klavier mit großen Akkorden
+    nord: { ch: [[48, 52, 55, 59], [45, 48, 52, 55], [53, 57, 60, 64], [55, 59, 62, 65]], bar(t, ch) { for (const n of ch) musVoice(t, mtof(n + 12), 7, 'sine', 0.025, 1.5); for (let k = 0; k < 8; k++) { const n = ch[k % ch.length] + 24, tt = t + k * 1.0; musVoice(tt, mtof(n), 1.8, 'triangle', 0.04, 0.01); musVoice(tt, mtof(n) * 2, 0.9, 'sine', 0.008, 0.01); } } },
+    // Gangviertel: dunkel, tiefer Puls, wenige harte Töne
+    gang: { ch: [[45, 48, 52], [41, 44, 48], [43, 46, 50], [40, 43, 47]], bar(t, ch) { musVoice(t, mtof(ch[0] - 12), 8.4, 'sawtooth', 0.02, 1.5); musVoice(t, mtof(ch[0] - 24), 8.4, 'sine', 0.06, 0.5); for (let k = 0; k < 8; k++) { const tt = t + k; musKick(tt, k % 2 ? 0.06 : 0.12); if (Math.random() < 0.35) musVoice(tt + 0.5, mtof(ch[1] + 12 + (Math.random() < 0.5 ? 0 : 3)), 0.5, 'square', 0.014, 0.01); } } },
+    // Gewerbegebiet: Brummen und metallische Klänge
+    gew: { ch: [[43, 50], [41, 48], [38, 45], [40, 47]], bar(t, ch) { musVoice(t, mtof(ch[0] - 12), 8.4, 'triangle', 0.05, 2); musVoice(t, mtof(ch[1]), 8.4, 'sine', 0.02, 3); for (let k = 0; k < 8; k++) { if (Math.random() < 0.55) continue; const f = mtof(ch[0] + 36 + [0, 5, 7, 10][Math.floor(Math.random() * 4)]); musVoice(t + k + Math.random() * 0.3, f, 1.2, 'square', 0.008, 0.005); musVoice(t + k + 0.02, f * 1.51, 0.9, 'sine', 0.006, 0.005); } } }
+  };
   function musBar(t, i) {
+    const st = musStyle(); musSt = st; const V = MUS_V[st]; if (V) { V.bar(t, V.ch[i % V.ch.length]); return; }
     const ch = MUS_CH[i % 4];
     for (const n of ch) { musVoice(t, mtof(n + 12), 9, 'sine', 0.05, 2.5); musVoice(t, mtof(n + 12) * 1.003, 9, 'triangle', 0.018, 3); }
     musVoice(t, mtof(ch[0] - 12), 8.5, 'sine', 0.07, 1.2);
