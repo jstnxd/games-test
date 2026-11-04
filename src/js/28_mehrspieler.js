@@ -198,16 +198,6 @@
     if (!load()) return false;
     undoRaw = null; mpDropOrders(null); begin(false); msg('Alter Stand wiederhergestellt'); return true;
   }
-  function mpApplyKills(peer, list) {
-    const f = mp.friends[peer]; if (!f || !G) return;
-    for (const k of list) {
-      if (typeof k !== 'string' || k.length > 40) continue;
-      const cut = k.indexOf(':'); if (cut < 1 || k.slice(0, cut) !== mp.id) continue;
-      if (mp.seenPush[k]) continue; mp.seenPush[k] = gt;
-      if (!mp.pushOk) continue; // wer Schubsen/Schläger von Freunden ausgeschaltet hat, bleibt verschont
-      doKill(f.name); chatSay(f.name + ' hat dich gekillt: selber schuld!', true);
-    }
-  }
   function mpDropOrders(peer) { if (!G) return; for (let i = G.orders.length - 1; i >= 0; i--) if (peer === null ? G.orders[i].remote : G.orders[i].remote === peer) G.orders.splice(i, 1); }
   function mpSteal(o) { mp.steals.push({ k: o.remote + ':' + o.rid, t: gt }); mp.steals = mp.steals.filter(z => gt - z.t < 6); mp.sendT = 9; mpSend(); }
   function mpApplySteals(list) {
@@ -457,7 +447,7 @@
     const ls = mk('div'); ls.id = 'mpList'; ls.style.cssText = 'display:grid;gap:8px'; b.appendChild(ls); mpRefreshList(true);
   }
   // v72: Standardgruppe 111026. Wer noch keinen Namen hat, legt beim Start einen fest; er ist danach fest und unter Einstellungen → Profil aenderbar.
-  const MP_DEF_ROOM = '111026', GAME_VER = 181; try { window.__KG_VER = GAME_VER; } catch (e) {}
+  const MP_DEF_ROOM = '111026', GAME_VER = 182; try { window.__KG_VER = GAME_VER; } catch (e) {}
   // v74: Wo ist ein Freund? Im eigenen Keller sieht man ihn nicht in der Stadt, darum Anzeige am Kellertreff und in der Liste
   const friendWhere = f => !f.rg ? 'in der Stadt' : f.rg === mp.id ? 'bei dir zu Besuch' : f.rg === f.id ? 'in seinem Keller' : 'bei ' + ((mp.friends[f.rg] || {}).name || 'einem Freund') + ' zu Besuch';
   const friendsAway = () => Object.values(mp.friends).filter(f => f.rg && f.rg !== mp.id);

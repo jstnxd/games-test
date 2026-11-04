@@ -19,7 +19,6 @@
   }
   const PILL_AT = { keller: [410, 538, 0], tabak: [2190, 538, -1080], brau: [2132, 706, -1080] };
   const PILL_NAME = { keller: 'KELLER', tabak: 'TABAKSCHEUNE', brau: 'CHEMIELABOR' };
-  function drawPills(ox, who, col) { for (const k of AREA_KEYS) { const q = PILL_AT[k]; pill(PILL_NAME[k] + ' · ' + who, ox + q[0] + q[2], q[1], col); } }
   function drawOwnerPills() {
     if (!mp.on || state === 'edit' || !Object.keys(mp.friends).length) return;
     for (const k of AREA_KEYS) { const q = PILL_AT[k]; pill(PILL_NAME[k] + ' · DU', q[0], q[1], '#FFB547'); }
@@ -298,17 +297,6 @@
     ctx.fillStyle = '#8A5A32'; ctx.fillRect(1980, 2440, 36, 30); ctx.fillStyle = '#B5473A'; ctx.beginPath(); ctx.moveTo(1976, 2442); ctx.lineTo(1998, 2426); ctx.lineTo(2020, 2442); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#20150F'; ctx.beginPath(); ctx.arc(1998, 2462, 7, Math.PI, TAU); ctx.fill(); ctx.fillRect(1991, 2462, 14, 8); // Hundehuette
     const t = gt * 0.8, hx = 2190 + Math.cos(t) * 150, hy = 2420 + Math.sin(t * 1.4) * 70; ctx.save(); ctx.translate(hx, hy); ctx.scale(Math.cos(t) < 0 ? 1 : -1, 1); ctx.fillStyle = 'rgba(0,0,0,.2)'; ell(0, 5, 9, 3); ctx.fill(); ctx.fillStyle = '#B07A45'; ell(0, 0, 9, 5); ctx.fill(); ctx.beginPath(); ctx.arc(8, -3, 4.5, 0, TAU); ctx.fill(); ctx.fillStyle = '#6A4626'; ell(10, -6, 2, 3); ctx.fill(); ctx.strokeStyle = '#B07A45'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-8, -1); ctx.lineTo(-12, -5 + Math.sin(gt * 14) * 2); ctx.stroke(); ctx.restore();
     ctx.fillStyle = '#20262E'; rr(2190 - 48, D0.y + 10, 96, 18, 5); ctx.fill(); ctx.fillStyle = '#C9A064'; ctx.font = '900 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('HUNDEWIESE', 2190, D0.y + 19.5); ctx.textBaseline = 'alphabetic';
-  }
-  function drawTreff() { // Kellertreff: Treppe hinunter zu den Kellern deiner Freunde
-    const T0 = TREFF; if (!inView(T0.x + T0.w / 2, T0.y, 90)) return;
-    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(T0.x + 3, T0.y + 4, T0.w, T0.h);
-    ctx.fillStyle = '#4E5762'; ctx.fillRect(T0.x - 3, T0.y - 3, T0.w + 6, T0.h + 6);
-    for (let k = 0; k < 6; k++) { const c = 70 - k * 11; ctx.fillStyle = 'rgb(' + c + ',' + (c + 6) + ',' + (c + 14) + ')'; ctx.fillRect(T0.x, T0.y + k * T0.h / 6, T0.w, T0.h / 6 + 0.5); }
-    ctx.fillStyle = '#9AA6B3'; ctx.fillRect(T0.x - 3, T0.y - 3, 3, T0.h + 6); ctx.fillRect(T0.x + T0.w, T0.y - 3, 3, T0.h + 6);
-    const on = mp.on && mp.slots.some(Boolean), pulse = 0.6 + 0.4 * Math.sin(gt * 3);
-    ctx.fillStyle = '#20262E'; ctx.fillRect(T0.x + T0.w + 10, T0.y - 30, 3, 44); rr(T0.x - 18, T0.y - 46, T0.w + 36, 18, 5); ctx.fill();
-    ctx.fillStyle = on ? 'rgba(255,181,71,' + pulse.toFixed(2) + ')' : '#8A93A3'; ctx.font = '900 9px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('KELLERTREFF', T0.x + T0.w / 2, T0.y - 36.5); ctx.textBaseline = 'alphabetic';
-    { const aw = mp.on ? friendsAway() : []; if (aw.length) pill(aw.slice(0, 3).map(f => f.name).join(', ') + (aw.length > 3 ? ' +' + (aw.length - 3) : '') + ' im Keller', T0.x + T0.w / 2, T0.y - 60, '#FFB547'); }
   }
   function drawPark() {
     // Brunnen mit drei Becken

@@ -661,7 +661,7 @@
       '<div class="grp2">Mehr</div><div class="opts"><button class="chip" id="oOutline">Umriss</button>' +
       sizes.map(z => '<button class="chip" data-size="' + z[0] + '">' + z[1] + '</button>').join('') + '</div>' : '');
     b.appendChild(card);
-    let pdir = 0; const DIRS = [0, 1, 3, 2]; // unten, links, oben, rechts
+    let pdir = 0;  // unten, links, oben, rechts
     const paint = () => {
       const pv = card.querySelector('#figPv'), c2 = pv && pv.getContext && pv.getContext('2d');
       if (c2) { const sc = ctx; try { ctx = c2; c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, 144, 144); c2.setTransform(4.4, 0, 0, 4.4, 0, 0); const ang = [Math.PI / 2, Math.PI, -Math.PI / 2, 0][pdir % 4]; drawFigure(16.4, 14, ang, 0, L); } finally { ctx = sc; } }

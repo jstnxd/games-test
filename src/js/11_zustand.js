@@ -503,7 +503,6 @@
   const isCop = e => !!e.hunt || e.spMin !== undefined; // Streife: hat Tempo-Spanne, Kunden nicht
   const roamPath = (e, tx, ty) => navRoute(e.x, e.y, tx, ty, isCop(e)); // Streife ohne Trampelpfade
   const onPath = (x, y) => PATHS.some(p => x > p.x0 && x < p.x1 && y > p.y0 && y < p.y1) || onMapPath(x, y);
-  const decorHit = (x, y) => !!obstAt(x, y);
   function roamPick(e) {
     const pol = isCop(e), h = !pol && e.house !== undefined ? HOUSES[e.house] : null;
     const p = (h && navRandPt(pol, h.dx, h.dy, 650)) || navRandPt(pol) || { x: e.x, y: e.y };

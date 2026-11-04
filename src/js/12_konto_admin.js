@@ -356,8 +356,19 @@
  G.flag.n++; const last = G.flag.l[G.flag.l.length - 1]; if (last && last[1] === code && Date.now() - last[0] < 6e5) return; G.flag.l.push([Date.now(), code]); if (G.flag.l.length > 20) G.flag.l.shift(); }
   const flagSum = f => f && f.l && f.l.length ? f.l.map(x => x[1]).filter((v, i, a) => a.indexOf(v) === i).join(',') : '';
   // Werte, die im normalen Spiel nicht vorkommen koennen, werden korrigiert und markiert. Bewusst vorsichtig: lieber etwas uebersehen als Ehrliche markieren.
+  // v182: Plausibilität über die echte Zeit. Ruf und Spieltage können nur so schnell steigen, wie das Spiel es zulässt.
+  // Grenzen sind bewusst großzügig (Schlafen, Quests, Admin-Hilfe zählen nicht), es wird nur markiert, nichts weggenommen.
+  let cheatRef = null;
+  function cheatRate() {
+    if (!G || STU.on || G.cmdU || cmdOk) { cheatRef = null; return; } const now = Date.now(), d = G.day + G.time / 1440;
+    if (!cheatRef || cheatRef.G !== G || d < cheatRef.d - 0.01 || G.rep < cheatRef.r - 1e-6) { cheatRef = { G, t: now, d, r: G.rep }; return; }
+    const min = (now - cheatRef.t) / 60000; if (min < 2) return;
+    if (d - cheatRef.d > min / 4 + 3) flagAdd('zeit'); if (G.rep - cheatRef.r > min * 4 + 12) flagAdd('rufrate');
+    if (min > 20) cheatRef = { G, t: now, d, r: G.rep };
+  }
   function cheatScan() {
     if (!G) return; const k = KR();
+    try { cheatRate(); } catch (e) {}
     const fin = (o, key, max) => { const v = +o[key]; if (!Number.isFinite(v) || v < 0) { o[key] = 0; flagAdd('num'); } else if (v > max) { o[key] = max; flagAdd('money'); } };
     fin(G, 'money', 1e12); fin(G, 'bank', 1e10); fin(G, 'earned', 1e13);
     if (G.rep > REP_MAX || (G.repP || 0) > REP_MAX + 1e-6) { G.rep = Math.min(G.rep, REP_MAX); G.repP = Math.min(G.repP || 0, REP_MAX); flagAdd('rep'); }

@@ -37,7 +37,6 @@
     { id: 'geburtstag', ic: '🎂', name: 'Kellergrün-Geburtstag', col: '#FF9CC8', on: d => calMD(d) === CAL_BDAY, inst: d => 'gb' + d.getFullYear(),
       desc: 'Kellergrün hat Geburtstag! Konfetti über der Stadt und ein Geschenk für dich.' }
   ];
-  const CAL_BY = Object.fromEntries(CAL.map(e => [e.id, e]));
   const calXmasDeco = d => { const m = calMD(d); return m >= 1201 || m <= 106; }; // Lichter und Baum bleiben bis Heilige Drei Könige
   let calC = { t: -1, ov: 0, list: [], d: null };
   function calList() { // aktive Events, höchstens einmal pro Sekunde neu berechnet

@@ -434,7 +434,6 @@
   const CAS_SLOTS = [{ x: 4894, y: 930 }, { x: 4894, y: 1000 }].map(s => (R(s.x - 14, s.y - 22, 28, 44), Object.assign(s, { at: { x: s.x + 38, y: s.y } })));
   const CAS_BJ = [{ x: 4935, y: 1110, min: 10 }, { x: 5020, y: 1110, min: 100 }, { x: 5105, y: 1110, min: 1000 }].map(t => (R(t.x - 30, t.y - 14, 60, 28), Object.assign(t, { at: { x: t.x, y: t.y + 40 } })));
   R(5138, 880, 22, 150); // Bar an der Ostwand
-  const CAS_AT = { x: (CAS_DOOR.x0 + CAS_DOOR.x1) / 2, y: CAS.y + CAS.h + 18 };
   const inCasino = () => !!G && !player.fl && player.x > CAS_IN.x0 && player.x < CAS_IN.x1 && player.y > CAS_IN.y0 && player.y < CAS_IN.y1;
   const APO = { x: 2890, y: 18, w: 240, h: 150 }, APO_AT = { x: 3010, y: -8 }; // v109: an der Nordallee, Eingang oben
   { const inA = (x, y) => x > APO.x - 40 && x < APO.x + APO.w + 40 && y > APO.y - 30 && y < APO.y + APO.h + 70;
@@ -538,7 +537,6 @@
   const DEF_LOOK = { r: 63, g: 174, b: 106, outline: false, bnd: 'none', hat: 'none', size: 1, sex: 'm', hair: 1, hs: 0, skin: 1, top: 'tshirt', bot: 'auto', cos: 'none', aura: 'none', shoe: 'stdshoe', back: 'none' };
   // Figur: Auswahlfarben statt RGB. Frisuren sind gratis; Kleidung, Kostueme und Auren kosten Geld und brauchen Ruf.
   const HAIR_COLS = ['#241811', '#5A3A22', '#A8642B', '#E2B857', '#C8472E', '#9AA0AA', '#4B6FD6', '#E26FB0', '#3FAE6A'];
-  const HAIR_NAMES = ['Schwarz', 'Braun', 'Kupfer', 'Blond', 'Rot', 'Grau', 'Blau', 'Pink', 'Grün'];
   const SKIN_COLS = ['#F8DEC8', '#F1C9A5', '#D9A47A', '#B07850', '#7A4E32'];
   const OUTFITS = [[63, 174, 106], [75, 141, 255], [224, 84, 84], [240, 194, 78], [160, 100, 220], [232, 131, 58], [80, 200, 194], [240, 130, 170], [235, 238, 245], [60, 64, 76]];
   const HAIR_STYLES = ['Kurz', 'Lang', 'Stachelig', 'Dutt', 'Bob', 'Zopf', 'Zöpfe', 'Locken', 'Scheitel', 'Glatze', 'Undercut', 'Tolle', 'Irokese', 'Afro', 'Millimeter', 'Vokuhila', 'Mittelscheitel', 'Pilzkopf'];

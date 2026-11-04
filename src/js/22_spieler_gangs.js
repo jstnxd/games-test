@@ -304,30 +304,9 @@
     }
     uiInfo(b, 'Regeln, App-Symbol, Ankündigung und Gang verlassen findest du unter Einstellungen.');
   }
-  function renderPgHq(b) {
-    const g = pgang, n = ghqSlots(g.lv), can = pgCanDeco(), used = Object.keys(g.deco).filter(k => g.deco[k]).length;
-    renderPgProgress(b); krGrp(b, '🛋️ Einrichten');
-    uiInfo(b, 'Euer Hauptquartier im Gangviertel. ' + used + ' von ' + n + ' Plätzen belegt. Deko wird aus der Gang-Kasse bezahlt (' + fmt(g.kasse) + ').' + (can ? '' : ' Gerade dürfen nur Boss und Vize einrichten.'));
-    if (pgLead()) { krGrp(b, 'Boden'); const fr = uiEl('div', 'gcols'); GFLOOR.forEach((f, i) => { const d = uiEl('button', 'gcol gfl' + (i === g.floor ? ' on' : '')); d.style.background = 'linear-gradient(135deg,' + f[0] + ' 50%,' + f[1] + ' 50%)'; d.title = f[2]; d.addEventListener('click', async () => { try { await pgSet({ floor: i }, ['floor'], 'hat den Boden auf ' + f[2] + ' geändert'); } catch (e) { msg(e.message, true); } renderPhone(); }); fr.appendChild(d); }); b.appendChild(fr); }
-    krGrp(b, 'Deko-Plätze');
-    const grid = uiEl('div', 'ghq-grid');
-    for (let i = 0; i < n; i++) { const id = g.deco['s' + i], d = id && DECOR.find(x => x.id === id), cell = uiEl('button', 'ghq-cell' + (pgSel === i ? ' on' : '') + (d ? ' full' : ''));
-      cell.innerHTML = d ? '<canvas class="pv" data-dec="' + d.id + '" width="264" height="128"></canvas><span>' + d.name + '</span>' : '<span>＋ Platz ' + (i + 1) + '</span>';
-      cell.addEventListener('click', () => { pgSel = pgSel === i ? -1 : i; renderPhone(); }); grid.appendChild(cell); }
-    b.appendChild(grid);
-    if (pgSel >= 0 && pgSel < n) {
-      const i = pgSel, id = g.deco['s' + i], d = id && DECOR.find(x => x.id === id), st = uiEl('div', 'ds gst');
-      if (d) { const c = krCard(b, 'Platz ' + (i + 1) + ': ' + d.name, '', d.desc); const r = gRow(); const bt = gBtn(r, 'Wegräumen', 'alt', () => pgClear(i), st); bt.disabled = !can; c.appendChild(r); c.appendChild(st); }
-      krGrp(b, (d ? 'Austauschen' : 'Hinstellen') + ' auf Platz ' + (i + 1));
-      for (const x of ghqDeco()) { const p = ghqPrice(x), c = uiEl('div', 'card cos'); c.innerHTML = '<canvas class="pv" data-dec="' + x.id + '" width="264" height="128"></canvas><div class="nm">' + x.name + '</div><div class="pr">' + fmt(p) + ' aus der Kasse</div><div class="ds">' + x.desc + '</div>';
-        const st2 = uiEl('div', 'ds gst'), bt = gBtn(c, 'Hinstellen', '', () => pgPlace(i, x.id).then(() => { pgSel = -1; return ''; }), st2); bt.disabled = !can || g.kasse < p; c.appendChild(st2); b.appendChild(c); }
-    }
-    try { startPreviews(b); } catch (e) {}
-  }
   // ---------- v123: Fortschritt im Gang-HQ: Gang-Beete und Gang-Wochenziel (alles fuer die Gang-Kasse) ----------
   const GBEET = [{ x: 86, y: 176 }, { x: 86, y: 252 }, { x: 86, y: 328 }, { x: 86, y: 404 }, { x: 146, y: 176 }, { x: 146, y: 252 }, { x: 146, y: 328 }, { x: 146, y: 404 }]; // v133: 8 Beete
   const GB_GROW = 20 * 60000, GB_WATER = 0.25; // 20 Minuten echte Zeit, Giessen spart 25 %
-  const gbValue = () => 3000 + 1500 * clamp((pgang && pgang.lv) || 0, 0, 5);
   const GWZ = [[60, 15000], [250, 50000], [800, 150000]]; // Wochenziel-Stufen: Punkte und Belohnung fuer die Kasse
   const gbOf = i => (pgang && pgang.beet && pgang.beet['b' + i]) || null;
   const gbLeft = b => b ? Math.max(0, (+b.t || 0) + GB_GROW * (b.w ? 1 - GB_WATER : 1) - Date.now()) : 0;
@@ -767,25 +746,5 @@
     if (row.childNodes.length) main.appendChild(row);
     if (m.lv >= 3 && !m.sx) main.appendChild(tmEl('div', 'tmd', (SPEC_FOR[crewKind(m)] || []).map(sx => '<b>' + SPECS[sx].name + '</b>: ' + SPECS[sx].desc).join('<br>')));
     c.appendChild(main); b.appendChild(c);
-  }
-  function renderCrewOld(b) {
-    crewSync(); const k = KR();
-    const info = document.createElement('div'); info.className = 'ds'; info.style.margin = '0 0 6px'; info.textContent = 'Jeder Helfer sammelt durch seine Arbeit Erfahrung. Pro Level gibt es einen Punkt für Tempo oder Geschick, ab Level 3 eine Spezialisierung (wird mit Level 6 und 9 stärker). Höhere Level verdienen etwas mehr Lohn. Spezialisierungs-Boni sind gedeckelt.'; b.appendChild(info);
-    const sums = Object.keys(SPECS).map(s => SPECS[s].ic + ' ' + SPECS[s].name + ' ' + specSum(s)).join(' · '); krCard(b, 'Team-Stärken', fmt(wageTotal()) + ' / Tag', sums);
-    if (!k.crew.length) { const e = document.createElement('div'); e.className = 'empty'; e.textContent = 'Noch keine Helfer. Unter „Anheuern“ stellst du welche ein.'; b.appendChild(e); return; }
-    for (const m of k.crew.slice().sort((a, b) => b.lv - a.lv || a.r.localeCompare(b.r))) {
-      const r = ROLES[m.r], ta = TALENTS[m.ta], off = m.off > absMin(), mx = m.lv >= CREW_MAX;
-      const c = krCard(b, '<span class="dot" style="background:' + r.col + '"></span>' + m.n + ' <span style="color:var(--muted);font-weight:600">' + r.name + ' · Lv ' + m.lv + '</span>' + (off ? ' 🤒' : ''), m.sx ? SPECS[m.sx].ic + ' ' + SPECS[m.sx].name + ' ' + specLv(m) : '',
-        'Talent: ' + ta.name + ' · Tempo ' + m.te + '/5 · Geschick ' + m.ge + '/5 · Lohn ' + fmt(crewWage(m)) + '/Tag<br>' + (mx ? 'Höchstes Level' : 'Erfahrung ' + Math.floor(m.xp) + ' / ' + xpNeed(m.lv) + ' · nächstes Level: +1 Punkt' + (m.lv + 1 === 3 ? ', Spezialisierung' : (m.lv + 1) % 3 === 0 ? ', stärkere Spezialisierung' : '')));
-      if (!mx) krBar(c, m.xp / xpNeed(m.lv));
-      const row = document.createElement('div'); row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;grid-column:1/-1';
-      const btn = (l, fn, dis, on) => { const x = document.createElement('button'); x.className = 'chip' + (on ? ' on' : ''); x.textContent = l; x.disabled = !!dis; x.addEventListener('click', () => { if (fn()) renderPhone(); }); row.appendChild(x); };
-      if (m.sp > 0) { btn('+ Tempo (' + m.sp + ')', () => crewSkill(m.id, 'te'), m.te >= 5, true); btn('+ Geschick (' + m.sp + ')', () => crewSkill(m.id, 'ge'), m.ge >= 5, true); }
-      if (m.lv >= 3 && !m.sx) (SPEC_FOR[crewKind(m)] || []).forEach(sx => btn(SPECS[sx].ic + ' ' + SPECS[sx].name, () => crewSpec(m.id, sx), false, true));
-      if (!mx) btn('Schulung ' + fmt(trainCost(m)) + (m.tr === G.day ? ' (morgen wieder)' : ''), () => crewTrain(m.id), m.tr === G.day || G.money < trainCost(m));
-      moveTargets(m).forEach(to => btn('→ ' + ROLES[to].name, () => crewMove(m.id, to)));
-      c.appendChild(row);
-      if (m.lv >= 3 && !m.sx) { const d = document.createElement('div'); d.className = 'ds'; d.style.gridColumn = '1/-1'; d.textContent = (SPEC_FOR[crewKind(m)] || []).map(sx => SPECS[sx].name + ': ' + SPECS[sx].desc).join(' · '); c.appendChild(d); }
-    }
   }
 

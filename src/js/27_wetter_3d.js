@@ -21,7 +21,6 @@
   for (const r of RD) { const w = r.c1 - r.c0, a = r.c0 + w * 0.3, b = r.c1 - w * 0.3; if (r.h) LANES.push({ r, h: 1, dir: -1, c: a }, { r, h: 1, dir: 1, c: b }); else LANES.push({ r, h: 0, dir: 1, c: a }, { r, h: 0, dir: -1, c: b }); }
   const btraf = []; function updateBridgeTraffic() {} function drawBridgeTraffic() {} // v72: alles in traffic
   const crossBoxes = []; for (const h of RDH) for (const v of RDV) crossBoxes.push({ x0: v.c0, x1: v.c1, y0: h.c0, y1: h.c1 });
-  const inBox = (b, x, y, m) => x > b.x0 - m && x < b.x1 + m && y > b.y0 - m && y < b.y1 + m;
   function committed(o, b) { // ueber die Haltelinie, aber noch nicht aus der Kreuzung heraus
     const half = o.truck ? 31 : 22, d = o.dir;
     if (o.h) { if (o.y < b.y0 || o.y > b.y1) return false; const f = o.x + d * half, r = o.x - d * half; return (f - (d > 0 ? b.x0 - SW - 6 : b.x1 + SW + 6)) * d > 0 && (d > 0 ? r < b.x1 + 4 : r > b.x0 - 4); }
