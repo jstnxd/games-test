@@ -38,7 +38,7 @@
     { id: 'social', name: 'Freunde', sub: 'Online, Gang & Chat', ic: IC.social, c: '#7FD0C8', c2: '#2F9A92', tabs: [['friends', 'Spieler'], ['gang', 'Gang'], ['group', 'Online']] },
     { id: 'stadt', name: 'Stadt', sub: 'Orte & Projekte', ic: '<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"><path d="M16 28s-9-8.2-9-15a9 9 0 0 1 18 0c0 6.8-9 15-9 15z"/><circle cx="16" cy="13" r="3.4" fill="#fff"/></svg>', c: '#FF7AB6', c2: '#C2407F', tabs: [['orte', 'Orte'], ['proj', 'Projekte']] },
     { id: 'cam', name: 'Kamera', sub: 'Fotos & Videos', ic: '<span class="gic">📸</span>', c: '#5BC0EB', c2: '#2A7FB0', tabs: [['kamera', 'Kamera']] }, // v176
-    { id: 'set', name: 'Einstellungen', sub: 'Anzeige & Ton', ic: IC.set, c: '#AAB6C6', c2: '#6B778A', tabs: [['profil', 'Profil'], ['view', 'Anzeige'], ['hudset', 'Steuerung'], ['sound', 'Ton'], ['system', 'Hilfe']] }
+    { id: 'set', name: 'Einstellungen', sub: 'Anzeige & Ton', ic: IC.set, c: '#AAB6C6', c2: '#6B778A', tabs: [['profil', 'Profil'], ['view', 'Anzeige'], ['hudset', 'Steuerung'], ['sound', 'Ton'], ['anl', 'Anleitung'], ['system', 'Hilfe']] }
   ];
   const appOf = t => t === 'style' || t === 'wear' ? APPS.find(a => a.id === 'cosm') : APPS.find(a => a.tabs.some(x => x[0] === t));
   const AREA_THEME = { keller: { c: '#63C174', ic: '🌿', tag: 'Dein Keller: hell, grün und gemütlich' }, tabak: { c: '#7FD0C8', ic: '🍂', tag: 'Die Tabakfarm: Päckchen für Kenner' }, brau: { c: '#5BC0EB', ic: '⚗️', tag: 'Das Chemielabor: funkelnde Fantasie-Kristalle' } };
@@ -66,6 +66,8 @@
     mkSlider('Gesamt', 'm'); mkSlider('Effekte', 's'); mkSlider('Musik', 'u');
     const note = mk('div', 'Die Hintergrundmusik ist ruhig und spielt nur im Spiel. Stumm schaltet Effekte und Musik gleichzeitig.'); note.className = 'ds'; note.style.marginTop = '6px'; card.appendChild(note);
     b.appendChild(card);
+    { const c = mk('div'); c.className = 'card look'; c.innerHTML = '<div class="nm">🎵 Musik je Viertel</div><div class="ds" style="margin:2px 0 8px">Jedes Viertel hat eigene Musik: Synthpop auf der Vergnügungsmeile, Klavier im Nordviertel, dunkler Puls im Gangviertel, metallische Klänge im Gewerbegebiet. Aus: überall die ruhige Standardmusik.</div><div class="chips"><button class="chip" data-mv="1">An</button><button class="chip" data-mv="0">Aus</button></div>'; // v190
+      c.querySelectorAll('[data-mv]').forEach(e => { e.classList.toggle('on', (e.dataset.mv === '1') === musVq); e.addEventListener('click', () => { musVq = e.dataset.mv === '1'; try { localStorage.setItem('kellergruen.musvq', musVq ? '1' : '0'); } catch (x) {} renderPhone(); }); }); b.appendChild(c); }
     const hd2 = mk('div', 'Vibration'); hd2.className = 'grp'; b.appendChild(hd2);
     const c2 = mk('div'); c2.className = 'card look'; c2.style.display = 'block';
     const vb = mk('button', 'Vibration bei Festnahme: ' + (aud.v ? 'an' : 'aus')); vb.className = 'buy' + (aud.v ? '' : ' alt'); vb.style.cssText = 'width:100%';
@@ -215,6 +217,8 @@
       renderGroup(b);
     } else if (tab === 'sound') {
       renderSound(b);
+    } else if (tab === 'anl') {
+      renderAnleitung(b);
     } else if (tab === 'hudset') {
       renderHudSet(b);
     } else if (tab === 'profil') {

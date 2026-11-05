@@ -43,12 +43,14 @@
   };
   // Aufsteigende Schrift im Raum (+1, 3/9 ...)
   function pop3d(txt, pos, col, big) {
-    const T = THREE3, t = cvTex(256, 96, (x, w, h) => { x.font = '900 ' + (big ? 64 : 54) + 'px Inter, system-ui, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round'; x.lineWidth = 12; x.strokeStyle = '#10151C'; x.strokeText(txt, w / 2, h / 2); x.fillStyle = col || '#FFFFFF'; x.fillText(txt, w / 2, h / 2); });
+    const fnt = '900 ' + (big ? 64 : 54) + 'px Inter, system-ui, sans-serif', cw = (() => { try { const c = document.createElement('canvas').getContext('2d'); c.font = fnt; return Math.min(1024, Math.max(256, Math.ceil(c.measureText(txt).width + 48))); } catch (e) { return 512; } })(), ar = cw / 256; // v190: Breite nach Text, damit nichts abgeschnitten wird
+    const T = THREE3, t = cvTex(cw, 96, (x, w, h) => { x.font = fnt; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round'; x.lineWidth = 12; x.strokeStyle = '#10151C'; x.strokeText(txt, w / 2, h / 2); x.fillStyle = col || '#FFFFFF'; x.fillText(txt, w / 2, h / 2); });
     t.wrapS = t.wrapT = T.ClampToEdgeWrapping; t.repeat.set(1, 1);
-    const sp = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthTest: false, depthWrite: false })); sp.renderOrder = 20; const s0 = big ? 0.62 : 0.46; sp.scale.set(s0 * 0.2, s0 * 0.075, 1); sp.position.copy(pos); WK.scene.add(sp);
+    const sp = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthTest: false, depthWrite: false })); sp.renderOrder = 20; const s0 = big ? 0.62 : 0.46; sp.scale.set(s0 * 0.2 * ar, s0 * 0.075, 1); sp.position.copy(pos); WK.scene.add(sp);
     const a = pos.clone(), b = pos.clone().add(new T.Vector3(0, 0.28, 0));
-    tw(sp, { d: 1.0, ez: 'out', a, b, fn: (e, k) => { const g = EZ.back(Math.min(1, k * 3.2)); sp.scale.set(s0 * g, s0 * 0.375 * g, 1); sp.material.opacity = k < 0.6 ? 1 : 1 - (k - 0.6) / 0.4; },
+    tw(sp, { d: 1.0, ez: 'out', a, b, fn: (e, k) => { const g = EZ.back(Math.min(1, k * 3.2)); sp.scale.set(s0 * ar * g, s0 * 0.375 * g, 1); sp.material.opacity = k < 0.6 ? 1 : 1 - (k - 0.6) / 0.4; },
       end: () => { if (sp.parent) sp.parent.remove(sp); t.dispose(); sp.material.dispose(); } });
+    return sp;
   }
   // Ringwelle auf einer Fläche
   function ring(pos, col, r, d) {
@@ -86,7 +88,7 @@
   // v176: Combo, wenn man schnell hintereinander antippt (nicht bei den Alle-Knöpfen)
   function combo(pos, auto) {
     if (auto) { WK.cb = 0; return; } const now = WK.t; WK.cb = now - (WK.cbT === undefined ? -9 : WK.cbT) < 1.3 ? (WK.cb || 0) + 1 : 1; WK.cbT = now; if (G && WK.cb > (G.stat.cb || 0)) G.stat.cb = WK.cb;
-    if (WK.cb >= 3) { pop3d('🔥 Combo x' + WK.cb, pos.clone().add(new THREE3.Vector3(0, 0.42, 0)), WK.cb >= 8 ? '#FF5C7A' : '#FF9A3C', true); asnd.ding(WK.cb); try { faCombo(WK.cb); } catch (e) {} if (WK.cb % 5 === 0) celebrate('🔥 Combo x' + WK.cb + '!', pos.clone()); }
+    if (WK.cb >= 3) { if (WK.cbPop && WK.cbPop.parent) WK.cbPop.parent.remove(WK.cbPop); WK.cbPop = pop3d('🔥 Combo x' + WK.cb, pos.clone().add(new THREE3.Vector3(0, 0.42, 0)), WK.cb >= 8 ? '#FF5C7A' : '#FF9A3C', true); asnd.ding(WK.cb); try { faCombo(WK.cb); } catch (e) {} if (WK.cb % 5 === 0) celebrate('🔥 Combo x' + WK.cb + '!', pos.clone()); }
   }
   // Abschluss-Hopser für das Hauptobjekt
   function joy3(o) { spring(o, 'sq', 0.16, 16, 5); }

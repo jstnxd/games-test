@@ -2,14 +2,15 @@
   // Status steht im Spielstand (G.tut): '' = noch nicht gesehen, 'done' = abgeschlossen, 'skip' = übersprungen.
   // Neue Spiele und alte Spielstände ohne Feld zeigen die Einführung einmal. Während sie offen ist, ist das Spiel pausiert.
   // Elemente und Ereignis-Listener werden genau einmal angelegt; beim Drehen oder Ändern der Größe wird nur neu positioniert.
+  // v190: Einführung auf den aktuellen Stand gebracht (3D-Arbeit, Qualität und Sorten, Packen, Mehrspieler, Kamera)
   const TUT = [
-    { ic: '🌿', t: 'Willkommen bei Kellergrün!', x: 'Du ziehst in deinem Keller Pflanzen groß, trocknest die Ernte, packst sie in Beutel und lieferst sie an Kunden in der Stadt. Mit dem Geld baust du dein Geschäft Schritt für Schritt aus. Dein großes Ziel: 500.000 € Umsatz – und danach geht es weiter.', tip: 'Steuerung: Finger links auf dem Bildschirm ziehen = laufen. A = Aktion (pflanzen, gießen mit A halten, ernten, liefern). B = Ware herausnehmen.', sel: '#bAct', lab: 'A = Aktion' },
-    { ic: '📦', t: 'Aufträge und Einnahmen', x: 'Kunden melden sich mit einer Blase über ihrem Haus: Die Zahl zeigt, wie viele Beutel sie wollen, der Ring die verbleibende Zeit. Geh mit genug Ware hin und drück A.', tip: 'Pünktlich geliefert gibt es Trinkgeld und mehr Ruf. Spezialkunden (★) zahlen besonders gut. Alle offenen Aufträge stehen im Handy unter „Aufträge“.', sel: '#ware', lab: 'Deine Ware' },
-    { ic: '🛒', t: 'Upgrades und Ausbau', x: 'Im Handy findest du den „Laden“: mehr Töpfe, schnelleres Wachstum, mehr Ertrag, ein größeres Trockengestell und mehr Platz zum Tragen.', tip: 'Später kaufst du Tabakscheune und Chemielabor, kaufst Läden in der Stadt und heuerst unter „Helfer“ Leute an, die für dich arbeiten. Mehr Töpfe und schnelleres Wachstum zahlen sich am schnellsten aus.', sel: '#bPhone', lab: 'Handy' },
-    { ic: '⭐', t: 'Ruf und Freischaltungen', x: 'Jede Lieferung bringt Ruf. Mit mehr Ruf melden sich mehr Kunden, und neue Helfer, Gebiete, Fahrzeuge und Kleidung werden frei.', tip: 'Unter dem Ruf siehst du deine Kategorie, alle 10 Ruf kommt eine neue. Für den Aufstieg brauchst du Ruf und Meilensteine (Handy → „Karriere“). Belohnungen für erreichte Ziele holst du unter „Ziele“ ab.', sel: '.tierbar', alt: '#hud .top > div:first-child > .small', lab: 'Ruf und Rufstufe' },
-    { ic: '🗺️', t: 'Leicht zu übersehen', x: 'Die Minikarte zeigt wichtige Orte (K = dein Keller) und Leute mit Aufgaben: Ein gelbes ! heißt, jemand hat eine Quest für dich. Sprich sie mit A an.', tip: 'Questketten bringen Geld, dauerhafte Boni und Titel. Deine Helfer sammeln Erfahrung und lassen sich unter „Helfer → Mitarbeiter“ verbessern und spezialisieren.', sel: '#mini', lab: 'Minikarte' },
-    { ic: '💡', t: 'Tipps für später', x: 'Leuchtet der Bildschirmrand blau und rot, hat dich die Polizei im Blick. Je schneller und dichter das Licht blinkt, desto knapper wird es – dann ist die Ware weg und es gibt eine Strafe.', tip: 'Jahreszeiten und Ereignisse (oben neben der Uhr) ändern Preise und Nachfrage; manche wollen eine Entscheidung im Handy. Ab Ruf 20 kauft dir der Hehler im Gangviertel jederzeit Ware ab. Gespeichert wird automatisch.', sel: '', lab: '' },
-    { ic: '🚀', t: 'Los geht’s!', x: 'Pflanze jetzt deinen ersten Samen: Geh im Keller zu einem Topf und drück A. Unten im Bild steht immer, was du mit A gerade tun kannst.', tip: 'Die Einführung kannst du jederzeit unter Einstellungen → Profil noch einmal ansehen.', sel: '', lab: '' }
+    { ic: '🌿', t: 'Willkommen bei Kellergrün!', x: 'Du ziehst Pflanzen groß, trocknest die Ernte, packst sie in Beutel und lieferst sie an Kunden in der Stadt. Mit dem Geld baust du dein Geschäft Schritt für Schritt aus. Alles ist frei erfunden.', tip: 'Steuerung: Finger auf dem Bildschirm ziehen = laufen. A = Aktion (pflanzen, gießen, ernten, liefern). B = Ware herausnehmen.', sel: '#bAct', lab: 'A = Aktion' },
+    { ic: '🌱', t: 'Selbst anpacken', x: 'Drückst du am Topf A, öffnet sich ein Fenster: Tippe dreimal auf die Erde, um ein Loch zu graben, wirf den Samen hinein und schiebe mit den fünf Erdhäufchen das Loch zu. Gießen: Kanne über den Topf halten. Ernten: Knospen antippen.', tip: 'Wer selbst pflanzt und rechtzeitig gießt, bekommt Qualität: Beim Ernten leuchten Knospen golden und bringen mehr Ertrag. Die Sorte wählst du an der Samentüte.', sel: '#bAct', lab: 'Am Topf A drücken' },
+    { ic: '📦', t: 'Trocknen und packen', x: 'Frische Ernte hängst du ans Trockengestell. Am Packtisch legst du die trockenen Knospen in den offenen Beutel, tippst ihn zum Verschließen an und ziehst ihn in die Kiste.', tip: 'Schnell hintereinander geht eine Combo los. Unten im Fenster steht immer, wie viel du hast.', sel: '#ware', lab: 'Deine Ware' },
+    { ic: '🏠', t: 'Kunden beliefern', x: 'Kunden melden sich mit einer Blase über ihrem Haus: Die Zahl zeigt, wie viele Beutel sie wollen, der Ring die verbleibende Zeit. Geh mit genug Ware hin und drück A.', tip: 'Spezialkunden (★) zahlen besonders gut. Mit einem Auto gibt es unter „Aufträge → Kurier“ Eilpakete. Leuchtet der Bildschirmrand blau und rot, hat dich die Polizei im Blick.', sel: '#ware', lab: 'Ware für Kunden' },
+    { ic: '🛒', t: 'Ausbau und Ruf', x: 'Im Handy unter „Geschäft“ kaufst du mehr Töpfe, bessere Lampen, Dünger und mehr. Jede Lieferung bringt Ruf, mit mehr Ruf werden neue Sorten, Gebiete, Fahrzeuge und Kleidung frei.', tip: 'Oben auf der Handy-Startseite stehen deine ersten Schritte mit Belohnung. Danach gibt es jeden Tag neue Tagesaufgaben und um Mitternacht einen Rückblick.', sel: '#bPhone', lab: 'Handy' },
+    { ic: '🤝', t: 'Zusammen spielen', x: 'Andere Spieler im selben Raum siehst du in der Stadt. Ab und zu gibt es Team-Aufträge und Laternen- oder Ballonjagden, bei denen ihr gemeinsam mehr verdient.', tip: 'Unter „Karriere → Ziele“ wählst du ein Abzeichen, das vor deinem Namen steht. Mit der Kamera-App machst du Fotos und kurze Videos ohne Anzeigen.', sel: '#mini', lab: 'Minikarte' },
+    { ic: '🚀', t: 'Los geht’s!', x: 'Geh im Keller zu einem Topf und drück A, um deinen ersten Samen zu pflanzen. Unten im Bild steht immer, was du mit A gerade tun kannst.', tip: 'Alles zum Nachlesen steht unter Einstellungen → Anleitung. Die Einführung kannst du unter Einstellungen → Profil noch einmal ansehen.', sel: '', lab: '' }
   ];
   let tutOpen = false, tutI = 0, tutBusy = 0, tutEl = null;
   function tutInit() {
@@ -187,14 +188,17 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 190, date: 'November 2026', title: 'Feinschliff', items: [
+      ['fix', '🔥', 'Die Combo-Anzeige ist nicht mehr abgeschnitten, und bei schnellen Tipps steht nur noch die aktuelle Zahl da'],
+      ['neu', '📖', 'Neue Einführung mit allem, was dazugekommen ist: selbst pflanzen, Qualität und Sorten, Packen, Zusammenspielen und Kamera'],
+      ['neu', '📚', 'Spielanleitung zum Nachlesen unter Einstellungen → Anleitung'],
+      ['neu', '🎵', 'Musik je Viertel lässt sich unter Einstellungen → Ton ausschalten'],
+      ['fix', '💾', 'Auch Spielstände aus sehr alten Versionen werden vor dem Update gesichert'] ] },
     { v: 189, date: 'November 2026', title: 'Alle zusammen', items: [
       ['neu', '🏮', 'Gemeinsame Ereignisse: Spielt ihr zu mehreren, tauchen ab und zu 12 Laternen (nachts) oder Luftballons (tagsüber) in der Stadt auf. Hinlaufen oder -fahren sammelt sie ein, jeder Fund bringt Geld'],
       ['neu', '🎉', 'Findet ihr alle in 4 Minuten, bekommt jeder, der mitgemacht hat, einen Bonus und Ruf. Stand und Wegweiser zum nächsten Fund unter Aufträge → Team'] ] },
     { v: 188, date: 'November 2026', title: 'Klang der Stadt', items: [
       ['neu', '🎵', 'Musik je Viertel: Neon-Synthpop auf der Vergnügungsmeile, ruhiges Klavier im Nordviertel, dunkler Puls im Gangviertel und metallische Klänge im Gewerbegebiet. Die Musik wechselt beim Durchfahren weich'] ] },
-    { v: 187, date: 'November 2026', title: 'Abzeichen', items: [
-      ['neu', '🎖️', 'Abzeichen: Jedes erledigte Ziel ist ein Abzeichen. Unter Karriere → Ziele wählst du eins aus, es steht dann vor deinem Namen bei Mitspielern und in der Bestenliste'],
-      ['neu', '🏅', 'Sechs neue Ziele: Grüner Daumen, Goldrichtig, Flinke Finger, Sortenkenner, Teamplayer und Eilbote'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
@@ -224,7 +228,7 @@
     window.addEventListener('resize', () => { if (bigOpen) { bigMapLayout(); bigMapDraw(); } }); } catch (e) {}
   window.addEventListener('keydown', e => { if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return; if (e.code === 'KeyM' && state === 'play' && !phoneOpen && !chatOpen) { bigOpen ? bigMapClose() : bigMapOpen(); } else if (e.code === 'Escape' && bigOpen) bigMapClose(); });
   // v178: Vor jedem Update wird der Spielstand gesichert (Handy → Profil → Sicherungen → Vor dem letzten Update)
-  try { const lv = +store.get('kellergruen.lastver', '0') || 0; if (lv && lv < GAME_VER) { const raw = store.get(SAVE_KEY, null); if (raw) { store.set(SAVE_KEY + '.vorUpdate', raw); store.set('kellergruen.vorUpdateV', String(lv)); } } if (lv !== GAME_VER) store.set('kellergruen.lastver', String(GAME_VER)); } catch (e) {}
+  try { const lv = +store.get('kellergruen.lastver', '0') || 0; if (lv < GAME_VER) { const raw = store.get(SAVE_KEY, null); if (raw) { store.set(SAVE_KEY + '.vorUpdate', raw); store.set('kellergruen.vorUpdateV', lv ? String(lv) : 'älter'); } } if (lv !== GAME_VER) store.set('kellergruen.lastver', String(GAME_VER)); } catch (e) {}
   setTimeout(() => { try { if (!window.__KG_NOTUT && (+store.get(CL_KEY, '0') || 0) < GAME_VER) showChangelog(); } catch (e) { try { window.__kgErr('Changelog: ' + (e && e.message), 'changelog', e && e.stack); } catch (x) {} } }, 300);
   function menuSave() { // v112: Karte mit dem letzten Spielstand im Startmenue
     const el = $('mmSave'); if (!el) return;

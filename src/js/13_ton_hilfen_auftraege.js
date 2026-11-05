@@ -45,7 +45,8 @@
   // v188: Musik je Viertel. Jeder 8-Sekunden-Takt fragt, wo du gerade bist, und spielt dazu einen eigenen Stil.
   // Der Wechsel passiert am Taktanfang, die weichen Flächen blenden dabei von selbst über.
   let musSt = '';
-  function musStyle() { try { if (state !== 'play' || player.fl || inOwnRoom()) return 'mitte'; return vqK(player.x, player.y) || 'mitte'; } catch (e) { return 'mitte'; } }
+  let musVq = (() => { try { return localStorage.getItem('kellergruen.musvq') !== '0'; } catch (e) { return true; } })();
+  function musStyle() { try { if (!musVq || state !== 'play' || player.fl || inOwnRoom()) return 'mitte'; return vqK(player.x, player.y) || 'mitte'; } catch (e) { return 'mitte'; } }
   function musKick(t, v) { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.18); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3); o.connect(g); g.connect(musIn); o.start(t); o.stop(t + 0.35); }
   const MUS_V = {
     // Vergnügungsmeile: Neon-Synthpop, Bass in Achteln, Arpeggio, leichter Beat
