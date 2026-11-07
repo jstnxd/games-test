@@ -706,6 +706,25 @@
     { id: 'wcosmos', slot: 'back', name: 'Kosmosflügel', cost: 1, rep: 999, qx: 'Prestige 9', desc: 'Flügel aus einer ganzen Galaxie' },
     { id: 'pr10', slot: 'aura', name: 'Unendlichkeit', cost: 1, rep: 999, qx: 'Prestige 10', desc: 'Gold, Sterne und Galaxie – die höchste Aura im Spiel' }
   );
+  WEAR.push( // v192: Cyberpunk-Set und neue Kleidung
+    { id: 'visor', slot: 'hat', name: 'Neon-Visier', cost: 2600, rep: 20, desc: 'Leuchtendes Cyan-Visier, ein Lichtstreifen tastet hin und her' },
+    { id: 'neonhawk', slot: 'hat', name: 'Neon-Irokese', cost: 3200, rep: 24, desc: 'Leuchtende Stacheln, die ständig die Farbe wechseln' },
+    { id: 'strawhat', slot: 'hat', name: 'Strohhut', cost: 600, rep: 3, desc: 'Breite Krempe mit rotem Band' },
+    { id: 'goggles', slot: 'hat', name: 'Fliegerbrille', cost: 1400, rep: 10, desc: 'Lederband und Kupferbrille auf der Stirn' },
+    { id: 'techwear', slot: 'top', name: 'Techwear-Jacke', cost: 2800, rep: 20, desc: 'Schwarz mit pulsierenden Cyan-Leuchtstreifen' },
+    { id: 'holojacket', slot: 'top', name: 'Holo-Jacke', cost: 4800, rep: 30, desc: 'Schillert in allen Farben, ein Glanz wandert darüber' },
+    { id: 'raincoat', slot: 'top', name: 'Regenjacke', cost: 700, rep: 5, desc: 'Knallgelb mit Kapuze und Knöpfen' },
+    { id: 'cyberpants', slot: 'bot', name: 'Cyber-Hose', cost: 2200, rep: 18, desc: 'Schwarz mit Kniepanzern und Magenta-Leuchtnaht' },
+    { id: 'ripped', slot: 'bot', name: 'Zerrissene Jeans', cost: 900, rep: 6, desc: 'Mit Rissen an den Knien' },
+    { id: 'cyberboots', slot: 'shoe', name: 'Cyber-Stiefel', cost: 2400, rep: 20, desc: 'Hohe Stiefel mit leuchtender Sohle' },
+    { id: 'skate', slot: 'shoe', name: 'Skaterschuhe', cost: 650, rep: 4, desc: 'Schwarz-weiß kariert' },
+    { id: 'cyborg', slot: 'cos', name: 'Cyborg', cost: 7800, rep: 40, desc: 'Halb Metall, rotes Kunstauge und leuchtender Energiekern' },
+    { id: 'capeholo', slot: 'back', name: 'Holo-Umhang', cost: 6800, rep: 34, desc: 'Durchscheinendes Hologramm mit Scanlinien, flackert manchmal' },
+    { id: 'cyberpack', slot: 'back', name: 'Cyber-Rucksack', cost: 2600, rep: 18, desc: 'Mit Antenne und Leuchtstreifen' },
+    { id: 'wbutterfly', slot: 'back', name: 'Schmetterlingsflügel', cost: 4000, rep: 21, desc: 'Orange Flügel mit dunklem Rand' },
+    { id: 'glitch', slot: 'aura', name: 'Glitch', cost: 8500, rep: 38, desc: 'Bildstörungen in Cyan und Magenta flackern um dich' },
+    { id: 'neongrid', slot: 'aura', name: 'Neon-Gitter', cost: 10500, rep: 44, desc: 'Ein leuchtendes Gitter unter dir, ein Lichtring steigt auf' }
+  );
   const PRES_ITEM = [null, 'pr1', 'capestar', 'crownp', 'pr4', 'wstar', 'pr6', 'capeprism', 'crownstar', 'wcosmos', 'pr10'];
   const WEAR_BY = Object.fromEntries(WEAR.map(w => [w.id, w]));
   const WEAR_DEF = { top: 'tshirt', bot: 'auto', hat: 'none', cos: 'none', aura: 'none', shoe: 'stdshoe', bnd: 'none', back: 'none' };

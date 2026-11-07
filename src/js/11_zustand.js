@@ -261,6 +261,17 @@
     { id: 'ghost', kind: 'pet', name: 'Gespenst', desc: 'Ein freundliches kleines Gespenst schwebt um dich, wird mal durchsichtig und streckt die Zunge raus', cost: 4160, rep: 50 },
     { id: 'unicorn', kind: 'pet', name: 'Mini-Einhorn', desc: 'Ein weißes Einhorn mit Regenbogenmähne und goldenem Horn, das Funkeln hinterlässt', cost: 5120, rep: 62 }
   );
+  COS.push( // v192: Cyberpunk und neue Begleiter
+    { id: 'datastream', kind: 'orbit', name: 'Datenstrom', desc: 'Leuchtende Nullen und Einsen kreisen um dich', cost: 1900, rep: 24 },
+    { id: 'drones', kind: 'orbit', name: 'Mini-Drohnen', desc: 'Zwei kleine Drohnen mit blinkenden Lichtern umkreisen dich', cost: 3400, rep: 34 },
+    { id: 'glitchtr', kind: 'trail', name: 'Glitch-Spur', desc: 'Flackernde Bildfehler in Cyan und Magenta bleiben hinter dir', cost: 1500, rep: 20 },
+    { id: 'neontr', kind: 'trail', name: 'Neonspur', desc: 'Zwei Leuchtbänder in Cyan und Magenta ziehen hinter dir her', cost: 2200, rep: 26 },
+    { id: 'leaftrail', kind: 'trail', name: 'Herbstlaub', desc: 'Bunte Blätter wirbeln hinter dir auf', cost: 600, rep: 6 },
+    { id: 'hamster', kind: 'pet', name: 'Hamster', desc: 'Ein runder Hamster mit dicken Backen trippelt dir nach', cost: 1200, rep: 10 },
+    { id: 'bee', kind: 'pet', name: 'Hummel', desc: 'Eine flauschige Hummel brummt neben dir her', cost: 1800, rep: 16 },
+    { id: 'robodog', kind: 'pet', name: 'Robo-Hund', desc: 'Ein Roboterhund mit Leuchtvisier, wedelt mit der Antenne', cost: 3800, rep: 40 },
+    { id: 'drone', kind: 'pet', name: 'Drohne', desc: 'Eine kleine Drohne schwebt neben dir und scannt die Gegend', cost: 4500, rep: 46 }
+  );
   DECOR.push( // v130: Deko, die sich bewegt
     { id: 'firefly', name: 'Glühwürmchen-Glas', desc: 'Kleine Lichter schwirren im Glas, nachts leuchtet es richtig', cost: 290, rep: 2 },
     { id: 'mobile', name: 'Sternen-Mobile', desc: 'Sterne und ein Mond drehen sich langsam im Kreis', cost: 350, rep: 3 },
@@ -320,7 +331,7 @@
   let phist = [], pclock = 0;
   const activePets = () => [G.cos.pet, G.cos.pet2].filter(x => x && x !== 'none');
   function petSnap() { phist.length = 0; pets.forEach((p, n) => { p.x = player.x - 14 - n * 12; p.y = player.y + 8 + n * 4; }); }
-  const FLY = ['bird', 'dolphin', 'dragon', 'owl', 'axolotl', 'ghost']; // v130: Eule, Axolotl und Gespenst schweben
+  const FLY = ['bird', 'dolphin', 'dragon', 'owl', 'axolotl', 'ghost', 'bee', 'drone']; // v130: Eule, Axolotl und Gespenst schweben
   function petUpdate(dt, moved) {
     const act = activePets(); if (!act.length) return;
     pclock += dt; pet.clock = pclock;
