@@ -490,7 +490,14 @@
     const pl = new T.Plane(new T.Vector3(0, 0, 1), -0.1), pt = new T.Vector3(); if (ray.ray.intersectPlane(pl, pt)) { WK.can.position.set(Math.max(-1.1, Math.min(0.8, pt.x - 0.3)), 0.98, 0); }
   }
   // ---------- Ablauf ----------
+  // v191: Ein Fehler in einem einzelnen Bild darf das Fenster nicht einfrieren. Er wird gemeldet, das nächste Bild läuft weiter.
+  let workErrT = 0;
   function workFrame(ts) {
+    if (!workOpen || !WK || !WK.scene) return;
+    try { workFrameRun(ts); } catch (e) { const now = Date.now(); if (now - workErrT > 5000) { workErrT = now; try { window.__kgErr('Arbeitsfenster: ' + (e && e.message), 'work', e && e.stack); } catch (x) {} } }
+    if (workOpen && WK && WK.scene) WK.loop = requestAnimationFrame(workFrame);
+  }
+  function workFrameRun(ts) {
     if (!workOpen || !WK || !WK.scene) return; const dt = Math.min(0.05, ((ts - (WK.last || ts)) / 1000) || 0.016); WK.last = ts; WK.t += dt;
     if (WK.mode === 'water' || WK.mode === 'harvest') WK.root.rotation.y = Math.sin(WK.t * 0.35) * 0.3;
     for (let i = WK.anim.length - 1; i >= 0; i--) { const a = WK.anim[i]; a.t += dt; const k = Math.min(1, a.t / a.d), e = 1 - Math.pow(1 - k, 3);
@@ -500,7 +507,7 @@
       const can = WK.can, tilt = WK.holding ? -0.75 : 0; can.rotation.z += (tilt - can.rotation.z) * Math.min(1, dt * 10);
       const tip = can.userData.tip.clone().applyMatrix4(can.matrixWorld), over = Math.hypot(tip.x, tip.z) < 0.26 && WK.holding;
       if (WK.holding) for (let q = 0; q < 2; q++) for (const d of WK.drops) if (!d.m.visible && Math.random() < dt * 40) { d.m.visible = true; d.m.position.copy(tip); d.v.set((Math.random() - 0.5) * 0.15, -0.2, (Math.random() - 0.5) * 0.15); d.t = 0; break; }
-      WK.spT -= dt; for (const d of WK.drops) if (d.m.visible) { d.v.y -= 3.2 * dt; d.m.position.addScaledVector(d.v, dt); d.t += dt; if (d.m.position.y < 0.3 || d.t > 1.2) { d.m.visible = false; if (WK.spT <= 0 && d.m.position.y < 0.32 && Math.hypot(d.m.position.x, d.m.position.z) < 0.22) { WK.spT = 0.12; burst(d.m.position.clone(), ['#9FD8FF', '#CFEFFF', '#FFFFFF'], 6, 0.35, 0.35, 0.02, 3, true); if (Math.random() < 0.35) ring(new T.Vector3(d.m.position.x, 0.305, d.m.position.z), '#9FD8FF', 0.08, 0.4); } } }
+      WK.spT -= dt; for (const d of WK.drops) if (d.m.visible) { d.v.y -= 3.2 * dt; d.m.position.addScaledVector(d.v, dt); d.t += dt; if (d.m.position.y < 0.3 || d.t > 1.2) { d.m.visible = false; if (WK.spT <= 0 && d.m.position.y < 0.32 && Math.hypot(d.m.position.x, d.m.position.z) < 0.22) { WK.spT = 0.12; burst(d.m.position.clone(), ['#9FD8FF', '#CFEFFF', '#FFFFFF'], 6, 0.35, 0.35, 0.02, 3, true); if (Math.random() < 0.35) ring(new THREE3.Vector3(d.m.position.x, 0.305, d.m.position.z), '#9FD8FF', 0.08, 0.4); } } }
       if (over && WK.p.s === 1) { const b = WK.p.w; WK.p.w = Math.min(1, WK.p.w + dt * 1.0); if (WK.p.w > b && Math.random() < dt * 10) { try { sfx.water(); } catch (e) {} } workCount(); 
         if (WK.p.w >= 1 && !WK.done) { WK.done = true; G.stat.wt = (G.stat.wt || 0) + 1; const qup = qualWater(WK.p, WK.w0); WK.hintEl.textContent = 'Genug Wasser!' + (qup ? ' Qualität +' + Math.round(qup * 100) + ' %' : ''); celebrate('💧 Genug Wasser!'); joy3(WK.plant); ring(new THREE3.Vector3(0, 0.31, 0), '#9FD8FF', 0.3); setTimeout(() => { if (workOpen && WK.mode === 'water') workClose(); }, 1400); } }
     }
@@ -508,5 +515,5 @@
     if (WK.mode === 'pack' && WK.bag && WK.packSt === 'sealed' && !WK.drag) WK.bag.position.y = WK.bag.userData.home.y + Math.abs(Math.sin(WK.t * 4)) * 0.02;
     decoFrame(dt); // v172
     if (!WK.lowRes) { WK.slow = WK.slow * 0.97 + (dt > 0.034 ? 1 : 0) * 0.03; if (WK.t > 1.5 && WK.slow > 0.6) { WK.lowRes = true; WK.r.setPixelRatio(1); workResize(); } } // langsames Handy: geringere Auflösung
-    WK.r.render(WK.scene, WK.cam); WK.loop = requestAnimationFrame(workFrame);
+    WK.r.render(WK.scene, WK.cam);
   }

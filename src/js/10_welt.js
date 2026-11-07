@@ -1153,12 +1153,13 @@
     AREA_KEYS.forEach(k => { if (k === 'tabak' && !G.t.unlocked) return; if (k === 'brau' && !G.b.unlocked) return; up += (UPKEEP[k] || 0) + 3 * potsOpen(AREAS[k]); });
     return { wages: wageTotal(), upkeep: Math.round(up * krUpkeep() * wageK()), tax: Math.round(Math.max(0, G.earned - (G.eod || 0)) * 0.04) };
   }
+  let dayCost = null;
   function payDaily() {
     bankInterest(); // v94: Sparzinsen der Stadtsparkasse
     heatDaily(); // v100: Razzia-Gefahr
     const c = dailyCosts(), total = c.wages + c.upkeep + c.tax; G.eod = G.earned;
     if (!total) return;
-    const paid = Math.min(G.money, total); G.money -= paid;
+    const paid = Math.min(G.money, total); G.money -= paid; dayCost = { w: c.wages, u: c.upkeep, t: c.tax, paid, total, d: G.day - 1 }; // v191: für die Feierabend-Karte
     const parts = [c.wages && 'Löhne −' + fmt(c.wages), c.upkeep && 'Unterhalt −' + fmt(c.upkeep), c.tax && 'Steuern −' + fmt(c.tax)].filter(Boolean).join(' · ');
     msg('Tag ' + (G.day - 1) + ' vorbei: ' + parts + (paid < total ? ' (Geld reicht nicht ganz)' : ''), paid < total);
   }

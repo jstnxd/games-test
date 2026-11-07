@@ -40,6 +40,9 @@
     }
     if (faPend && state === 'play' && !phoneOpen && !workOpen && !FOTO.on) { const p = faPend; faPend = null; faShow(p.r, p.rec); }
   }
+  // v191: Tageskosten (Löhne, Unterhalt, Steuern) auf der Karte, damit man sieht, wohin das Geld um Mitternacht geht
+  function faCostHtml(r) { const c = dayCost; if (!c || c.d !== r.d || !c.total) return ''; const parts = [c.w && 'Löhne ' + fmt(c.w), c.u && 'Unterhalt ' + fmt(c.u), c.t && 'Steuern ' + fmt(c.t)].filter(Boolean).join(' · ');
+    return '<div class="fa-f" style="color:' + (c.paid < c.total ? '#FF8FA3' : '#C9D6E3') + '">🧾 Tageskosten −' + fmt(c.paid) + ' (' + parts + ')' + (c.paid < c.total ? ' · Bargeld hat nicht gereicht' : '') + '</div>'; }
   function faRows(r) { const L = FA_KEYS.filter(([k]) => r[k] > 0).map(([k, ic, nm]) => [k, ic, k === 'earn' ? fmt(r[k]) : (k === 'rep' ? '+' : '') + r[k], nm]); if (r.cb >= 3) L.push(['cb', '🔥', 'x' + r.cb, 'beste Combo']); return L; }
   // v176: Combo beim Ernten und Packen (schnell hintereinander). Merkt sich die beste Combo des Tages.
   function faCombo(n) { try { const D = FA(); if (n > (D.cbD || 0)) D.cbD = n; } catch (e) {} }
@@ -48,6 +51,7 @@
     const rows = faRows(r), nr = Object.keys(rec || {}).length;
     el.innerHTML = '<div class="fa-h"><div class="fa-t">🌙 Feierabend</div><div class="fa-d">Tag ' + r.d + (nr ? ' · <b>🏆 ' + nr + ' neue' + (nr === 1 ? 'r Rekord' : ' Rekorde') + '</b>' : '') + '</div></div>'
       + '<div class="fa-g">' + rows.map(([k, ic, v, nm]) => '<div class="fa-r' + (rec && rec[k] ? ' rec' : '') + '"><i>' + ic + '</i><b>' + v + '</b><span>' + nm + (rec && rec[k] ? ' 🏆' : '') + '</span></div>').join('') + '</div>'
+      + faCostHtml(r)
       + '<div class="fa-f">' + (r.td ? '📋 Tagesaufgaben ' + r.td + ' / 3' : 'Morgen warten neue Tagesaufgaben') + '</div>'
       + '<div class="fa-b"><button class="fa-share">📸 Als Bild teilen</button><button class="fa-ok">Weiter</button></div>';
     el.hidden = false; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); try { sfx.ping(); } catch (e) {}

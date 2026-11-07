@@ -188,6 +188,10 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 191, date: 'November 2026', title: 'Gießen repariert', items: [
+      ['fix', '💧', 'Beim Gießen blieb das Fenster manchmal stehen und man musste es schließen. Das lag an einem Fehler, wenn Tropfen auf der Erde landeten. Behoben'],
+      ['fix', '🛟', 'Sollte im Arbeitsfenster doch einmal etwas schiefgehen, läuft es weiter, und der Fehler landet im Protokoll'],
+      ['neu', '🧾', 'Die Feierabend-Karte zeigt jetzt die Tageskosten, die um Mitternacht abgebucht werden (Löhne, Unterhalt, Steuern)'] ] },
     { v: 190, date: 'November 2026', title: 'Feinschliff', items: [
       ['fix', '🔥', 'Die Combo-Anzeige ist nicht mehr abgeschnitten, und bei schnellen Tipps steht nur noch die aktuelle Zahl da'],
       ['neu', '📖', 'Neue Einführung mit allem, was dazugekommen ist: selbst pflanzen, Qualität und Sorten, Packen, Zusammenspielen und Kamera'],
@@ -197,8 +201,6 @@
     { v: 189, date: 'November 2026', title: 'Alle zusammen', items: [
       ['neu', '🏮', 'Gemeinsame Ereignisse: Spielt ihr zu mehreren, tauchen ab und zu 12 Laternen (nachts) oder Luftballons (tagsüber) in der Stadt auf. Hinlaufen oder -fahren sammelt sie ein, jeder Fund bringt Geld'],
       ['neu', '🎉', 'Findet ihr alle in 4 Minuten, bekommt jeder, der mitgemacht hat, einen Bonus und Ruf. Stand und Wegweiser zum nächsten Fund unter Aufträge → Team'] ] },
-    { v: 188, date: 'November 2026', title: 'Klang der Stadt', items: [
-      ['neu', '🎵', 'Musik je Viertel: Neon-Synthpop auf der Vergnügungsmeile, ruhiges Klavier im Nordviertel, dunkler Puls im Gangviertel und metallische Klänge im Gewerbegebiet. Die Musik wechselt beim Durchfahren weich'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };
