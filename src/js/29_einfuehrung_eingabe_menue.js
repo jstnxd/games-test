@@ -188,6 +188,9 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 194, date: 'November 2026', title: 'Fehlersuche', items: [
+      ['fix', '🕹️', 'Alter Spielautomat und Getränkeautomat sehen wieder aus wie vorher und stehen nicht mehr doppelt im Laden. Die Cyberpunk-Versionen heißen jetzt eigenständig Arcade-Automat und Cyber-Automat'],
+      ['info', '🔍', 'Großer Fehlercheck: alle Menüs, alle Kleidungsstücke, Effekte, Begleiter, Deko und Orte automatisch durchgetestet'] ] },
     { v: 193, date: 'November 2026', title: 'Cyberpunk komplett', items: [
       ['neu', '🌃', 'Cyberpunk-Set erweitert: LED-Cap, Cyber-Atemmaske, Daten-Halo, LED-Weste, Synth-Mantel, Tech-Cargo, Neon-Rock, Schwebeschuhe, Neonflügel, Neon-Katana'],
       ['neu', '🤖', 'Neue Kostüme Netrunner und Androide, Auren Leiterbahnen und Neonregen, Holo-Bildschirme und Holo-Würfel, Leiterbahn-Spur'],
@@ -201,10 +204,6 @@
       ['neu', '🐾', 'Neue Begleiter: Robo-Hund, Drohne, Hamster und Hummel'],
       ['neu', '👕', 'Neue Kleidung: Strohhut, Fliegerbrille, Regenjacke, zerrissene Jeans, Skaterschuhe und Schmetterlingsflügel'],
       ['chg', '🎩', 'Aufgefrischt: Stirnband, Cowboyhut, Fischerhut, Baskenmütze, Schiebermütze, Matrosenmütze und die Schneeflocken'] ] },
-    { v: 191, date: 'November 2026', title: 'Gießen repariert', items: [
-      ['fix', '💧', 'Beim Gießen blieb das Fenster manchmal stehen und man musste es schließen. Das lag an einem Fehler, wenn Tropfen auf der Erde landeten. Behoben'],
-      ['fix', '🛟', 'Sollte im Arbeitsfenster doch einmal etwas schiefgehen, läuft es weiter, und der Fehler landet im Protokoll'],
-      ['neu', '🧾', 'Die Feierabend-Karte zeigt jetzt die Tageskosten, die um Mitternacht abgebucht werden (Löhne, Unterhalt, Steuern)'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

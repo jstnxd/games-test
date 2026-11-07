@@ -372,7 +372,7 @@
         F('#14161C'); rr(-10, 1, 20, 5, 1); ctx.fill(); for (let k = 0; k < 8; k++) { F('hsl(' + ((t * 120 + k * 30) % 360).toFixed(0) + ',100%,60%)'); ctx.fillRect(-9 + k * 2.3, 2.2, 1.6, 0.8); ctx.fillRect(-9 + k * 2.3, 3.8, 1.6, 0.8); }
         F('#14161C'); rr(13, 2, 4, 5, 2); ctx.fill(); F(MG); ctx.fillRect(14.6, 2.6, 0.8, 1.2);
         return true; }
-      case 'arcade': {
+      case 'cyberarcade': {
         sh(13, 17); F('#1E1A3A'); rr(-13, -24, 26, 41, 3); ctx.fill(); F(MG); ctx.fillRect(-13, -24, 1.2, 41); ctx.fillRect(11.8, -24, 1.2, 41);
         F('#2A1F4A'); rr(-12, -24, 24, 5, 2); ctx.fill(); add(() => glow(0, -21.5, 14, '255,63,180', 0.25 * gk)); F('#FFD0EE'); ctx.font = '900 4px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('NEON RUN', 0, -21.4); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         const g = ctx.createLinearGradient(0, -18, 0, -5); g.addColorStop(0, '#2A0E4A'); g.addColorStop(0.55, '#B8327A'); g.addColorStop(0.56, '#14081E'); g.addColorStop(1, '#14081E'); F(g); ctx.fillRect(-9, -18, 18, 13);
@@ -394,7 +394,7 @@
         add(() => { glow(0, -6, 16, '41,230,255', 0.2 * gk * fk); ctx.globalAlpha = fk; for (let k = 0; k < 7; k++) { const a = -Math.PI / 2 + (k - 3) * 0.42 + Math.sin(t * 1.4 + k) * 0.06, len = 9 + (3 - Math.abs(k - 3)) * 2.2; ctx.save(); ctx.translate(jx, 2); ctx.rotate(a + Math.PI / 2); F('rgba(41,230,255,.35)'); ctx.strokeStyle = 'rgba(160,255,255,.85)'; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(2.6, -len * 0.5, 0, -len); ctx.quadraticCurveTo(-2.6, -len * 0.5, 0, 0); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -len); ctx.stroke(); ctx.restore(); }
           F('rgba(200,255,255,.3)'); for (let k = 0; k < 4; k++) ctx.fillRect(-9 + jx, -16 + ((k * 4 + t * 6) % 18), 18, 0.4); ctx.globalAlpha = 1; });
         F('#0E1016'); ell(0, 3, 6.4, 1.6); ctx.fill(); F(CY); C(0, 3, 1); return true; }
-      case 'vending': {
+      case 'cybervend': {
         sh(14, 17); F('#1E2230'); rr(-14, -24, 28, 41, 2); ctx.fill(); F('#2A3040'); ctx.fillRect(-14, -24, 28, 3);
         F('#0A0E16'); ctx.fillRect(-11, -20, 16, 25); const cc = ['#FF3FB4', '#29E6FF', '#FFE45C', '#63FF9A'];
         for (let r = 0; r < 4; r++) { F('#3A4050'); ctx.fillRect(-11, -14.5 + r * 6, 16, 0.6); for (let c = 0; c < 4; c++) { F(cc[(r + c) % 4]); rr(-10 + c * 3.8, -19 + r * 6, 2.6, 4, 0.8); ctx.fill(); F('rgba(255,255,255,.35)'); ctx.fillRect(-9.6 + c * 3.8, -18.6 + r * 6, 0.6, 3); } }

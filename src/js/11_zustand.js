@@ -315,17 +315,17 @@
     { id: 'neonopen', name: 'Neon „OPEN 24/7“', desc: 'Cyan-pinkes Neonschild, die Buchstaben flackern manchmal', cost: 900, rep: 10 },
     { id: 'serverrack', name: 'Server-Schrank', desc: 'Hunderte LEDs blinken, die Lüfter drehen', cost: 1500, rep: 16 },
     { id: 'hackdesk', name: 'Hacker-Station', desc: 'Drei Bildschirme mit laufendem Code und leuchtender Tastatur', cost: 2600, rep: 24 },
-    { id: 'arcade', name: 'Arcade-Automat', desc: 'Retro-Automat mit Neon-Rennspiel unter einer Pixel-Sonne', cost: 2200, rep: 20 },
+    { id: 'cyberarcade', name: 'Arcade-Automat', desc: 'Retro-Automat mit Neon-Rennspiel unter einer Pixel-Sonne', cost: 2200, rep: 20 },
     { id: 'neontube', name: 'Neonröhre', desc: 'Stehende Leuchtröhre, die langsam die Farbe wechselt', cost: 650, rep: 6 },
     { id: 'holoplant', name: 'Holo-Pflanze', desc: 'Eine Pflanze aus Licht, die leise flackert', cost: 1100, rep: 12 },
-    { id: 'vending', name: 'Cyber-Automat', desc: 'Leuchtender Getränkeautomat, ab und zu fällt eine Dose', cost: 1800, rep: 18 },
+    { id: 'cybervend', name: 'Cyber-Automat', desc: 'Leuchtender Getränkeautomat, ab und zu fällt eine Dose', cost: 1800, rep: 18 },
     { id: 'neonrug', name: 'Neon-Teppich', desc: 'Schwarzer Teppich mit Leuchtgitter und pulsierender Kante', cost: 1300, rep: 14 },
     { id: 'cyberbike', name: 'Neon-Motorrad', desc: 'Ein geparktes Bike mit Leuchtstreifen und glühenden Felgen', cost: 4800, rep: 36 },
     { id: 'cryopod', name: 'Kryo-Kapsel', desc: 'Eine Kapsel voller kaltem Nebel, die Anzeige zählt langsam', cost: 4200, rep: 40 },
     { id: 'holoboard', name: 'Holo-Werbetafel', desc: 'Ein Koi-Hologramm schwimmt über die Tafel', cost: 3000, rep: 28 }
   );
-  const DEC_CYBER = ['holotable', 'neonopen', 'serverrack', 'hackdesk', 'arcade', 'neontube', 'holoplant', 'vending', 'neonrug', 'cyberbike', 'cryopod', 'holoboard'];
-  Object.assign(DHALF, { holotable: [20, 14], neonopen: [22, 12], serverrack: [11, 20], hackdesk: [26, 15], arcade: [13, 20], neontube: [6, 18], holoplant: [9, 14], vending: [14, 20], neonrug: [30, 22], cyberbike: [28, 13], cryopod: [13, 22], holoboard: [20, 16] }); DEC_NEW.unshift(...DEC_CYBER); RUGS.push('neonrug');
+  const DEC_CYBER = ['holotable', 'neonopen', 'serverrack', 'hackdesk', 'cyberarcade', 'neontube', 'holoplant', 'cybervend', 'neonrug', 'cyberbike', 'cryopod', 'holoboard'];
+  Object.assign(DHALF, { holotable: [20, 14], neonopen: [22, 12], serverrack: [11, 20], hackdesk: [26, 15], cyberarcade: [13, 20], neontube: [6, 18], holoplant: [9, 14], cybervend: [14, 20], neonrug: [30, 22], cyberbike: [28, 13], cryopod: [13, 22], holoboard: [20, 16] }); DEC_NEW.unshift(...DEC_CYBER); RUGS.push('neonrug');
   const GHQ_CHILL = ['slotmachine', 'slotneon', 'lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler'].concat(DEC_CYBER);
   Object.assign(DHALF, { lounge: [34, 22], firepit: [18, 14], console: [32, 20], djbooth: [26, 18], neonsign: [24, 14], pokertable: [30, 20], tagwall: [30, 16], sneakerwall: [26, 20], hoops: [14, 22], moneycount: [20, 12], speakerwall: [18, 22], cooler: [13, 12] });
   Object.assign(DHALF, { firefly: [8, 14], mobile: [14, 18], rocker: [16, 18], newton: [14, 10], cuckoo: [12, 20], plasma: [10, 14], fountain: [16, 16], robovac: [18, 16], bubbles: [10, 14], trainset: [28, 18], carousel: [18, 20], jellytank: [14, 22] });
