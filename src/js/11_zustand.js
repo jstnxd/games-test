@@ -270,7 +270,12 @@
     { id: 'hamster', kind: 'pet', name: 'Hamster', desc: 'Ein runder Hamster mit dicken Backen trippelt dir nach', cost: 1200, rep: 10 },
     { id: 'bee', kind: 'pet', name: 'Hummel', desc: 'Eine flauschige Hummel brummt neben dir her', cost: 1800, rep: 16 },
     { id: 'robodog', kind: 'pet', name: 'Robo-Hund', desc: 'Ein Roboterhund mit Leuchtvisier, wedelt mit der Antenne', cost: 3800, rep: 40 },
-    { id: 'drone', kind: 'pet', name: 'Drohne', desc: 'Eine kleine Drohne schwebt neben dir und scannt die Gegend', cost: 4500, rep: 46 }
+    { id: 'drone', kind: 'pet', name: 'Drohne', desc: 'Eine kleine Drohne schwebt neben dir und scannt die Gegend', cost: 4500, rep: 46 },
+    { id: 'holoscreens', kind: 'orbit', name: 'Holo-Bildschirme', desc: 'Drei kleine Holo-Fenster mit Grafiken kreisen um dich', cost: 2600, rep: 28 }, // v193
+    { id: 'holocubes', kind: 'orbit', name: 'Holo-Würfel', desc: 'Leuchtende Drahtwürfel drehen sich um dich', cost: 2100, rep: 25 },
+    { id: 'circuittr', kind: 'trail', name: 'Leiterbahn-Spur', desc: 'Hinter dir leuchten kurz Platinenbahnen auf', cost: 1800, rep: 22 },
+    { id: 'robocat', kind: 'pet', name: 'Robo-Katze', desc: 'Eine Roboterkatze mit Leuchtaugen und Kabelschwanz', cost: 3600, rep: 38 },
+    { id: 'holofish', kind: 'pet', name: 'Holo-Koi', desc: 'Ein Hologramm-Koi schwimmt durch die Luft und flackert manchmal', cost: 5200, rep: 50 }
   );
   DECOR.push( // v130: Deko, die sich bewegt
     { id: 'firefly', name: 'Glühwürmchen-Glas', desc: 'Kleine Lichter schwirren im Glas, nachts leuchtet es richtig', cost: 290, rep: 2 },
@@ -305,7 +310,23 @@
     { id: 'slotneon', name: 'Neon-Automat', desc: 'Lila Automat mit leuchtender Jackpot-Schrift, drehenden Walzen und Münzregen bei Gewinn', cost: 2800, rep: 30 }
   );
   Object.assign(DHALF, { slotmachine: [15, 24], slotneon: [15, 24], gamingchair: [12, 15] }); DEC_NEW.unshift('gamingchair', 'slotmachine', 'slotneon');
-  const GHQ_CHILL = ['slotmachine', 'slotneon', 'lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler'];
+  DECOR.push( // v193: Cyberpunk-Deko
+    { id: 'holotable', name: 'Holo-Tisch', desc: 'Über dem Tisch dreht sich eine Stadt als Hologramm', cost: 3400, rep: 30 },
+    { id: 'neonopen', name: 'Neon „OPEN 24/7“', desc: 'Cyan-pinkes Neonschild, die Buchstaben flackern manchmal', cost: 900, rep: 10 },
+    { id: 'serverrack', name: 'Server-Schrank', desc: 'Hunderte LEDs blinken, die Lüfter drehen', cost: 1500, rep: 16 },
+    { id: 'hackdesk', name: 'Hacker-Station', desc: 'Drei Bildschirme mit laufendem Code und leuchtender Tastatur', cost: 2600, rep: 24 },
+    { id: 'arcade', name: 'Arcade-Automat', desc: 'Retro-Automat mit Neon-Rennspiel unter einer Pixel-Sonne', cost: 2200, rep: 20 },
+    { id: 'neontube', name: 'Neonröhre', desc: 'Stehende Leuchtröhre, die langsam die Farbe wechselt', cost: 650, rep: 6 },
+    { id: 'holoplant', name: 'Holo-Pflanze', desc: 'Eine Pflanze aus Licht, die leise flackert', cost: 1100, rep: 12 },
+    { id: 'vending', name: 'Cyber-Automat', desc: 'Leuchtender Getränkeautomat, ab und zu fällt eine Dose', cost: 1800, rep: 18 },
+    { id: 'neonrug', name: 'Neon-Teppich', desc: 'Schwarzer Teppich mit Leuchtgitter und pulsierender Kante', cost: 1300, rep: 14 },
+    { id: 'cyberbike', name: 'Neon-Motorrad', desc: 'Ein geparktes Bike mit Leuchtstreifen und glühenden Felgen', cost: 4800, rep: 36 },
+    { id: 'cryopod', name: 'Kryo-Kapsel', desc: 'Eine Kapsel voller kaltem Nebel, die Anzeige zählt langsam', cost: 4200, rep: 40 },
+    { id: 'holoboard', name: 'Holo-Werbetafel', desc: 'Ein Koi-Hologramm schwimmt über die Tafel', cost: 3000, rep: 28 }
+  );
+  const DEC_CYBER = ['holotable', 'neonopen', 'serverrack', 'hackdesk', 'arcade', 'neontube', 'holoplant', 'vending', 'neonrug', 'cyberbike', 'cryopod', 'holoboard'];
+  Object.assign(DHALF, { holotable: [20, 14], neonopen: [22, 12], serverrack: [11, 20], hackdesk: [26, 15], arcade: [13, 20], neontube: [6, 18], holoplant: [9, 14], vending: [14, 20], neonrug: [30, 22], cyberbike: [28, 13], cryopod: [13, 22], holoboard: [20, 16] }); DEC_NEW.unshift(...DEC_CYBER); RUGS.push('neonrug');
+  const GHQ_CHILL = ['slotmachine', 'slotneon', 'lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler'].concat(DEC_CYBER);
   Object.assign(DHALF, { lounge: [34, 22], firepit: [18, 14], console: [32, 20], djbooth: [26, 18], neonsign: [24, 14], pokertable: [30, 20], tagwall: [30, 16], sneakerwall: [26, 20], hoops: [14, 22], moneycount: [20, 12], speakerwall: [18, 22], cooler: [13, 12] });
   Object.assign(DHALF, { firefly: [8, 14], mobile: [14, 18], rocker: [16, 18], newton: [14, 10], cuckoo: [12, 20], plasma: [10, 14], fountain: [16, 16], robovac: [18, 16], bubbles: [10, 14], trainset: [28, 18], carousel: [18, 20], jellytank: [14, 22] });
   const placedCount = id => DEC_KEYS.reduce((n, k) => n + G.dec.items[k].filter(d => d.id === id).length, 0);
@@ -331,7 +352,7 @@
   let phist = [], pclock = 0;
   const activePets = () => [G.cos.pet, G.cos.pet2].filter(x => x && x !== 'none');
   function petSnap() { phist.length = 0; pets.forEach((p, n) => { p.x = player.x - 14 - n * 12; p.y = player.y + 8 + n * 4; }); }
-  const FLY = ['bird', 'dolphin', 'dragon', 'owl', 'axolotl', 'ghost', 'bee', 'drone']; // v130: Eule, Axolotl und Gespenst schweben
+  const FLY = ['bird', 'dolphin', 'dragon', 'owl', 'axolotl', 'ghost', 'bee', 'drone', 'holofish']; // v130: Eule, Axolotl und Gespenst schweben
   function petUpdate(dt, moved) {
     const act = activePets(); if (!act.length) return;
     pclock += dt; pet.clock = pclock;

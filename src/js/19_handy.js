@@ -490,6 +490,7 @@
   { const add = (cat, ids) => DCAT.find(c => c[0] === cat)[1].push(...ids); add('Pflanzen', ['planter']); add('Möbel', ['armchair']); add('Teppiche', ['rugstripe']); add('Licht und Stimmung', ['lantern']); add('Technik und Spaß', ['radio']); add('Musik und Küche', ['vinyl']); add('Kleinkram', ['snowglobe', 'windchime', 'piggy']); add('Pflanzen', ['cactusrow', 'monstera']); add('Möbel', ['homebar', 'massage']); add('Licht und Stimmung', ['arclamp', 'neonleaf']); add('Technik und Spaß', ['aquarium', 'bigtv']); add('Kleinkram', ['gumball', 'hamster', 'goldbars']); add('Freizeit', ['koipond', 'skatewall']); } // v87: neue Deko in die passenden Kategorien
   { const add = (cat, ids) => DCAT.find(c => c[0] === cat)[1].push(...ids); add('Licht und Stimmung', ['firefly', 'plasma', 'jellytank']); add('Möbel', ['rocker']); add('Kleinkram', ['mobile', 'newton', 'cuckoo']); add('Technik und Spaß', ['robovac', 'trainset']); add('Freizeit', ['fountain', 'bubbles', 'carousel']); } // v130
   DCAT.push(['😎 Chill-Zone', ['slotmachine', 'slotneon', 'lounge', 'firepit', 'console', 'djbooth', 'neonsign', 'pokertable', 'tagwall', 'sneakerwall', 'hoops', 'moneycount', 'speakerwall', 'cooler']]); // v132
+  DCAT.push(['🌃 Cyberpunk', DEC_CYBER]); // v193
   DCAT.push(['🏆 Exklusiv', ['masterpiece', 'citykey', 'prtrophy']]);
   let dshopCat = 0; // v106: gewaehlte Kategorie im Deko-Laden
   function renderDShop(b) {

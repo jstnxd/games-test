@@ -68,6 +68,7 @@
       { const ddx = mx * k * sp * dt, ddy = my * k * sp * dt, n = Math.max(1, Math.ceil(Math.hypot(ddx, ddy) / 7)); for (let q = 0; q < n; q++) move(player, ddx / n, ddy / n, player.r); } // v66: Autos sind schnell
       player.ang = Math.atan2(my, mx); player.step += dt * 9;
     }
+    if (!inCar() && !(ml > 0.12)) { const st0 = Math.round(player.step / Math.PI) * Math.PI; player.step += (st0 - player.step) * Math.min(1, dt * 12); } // v193: beim Stehenbleiben sauber in die Grundhaltung
     if (player.fl && !(player.x > IN.x0 && player.x < IN.x1 && player.y > IN.y0 && player.y < IN.y1)) player.fl = 0;
     if (mp.kb.t > 0) { const kt = Math.min(dt, mp.kb.t); move(player, mp.kb.x * kt, mp.kb.y * kt, player.r); mp.kb.t -= dt; }
     fxUpdate(dt, inCar() ? 0 : Math.hypot(player.x - ox, player.y - oy));

@@ -188,6 +188,13 @@
 
   // ---------- v101: Changelog („Was ist neu?“). Bei jedem Update aktuell halten: nur die letzten drei Versionen stehen hier. ----------
   const CHANGELOG = [
+    { v: 193, date: 'November 2026', title: 'Cyberpunk komplett', items: [
+      ['neu', '🌃', 'Cyberpunk-Set erweitert: LED-Cap, Cyber-Atemmaske, Daten-Halo, LED-Weste, Synth-Mantel, Tech-Cargo, Neon-Rock, Schwebeschuhe, Neonflügel, Neon-Katana'],
+      ['neu', '🤖', 'Neue Kostüme Netrunner und Androide, Auren Leiterbahnen und Neonregen, Holo-Bildschirme und Holo-Würfel, Leiterbahn-Spur'],
+      ['neu', '🐾', 'Neue Begleiter: Robo-Katze und Holo-Koi'],
+      ['neu', '🛋️', 'Cyberpunk-Deko (eigene Kategorie im Deko-Laden): Holo-Tisch, Neon-Schild, Server-Schrank, Hacker-Station, Arcade-Automat, Neonröhre, Holo-Pflanze, Cyber-Automat, Neon-Teppich, Neon-Motorrad, Kryo-Kapsel, Holo-Werbetafel'],
+      ['chg', '🚶', 'Deine Figur läuft jetzt mit schwingenden Beinen und Armen und steht beim Anhalten sauber still'],
+      ['fix', '✨', 'Effekte werden in der Laden-Vorschau wieder angezeigt, auch mit Sparmodus oder Weniger Effekte'] ] },
     { v: 192, date: 'November 2026', title: 'Cyberpunk-Look', items: [
       ['neu', '🌃', 'Cyberpunk-Set: Neon-Visier, Neon-Irokese, Techwear- und Holo-Jacke, Cyber-Hose, Cyber-Stiefel, Holo-Umhang, Cyber-Rucksack und das Cyborg-Kostüm'],
       ['neu', '✨', 'Neue Effekte: Glitch- und Neon-Gitter-Aura, Datenstrom und Mini-Drohnen als Kreisel, Glitch-, Neon- und Laubspur'],
@@ -198,12 +205,6 @@
       ['fix', '💧', 'Beim Gießen blieb das Fenster manchmal stehen und man musste es schließen. Das lag an einem Fehler, wenn Tropfen auf der Erde landeten. Behoben'],
       ['fix', '🛟', 'Sollte im Arbeitsfenster doch einmal etwas schiefgehen, läuft es weiter, und der Fehler landet im Protokoll'],
       ['neu', '🧾', 'Die Feierabend-Karte zeigt jetzt die Tageskosten, die um Mitternacht abgebucht werden (Löhne, Unterhalt, Steuern)'] ] },
-    { v: 190, date: 'November 2026', title: 'Feinschliff', items: [
-      ['fix', '🔥', 'Die Combo-Anzeige ist nicht mehr abgeschnitten, und bei schnellen Tipps steht nur noch die aktuelle Zahl da'],
-      ['neu', '📖', 'Neue Einführung mit allem, was dazugekommen ist: selbst pflanzen, Qualität und Sorten, Packen, Zusammenspielen und Kamera'],
-      ['neu', '📚', 'Spielanleitung zum Nachlesen unter Einstellungen → Anleitung'],
-      ['neu', '🎵', 'Musik je Viertel lässt sich unter Einstellungen → Ton ausschalten'],
-      ['fix', '💾', 'Auch Spielstände aus sehr alten Versionen werden vor dem Update gesichert'] ] },
   ].slice(0, 3);
   const CL_KEY = 'kellergruen.clseen';
   const CL_TAG = { neu: ['Neu', '#5FE584'], new: ['Neu', '#5FE584'], fix: ['Behoben', '#6EB5FF'], chg: ['Geändert', '#FFB547'], info: ['Gut zu wissen', '#C58BE6'] };

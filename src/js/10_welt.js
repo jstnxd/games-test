@@ -723,7 +723,21 @@
     { id: 'cyberpack', slot: 'back', name: 'Cyber-Rucksack', cost: 2600, rep: 18, desc: 'Mit Antenne und Leuchtstreifen' },
     { id: 'wbutterfly', slot: 'back', name: 'Schmetterlingsflügel', cost: 4000, rep: 21, desc: 'Orange Flügel mit dunklem Rand' },
     { id: 'glitch', slot: 'aura', name: 'Glitch', cost: 8500, rep: 38, desc: 'Bildstörungen in Cyan und Magenta flackern um dich' },
-    { id: 'neongrid', slot: 'aura', name: 'Neon-Gitter', cost: 10500, rep: 44, desc: 'Ein leuchtendes Gitter unter dir, ein Lichtring steigt auf' }
+    { id: 'neongrid', slot: 'aura', name: 'Neon-Gitter', cost: 10500, rep: 44, desc: 'Ein leuchtendes Gitter unter dir, ein Lichtring steigt auf' },
+    { id: 'neoncap', slot: 'hat', name: 'LED-Cap', cost: 1800, rep: 14, desc: 'Schwarze Cap, der Schirm leuchtet als Lauflicht' }, // v193: Cyberpunk-Set, Teil 2
+    { id: 'cybermask', slot: 'hat', name: 'Cyber-Atemmaske', cost: 2900, rep: 22, desc: 'Metallmaske mit Filtern, die Schlitze glühen' },
+    { id: 'cyberhalo', slot: 'hat', name: 'Daten-Halo', cost: 5200, rep: 33, desc: 'Ein Holo-Ring mit laufenden Zeichen schwebt über dir' },
+    { id: 'neonvest', slot: 'top', name: 'LED-Weste', cost: 2400, rep: 18, desc: 'Weste mit Lichtpanel, auf dem ein Equalizer tanzt' },
+    { id: 'synthcoat', slot: 'top', name: 'Synth-Mantel', cost: 5600, rep: 34, desc: 'Langer dunkler Mantel mit leuchtender Magenta-Kante' },
+    { id: 'techcargo', slot: 'bot', name: 'Tech-Cargo', cost: 1900, rep: 15, desc: 'Graue Cargohose mit leuchtenden Taschen' },
+    { id: 'neonskirt', slot: 'bot', name: 'Neon-Rock', cost: 2100, rep: 16, desc: 'Schwarzer Faltenrock mit Leuchtsaum' },
+    { id: 'hoversneaker', slot: 'shoe', name: 'Schwebeschuhe', cost: 6200, rep: 36, desc: 'Weiße Sneaker, unter denen ein blaues Feld summt' },
+    { id: 'netrunner', slot: 'cos', name: 'Netrunner', cost: 6900, rep: 37, desc: 'Kapuze, Datenbrille und leuchtende Kabel' },
+    { id: 'android', slot: 'cos', name: 'Androide', cost: 9800, rep: 46, desc: 'Weiß glänzende Hülle mit blauen Fugen und Leuchtaugen' },
+    { id: 'wneon', slot: 'back', name: 'Neonflügel', cost: 11000, rep: 47, desc: 'Flügel aus leuchtenden Lichtlinien, die die Farbe wechseln' },
+    { id: 'katananeon', slot: 'back', name: 'Neon-Katana', cost: 5400, rep: 31, desc: 'Schwarze Scheide, die Klinge glüht magenta' },
+    { id: 'circuit', slot: 'aura', name: 'Leiterbahnen', cost: 7200, rep: 35, desc: 'Leuchtende Platinenbahnen am Boden, Lichtpunkte flitzen darüber' },
+    { id: 'neonrain', slot: 'aura', name: 'Neonregen', cost: 9200, rep: 41, desc: 'Regen in Pink und Cyan, Tropfen spritzen am Boden' }
   );
   const PRES_ITEM = [null, 'pr1', 'capestar', 'crownp', 'pr4', 'wstar', 'pr6', 'capeprism', 'crownstar', 'wcosmos', 'pr10'];
   const WEAR_BY = Object.fromEntries(WEAR.map(w => [w.id, w]));
